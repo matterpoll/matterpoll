@@ -1,0 +1,102 @@
+
+logs
+.DS_Store
+node_modules
+/dist
+/webapp/dist
+jobserver
+npm-debug.log
+webapp/yarn-error.log
+mattermost.mattermost-license
+config/mattermost.mattermost-license
+config/config.json
+
+web/static/js/bundle*.js
+web/static/js/bundle*.js.map
+web/static/js/libs*.js
+
+config/active.dat
+config/config.json
+/plugins
+
+# Enteprise imports file
+imports/imports.go
+
+# Build Targets
+.prebuild
+.npminstall
+.yarninstall
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Folders
+_obj
+_test
+.vscode
+
+# Architecture specific extensions/prefixes
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+*.test
+*.prof
+
+# Log files
+*mattermost.log
+*mattermost.log.jsonl
+*npm-debug.log*
+
+.tmp
+
+# Vim temporary files
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+# Gogland project files
+mattermost-server.iml
+
+# Build files
+*bundle.js
+
+web/sass-files/sass/.sass-cache/
+*config.codekit
+*.sass-cache
+*styles.css
+
+# Default local file storage
+data/*
+webapp/data/*
+api/data/*
+api4/data/*
+app/data/*
+
+enterprise
+
+cover.out
+ecover.out
+cprofile.out
+*.test
+webapp/coverage
+
+.agignore
+.ctags
+tags
+.idea
+
+debug
+client
