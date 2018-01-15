@@ -8,7 +8,7 @@ install:
 
 script:
 - task lint
-- task coverage
+- task test-coverage
 - task build
 
 after_success:

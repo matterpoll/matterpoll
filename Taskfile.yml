@@ -14,7 +14,7 @@ update-deps:
     - dep prune
 
 lint:
-  desc: Runs golint
+  desc: Runs linter
   cmds:
     - go fmt ./...
     - go vet ./...
@@ -25,7 +25,7 @@ test:
   cmds:
     - go test -race ./...
 
-coverage:
+test-coverage:
   desc: Runs go tests and calucates test coverage
   cmds:
     - go test -race -coverprofile=coverage.out -covermode=atomic ./...
