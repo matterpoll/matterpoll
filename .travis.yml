@@ -9,7 +9,6 @@ install:
 script:
 - task lint
 - task test-coverage
-- task build
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

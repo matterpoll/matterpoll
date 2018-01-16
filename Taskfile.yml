@@ -30,13 +30,15 @@ test-coverage:
   cmds:
     - go test -race -coverprofile=coverage.out -covermode=atomic ./...
 
-build:
-  desc: Builds binary
-  cmds:
-    - go build -o dist/plugin plugin.go
-
 dist:
-  desc: Packs plugin
-  deps: [build]
+  desc: Builds binary and packs plugin
   cmds:
-    - tar -czf dist/matterpoll.tar.gz plugin.yaml -C dist/ plugin
+    - go build -o plugin
+    - mkdir dist/
+    - tar -czf dist/matterpoll.tar.gz plugin.yaml plugin
+    - rm plugin
+
+clean:
+  desc: Cleanes up
+  cmds:
+    - rm -r dist/
