@@ -16,7 +16,7 @@ func (p *MatterpollPlugin) OnActivate(api plugin.API) error {
 		Trigger:          `matterpoll`,
 		AutoComplete:     true,
 		AutoCompleteDesc: `Create a poll`,
-		AutoCompleteHint: `[Question] [Option1] [Option2]...`,
+		AutoCompleteHint: `[Question] [Answer 1] [Answer 2]...`,
 	})
 }
 

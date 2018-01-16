@@ -5,21 +5,21 @@ import (
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
-	keks "github.com/matterpoll/matterpoll"
+	main "github.com/matterpoll/matterpoll"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestParseInput(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal([]string{"A", "B", "C"}, keks.ParseInput(`/matterpoll "A" "B" "C"`))
-	assert.Equal([]string{"A", "B", "C"}, keks.ParseInput(`/matterpoll  "A" "B" "C"`))
-	assert.Equal([]string{}, keks.ParseInput("/matterpoll "))
+	assert.Equal([]string{"A", "B", "C"}, main.ParseInput(`/matterpoll "A" "B" "C"`))
+	assert.Equal([]string{"A", "B", "C"}, main.ParseInput(`/matterpoll  "A" "B" "C"`))
+	assert.Equal([]string{}, main.ParseInput("/matterpoll "))
 }
 
 func TestPluginExecuteCommand(t *testing.T) {
 	assert := assert.New(t)
-	p := &keks.MatterpollPlugin{}
+	p := &main.MatterpollPlugin{}
 
 	r, err := p.ExecuteCommand(&model.CommandArgs{
 		Command: `/matterpoll "Question" "Answer 1" "Answer 2"`,
@@ -38,7 +38,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 
 func TestPluginExecuteCommandHelp(t *testing.T) {
 	assert := assert.New(t)
-	p := &keks.MatterpollPlugin{}
+	p := &main.MatterpollPlugin{}
 
 	r, err := p.ExecuteCommand(&model.CommandArgs{
 		Command: `/matterpoll`,
@@ -59,10 +59,10 @@ func TestPluginOnActivate(t *testing.T) {
 		Trigger:          `matterpoll`,
 		AutoComplete:     true,
 		AutoCompleteDesc: `Create a poll`,
-		AutoCompleteHint: `[Question] [Option1] [Option2]...`,
+		AutoCompleteHint: `[Question] [Answer 1] [Answer 2]...`,
 	}).Return(nil)
 	//defer api.AssertExpectations(t)
 
-	p := &keks.MatterpollPlugin{}
+	p := &main.MatterpollPlugin{}
 	p.OnActivate(api)
 }
