@@ -1,0 +1,44 @@
+default:
+  deps: [test]
+
+dl-deps:
+  desc: Downloads cli dependencies
+  cmds:
+    - go get -u github.com/golang/dep/cmd/dep
+
+update-deps:
+  desc: Updates dependencies
+  cmds:
+    - dep ensure
+    - dep ensure -update
+    - dep prune
+
+lint:
+  desc: Runs linter
+  cmds:
+    - go fmt ./...
+    - go vet ./...
+  silent: true
+
+test:
+  desc: Runs go tests
+  cmds:
+    - go test -race ./...
+
+test-coverage:
+  desc: Runs go tests and calucates test coverage
+  cmds:
+    - go test -race -coverprofile=coverage.out -covermode=atomic ./...
+
+dist:
+  desc: Builds binary and packs plugin
+  cmds:
+    - go build -o plugin
+    - mkdir dist/
+    - tar -czf dist/matterpoll.tar.gz plugin.yaml plugin
+    - rm plugin
+
+clean:
+  desc: Cleanes up
+  cmds:
+    - rm -r dist/
