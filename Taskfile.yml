@@ -34,7 +34,8 @@ dist:
   desc: Builds binary and packs plugin
   cmds:
     - go build -o plugin
-    - mkdir dist/
+    - cmd: mkdir -p dist/
+      silent: true
     - tar -czf dist/matterpoll.tar.gz plugin.yaml plugin
     - rm plugin
 
