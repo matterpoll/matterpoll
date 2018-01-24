@@ -44,7 +44,7 @@ func TestPluginExecuteCommandHelp(t *testing.T) {
 	})
 
 	assert.Nil(t, err)
-	isHelpResponce(t, r)
+	assertHelpResponse(t, r)
 }
 
 func TestPluginExecuteOneArgument(t *testing.T) {
@@ -54,20 +54,10 @@ func TestPluginExecuteOneArgument(t *testing.T) {
 		Command: `/matterpoll "abcd"`,
 	})
 	assert.Nil(t, err)
-	isHelpResponce(t, r)
+	assertHelpResponse(t, r)
 }
 
-func TestPluginExecuteTwoArguments(t *testing.T) {
-	p := &main.MatterpollPlugin{}
-
-	r, err := p.ExecuteCommand(&model.CommandArgs{
-		Command: `/matterpoll "abcd" "abcd"`,
-	})
-	assert.Nil(t, err)
-	isHelpResponce(t, r)
-}
-
-func isHelpResponce(t *testing.T, r *model.CommandResponse) {
+func assertHelpResponse(t *testing.T, r *model.CommandResponse) {
 	assert := assert.New(t)
 
 	assert.NotNil(r)

@@ -24,7 +24,7 @@ func (p *MatterpollPlugin) OnActivate(api plugin.API) error {
 
 func (p *MatterpollPlugin) ExecuteCommand(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	input := ParseInput(args.Command)
-	if len(input) < 3 {
+	if len(input) < 2 {
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Username:     `Matterpoll`,
