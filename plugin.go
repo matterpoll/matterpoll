@@ -8,11 +8,13 @@ import (
 	"github.com/mattermost/mattermost-server/plugin/rpcplugin"
 )
 
-type MatterpollPlugin struct{}
+type MatterpollPlugin struct {
+	api plugin.API
+}
 
 func (p *MatterpollPlugin) OnActivate(api plugin.API) error {
-	return api.RegisterCommand(&model.Command{
-		DisplayName:      `Matterpoll`,
+	p.api = api
+	return p.api.RegisterCommand(&model.Command{
 		Trigger:          `matterpoll`,
 		AutoComplete:     true,
 		AutoCompleteDesc: `Create a poll`,
@@ -22,11 +24,11 @@ func (p *MatterpollPlugin) OnActivate(api plugin.API) error {
 
 func (p *MatterpollPlugin) ExecuteCommand(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	input := ParseInput(args.Command)
-	if len(input) == 0 {
+	if len(input) < 2 {
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Username:     `Matterpoll`,
-			Text:         `We need input. Try /matterpoll "Question" "Answer 1" "Answer 2"`,
+			Text:         `We need input. Try ` + "`" + `/matterpoll "Question" "Answer 1" "Answer 2"` + "`",
 		}, nil
 	}
 	attachList := []*model.PostAction{}
@@ -38,7 +40,7 @@ func (p *MatterpollPlugin) ExecuteCommand(args *model.CommandArgs) (*model.Comma
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 		Username:     `Matterpoll`,
-		Attachments: []*model.SlackAttachment{&model.SlackAttachment{
+		Attachments: []*model.SlackAttachment{{
 			AuthorName: `Matterpoll`,
 			Text:       input[0],
 			Actions:    attachList,

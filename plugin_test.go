@@ -29,39 +29,53 @@ func TestPluginExecuteCommand(t *testing.T) {
 	assert.NotNil(r)
 	assert.Equal(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, r.ResponseType)
 	assert.Equal(`Matterpoll`, r.Username)
-	assert.Equal([]*model.SlackAttachment{&model.SlackAttachment{
+	assert.Equal([]*model.SlackAttachment{{
 		AuthorName: `Matterpoll`,
 		Text:       `Question`,
-		Actions:    []*model.PostAction{&model.PostAction{Name: `Answer 1`}, &model.PostAction{Name: `Answer 2`}},
+		Actions:    []*model.PostAction{{Name: `Answer 1`}, {Name: `Answer 2`}},
 	}}, r.Attachments)
 }
 
 func TestPluginExecuteCommandHelp(t *testing.T) {
-	assert := assert.New(t)
 	p := &main.MatterpollPlugin{}
 
 	r, err := p.ExecuteCommand(&model.CommandArgs{
 		Command: `/matterpoll`,
 	})
 
-	assert.Nil(err)
+	assert.Nil(t, err)
+	assertHelpResponse(t, r)
+}
+
+func TestPluginExecuteOneArgument(t *testing.T) {
+	p := &main.MatterpollPlugin{}
+
+	r, err := p.ExecuteCommand(&model.CommandArgs{
+		Command: `/matterpoll "abcd"`,
+	})
+	assert.Nil(t, err)
+	assertHelpResponse(t, r)
+}
+
+func assertHelpResponse(t *testing.T, r *model.CommandResponse) {
+	assert := assert.New(t)
+
 	assert.NotNil(r)
 	assert.Equal(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, r.ResponseType)
 	assert.Equal(`Matterpoll`, r.Username)
-	assert.Equal(`We need input. Try /matterpoll "Question" "Answer 1" "Answer 2"`, r.Text)
+	assert.Equal(`We need input. Try `+"`"+`/matterpoll "Question" "Answer 1" "Answer 2"`+"`", r.Text)
 	assert.Nil(r.Attachments)
 }
 
 func TestPluginOnActivate(t *testing.T) {
 	api := &plugintest.API{}
 	api.On("RegisterCommand", &model.Command{
-		DisplayName:      `Matterpoll`,
 		Trigger:          `matterpoll`,
 		AutoComplete:     true,
 		AutoCompleteDesc: `Create a poll`,
 		AutoCompleteHint: `[Question] [Answer 1] [Answer 2]...`,
 	}).Return(nil)
-	//defer api.AssertExpectations(t)
+	defer api.AssertExpectations(t)
 
 	p := &main.MatterpollPlugin{}
 	p.OnActivate(api)
