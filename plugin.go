@@ -40,7 +40,7 @@ func (p *MatterpollPlugin) ExecuteCommand(args *model.CommandArgs) (*model.Comma
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 		Username:     `Matterpoll`,
-		Attachments: []*model.SlackAttachment{&model.SlackAttachment{
+		Attachments: []*model.SlackAttachment{{
 			AuthorName: `Matterpoll`,
 			Text:       input[0],
 			Actions:    attachList,

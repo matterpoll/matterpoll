@@ -29,10 +29,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 	assert.NotNil(r)
 	assert.Equal(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, r.ResponseType)
 	assert.Equal(`Matterpoll`, r.Username)
-	assert.Equal([]*model.SlackAttachment{&model.SlackAttachment{
+	assert.Equal([]*model.SlackAttachment{{
 		AuthorName: `Matterpoll`,
 		Text:       `Question`,
-		Actions:    []*model.PostAction{&model.PostAction{Name: `Answer 1`}, &model.PostAction{Name: `Answer 2`}},
+		Actions:    []*model.PostAction{{Name: `Answer 1`}, {Name: `Answer 2`}},
 	}}, r.Attachments)
 }
 
