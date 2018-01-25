@@ -11,7 +11,6 @@ update-deps:
   cmds:
     - dep ensure
     - dep ensure -update
-    - dep prune
 
 lint:
   desc: Runs linter
