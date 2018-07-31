@@ -10,3 +10,7 @@
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "~1.2"
+
+[[constraint]]
+  name = "github.com/rs/xid"
+  version = "1.2.0"

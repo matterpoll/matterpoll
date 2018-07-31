@@ -130,6 +130,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:8571a82ac4d086ea4af739f89e053c5739bade0eada735bd2b7009af658c2e2a"
+  name = "github.com/rs/xid"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "2c7e97ce663ff82c49656bca3048df0fdd83c5f9"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:60a46e2410edbf02b419f833372dd1d24d7aa1b916a990a7370e792fada1eadd"
   name = "github.com/stretchr/objx"
   packages = ["."]
@@ -205,6 +213,17 @@
   ]
   pruneopts = "NUT"
   revision = "a0f8a16cb08c06df97cbdf9c47f4731ba548c33c"
+
+[[projects]]
+  branch = "master"
+  digest = "1:43a352083eca9cd2a8e74419460d5767885501265cfca9c7204cc085aead1361"
+  name = "golang.org/x/sys"
+  packages = [
+    "unix",
+    "windows",
+  ]
+  pruneopts = "NUT"
+  revision = "bd9dbc187b6e1dacfdd2722a87e83093c2d7bd6e"
 
 [[projects]]
   digest = "1:e7071ed636b5422cc51c0e3a6cebc229d6c9fffc528814b519a980641422d619"
@@ -296,7 +315,9 @@
     "github.com/mattermost/mattermost-server/model",
     "github.com/mattermost/mattermost-server/plugin",
     "github.com/mattermost/mattermost-server/plugin/plugintest",
+    "github.com/rs/xid",
     "github.com/stretchr/testify/assert",
+    "github.com/stretchr/testify/mock",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

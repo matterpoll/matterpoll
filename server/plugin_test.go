@@ -1,28 +1,48 @@
-package main_test
+package main
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
-	main "github.com/matterpoll/matterpoll/server"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
+
+type MockPollIDGenerator struct {
+	mock.Mock
+}
+
+func (m *MockPollIDGenerator) String() string {
+	return `1234567890abcdefghij`
+}
 
 func TestParseInput(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal([]string{"A", "B", "C"}, main.ParseInput(`/matterpoll "A" "B" "C"`))
-	assert.Equal([]string{"A", "B", "C"}, main.ParseInput(`/matterpoll  "A" "B" "C"`))
-	assert.Equal([]string{}, main.ParseInput("/matterpoll "))
+	assert.Equal([]string{"A", "B", "C"}, ParseInput(`/matterpoll "A" "B" "C"`))
+	assert.Equal([]string{"A", "B", "C"}, ParseInput(`/matterpoll  "A" "B" "C"`))
+	assert.Equal([]string{}, ParseInput("/matterpoll "))
 }
 
 func TestPluginExecuteCommand(t *testing.T) {
 	assert := assert.New(t)
-	p := &main.MatterpollPlugin{}
+
+	siteURL := `https://example.org/`
+
+	idGen := new(MockPollIDGenerator)
+	api := &plugintest.API{}
+	p := &MatterpollPlugin{
+		idGen: idGen,
+	}
+	p.SetAPI(api)
 
 	r, err := p.ExecuteCommand(nil, &model.CommandArgs{
 		Command: `/matterpoll "Question" "Answer 1" "Answer 2"`,
+		SiteURL: siteURL,
 	})
 
 	assert.Nil(err)
@@ -32,12 +52,20 @@ func TestPluginExecuteCommand(t *testing.T) {
 	assert.Equal([]*model.SlackAttachment{{
 		AuthorName: `Matterpoll`,
 		Text:       `Question`,
-		Actions:    []*model.PostAction{{Name: `Answer 1`}, {Name: `Answer 2`}},
+		Actions: []*model.PostAction{
+			{Name: `Answer 1`},
+			{Name: `Answer 2`},
+			{Name: `End Poll`, Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf(`%s/plugins/%s/polls/%s/end`, siteURL, PluginId, p.idGen.String()),
+			}},
+		},
 	}}, r.Attachments)
 }
 
 func TestPluginExecuteCommandHelp(t *testing.T) {
-	p := &main.MatterpollPlugin{}
+	api := &plugintest.API{}
+	p := &MatterpollPlugin{}
+	p.SetAPI(api)
 
 	r, err := p.ExecuteCommand(nil, &model.CommandArgs{
 		Command: `/matterpoll`,
@@ -48,7 +76,9 @@ func TestPluginExecuteCommandHelp(t *testing.T) {
 }
 
 func TestPluginExecuteOneArgument(t *testing.T) {
-	p := &main.MatterpollPlugin{}
+	api := &plugintest.API{}
+	p := &MatterpollPlugin{}
+	p.SetAPI(api)
 
 	r, err := p.ExecuteCommand(nil, &model.CommandArgs{
 		Command: `/matterpoll "abcd"`,
@@ -69,6 +99,8 @@ func assertHelpResponse(t *testing.T, r *model.CommandResponse) {
 
 func TestPluginOnActivate(t *testing.T) {
 	api := &plugintest.API{}
+	p := &MatterpollPlugin{}
+	p.SetAPI(api)
 	api.On("RegisterCommand", &model.Command{
 		Trigger:          `matterpoll`,
 		AutoComplete:     true,
@@ -77,8 +109,39 @@ func TestPluginOnActivate(t *testing.T) {
 	}).Return(nil)
 	defer api.AssertExpectations(t)
 
-	p := &main.MatterpollPlugin{}
-	p.SetAPI(api)
 	err := p.OnActivate()
 	assert.Nil(t, err)
+}
+
+func TestServeHTTP(t *testing.T) {
+	for name, test := range map[string]struct {
+		RequestURL         string
+		ExpectedStatusCode int
+		ExpectedHeader     http.Header
+	}{
+		"InvalidRequestURL": {
+			RequestURL:         "/not_found",
+			ExpectedStatusCode: http.StatusNotFound,
+			ExpectedHeader:     http.Header{},
+		},
+		"ValidEndPollRequest": {
+			RequestURL:         "/polls/1234567890abcdefghij/end",
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedHeader: map[string][]string{
+				"Content-Type": []string{"application/json"},
+			},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			api := &plugintest.API{}
+			p := MatterpollPlugin{}
+			p.SetAPI(api)
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("POST", test.RequestURL, nil)
+			p.ServeHTTP(nil, w, r)
+			assert.Equal(t, test.ExpectedStatusCode, w.Result().StatusCode)
+			assert.Equal(t, test.ExpectedHeader, w.Result().Header)
+		})
+	}
 }
