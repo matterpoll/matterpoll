@@ -1,18 +1,13 @@
-sudo: false
 notifications:
   email: false
 
 language: go
 go:
-  - 1.9
-  - tip
-
-install:
-- go get github.com/go-task/task/cmd/task
+  - "1.10.x"
 
 script:
-- task lint
-- task test-coverage
+  - make lint
+  - make test
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
