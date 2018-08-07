@@ -1,20 +1,10 @@
-GO=go
-MANIFEST_FILE=plugin.json
+GO ?= $(shell command -v go 2> /dev/null)
+DEP ?= $(shell command -v dep 2> /dev/null)
+NPM ?= $(shell command -v npm 2> /dev/null)
+MANIFEST_FILE ?= plugin.json
 
-# Ensure that the build tools are compiled. Go's caching makes this quick.
-$(shell cd build/manifest && $(GO) build -o ../bin/manifest)
-
-# Extract the plugin id from the manifest.
-PLUGIN_ID=$(shell build/bin/manifest plugin_id)
-ifeq ($(PLUGIN_ID),)
-    $(error Cannot parse id from $(MANIFEST_FILE))
-endif
-
-# Determine if a server is defined in the manifest
-HAS_SERVER=$(shell build/bin/manifest has_server)
-
-# Determine if a webapp is defined in the manifest
-HAS_WEBAPP=$(shell build/bin/manifest has_webapp)
+# Verify environment, and define PLUGIN_ID, HAS_SERVER and HAS_WEBAPP as needed.
+include build/setup.mk
 
 # all, the default target, tests, builds and bundles the plugin.
 all: test dist
@@ -37,7 +27,7 @@ endif
 # webapp/.npminstall ensures NPM dependencies are installed without having to run this all the time
 webapp/.npminstall:
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && npm install
+	cd webapp && $(NPM) install
 	touch $@
 endif
 
@@ -45,7 +35,7 @@ endif
 .PHONY: webapp
 webapp: webapp/.npminstall
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && npm run build;
+	cd webapp && $(NPM) run build;
 endif
 
 # bundle generates a tar bundle of the plugin for install
@@ -76,7 +66,7 @@ dist: apply \
 # deploy installs the plugin to a (development) server, using the API if appropriate environment
 # variables are defined, or copying the files directly to a sibling mattermost-server directory
 .PHONY: deploy
-deploy:
+deploy: dist
 ifneq ($(and $(MM_SERVICESETTINGS_SITEURL),$(MM_ADMIN_USERNAME),$(MM_ADMIN_PASSWORD)),)
 	@echo "Installing plugin via API"
 	http --print b --check-status $(MM_SERVICESETTINGS_SITEURL)/api/v4/users/me || ( \
@@ -101,7 +91,7 @@ ifneq ($(HAS_SERVER),)
 	cd server && $(GO) test -v -coverprofile=coverage.txt ./...
 endif
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && npm run fix;
+	cd webapp && $(NPM) run fix;
 endif
 
 # clean removes all build artifacts
@@ -117,11 +107,3 @@ ifneq ($(HAS_WEBAPP),)
 	rm -fr webapp/node_modules
 endif
 	rm -fr build/bin/
-
-
-.PHONY: lint
-lint:
-ifneq ($(HAS_SERVER),)
-	cd server && go fmt ./...
-	cd server && go vet ./...
-endif
