@@ -25,6 +25,9 @@ type API interface {
 	// UnregisterCommand unregisters a command previously registered via RegisterCommand.
 	UnregisterCommand(teamId, trigger string) error
 
+	// GetSession returns the session object for the Session ID
+	GetSession(sessionId string) (*model.Session, *model.AppError)
+
 	// GetConfig fetches the currently persisted config
 	GetConfig() *model.Config
 
@@ -151,6 +154,13 @@ type API interface {
 
 	// UpdatePost updates a post.
 	UpdatePost(post *model.Post) (*model.Post, *model.AppError)
+
+	// CopyFileInfos creates a copy of FileInfo objects provided in the list of FileIds
+	// these new FileInfo objects will not be linked to any post and will
+	// be ready to provide to a new CreatePost call
+	// this should be used when you want to create a copy of a post including
+	// file attachments without duplicating the file uploads
+	CopyFileInfos(userId string, fileIds []string) ([]string, *model.AppError)
 
 	// KVSet will store a key-value pair, unique per plugin.
 	KVSet(key string, value []byte) *model.AppError

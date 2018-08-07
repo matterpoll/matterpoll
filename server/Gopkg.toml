@@ -1,11 +1,6 @@
-[prune]
-  non-go = true
-  go-tests = true
-  unused-packages = true
-
 [[constraint]]
   name = "github.com/mattermost/mattermost-server"
-  branch = "master"
+  version = "5.2.0-rc2"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
@@ -14,3 +9,8 @@
 [[constraint]]
   name = "github.com/rs/xid"
   version = "1.2.0"
+
+[prune]
+  non-go = true
+  go-tests = true
+  unused-packages = true

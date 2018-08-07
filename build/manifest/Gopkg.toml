@@ -1,6 +1,6 @@
 [[constraint]]
   name = "github.com/mattermost/mattermost-server"
-  branch = "master"
+  version = "5.2.0-rc2"
 
 [[constraint]]
   name = "github.com/pkg/errors"
