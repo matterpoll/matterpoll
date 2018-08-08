@@ -48,7 +48,9 @@ func TestPluginExecuteCommand(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(r)
 	assert.Equal(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, r.ResponseType)
-	assert.Equal(`Matterpoll`, r.Username)
+	assert.Equal(model.POST_DEFAULT, r.Type)
+	assert.Equal(RESPONSE_USERNAME, r.Username)
+	assert.Equal(RESPONSE_ICON_URL, r.IconURL)
 	assert.Equal([]*model.SlackAttachment{{
 		AuthorName: `Matterpoll`,
 		Text:       `Question`,
@@ -103,6 +105,8 @@ func TestPluginOnActivate(t *testing.T) {
 	p.SetAPI(api)
 	api.On("RegisterCommand", &model.Command{
 		Trigger:          `matterpoll`,
+		DisplayName:      `Matterpoll`,
+		Description:      `Polling feature by https://github.com/matterpoll/matterpoll`,
 		AutoComplete:     true,
 		AutoCompleteDesc: `Create a poll`,
 		AutoCompleteHint: `[Question] [Answer 1] [Answer 2]...`,
