@@ -247,14 +247,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:8571a82ac4d086ea4af739f89e053c5739bade0eada735bd2b7009af658c2e2a"
-  name = "github.com/rs/xid"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "2c7e97ce663ff82c49656bca3048df0fdd83c5f9"
-  version = "v1.2.0"
-
-[[projects]]
   digest = "1:b2339e83ce9b5c4f79405f949429a7f68a9a904fed903c672aac1e7ceb7f5f02"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -505,7 +497,6 @@
     "github.com/mattermost/mattermost-server/model",
     "github.com/mattermost/mattermost-server/plugin",
     "github.com/mattermost/mattermost-server/plugin/plugintest",
-    "github.com/rs/xid",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
   ]

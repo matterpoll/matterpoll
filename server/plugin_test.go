@@ -16,7 +16,7 @@ type MockPollIDGenerator struct {
 	mock.Mock
 }
 
-func (m *MockPollIDGenerator) String() string {
+func (m *MockPollIDGenerator) NewId() string {
 	return `1234567890abcdefghij`
 }
 
@@ -58,7 +58,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			{Name: `Answer 1`},
 			{Name: `Answer 2`},
 			{Name: `End Poll`, Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf(`%s/plugins/%s/polls/%s/end`, siteURL, PluginId, p.idGen.String()),
+				URL: fmt.Sprintf(`%s/plugins/%s/polls/%s/end`, siteURL, PluginId, p.idGen.NewId()),
 			}},
 		},
 	}}, r.Attachments)

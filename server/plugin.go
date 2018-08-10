@@ -9,7 +9,6 @@ import (
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
-	"github.com/rs/xid"
 )
 
 var (
@@ -23,15 +22,11 @@ const (
 
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
-	idGen PollIDGenerator
-}
-
-type PollIDGenerator interface {
-	String() string
+	idGen IDGenerator
 }
 
 func (p *MatterpollPlugin) OnActivate() error {
-	p.idGen = xid.New()
+	p.idGen = &PollIDGenerator{}
 	return p.API.RegisterCommand(getCommand())
 }
 
@@ -59,7 +54,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	actions = append(actions, &model.PostAction{
 		Name: `End Poll`,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf(`%s/plugins/%s/polls/%s/end`, args.SiteURL, PluginId, p.idGen.String()),
+			URL: fmt.Sprintf(`%s/plugins/%s/polls/%s/end`, args.SiteURL, PluginId, p.idGen.NewId()),
 		},
 	})
 
