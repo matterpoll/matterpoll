@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -16,8 +15,9 @@ var (
 )
 
 const (
-	RESPONSE_ICON_URL = `https://www.mattermost.org/wp-content/uploads/2016/04/icon.png`
-	RESPONSE_USERNAME = `Matterpoll`
+	RESPONSE_ICON_URL     = `https://www.mattermost.org/wp-content/uploads/2016/04/icon.png`
+	RESPONSE_USERNAME     = `Matterpoll`
+	COMMAND_GENERIC_ERROR = `Something went bad. Please try again later.`
 )
 
 type MatterpollPlugin struct {
@@ -41,51 +41,38 @@ func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r
 }
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	input := ParseInput(args.Command)
-	if len(input) < 2 {
+	q, o := ParseInput(args.Command)
+	if len(o) < 1 || q == "" {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, `We need input. Try `+"`"+`/matterpoll "Question" "Answer 1" "Answer 2"`+"`", nil), nil
 	}
-	actions := []*model.PostAction{}
-	for index := 1; index < len(input); index++ {
-		actions = append(actions, &model.PostAction{
-			Name: input[index],
-		})
+	poll := NewPoll(q, o)
+	pollID := p.idGen.NewId()
+	err := p.API.KVSet(pollID, poll.Encode())
+	if err != nil {
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, COMMAND_GENERIC_ERROR, nil), nil
 	}
-	actions = append(actions, &model.PostAction{
-		Name: `End Poll`,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf(`%s/plugins/%s/polls/%s/end`, args.SiteURL, PluginId, p.idGen.NewId()),
-		},
-	})
-
-	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, ``, []*model.SlackAttachment{{
-		AuthorName: `Matterpoll`,
-		Text:       input[0],
-		Actions:    actions,
-	},
-	}), nil
+	return poll.ToCommandResponse(args.SiteURL, pollID), nil
 }
 
-func ParseInput(input string) []string {
+func ParseInput(input string) (string, []string) {
 	o := strings.TrimRight(strings.TrimLeft(strings.TrimSpace(strings.TrimPrefix(input, "/matterpoll")), "\""), "\"")
 	if o == "" {
-		return []string{}
+		return "", []string{}
 	}
-	return strings.Split(o, "\" \"")
+	s := strings.Split(o, "\" \"")
+	return s[0], s[1:]
 }
 
 func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request) {
 	resp := &model.PostActionIntegrationResponse{
 		Update: &model.Post{
-			Message: fmt.Sprintf(`Poll is done.`),
+			Message: `Poll is done.`,
 		},
 	}
-	b, err := json.Marshal(resp)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, `Cannot encode end poll response: %v`, err)
-		return
-	}
+	id := endPollRoute.FindAllStringSubmatch(r.URL.Path, 1)[0][1]
+	p.API.KVDelete(id)
+	b, _ := json.Marshal(resp)
+
 	w.Header().Set(`Content-Type`, `application/json`)
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)

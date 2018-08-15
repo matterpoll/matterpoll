@@ -21,20 +21,51 @@ func (m *MockPollIDGenerator) NewId() string {
 }
 
 func TestParseInput(t *testing.T) {
-	assert := assert.New(t)
+	for name, test := range map[string]struct {
+		Input            string
+		ExpectedQuestion string
+		ExpectedOptions  []string
+	}{
+		"Normal test": {
+			Input:            `/matterpoll "A" "B" "C"`,
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+		},
+		"Trim whitespace": {
+			Input:            `/matterpoll   "A" "B" "C"`,
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+		},
+		"No options": {
+			Input:            `/matterpoll  `,
+			ExpectedQuestion: "",
+			ExpectedOptions:  []string{},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
 
-	assert.Equal([]string{"A", "B", "C"}, ParseInput(`/matterpoll "A" "B" "C"`))
-	assert.Equal([]string{"A", "B", "C"}, ParseInput(`/matterpoll  "A" "B" "C"`))
-	assert.Equal([]string{}, ParseInput("/matterpoll "))
+			q, o := ParseInput(test.Input)
+			assert.Equal(t, test.ExpectedQuestion, q)
+			assert.Equal(t, test.ExpectedOptions, o)
+		})
+	}
 }
 
 func TestPluginExecuteCommand(t *testing.T) {
 	assert := assert.New(t)
 
 	siteURL := `https://example.org/`
+	expectedPoll := Poll{Question: `Question`,
+		Options: []*Option{
+			{Answer: `Answer 1`},
+			{Answer: `Answer 2`},
+		},
+	}
 
 	idGen := new(MockPollIDGenerator)
 	api := &plugintest.API{}
+	api.On(`KVSet`, idGen.NewId(), expectedPoll.Encode()).Return(nil)
+	defer api.AssertExpectations(t)
 	p := &MatterpollPlugin{
 		idGen: idGen,
 	}
@@ -101,8 +132,6 @@ func assertHelpResponse(t *testing.T, r *model.CommandResponse) {
 
 func TestPluginOnActivate(t *testing.T) {
 	api := &plugintest.API{}
-	p := &MatterpollPlugin{}
-	p.SetAPI(api)
 	api.On("RegisterCommand", &model.Command{
 		Trigger:          `matterpoll`,
 		DisplayName:      `Matterpoll`,
@@ -112,6 +141,8 @@ func TestPluginOnActivate(t *testing.T) {
 		AutoCompleteHint: `[Question] [Answer 1] [Answer 2]...`,
 	}).Return(nil)
 	defer api.AssertExpectations(t)
+	p := &MatterpollPlugin{}
+	p.SetAPI(api)
 
 	err := p.OnActivate()
 	assert.Nil(t, err)
@@ -120,16 +151,19 @@ func TestPluginOnActivate(t *testing.T) {
 func TestServeHTTP(t *testing.T) {
 	for name, test := range map[string]struct {
 		RequestURL         string
+		KV                 bool
 		ExpectedStatusCode int
 		ExpectedHeader     http.Header
 	}{
 		"InvalidRequestURL": {
 			RequestURL:         "/not_found",
+			KV:                 false,
 			ExpectedStatusCode: http.StatusNotFound,
 			ExpectedHeader:     http.Header{},
 		},
 		"ValidEndPollRequest": {
-			RequestURL:         "/polls/1234567890abcdefghij/end",
+			RequestURL:         fmt.Sprintf("/polls/%s/end", new(MockPollIDGenerator).NewId()),
+			KV:                 true,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedHeader: map[string][]string{
 				"Content-Type": []string{"application/json"},
@@ -138,6 +172,10 @@ func TestServeHTTP(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			api := &plugintest.API{}
+			if test.KV {
+				api.On(`KVDelete`, new(MockPollIDGenerator).NewId()).Return(nil)
+				defer api.AssertExpectations(t)
+			}
 			p := MatterpollPlugin{}
 			p.SetAPI(api)
 
