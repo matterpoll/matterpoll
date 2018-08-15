@@ -16,7 +16,7 @@ type MockPollIDGenerator struct {
 	mock.Mock
 }
 
-func (m *MockPollIDGenerator) NewId() string {
+func (m *MockPollIDGenerator) NewID() string {
 	return `1234567890abcdefghij`
 }
 
@@ -64,7 +64,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 
 	idGen := new(MockPollIDGenerator)
 	api := &plugintest.API{}
-	api.On(`KVSet`, idGen.NewId(), expectedPoll.Encode()).Return(nil)
+	api.On(`KVSet`, idGen.NewID(), expectedPoll.Encode()).Return(nil)
 	defer api.AssertExpectations(t)
 	p := &MatterpollPlugin{
 		idGen: idGen,
@@ -80,8 +80,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 	assert.NotNil(r)
 	assert.Equal(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, r.ResponseType)
 	assert.Equal(model.POST_DEFAULT, r.Type)
-	assert.Equal(RESPONSE_USERNAME, r.Username)
-	assert.Equal(RESPONSE_ICON_URL, r.IconURL)
+	assert.Equal(responseUsername, r.Username)
+	assert.Equal(responseIconURL, r.IconURL)
 	assert.Equal([]*model.SlackAttachment{{
 		AuthorName: `Matterpoll`,
 		Text:       `Question`,
@@ -89,7 +89,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			{Name: `Answer 1`},
 			{Name: `Answer 2`},
 			{Name: `End Poll`, Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf(`%s/plugins/%s/polls/%s/end`, siteURL, PluginId, p.idGen.NewId()),
+				URL: fmt.Sprintf(`%s/plugins/%s/polls/%s/end`, siteURL, PluginId, p.idGen.NewID()),
 			}},
 		},
 	}}, r.Attachments)
@@ -162,7 +162,7 @@ func TestServeHTTP(t *testing.T) {
 			ExpectedHeader:     http.Header{},
 		},
 		"ValidEndPollRequest": {
-			RequestURL:         fmt.Sprintf("/polls/%s/end", new(MockPollIDGenerator).NewId()),
+			RequestURL:         fmt.Sprintf("/polls/%s/end", new(MockPollIDGenerator).NewID()),
 			KV:                 true,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedHeader: map[string][]string{
@@ -173,7 +173,7 @@ func TestServeHTTP(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			api := &plugintest.API{}
 			if test.KV {
-				api.On(`KVDelete`, new(MockPollIDGenerator).NewId()).Return(nil)
+				api.On(`KVDelete`, new(MockPollIDGenerator).NewID()).Return(nil)
 				defer api.AssertExpectations(t)
 			}
 			p := MatterpollPlugin{}

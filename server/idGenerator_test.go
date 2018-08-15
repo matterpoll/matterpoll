@@ -14,7 +14,7 @@ func TestPollIDGenerator(t *testing.T) {
 	ids := make([]string, 0)
 
 	for index := 0; index < numberOfRuns; index++ {
-		id := idGen.NewId()
+		id := idGen.NewID()
 		assert.Len(id, 26)
 		for i := range ids {
 			assert.NotEqual(i, id)

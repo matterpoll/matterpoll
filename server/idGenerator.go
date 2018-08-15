@@ -5,11 +5,11 @@ import (
 )
 
 type IDGenerator interface {
-	NewId() string
+	NewID() string
 }
 
 type PollIDGenerator struct{}
 
-func (keks *PollIDGenerator) NewId() string {
+func (keks *PollIDGenerator) NewID() string {
 	return model.NewId()
 }

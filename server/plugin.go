@@ -12,12 +12,13 @@ import (
 
 var (
 	endPollRoute = regexp.MustCompile(`/polls/([0-9a-z]+)/end`)
+	voteRoute    = regexp.MustCompile(`/polls/([0-9a-z]+)/vote`)
 )
 
 const (
-	RESPONSE_ICON_URL     = `https://www.mattermost.org/wp-content/uploads/2016/04/icon.png`
-	RESPONSE_USERNAME     = `Matterpoll`
-	COMMAND_GENERIC_ERROR = `Something went bad. Please try again later.`
+	responseIconURL     = `https://www.mattermost.org/wp-content/uploads/2016/04/icon.png`
+	responseUsername    = `Matterpoll`
+	commandGenericError = `Something went bad. Please try again later.`
 )
 
 type MatterpollPlugin struct {
@@ -46,10 +47,10 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, `We need input. Try `+"`"+`/matterpoll "Question" "Answer 1" "Answer 2"`+"`", nil), nil
 	}
 	poll := NewPoll(q, o)
-	pollID := p.idGen.NewId()
+	pollID := p.idGen.NewID()
 	err := p.API.KVSet(pollID, poll.Encode())
 	if err != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, COMMAND_GENERIC_ERROR, nil), nil
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), nil
 	}
 	return poll.ToCommandResponse(args.SiteURL, pollID), nil
 }
@@ -70,7 +71,8 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		},
 	}
 	id := endPollRoute.FindAllStringSubmatch(r.URL.Path, 1)[0][1]
-	p.API.KVDelete(id)
+	// TODO: Error handling
+	_ = p.API.KVDelete(id)
 	b, _ := json.Marshal(resp)
 
 	w.Header().Set(`Content-Type`, `application/json`)
@@ -82,8 +84,8 @@ func getCommandResponse(responseType, text string, attachments []*model.SlackAtt
 	return &model.CommandResponse{
 		ResponseType: responseType,
 		Text:         text,
-		Username:     RESPONSE_USERNAME,
-		IconURL:      RESPONSE_ICON_URL,
+		Username:     responseUsername,
+		IconURL:      responseIconURL,
 		Type:         model.POST_DEFAULT,
 		Attachments:  attachments,
 	}
