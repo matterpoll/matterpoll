@@ -27,13 +27,6 @@ ifneq ($(wildcard $(GOPATH)/bin/dep),)
 endif
 endif
 
-# Ensure that dep is installed.
-ifneq ($(HAS_SERVER),)
-ifeq ($(DEP),)
-    $(error "dep is not available: see https://golang.github.io/dep/docs/installation.html")
-endif
-endif
-
 # Ensure that npm (and thus node) is installed.
 ifneq ($(HAS_WEBAPP),)
 ifeq ($(NPM),)

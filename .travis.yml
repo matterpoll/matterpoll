@@ -6,7 +6,6 @@ go:
   - "1.10.x"
 
 script:
-  - make lint
   - make test
 
 after_success:
