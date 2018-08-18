@@ -8,12 +8,9 @@ import (
 )
 
 var (
-	endPollRoute = regexp.MustCompile("/polls/([0-9a-z]+)/end")
-	voteRoute    = regexp.MustCompile("/polls/([0-9a-z]+)/vote/([0-9]+)")
-)
-
-const (
-	endPollInvalidPermission = "Only the creator of a poll is allowed to end it"
+	voteRoute       = regexp.MustCompile("/polls/([0-9a-z]+)/vote/([0-9]+)")
+	endPollRoute    = regexp.MustCompile("/polls/([0-9a-z]+)/end")
+	deletePollRoute = regexp.MustCompile("/polls/([0-9a-z]+)/delete")
 )
 
 type MatterpollPlugin struct {
@@ -32,12 +29,13 @@ func (p *MatterpollPlugin) OnDeactivate() error {
 
 func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	switch {
-	case endPollRoute.MatchString(r.URL.Path):
-		p.handleEndPoll(w, r)
 	case voteRoute.MatchString(r.URL.Path):
 		p.handleVote(w, r)
+	case endPollRoute.MatchString(r.URL.Path):
+		p.handleEndPoll(w, r)
+	case deletePollRoute.MatchString(r.URL.Path):
+		p.handleDeletePoll(w, r)
 	default:
 		w.WriteHeader(http.StatusNotFound)
-		return
 	}
 }

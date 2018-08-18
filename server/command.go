@@ -6,11 +6,12 @@ import (
 )
 
 const (
-	responseIconURL     = "https://www.mattermost.org/wp-content/uploads/2016/04/icon.png"
-	responseUsername    = "Matterpoll"
+	trigger          = "matterpoll"
+	responseIconURL  = "https://github.com/matterpoll/matterpoll/raw/rewrite/assets/logo_dark.png"
+	responseUsername = "Matterpoll"
+
+	commandInputError   = "We need input. Try `/matterpoll \"Question\"` or `/matterpoll \"Question\" \"Answer 1\" \"Answer 2\"`"
 	commandGenericError = "Something went bad. Please try again later."
-	commandInputError   = "We need input. Try `/matterpoll \"Question\" \"Answer 1\" \"Answer 2\"`"
-	trigger             = "matterpoll"
 )
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
@@ -29,9 +30,12 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	}
 
 	err := p.API.KVSet(pollID, poll.Encode())
+	if err != nil {
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), err
+	}
 	user, err := p.API.GetUser(userID)
 	if err != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), nil
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), err
 	}
 	return poll.ToCommandResponse(args.SiteURL, user.GetFullName(), pollID), nil
 }

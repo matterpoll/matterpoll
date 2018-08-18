@@ -9,29 +9,92 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 )
 
+const (
+	endPollInvalidPermission = "Only the creator of a poll is allowed to end it."
+
+	deletePollInvalidPermission   = "Only the creator of a poll is allowed to delete it."
+	deletePollFeatureNotAvailable = "This feature is only available on Mattermost v5.3."
+	deletePollSuccess             = "Succefully deleted the poll."
+)
+
+func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	json.NewDecoder(r.Body).Decode(&request)
+	userID := request.UserId
+
+	matches := voteRoute.FindStringSubmatch(r.URL.Path)
+	pollID := matches[1]
+	optionNumber, _ := strconv.Atoi(matches[2])
+	response := &model.PostActionIntegrationResponse{}
+
+	b, appErr := p.API.KVGet(pollID)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+	poll := Decode(b)
+	if poll == nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+
+	hasVoted := poll.HasVoted(userID)
+	err := poll.UpdateVote(userID, optionNumber)
+	if err != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+	appErr = p.API.KVSet(pollID, poll.Encode())
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+
+	if hasVoted {
+		response.EphemeralText = "Your vote has been updated."
+	} else {
+		response.EphemeralText = "Your vote has been counted."
+	}
+	writePostActionIntegrationResponse(w, response)
+}
+
 func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request) {
 	var request model.PostActionIntegrationRequest
 	json.NewDecoder(r.Body).Decode(&request)
 	userID := request.UserId
 	pollID := endPollRoute.FindStringSubmatch(r.URL.Path)[1]
 
-	b, _ := p.API.KVGet(pollID)
+	response := &model.PostActionIntegrationResponse{}
+
+	b, appErr := p.API.KVGet(pollID)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
 	poll := Decode(b)
-
-	if userID != poll.Creator {
-		resp := &model.PostActionIntegrationResponse{
-			EphemeralText: endPollInvalidPermission,
-		}
-		bytes, _ := json.Marshal(resp)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(bytes)
+	if poll == nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
-	// TODO: Error handling
-	_ = p.API.KVDelete(pollID)
+	if userID != poll.Creator {
+		response.EphemeralText = endPollInvalidPermission
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+
+	appErr = p.API.KVDelete(pollID)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
 
 	message := "Poll is done.\n"
 	for _, o := range poll.Options {
@@ -39,8 +102,9 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		for i := 0; i < len(o.Voter); i++ {
 			user, err := p.API.GetUser(o.Voter[i])
 			if err != nil {
-				//// TODO: Better error handling
-				panic("Bad")
+				response.EphemeralText = commandGenericError
+				writePostActionIntegrationResponse(w, response)
+				return
 			}
 			if i+1 == len(o.Voter) && len(o.Voter) > 1 {
 				message += " and"
@@ -53,45 +117,67 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		message += "\n"
 	}
 
-	resp := &model.PostActionIntegrationResponse{
-		Update: &model.Post{
-			Message: message,
-		},
+	response.Update = &model.Post{
+		Message: message,
 	}
-	bytes, _ := json.Marshal(resp)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(bytes)
+	writePostActionIntegrationResponse(w, response)
 }
 
-func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Request) {
 	var request model.PostActionIntegrationRequest
 	json.NewDecoder(r.Body).Decode(&request)
 	userID := request.UserId
+	pollID := deletePollRoute.FindStringSubmatch(r.URL.Path)[1]
 
-	matches := voteRoute.FindStringSubmatch(r.URL.Path)
-	pollID := matches[1]
-	optionNumber, _ := strconv.Atoi(matches[2])
+	response := &model.PostActionIntegrationResponse{}
 
-	b, _ := p.API.KVGet(pollID)
+	b, appErr := p.API.KVGet(pollID)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
 	poll := Decode(b)
-
-	hasVoted := poll.HasVoted(userID)
-	_ = poll.UpdateVote(userID, optionNumber)
-	p.API.KVSet(pollID, poll.Encode())
-
-	var message string
-	if hasVoted {
-		message = "Your vote has been updated."
-	} else {
-		message = "Your vote has been counted."
+	if poll == nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
 	}
-	resp := &model.PostActionIntegrationResponse{
-		EphemeralText: message,
+
+	if userID != poll.Creator {
+		response.EphemeralText = deletePollInvalidPermission
+		writePostActionIntegrationResponse(w, response)
+		return
 	}
-	bytes, _ := json.Marshal(resp)
+
+	if request.PostId == "" {
+		response.EphemeralText = deletePollFeatureNotAvailable
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+
+	appErr = p.API.DeletePost(request.PostId)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+
+	appErr = p.API.KVDelete(pollID)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+	response.EphemeralText = deletePollSuccess
+
+	writePostActionIntegrationResponse(w, response)
+}
+
+func writePostActionIntegrationResponse(w http.ResponseWriter, response *model.PostActionIntegrationResponse) {
+	bytes, _ := json.Marshal(response)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(bytes)
+	_, _ = w.Write(bytes)
 }

@@ -39,6 +39,13 @@ func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.Comm
 	}
 
 	actions = append(actions, &model.PostAction{
+		Name: "Delete Poll",
+		Integration: &model.PostActionIntegration{
+			URL: fmt.Sprintf("%s/plugins/%s/polls/%s/delete", siteURL, PluginId, pollID),
+		},
+	})
+
+	actions = append(actions, &model.PostAction{
 		Name: "End Poll",
 		Integration: &model.PostActionIntegration{
 			URL: fmt.Sprintf("%s/plugins/%s/polls/%s/end", siteURL, PluginId, pollID),

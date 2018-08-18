@@ -9,82 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPluginExecuteCommandHelp(t *testing.T) {
-	api := &plugintest.API{}
-	p := &MatterpollPlugin{}
-	p.SetAPI(api)
-
-	r, err := p.ExecuteCommand(nil, &model.CommandArgs{
-		Command: "/matterpoll",
-	})
-
-	assert.Nil(t, err)
-	assertHelpResponse(t, r)
-}
-
-func TestPluginExecuteTwoArguments(t *testing.T) {
-	api := &plugintest.API{}
-	p := &MatterpollPlugin{}
-	p.SetAPI(api)
-
-	r, err := p.ExecuteCommand(nil, &model.CommandArgs{
-		Command: "/matterpoll \"Question\" \"Just one option\"",
-	})
-	assert.Nil(t, err)
-	assertHelpResponse(t, r)
-}
-
-func TestPluginExecuteCommand(t *testing.T) {
-	assert := assert.New(t)
-
+func TestPluginExecuteCommand2(t *testing.T) {
 	siteURL := "https://example.org/"
 	idGen := new(MockPollIDGenerator)
-	api := &plugintest.API{}
-
-	api.On("KVSet", idGen.NewID(), samplePoll.Encode()).Return(nil)
-	api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-	defer api.AssertExpectations(t)
-	p := &MatterpollPlugin{
-		idGen: idGen,
-	}
-	p.SetAPI(api)
-
-	r, err := p.ExecuteCommand(nil, &model.CommandArgs{
-		Command: "/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"",
-		SiteURL: siteURL,
-		UserId:  "userID1",
-	})
-
-	assert.Nil(err)
-	assert.NotNil(r)
-	assert.Equal(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, r.ResponseType)
-	assert.Equal(model.POST_DEFAULT, r.Type)
-	assert.Equal(responseUsername, r.Username)
-	assert.Equal(responseIconURL, r.IconURL)
-	assert.Equal([]*model.SlackAttachment{{
-		AuthorName: "John Doe",
-		Text:       "Question",
-		Actions: []*model.PostAction{
-			{Name: "Answer 1", Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/0", siteURL, PluginId, p.idGen.NewID()),
-			}},
-			{Name: "Answer 2", Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/1", siteURL, PluginId, p.idGen.NewID()),
-			}},
-			{Name: "Answer 3", Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/2", siteURL, PluginId, p.idGen.NewID()),
-			}},
-			{Name: "End Poll", Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/polls/%s/end", siteURL, PluginId, p.idGen.NewID()),
-			}},
-		},
-	}}, r.Attachments)
-}
-
-func TestPluginExecuteCommandWithQuestion(t *testing.T) {
-	assert := assert.New(t)
-
-	siteURL := "https://example.org/"
 	poll := Poll{
 		Creator:  "userID1",
 		Question: "Question",
@@ -93,53 +20,159 @@ func TestPluginExecuteCommandWithQuestion(t *testing.T) {
 			{Answer: "No"},
 		},
 	}
-	idGen := new(MockPollIDGenerator)
-	api := &plugintest.API{}
-	api.On("KVSet", idGen.NewID(), poll.Encode()).Return(nil)
-	api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-	defer api.AssertExpectations(t)
-	p := &MatterpollPlugin{
-		idGen: idGen,
-	}
-	p.SetAPI(api)
 
-	r, err := p.ExecuteCommand(nil, &model.CommandArgs{
-		Command: "/matterpoll \"Question\"",
-		SiteURL: siteURL,
-		UserId:  "userID1",
-	})
+	api1 := &plugintest.API{}
+	api1.On("KVSet", idGen.NewID(), poll.Encode()).Return(nil)
+	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+	defer api1.AssertExpectations(t)
 
-	assert.Nil(err)
-	assert.NotNil(r)
-	assert.Equal(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, r.ResponseType)
-	assert.Equal(model.POST_DEFAULT, r.Type)
-	assert.Equal(responseUsername, r.Username)
-	assert.Equal(responseIconURL, r.IconURL)
-	assert.Equal([]*model.SlackAttachment{{
-		AuthorName: "John Doe",
-		Text:       "Question",
-		Actions: []*model.PostAction{
-			{Name: "Yes", Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/0", siteURL, PluginId, p.idGen.NewID()),
-			}},
-			{Name: "No", Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/1", siteURL, PluginId, p.idGen.NewID()),
-			}},
-			{Name: "End Poll", Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/polls/%s/end", siteURL, PluginId, p.idGen.NewID()),
+	api2 := &plugintest.API{}
+	api2.On("KVSet", idGen.NewID(), samplePoll.Encode()).Return(nil)
+	api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+	defer api2.AssertExpectations(t)
+
+	api3 := &plugintest.API{}
+	api3.On("KVSet", idGen.NewID(), samplePoll.Encode()).Return(&model.AppError{})
+	defer api3.AssertExpectations(t)
+
+	api4 := &plugintest.API{}
+	api4.On("KVSet", idGen.NewID(), samplePoll.Encode()).Return(nil)
+	api4.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, &model.AppError{})
+	defer api4.AssertExpectations(t)
+
+	for name, test := range map[string]struct {
+		Command              string
+		API                  *plugintest.API
+		ExpectedError        *model.AppError
+		ExpectedResponseType string
+		ExpectedText         string
+		ExpectedAttachments  []*model.SlackAttachment
+	}{
+		"No argument": {
+			Command:              "/matterpoll",
+			API:                  &plugintest.API{},
+			ExpectedError:        nil,
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ExpectedText:         commandInputError,
+			ExpectedAttachments:  nil,
+		},
+		"Two arguments": {
+			Command:              "/matterpoll \"Question\" \"Just one option\"",
+			API:                  &plugintest.API{},
+			ExpectedError:        nil,
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ExpectedText:         commandInputError,
+			ExpectedAttachments:  nil,
+		},
+		"Just question": {
+			Command:              "/matterpoll \"Question\"",
+			API:                  api1,
+			ExpectedError:        nil,
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
+			ExpectedText:         "",
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "John Doe",
+				Text:       "Question",
+				Actions: []*model.PostAction{{
+					Name: "Yes",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/0", siteURL, PluginId, idGen.NewID()),
+					},
+				}, {
+					Name: "No",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/1", siteURL, PluginId, idGen.NewID()),
+					},
+				}, {
+					Name: "Delete Poll",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/delete", siteURL, PluginId, idGen.NewID()),
+					},
+				}, {
+					Name: "End Poll",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/end", siteURL, PluginId, idGen.NewID()),
+					}},
+				},
 			}},
 		},
-	}}, r.Attachments)
-}
+		"With 4 arguments": {
+			Command:              "/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"",
+			API:                  api2,
+			ExpectedError:        nil,
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
+			ExpectedText:         "",
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "John Doe",
+				Text:       "Question",
+				Actions: []*model.PostAction{{
+					Name: "Answer 1",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/0", siteURL, PluginId, idGen.NewID()),
+					},
+				}, {
+					Name: "Answer 2",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/1", siteURL, PluginId, idGen.NewID()),
+					},
+				}, {
+					Name: "Answer 3",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/2", siteURL, PluginId, idGen.NewID()),
+					},
+				}, {
+					Name: "Delete Poll",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/delete", siteURL, PluginId, idGen.NewID()),
+					},
+				}, {
+					Name: "End Poll", Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/end", siteURL, PluginId, idGen.NewID()),
+					},
+				},
+				},
+			}},
+		},
+		"KVSet fails": {
+			Command:              "/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"",
+			API:                  api3,
+			ExpectedError:        &model.AppError{},
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ExpectedText:         commandGenericError,
+			ExpectedAttachments:  nil,
+		},
+		"GetUser fails": {
+			Command:              "/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"",
+			API:                  api4,
+			ExpectedError:        &model.AppError{},
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ExpectedText:         commandGenericError,
+			ExpectedAttachments:  nil,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+			idGen := new(MockPollIDGenerator)
+			p := &MatterpollPlugin{
+				idGen: idGen,
+			}
+			p.SetAPI(test.API)
 
-func assertHelpResponse(t *testing.T, r *model.CommandResponse) {
-	assert := assert.New(t)
+			r, err := p.ExecuteCommand(nil, &model.CommandArgs{
+				Command: test.Command,
+				SiteURL: siteURL,
+				UserId:  "userID1",
+			})
 
-	assert.NotNil(r)
-	assert.Equal(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, r.ResponseType)
-	assert.Equal(model.POST_DEFAULT, r.Type)
-	assert.Equal(responseUsername, r.Username)
-	assert.Equal(responseIconURL, r.IconURL)
-	assert.Equal(commandInputError, r.Text)
-	assert.Nil(r.Attachments)
+			assert.Equal(test.ExpectedError, err)
+			assert.NotNil(r)
+
+			assert.Equal(model.POST_DEFAULT, r.Type)
+			assert.Equal(responseUsername, r.Username)
+			assert.Equal(responseIconURL, r.IconURL)
+			assert.Equal(test.ExpectedResponseType, r.ResponseType)
+			assert.Equal(test.ExpectedText, r.Text)
+			assert.Equal(test.ExpectedAttachments, r.Attachments)
+		})
+	}
 }

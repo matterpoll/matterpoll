@@ -17,7 +17,7 @@ func TestEncodeDecode(t *testing.T) {
 	assert.Equal(t, p1, p2)
 }
 
-func TestHasVoted(t *testing.T) {
+func TestUpdateVote(t *testing.T) {
 	for name, test := range map[string]struct {
 		Poll         Poll
 		UserID       string
@@ -133,4 +133,16 @@ func TestHasVoted(t *testing.T) {
 			assert.Equal(t, test.ExpectedPoll, test.Poll)
 		})
 	}
+}
+
+func TestHasVoted(t *testing.T) {
+	p1 := &Poll{Question: "Question",
+		Options: []*Option{
+			{Answer: "Answer 1",
+				Voter: []string{"a"}},
+			{Answer: "Answer 2"},
+		},
+	}
+	assert.True(t, p1.HasVoted("a"))
+	assert.False(t, p1.HasVoted("b"))
 }
