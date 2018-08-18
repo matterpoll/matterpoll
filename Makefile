@@ -16,9 +16,16 @@ all: test dist
 apply:
 	./build/bin/manifest apply
 
+# server/.depensure ensures the server dependencies are installed
+server/.depensure:
+ifneq ($(HAS_SERVER),)
+	cd server && $(DEP) ensure
+	touch $@
+endif
+
 # server builds the server, if it exists, including support for multiple architectures
 .PHONY: server
-server:
+server: server/.depensure
 ifneq ($(HAS_SERVER),)
 	mkdir -p server/dist;
 	cd server && env GOOS=linux GOARCH=amd64 $(GO) build -o dist/plugin-linux-amd64;
@@ -95,7 +102,7 @@ endif
 
 # test runs any lints and unit tests defined for the server and webapp, if they exist
 .PHONY: test
-test: webapp/.npminstall
+test: server/.depensure webapp/.npminstall
 ifneq ($(HAS_SERVER),)
 	cd server && $(GO) test -v -coverprofile=coverage.txt ./...
 endif
@@ -109,6 +116,7 @@ clean:
 	rm -fr dist/
 ifneq ($(HAS_SERVER),)
 	rm -fr server/dist
+	rm -fr server/.depensure
 endif
 ifneq ($(HAS_WEBAPP),)
 	rm -fr webapp/.npminstall
