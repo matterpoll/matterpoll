@@ -96,6 +96,9 @@ func (p *Poll) Encode() []byte {
 
 func Decode(b []byte) *Poll {
 	p := Poll{}
-	_ = json.Unmarshal(b, &p)
+	err := json.Unmarshal(b, &p)
+	if err != nil {
+		return nil
+	}
 	return &p
 }
