@@ -10,13 +10,18 @@ const (
 	responseIconURL  = "https://github.com/matterpoll/matterpoll/raw/rewrite/assets/logo_dark.png"
 	responseUsername = "Matterpoll"
 
-	commandInputError   = "We need input. Try `/matterpoll \"Question\"` or `/matterpoll \"Question\" \"Answer 1\" \"Answer 2\"`"
+	commandHelpText     = "To create a poll with the answer options \"Yes\" and \"No\" type `/matterpoll \"Question\"`.\nYou can customise the options by typing `/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"` "
+	commandInputError   = "Invalid Input. Try `/matterpoll \"Question\"` or `/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
 	commandGenericError = "Something went bad. Please try again later."
 )
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	q, o := ParseInput(args.Command)
 	userID := args.UserId
+	if len(o) == 0 && q == "help" {
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandHelpText, nil), nil
+
+	}
 	if len(o) == 1 || q == "" {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandInputError, nil), nil
 	}

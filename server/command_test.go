@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPluginExecuteCommand2(t *testing.T) {
+func TestPluginExecuteCommand(t *testing.T) {
 	siteURL := "https://example.org/"
 	idGen := new(MockPollIDGenerator)
 	poll := Poll{
@@ -54,6 +54,14 @@ func TestPluginExecuteCommand2(t *testing.T) {
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         commandInputError,
+			ExpectedAttachments:  nil,
+		},
+		"Help text": {
+			Command:              "/matterpoll help",
+			API:                  &plugintest.API{},
+			ExpectedError:        nil,
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ExpectedText:         commandHelpText,
 			ExpectedAttachments:  nil,
 		},
 		"Two arguments": {
