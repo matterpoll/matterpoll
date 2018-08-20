@@ -72,7 +72,7 @@ func TestPluginExecuteCommand2(t *testing.T) {
 			ExpectedText:         "",
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
-				Text:       "Question",
+				Title:      "Question",
 				Actions: []*model.PostAction{{
 					Name: "Yes",
 					Integration: &model.PostActionIntegration{
@@ -104,7 +104,7 @@ func TestPluginExecuteCommand2(t *testing.T) {
 			ExpectedText:         "",
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
-				Text:       "Question",
+				Title:      "Question",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1",
 					Integration: &model.PostActionIntegration{

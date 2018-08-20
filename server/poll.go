@@ -54,10 +54,53 @@ func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.Comm
 
 	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", []*model.SlackAttachment{{
 		AuthorName: authorName,
-		Text:       p.Question,
+		Title:      p.Question,
 		Actions:    actions,
 	},
 	})
+}
+
+func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {
+	post := model.Post{}
+
+	fields := []*model.SlackAttachmentField{}
+
+	for _, o := range p.Options {
+		var voter string
+		for i := 0; i < len(o.Voter); i++ {
+			userName, err := convert(o.Voter[i])
+			if err != nil {
+				return nil, err
+			}
+			if i+1 == len(o.Voter) && len(o.Voter) > 1 {
+				voter += " and "
+			} else if i != 0 {
+				voter += ", "
+			}
+			voter += fmt.Sprintf("@%s", userName)
+		}
+		var voteText string
+		if len(o.Voter) == 1 {
+			voteText = "vote"
+		} else {
+			voteText = "votes"
+		}
+		fields = append(fields, &model.SlackAttachmentField{
+			Short: true,
+			Title: fmt.Sprintf("%s (%d %s)", o.Answer, len(o.Voter), voteText),
+			Value: voter,
+		})
+	}
+
+	attachments := []*model.SlackAttachment{{
+		AuthorName: authorName,
+		Title:      p.Question,
+		Text:       "This poll has ended. The results are:",
+		Fields:     fields,
+	}}
+	post.AddProp("attachments", attachments)
+
+	return &post, nil
 }
 
 func (p *Poll) UpdateVote(userID string, index int) error {

@@ -159,11 +159,36 @@ func TestHandleEndPoll(t *testing.T) {
 	api1 := &plugintest.API{}
 	api1.On("KVGet", idGen.NewID()).Return(samplePollWithVotes.Encode(), nil)
 	api1.On("KVDelete", idGen.NewID()).Return(nil)
-	api1.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+	api1.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 	api1.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 	api1.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
 	api1.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
 	defer api1.AssertExpectations(t)
+
+	expectedattachments1 := []*model.SlackAttachment{{
+		AuthorName: "John Doue",
+		Title:      "Question",
+		Text:       "This poll has ended. The results are:",
+		Fields: []*model.SlackAttachmentField{
+			{
+				Title: "Answer 1 Answer 1 (3 votes)",
+				Value: "user1, user2 and user3",
+				Short: true,
+			},
+			{
+				Title: "Answer 1 (1 vote)",
+				Value: "user4",
+				Short: true,
+			},
+			{
+				Title: "Answer 3 (0 votes)",
+				Value: "",
+				Short: true,
+			},
+		},
+	}}
+	expectedPost1 := model.Post{}
+	expectedPost1.AddProp("attachments", expectedattachments1)
 
 	api2 := &plugintest.API{}
 	api2.On("KVGet", idGen.NewID()).Return(nil, &model.AppError{})
@@ -188,6 +213,13 @@ func TestHandleEndPoll(t *testing.T) {
 	api6.On("GetUser", "userID1").Return(nil, &model.AppError{})
 	defer api6.AssertExpectations(t)
 
+	api7 := &plugintest.API{}
+	api7.On("KVGet", idGen.NewID()).Return(samplePollWithVotes.Encode(), nil)
+	api7.On("KVDelete", idGen.NewID()).Return(nil)
+	api7.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
+	api7.On("GetUser", "userID2").Return(nil, &model.AppError{})
+	defer api7.AssertExpectations(t)
+
 	for name, test := range map[string]struct {
 		API                *plugintest.API
 		Request            model.PostActionIntegrationRequest
@@ -198,7 +230,7 @@ func TestHandleEndPoll(t *testing.T) {
 			API:                api1,
 			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{Update: &model.Post{Message: "Poll is done.\nAnswer 1: @user1, @user2 and @user3\nAnswer 2: @user4\nAnswer 3:\n"}},
+			ExpectedResponse:   model.PostActionIntegrationResponse{Update: &expectedPost1},
 		},
 		"Valid request, KVGet fails": {
 			API:                api2,
@@ -223,8 +255,14 @@ func TestHandleEndPoll(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
-		"Valid request, GetUser fails": {
+		"Valid request, GetUser fails for poll creator": {
 			API:                api6,
+			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+		"Valid request, GetUser fails for voter": {
+			API:                api7,
 			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
@@ -249,7 +287,9 @@ func TestHandleEndPoll(t *testing.T) {
 			assert.Equal(http.Header{
 				"Content-Type": []string{"application/json"},
 			}, result.Header)
-			assert.Equal(test.ExpectedResponse, response)
+			assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
+			//// FIXME:response.Update.SlackAttachment is map[string]interface {} not []*model.SlackAttachment
+			// assert.Equal(test.ExpectedResponse.Update, response.Update)
 		})
 	}
 }

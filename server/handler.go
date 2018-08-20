@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -99,30 +98,28 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	message := "Poll is done.\n"
-	for _, o := range poll.Options {
-		message += fmt.Sprintf("%s:", o.Answer)
-		for i := 0; i < len(o.Voter); i++ {
-			user, err := p.API.GetUser(o.Voter[i])
-			if err != nil {
-				response.EphemeralText = commandGenericError
-				writePostActionIntegrationResponse(w, response)
-				return
-			}
-			if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-				message += " and"
-			} else if i != 0 {
-				message += ","
-			}
+	user, err := p.API.GetUser(poll.Creator)
+	if err != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
 
-			message += fmt.Sprintf(" @%s", user.Username)
+	convert := func(userID string) (string, *model.AppError) {
+		user, err := p.API.GetUser(userID)
+		if err != nil {
+			return "", err
 		}
-		message += "\n"
+		return user.Username, nil
 	}
 
-	response.Update = &model.Post{
-		Message: message,
+	response.Update, appErr = poll.ToEndPollPost(user.GetFullName(), convert)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
 	}
+
 	writePostActionIntegrationResponse(w, response)
 }
 
