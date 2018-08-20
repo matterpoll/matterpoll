@@ -10,6 +10,9 @@ import (
 )
 
 const (
+	voteCounted = "Your vote has been counted."
+	voteUpdated = "Your vote has been updated."
+
 	endPollInvalidPermission = "Only the creator of a poll is allowed to end it."
 
 	deletePollInvalidPermission   = "Only the creator of a poll is allowed to delete it."
@@ -55,9 +58,9 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if hasVoted {
-		response.EphemeralText = "Your vote has been updated."
+		response.EphemeralText = voteUpdated
 	} else {
-		response.EphemeralText = "Your vote has been counted."
+		response.EphemeralText = voteCounted
 	}
 	writePostActionIntegrationResponse(w, response)
 }

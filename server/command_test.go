@@ -41,8 +41,8 @@ func TestPluginExecuteCommand2(t *testing.T) {
 	defer api4.AssertExpectations(t)
 
 	for name, test := range map[string]struct {
-		Command              string
 		API                  *plugintest.API
+		Command              string
 		ExpectedError        *model.AppError
 		ExpectedResponseType string
 		ExpectedText         string

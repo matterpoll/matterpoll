@@ -19,7 +19,9 @@ var samplePoll = Poll{
 	},
 }
 
-var samplePollWithVotes = Poll{Question: "Question",
+var samplePollWithVotes = Poll{
+	Creator:  "userID1",
+	Question: "Question",
 	Options: []*Option{
 		{Answer: "Answer 1",
 			Voter: []string{"userID1", "userID2", "userID3"}},
