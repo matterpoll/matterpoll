@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -81,52 +80,59 @@ func TestHandleVote(t *testing.T) {
 
 	for name, test := range map[string]struct {
 		API                *plugintest.API
-		Request            model.PostActionIntegrationRequest
+		Request            *model.PostActionIntegrationRequest
 		VoteIndex          int
 		ExpectedStatusCode int
-		ExpectedResponse   model.PostActionIntegrationResponse
+		ExpectedResponse   *model.PostActionIntegrationResponse
 	}{
 		"Valid request with no votes": {
 			API:                api1,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: voteCounted},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: voteCounted},
 		},
 		"Valid request with vote": {
 			API:                api2,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: voteUpdated},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: voteUpdated},
 		},
 		"Valid request, KVGet fails": {
 			API:                api3,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
 		"Valid request, Decode fails": {
 			API:                api4,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
-		},
-		"Invalid index": {
-			API:                api1,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
-			VoteIndex:          3,
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
 		"Valid request, KVSet fails": {
 			API:                api5,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+		"Invalid index": {
+			API:                api1,
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			VoteIndex:          3,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+		"Invalid request": {
+			API:                &plugintest.API{},
+			Request:            nil,
+			VoteIndex:          0,
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedResponse:   nil,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -141,13 +147,14 @@ func TestHandleVote(t *testing.T) {
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
-			var response model.PostActionIntegrationResponse
-			json.NewDecoder(result.Body).Decode(&response)
+			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
-			assert.Equal(http.Header{
-				"Content-Type": []string{"application/json"},
-			}, result.Header)
+			if result.StatusCode == http.StatusOK {
+				assert.Equal(http.Header{
+					"Content-Type": []string{"application/json"},
+				}, result.Header)
+			}
 			assert.Equal(test.ExpectedResponse, response)
 		})
 	}
@@ -222,50 +229,57 @@ func TestHandleEndPoll(t *testing.T) {
 
 	for name, test := range map[string]struct {
 		API                *plugintest.API
-		Request            model.PostActionIntegrationRequest
+		Request            *model.PostActionIntegrationRequest
 		ExpectedStatusCode int
-		ExpectedResponse   model.PostActionIntegrationResponse
+		ExpectedResponse   *model.PostActionIntegrationResponse
 	}{
 		"Valid request with no votes": {
 			API:                api1,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{Update: &expectedPost1},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: &expectedPost1},
 		},
 		"Valid request, KVGet fails": {
 			API:                api2,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
 		"Valid request, Decode fails": {
 			API:                api3,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
-		}, "Invalid permission": {
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+		"Invalid permission": {
 			API:                api4,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: endPollInvalidPermission},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: endPollInvalidPermission},
 		},
 		"Valid request, DeletePost fails": {
 			API:                api5,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
 		"Valid request, GetUser fails for poll creator": {
 			API:                api6,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
 		"Valid request, GetUser fails for voter": {
 			API:                api7,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+		"Invalid request": {
+			API:                &plugintest.API{},
+			Request:            nil,
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedResponse:   nil,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -280,16 +294,19 @@ func TestHandleEndPoll(t *testing.T) {
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
-			var response model.PostActionIntegrationResponse
-			json.NewDecoder(result.Body).Decode(&response)
+			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
-			assert.Equal(http.Header{
-				"Content-Type": []string{"application/json"},
-			}, result.Header)
-			assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
-			//// FIXME:response.Update.SlackAttachment is map[string]interface {} not []*model.SlackAttachment
-			// assert.Equal(test.ExpectedResponse.Update, response.Update)
+			if result.StatusCode == http.StatusOK {
+				assert.Equal(http.Header{
+					"Content-Type": []string{"application/json"},
+				}, result.Header)
+				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
+				//// FIXME:response.Update.SlackAttachment is map[string]interface {} not []*model.SlackAttachment
+				// assert.Equal(test.ExpectedResponse.Update, response.Update)
+			} else {
+				assert.Equal(test.ExpectedResponse, response)
+			}
 		})
 	}
 }
@@ -328,51 +345,57 @@ func TestHandleDeletePoll(t *testing.T) {
 
 	for name, test := range map[string]struct {
 		API                *plugintest.API
-		Request            model.PostActionIntegrationRequest
+		Request            *model.PostActionIntegrationRequest
 		ExpectedStatusCode int
-		ExpectedResponse   model.PostActionIntegrationResponse
+		ExpectedResponse   *model.PostActionIntegrationResponse
 	}{
 		"Valid request with no votes": {
 			API:                api1,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: deletePollSuccess},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollSuccess},
 		},
 		"Valid request, KVGet fails": {
 			API:                api2,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
 		"Valid request, Decode fails": {
 			API:                api3,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
-		"Invalid permission": {
+		"Valid request, Invalid permission": {
 			API:                api4,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: deletePollInvalidPermission},
-		},
-		"PostId of request empty": {
-			API:                api4,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: ""},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: deletePollFeatureNotAvailable},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollInvalidPermission},
 		},
 		"Valid request, DeletePost fails": {
 			API:                api5,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
 		"Valid request, KVDelete fails": {
 			API:                api6,
-			Request:            model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+		"Invalid request": {
+			API:                &plugintest.API{},
+			Request:            nil,
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedResponse:   nil,
+		},
+		"Invalid request, PostId of request empty": {
+			API:                api4,
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: ""},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollFeatureNotAvailable},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -387,13 +410,14 @@ func TestHandleDeletePoll(t *testing.T) {
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
-			var response model.PostActionIntegrationResponse
-			json.NewDecoder(result.Body).Decode(&response)
+			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
-			assert.Equal(http.Header{
-				"Content-Type": []string{"application/json"},
-			}, result.Header)
+			if result.StatusCode == http.StatusOK {
+				assert.Equal(http.Header{
+					"Content-Type": []string{"application/json"},
+				}, result.Header)
+			}
 			assert.Equal(test.ExpectedResponse, response)
 		})
 	}

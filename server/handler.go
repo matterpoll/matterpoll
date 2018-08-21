@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -20,14 +20,17 @@ const (
 )
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
-	var request model.PostActionIntegrationRequest
-	json.NewDecoder(r.Body).Decode(&request)
-	userID := request.UserId
-
 	matches := voteRoute.FindStringSubmatch(r.URL.Path)
 	pollID := matches[1]
 	optionNumber, _ := strconv.Atoi(matches[2])
 	response := &model.PostActionIntegrationResponse{}
+
+	request := model.PostActionIntegrationRequesteFromJson(r.Body)
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	userID := request.UserId
 
 	b, appErr := p.API.KVGet(pollID)
 	if appErr != nil {
@@ -65,12 +68,15 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request) {
-	var request model.PostActionIntegrationRequest
-	json.NewDecoder(r.Body).Decode(&request)
-	userID := request.UserId
 	pollID := endPollRoute.FindStringSubmatch(r.URL.Path)[1]
-
 	response := &model.PostActionIntegrationResponse{}
+
+	request := model.PostActionIntegrationRequesteFromJson(r.Body)
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	userID := request.UserId
 
 	b, appErr := p.API.KVGet(pollID)
 	if appErr != nil {
@@ -124,12 +130,15 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 }
 
 func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Request) {
-	var request model.PostActionIntegrationRequest
-	json.NewDecoder(r.Body).Decode(&request)
-	userID := request.UserId
 	pollID := deletePollRoute.FindStringSubmatch(r.URL.Path)[1]
-
 	response := &model.PostActionIntegrationResponse{}
+
+	request := model.PostActionIntegrationRequesteFromJson(r.Body)
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	userID := request.UserId
 
 	b, appErr := p.API.KVGet(pollID)
 	if appErr != nil {
@@ -175,9 +184,7 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 }
 
 func writePostActionIntegrationResponse(w http.ResponseWriter, response *model.PostActionIntegrationResponse) {
-	bytes, _ := json.Marshal(response)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(bytes)
+	_, _ = io.WriteString(w, response.ToJson())
 }
