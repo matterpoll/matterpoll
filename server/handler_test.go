@@ -113,7 +113,7 @@ func TestHandleVote(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
-		"Valid request, KVSet fails": {
+		"Valid request, KVDelete fails": {
 			API:                api5,
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          0,
@@ -212,17 +212,19 @@ func TestHandleEndPoll(t *testing.T) {
 	api5 := &plugintest.API{}
 	api5.On("KVGet", idGen.NewID()).Return(samplePollWithVotes.Encode(), nil)
 	api5.On("KVDelete", idGen.NewID()).Return(&model.AppError{})
-	defer api1.AssertExpectations(t)
+	api5.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
+	api5.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
+	api5.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
+	api5.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
+	defer api5.AssertExpectations(t)
 
 	api6 := &plugintest.API{}
 	api6.On("KVGet", idGen.NewID()).Return(samplePollWithVotes.Encode(), nil)
-	api6.On("KVDelete", idGen.NewID()).Return(nil)
 	api6.On("GetUser", "userID1").Return(nil, &model.AppError{})
 	defer api6.AssertExpectations(t)
 
 	api7 := &plugintest.API{}
 	api7.On("KVGet", idGen.NewID()).Return(samplePollWithVotes.Encode(), nil)
-	api7.On("KVDelete", idGen.NewID()).Return(nil)
 	api7.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 	api7.On("GetUser", "userID2").Return(nil, &model.AppError{})
 	defer api7.AssertExpectations(t)

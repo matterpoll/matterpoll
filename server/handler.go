@@ -97,13 +97,6 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	appErr = p.API.KVDelete(pollID)
-	if appErr != nil {
-		response.EphemeralText = commandGenericError
-		writePostActionIntegrationResponse(w, response)
-		return
-	}
-
 	user, err := p.API.GetUser(poll.Creator)
 	if err != nil {
 		response.EphemeralText = commandGenericError
@@ -120,6 +113,13 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 	}
 
 	response.Update, appErr = poll.ToEndPollPost(user.GetFullName(), convert)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+
+	appErr = p.API.KVDelete(pollID)
 	if appErr != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
