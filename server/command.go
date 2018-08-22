@@ -7,7 +7,7 @@ import (
 
 const (
 	trigger          = "matterpoll"
-	responseIconURL  = "https://github.com/matterpoll/matterpoll/raw/rewrite/assets/logo_dark.png"
+	responseIconURL  = "https://raw.githubusercontent.com/matterpoll/matterpoll/master/assets/logo_dark.png"
 	responseUsername = "Matterpoll"
 
 	commandHelpText     = "To create a poll with the answer options \"Yes\" and \"No\" type `/matterpoll \"Question\"`.\nYou can customise the options by typing `/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"` "
