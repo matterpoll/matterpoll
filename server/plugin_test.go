@@ -13,7 +13,7 @@ var samplePoll = Poll{
 	Creator:           "userID1",
 	DataSchemaVersion: "v1",
 	Question:          "Question",
-	Options: []*Option{
+	AnswerOptions: []*AnswerOption{
 		{Answer: "Answer 1"},
 		{Answer: "Answer 2"},
 		{Answer: "Answer 3"},
@@ -24,7 +24,7 @@ var samplePollWithVotes = Poll{
 	Creator:           "userID1",
 	DataSchemaVersion: "v1",
 	Question:          "Question",
-	Options: []*Option{
+	AnswerOptions: []*AnswerOption{
 		{Answer: "Answer 1",
 			Voter: []string{"userID1", "userID2", "userID3"}},
 		{Answer: "Answer 2",

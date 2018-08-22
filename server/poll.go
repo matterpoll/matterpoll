@@ -12,25 +12,25 @@ type Poll struct {
 	Creator           string
 	DataSchemaVersion string
 	Question          string
-	Options           []*Option
+	AnswerOptions     []*AnswerOption
 }
 
-type Option struct {
+type AnswerOption struct {
 	Answer string
 	Voter  []string
 }
 
-func NewPoll(creator string, question string, options []string) *Poll {
+func NewPoll(creator string, question string, answerOptions []string) *Poll {
 	p := Poll{Creator: creator, DataSchemaVersion: "v1", Question: question}
-	for _, o := range options {
-		p.Options = append(p.Options, &Option{Answer: o})
+	for _, o := range answerOptions {
+		p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: o})
 	}
 	return &p
 }
 
 func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.CommandResponse {
 	actions := []*model.PostAction{}
-	for i, o := range p.Options {
+	for i, o := range p.AnswerOptions {
 		actions = append(actions, &model.PostAction{
 			Name: o.Answer,
 			Integration: &model.PostActionIntegration{
@@ -66,7 +66,7 @@ func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *m
 
 	fields := []*model.SlackAttachmentField{}
 
-	for _, o := range p.Options {
+	for _, o := range p.AnswerOptions {
 		var voter string
 		for i := 0; i < len(o.Voter); i++ {
 			userName, err := convert(o.Voter[i])
@@ -105,25 +105,25 @@ func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *m
 }
 
 func (p *Poll) UpdateVote(userID string, index int) error {
-	if len(p.Options) <= index || index < 0 {
+	if len(p.AnswerOptions) <= index || index < 0 {
 		return errors.New("invalid index")
 	}
 	if userID == "" {
 		return errors.New("invalid userID")
 	}
-	for _, o := range p.Options {
+	for _, o := range p.AnswerOptions {
 		for i := 0; i < len(o.Voter); i++ {
 			if userID == o.Voter[i] {
 				o.Voter = append(o.Voter[:i], o.Voter[i+1:]...)
 			}
 		}
 	}
-	p.Options[index].Voter = append(p.Options[index].Voter, userID)
+	p.AnswerOptions[index].Voter = append(p.AnswerOptions[index].Voter, userID)
 	return nil
 }
 
 func (p *Poll) HasVoted(userID string) bool {
-	for _, o := range p.Options {
+	for _, o := range p.AnswerOptions {
 		for i := 0; i < len(o.Voter); i++ {
 			if userID == o.Voter[i] {
 				return true

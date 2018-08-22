@@ -16,7 +16,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		Creator:           "userID1",
 		DataSchemaVersion: "v1",
 		Question:          "Question",
-		Options: []*Option{
+		AnswerOptions: []*AnswerOption{
 			{Answer: "Yes"},
 			{Answer: "No"},
 		},

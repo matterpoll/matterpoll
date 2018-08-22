@@ -9,7 +9,7 @@ import (
 func TestEncodeDecode(t *testing.T) {
 	p1 := &Poll{
 		Question: "Question",
-		Options: []*Option{
+		AnswerOptions: []*AnswerOption{
 			{Answer: "Answer 1"},
 			{Answer: "Answer 2"},
 		},
@@ -29,7 +29,7 @@ func TestUpdateVote(t *testing.T) {
 		"Negative Index": {
 			Poll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -39,7 +39,7 @@ func TestUpdateVote(t *testing.T) {
 			Index:  -1,
 			ExpectedPoll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -50,7 +50,7 @@ func TestUpdateVote(t *testing.T) {
 		"To high Index": {
 			Poll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -60,7 +60,7 @@ func TestUpdateVote(t *testing.T) {
 			Index:  2,
 			ExpectedPoll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -71,7 +71,7 @@ func TestUpdateVote(t *testing.T) {
 		"Invalid userID": {
 			Poll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -81,7 +81,7 @@ func TestUpdateVote(t *testing.T) {
 			Index:  1,
 			ExpectedPoll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -92,7 +92,7 @@ func TestUpdateVote(t *testing.T) {
 		"Idempotent": {
 			Poll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -102,7 +102,7 @@ func TestUpdateVote(t *testing.T) {
 			Index:  0,
 			ExpectedPoll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -113,7 +113,7 @@ func TestUpdateVote(t *testing.T) {
 		"Valid Vote": {
 			Poll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -123,7 +123,7 @@ func TestUpdateVote(t *testing.T) {
 			Index:  1,
 			ExpectedPoll: Poll{
 				Question: "Question",
-				Options: []*Option{
+				AnswerOptions: []*AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{}},
 					{Answer: "Answer 2",
@@ -148,7 +148,7 @@ func TestUpdateVote(t *testing.T) {
 
 func TestHasVoted(t *testing.T) {
 	p1 := &Poll{Question: "Question",
-		Options: []*Option{
+		AnswerOptions: []*AnswerOption{
 			{Answer: "Answer 1",
 				Voter: []string{"a"}},
 			{Answer: "Answer 2"},
