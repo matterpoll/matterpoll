@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	voteRoute       = regexp.MustCompile("/polls/([0-9a-z]+)/vote/([0-9]+)")
-	endPollRoute    = regexp.MustCompile("/polls/([0-9a-z]+)/end")
-	deletePollRoute = regexp.MustCompile("/polls/([0-9a-z]+)/delete")
+	voteRoute       = regexp.MustCompile("/api/v1/polls/([0-9a-z]+)/vote/([0-9]+)")
+	endPollRoute    = regexp.MustCompile("/api/v1/polls/([0-9a-z]+)/end")
+	deletePollRoute = regexp.MustCompile("/api/v1/polls/([0-9a-z]+)/delete")
 )
 
 type MatterpollPlugin struct {

@@ -10,8 +10,9 @@ import (
 )
 
 var samplePoll = Poll{
-	Creator:  "userID1",
-	Question: "Question",
+	Creator:           "userID1",
+	DataSchemaVersion: "v1",
+	Question:          "Question",
 	Options: []*Option{
 		{Answer: "Answer 1"},
 		{Answer: "Answer 2"},
@@ -20,8 +21,9 @@ var samplePoll = Poll{
 }
 
 var samplePollWithVotes = Poll{
-	Creator:  "userID1",
-	Question: "Question",
+	Creator:           "userID1",
+	DataSchemaVersion: "v1",
+	Question:          "Question",
 	Options: []*Option{
 		{Answer: "Answer 1",
 			Voter: []string{"userID1", "userID2", "userID3"}},

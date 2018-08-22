@@ -13,8 +13,9 @@ func TestPluginExecuteCommand(t *testing.T) {
 	siteURL := "https://example.org/"
 	idGen := new(MockPollIDGenerator)
 	poll := Poll{
-		Creator:  "userID1",
-		Question: "Question",
+		Creator:           "userID1",
+		DataSchemaVersion: "v1",
+		Question:          "Question",
 		Options: []*Option{
 			{Answer: "Yes"},
 			{Answer: "No"},

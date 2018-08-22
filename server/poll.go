@@ -9,9 +9,10 @@ import (
 )
 
 type Poll struct {
-	Creator  string
-	Question string
-	Options  []*Option
+	Creator           string
+	DataSchemaVersion string
+	Question          string
+	Options           []*Option
 }
 
 type Option struct {
@@ -20,7 +21,7 @@ type Option struct {
 }
 
 func NewPoll(creator string, question string, options []string) *Poll {
-	p := Poll{Creator: creator, Question: question}
+	p := Poll{Creator: creator, DataSchemaVersion: "v1", Question: question}
 	for _, o := range options {
 		p.Options = append(p.Options, &Option{Answer: o})
 	}

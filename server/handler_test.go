@@ -143,7 +143,7 @@ func TestHandleVote(t *testing.T) {
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/polls/%s/vote/%d", idGen.NewID(), test.VoteIndex), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", idGen.NewID(), test.VoteIndex), strings.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -292,7 +292,7 @@ func TestHandleEndPoll(t *testing.T) {
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/polls/%s/end", idGen.NewID()), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", idGen.NewID()), strings.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -408,7 +408,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/polls/%s/delete", idGen.NewID()), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", idGen.NewID()), strings.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
