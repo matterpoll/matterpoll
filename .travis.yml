@@ -1,18 +1,15 @@
-sudo: false
 notifications:
   email: false
 
 language: go
 go:
-  - 1.9
-  - tip
+  - "1.10.x"
 
 install:
-- go get github.com/go-task/task/cmd/task
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 script:
-- task lint
-- task test-coverage
+  - make test
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

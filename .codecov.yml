@@ -1,0 +1,2 @@
+ignore:
+  - "server/main.go"
