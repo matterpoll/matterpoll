@@ -15,16 +15,19 @@ var (
 
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
-	idGen IDGenerator
+	idGen  IDGenerator
+	Config *Config
 }
 
 func (p *MatterpollPlugin) OnActivate() error {
 	p.idGen = &PollIDGenerator{}
-	return p.API.RegisterCommand(getCommand())
+	p.Config = nil
+
+	return p.OnConfigurationChange()
 }
 
 func (p *MatterpollPlugin) OnDeactivate() error {
-	return p.API.UnregisterCommand("", trigger)
+	return p.API.UnregisterCommand("", p.Config.Trigger)
 }
 
 func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {

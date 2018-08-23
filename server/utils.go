@@ -1,9 +1,12 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
-func ParseInput(input string) (string, []string) {
-	o := strings.TrimRight(strings.TrimLeft(strings.TrimSpace(strings.TrimPrefix(input, "/matterpoll")), "\""), "\"")
+func ParseInput(input string, trigger string) (string, []string) {
+	o := strings.TrimRight(strings.TrimLeft(strings.TrimSpace(strings.TrimPrefix(input, fmt.Sprintf("/%s", trigger))), "\""), "\"")
 	if o == "" {
 		return "", []string{}
 	}

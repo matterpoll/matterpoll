@@ -11,8 +11,12 @@
     }
   },
   "settings_schema": {
-    "header": "",
-    "footer": "",
-    "settings": []
+    "settings": [{
+     "key": "Trigger",
+     "display_name": "Trigger Word",
+     "type": "text",
+     "help_text": "Trigger Word must be unique, and cannot begin with a slash or contain any spaces.",
+     "default": "poll"
+     }]
   }
 }

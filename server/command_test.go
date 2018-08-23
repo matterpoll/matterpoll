@@ -11,6 +11,7 @@ import (
 
 func TestPluginExecuteCommand(t *testing.T) {
 	siteURL := "https://example.org/"
+	trigger := "poll"
 	idGen := new(MockPollIDGenerator)
 	poll := Poll{
 		Creator:           "userID1",
@@ -50,7 +51,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		ExpectedAttachments  []*model.SlackAttachment
 	}{
 		"No argument": {
-			Command:              "/matterpoll",
+			Command:              fmt.Sprintf("/%s", trigger),
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -58,7 +59,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  nil,
 		},
 		"Help text": {
-			Command:              "/matterpoll help",
+			Command:              fmt.Sprintf("/%s help", trigger),
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -66,7 +67,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  nil,
 		},
 		"Two arguments": {
-			Command:              "/matterpoll \"Question\" \"Just one option\"",
+			Command:              fmt.Sprintf("/%s \"Question\" \"Just one option\"", trigger),
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -74,7 +75,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  nil,
 		},
 		"Just question": {
-			Command:              "/matterpoll \"Question\"",
+			Command:              fmt.Sprintf("/%s \"Question\"", trigger),
 			API:                  api1,
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
@@ -106,7 +107,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			}},
 		},
 		"With 4 arguments": {
-			Command:              "/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"",
+			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			API:                  api2,
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
@@ -143,7 +144,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			}},
 		},
 		"KVSet fails": {
-			Command:              "/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"",
+			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			API:                  api3,
 			ExpectedError:        &model.AppError{},
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -151,7 +152,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  nil,
 		},
 		"GetUser fails": {
-			Command:              "/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"",
+			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			API:                  api4,
 			ExpectedError:        &model.AppError{},
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -164,6 +165,9 @@ func TestPluginExecuteCommand(t *testing.T) {
 			idGen := new(MockPollIDGenerator)
 			p := &MatterpollPlugin{
 				idGen: idGen,
+				Config: &Config{
+					Trigger: trigger,
+				},
 			}
 			p.SetAPI(test.API)
 
