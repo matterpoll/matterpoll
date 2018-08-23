@@ -85,22 +85,22 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Actions: []*model.PostAction{{
 					Name: "Yes",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/0", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					},
 				}, {
 					Name: "No",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/1", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					},
 				}, {
 					Name: "Delete Poll",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/delete", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					},
 				}, {
 					Name: "End Poll",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/end", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					}},
 				},
 			}},
@@ -117,26 +117,26 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Actions: []*model.PostAction{{
 					Name: "Answer 1",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/0", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					},
 				}, {
 					Name: "Answer 2",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/1", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					},
 				}, {
 					Name: "Answer 3",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/2", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					},
 				}, {
 					Name: "Delete Poll",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/delete", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					},
 				}, {
 					Name: "End Poll", Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/polls/%s/end", siteURL, PluginId, idGen.NewID()),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentApiVersion, idGen.NewID()),
 					},
 				},
 				},
