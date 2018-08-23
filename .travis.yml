@@ -13,3 +13,14 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+before_deploy:
+  - make dist
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "TODO"
+  file: "dist/com.github.matterpoll.matterpoll.tar.gz"
+  on:
+    tags: true
