@@ -21,7 +21,7 @@ type AnswerOption struct {
 }
 
 func NewPoll(creator string, question string, answerOptions []string) *Poll {
-	p := Poll{Creator: creator, DataSchemaVersion: "v1", Question: question}
+	p := Poll{Creator: creator, DataSchemaVersion: CurrentDataSchemaVersion, Question: question}
 	for _, o := range answerOptions {
 		p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: o})
 	}
@@ -34,7 +34,7 @@ func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.Comm
 		actions = append(actions, &model.PostAction{
 			Name: o.Answer,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/polls/%s/vote/%v", siteURL, PluginId, pollID, i),
+				URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/%v", siteURL, PluginId, CurrentApiVersion, pollID, i),
 			},
 		})
 	}
@@ -42,14 +42,14 @@ func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.Comm
 	actions = append(actions, &model.PostAction{
 		Name: "Delete Poll",
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/polls/%s/delete", siteURL, PluginId, pollID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentApiVersion, pollID),
 		},
 	})
 
 	actions = append(actions, &model.PostAction{
 		Name: "End Poll",
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/polls/%s/end", siteURL, PluginId, pollID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentApiVersion, pollID),
 		},
 	})
 
