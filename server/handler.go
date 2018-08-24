@@ -53,6 +53,13 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	displayName, appErr := p.ConvertUserToDisplayName(poll.Creator)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+
 	hasVoted := poll.HasVoted(userID)
 	err := poll.UpdateVote(userID, optionNumber)
 	if err != nil {
@@ -60,12 +67,17 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
+
 	appErr = p.API.KVSet(pollID, poll.Encode())
 	if appErr != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
+
+	post := model.Post{}
+	post.AddProp("attachments", poll.ToPostActions(p.SiteURL, pollID, displayName))
+	response.Update = &post
 
 	if hasVoted {
 		response.EphemeralText = voteUpdated
@@ -112,15 +124,7 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	convert := func(userID string) (string, *model.AppError) {
-		user, err := p.API.GetUser(userID)
-		if err != nil {
-			return "", err
-		}
-		return user.Username, nil
-	}
-
-	response.Update, appErr = poll.ToEndPollPost(user.GetFullName(), convert)
+	response.Update, appErr = poll.ToEndPollPost(user.GetFullName(), p.ConvertUserToDisplayName)
 	if appErr != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)

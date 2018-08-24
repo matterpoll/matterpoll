@@ -17,8 +17,11 @@ const (
 )
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	q, o := ParseInput(args.Command, p.Config.Trigger)
 	userID := args.UserId
+	// NOTE: We should better fetch the server config and use this
+	p.SiteURL = args.SiteURL
+
+	q, o := ParseInput(args.Command, p.Config.Trigger)
 	if len(o) == 0 && q == "help" {
 		msg := fmt.Sprintf(commandHelpTextFormat, p.Config.Trigger, p.Config.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, nil), nil
@@ -36,15 +39,16 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		poll = NewPoll(userID, q, o)
 	}
 
-	err := p.API.KVSet(pollID, poll.Encode())
-	if err != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), err
+	appErr := p.API.KVSet(pollID, poll.Encode())
+	if appErr != nil {
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), appErr
 	}
-	user, err := p.API.GetUser(userID)
-	if err != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), err
+
+	displayName, appErr := p.ConvertUserToDisplayName(userID)
+	if appErr != nil {
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), appErr
 	}
-	response := poll.ToCommandResponse(args.SiteURL, user.GetFullName(), pollID)
+	response := poll.ToCommandResponse(p.SiteURL, pollID, displayName)
 	p.API.LogDebug("Created a new poll", "response", response.ToJson())
 	return response, nil
 }

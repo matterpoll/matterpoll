@@ -12,7 +12,7 @@ import (
 )
 
 func TestPluginExecuteCommand(t *testing.T) {
-	siteURL := "https://example.org/"
+	siteURL := "https://example.org"
 	trigger := "poll"
 	idGen := new(MockPollIDGenerator)
 	poll := Poll{
@@ -88,6 +88,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
+				Text:       "0 people have voted",
 				Actions: []*model.PostAction{{
 					Name: "Yes",
 					Integration: &model.PostActionIntegration{
@@ -120,6 +121,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
+				Text:       "0 people have voted",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1",
 					Integration: &model.PostActionIntegration{

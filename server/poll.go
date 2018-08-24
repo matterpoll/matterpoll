@@ -21,7 +21,7 @@ type AnswerOption struct {
 	Voter  []string
 }
 
-func NewPoll(creator string, question string, answerOptions []string) *Poll {
+func NewPoll(creator, question string, answerOptions []string) *Poll {
 	p := Poll{CreatedAt: model.GetMillis(), Creator: creator, DataSchemaVersion: CurrentDataSchemaVersion, Question: question}
 	for _, o := range answerOptions {
 		p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: o})
@@ -29,9 +29,12 @@ func NewPoll(creator string, question string, answerOptions []string) *Poll {
 	return &p
 }
 
-func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.CommandResponse {
+func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackAttachment {
+	numberOfVotes := 0
 	actions := []*model.PostAction{}
+
 	for i, o := range p.AnswerOptions {
+		numberOfVotes += len(o.Voter)
 		actions = append(actions, &model.PostAction{
 			Name: o.Answer,
 			Integration: &model.PostActionIntegration{
@@ -54,23 +57,32 @@ func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.Comm
 		},
 	})
 
-	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", []*model.SlackAttachment{{
+	var hasText string
+	if numberOfVotes == 1 {
+		hasText = "has"
+	} else {
+		hasText = "have"
+	}
+	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
+		Text:       fmt.Sprintf("%d people %s voted", numberOfVotes, hasText),
 		Actions:    actions,
-	},
-	})
+	}}
+}
+
+func (p *Poll) ToCommandResponse(siteURL, pollID, authorName string) *model.CommandResponse {
+	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", p.ToPostActions(siteURL, pollID, authorName))
 }
 
 func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {
 	post := model.Post{}
-
 	fields := []*model.SlackAttachmentField{}
 
 	for _, o := range p.AnswerOptions {
 		var voter string
 		for i := 0; i < len(o.Voter); i++ {
-			userName, err := convert(o.Voter[i])
+			displayName, err := convert(o.Voter[i])
 			if err != nil {
 				return nil, err
 			}
@@ -79,7 +91,7 @@ func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *m
 			} else if i != 0 {
 				voter += ", "
 			}
-			voter += fmt.Sprintf("@%s", userName)
+			voter += displayName
 		}
 		var voteText string
 		if len(o.Voter) == 1 {
