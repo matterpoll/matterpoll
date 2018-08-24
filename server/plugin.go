@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"regexp"
 
@@ -21,9 +22,10 @@ type MatterpollPlugin struct {
 
 func (p *MatterpollPlugin) OnActivate() error {
 	p.idGen = &PollIDGenerator{}
-	p.Config = nil
-
-	return p.OnConfigurationChange()
+	if p.Config == nil {
+		return errors.New("Config empty")
+	}
+	return nil
 }
 
 func (p *MatterpollPlugin) OnDeactivate() error {
