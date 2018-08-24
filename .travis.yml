@@ -20,7 +20,8 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: "TODO"
+    secure: HVv7VxxfR/Y84tN0f83h5+gtu75BNEwgiWE5fuZgJCZpzw+Ti1oCL2WJnq05zZy7TXmeyppqhm4vacSqVyo1wTEgZcv29hfxvGXMKhaXWKvulrBTyzGKnZR6WTCKMXt2Lsh3ay/pakrC82yk7fekKCRp08g1KMmlA777iGSw4f5HbfCKESyB1gpgr22BMuqT+JiW8MQEwO0Lnrn0OENzuLHlgVvC5N/MeuuZhEVgtKHmXpcAt580YFkMuO0WItcuxgaaDHGCMN31LdUOvBDEnkomLrC93ejHsqN0EbsCaRSog3qa72Amc5v5zxAGrsruThr9L90ti+Ob/h56FZ9r/BfOrB5PzJm1SrJu7rdEwQ/u3hh4PrCrEkB0Z8BzUVJP+l6kKexRyZZ+6VjIqtVeH+SgR/IfVihXM7EmUOyiaWPFT1ny361oGvTR8mOdqlaTf8YGrTOGVracL7QHXU1cS7p5A2V+wDDk5C49dbqQu8Pz1s8rk5W6iJioELjtveVDmdkxLE9ZkM1VM0FhnJLGxkKd3Qw8+8YjFHH405cXco18pZAZEtMOPTIJCsnpg536rknuUDHLfTFgr3oK51L0cPK7hJIF4TDK3JTL2mFGcSi96BZwYlpooyhuqMvNG+9Jdrk7doqyZA/xSgJGFAB59Yas5GB4ljzqHQFlPtiUHjo=
   file: "dist/com.github.matterpoll.matterpoll.tar.gz"
   on:
+    repo: matterpoll/matterpoll
     tags: true
