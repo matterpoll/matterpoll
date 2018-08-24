@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -21,12 +22,21 @@ func TestServeHTTP(t *testing.T) {
 		RequestURL         string
 		ExpectedStatusCode int
 		ExpectedHeader     http.Header
+		ExpectedbodyString string
 	}{
+		"Request info": {
+			API:                api1,
+			RequestURL:         "/",
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedHeader:     http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}},
+			ExpectedbodyString: infoMessage,
+		},
 		"InvalidRequestURL": {
 			API:                api1,
 			RequestURL:         "/not_found",
 			ExpectedStatusCode: http.StatusNotFound,
 			ExpectedHeader:     http.Header{},
+			ExpectedbodyString: "",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -42,6 +52,11 @@ func TestServeHTTP(t *testing.T) {
 
 			result := w.Result()
 
+			bodyBytes, err := ioutil.ReadAll(result.Body)
+			assert.Nil(err)
+			bodyString := string(bodyBytes)
+
+			assert.Equal(test.ExpectedbodyString, bodyString)
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedHeader, result.Header)
 		})

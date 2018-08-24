@@ -29,6 +29,8 @@ func (p *MatterpollPlugin) OnDeactivate() error {
 
 func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	switch {
+	case r.URL.Path == "/":
+		p.handleInfo(w, r)
 	case voteRoute.MatchString(r.URL.Path):
 		p.handleVote(w, r)
 	case endPollRoute.MatchString(r.URL.Path):
