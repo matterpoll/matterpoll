@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -9,6 +10,8 @@ import (
 )
 
 const (
+	infoMessage = "Thanks for using MatterPoll\n"
+
 	voteCounted = "Your vote has been counted."
 	voteUpdated = "Your vote has been updated."
 
@@ -18,6 +21,10 @@ const (
 	deletePollFeatureNotAvailable = "This feature is only available on Mattermost v5.3."
 	deletePollSuccess             = "Succefully deleted the poll."
 )
+
+func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, infoMessage)
+}
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	matches := voteRoute.FindStringSubmatch(r.URL.Path)
