@@ -11,7 +11,7 @@ import (
 
 func TestOnConfigurationChange(t *testing.T) {
 	api := &plugintest.API{}
-	api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return().Run(func(args mock.Arguments) {
+	api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
 		arg := args.Get(0).(*Config)
 		arg.Trigger = "poll"
 	})
