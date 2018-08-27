@@ -14,6 +14,7 @@ Supported Mattermost Server Versions: 5.2+
 
 1. Go to the [releases page of this Github repository](https://github.com/matterpoll/matterpoll/releases/latest) and download the latest release for your Mattermost server.
 2. Upload this file in the Mattermost **System Console > Plugins > Management** page to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
+3. You should set **Enable integrations to override usernames** and **Enable integrations to override profile picture icons** in **System Console > Custom Integrations** to `true`.
 
 ## Usage
 
