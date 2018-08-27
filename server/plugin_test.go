@@ -3,7 +3,6 @@ package main
 import (
 	"testing"
 
-	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -42,28 +41,26 @@ func (m *MockPollIDGenerator) NewID() string {
 }
 
 func TestPluginOnActivate(t *testing.T) {
-	api := &plugintest.API{}
-	api.On("RegisterCommand", &model.Command{
-		Trigger:          trigger,
-		DisplayName:      "Matterpoll",
-		Description:      "Polling feature by https://github.com/matterpoll/matterpoll",
-		AutoComplete:     true,
-		AutoCompleteDesc: "Create a poll",
-		AutoCompleteHint: "[Question] [Answer 1] [Answer 2]...",
-	}).Return(nil)
-	defer api.AssertExpectations(t)
-	p := &MatterpollPlugin{}
-	p.SetAPI(api)
-
+	p := &MatterpollPlugin{
+		Config: &Config{},
+	}
 	err := p.OnActivate()
 	assert.Nil(t, err)
 }
 
-func TestPluginOnDeactivate(t *testing.T) {
-	api := &plugintest.API{}
-	api.On("UnregisterCommand", "", trigger).Return(nil)
-	defer api.AssertExpectations(t)
+func TestPluginOnActivateEmptyConfig(t *testing.T) {
 	p := &MatterpollPlugin{}
+	err := p.OnActivate()
+	assert.NotNil(t, err)
+}
+
+func TestPluginOnDeactivate(t *testing.T) {
+	p := &MatterpollPlugin{
+		Config: &Config{Trigger: "poll"},
+	}
+	api := &plugintest.API{}
+	api.On("UnregisterCommand", "", p.Config.Trigger).Return(nil)
+	defer api.AssertExpectations(t)
 	p.SetAPI(api)
 
 	err := p.OnDeactivate()

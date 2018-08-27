@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"regexp"
 
@@ -15,16 +16,20 @@ var (
 
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
-	idGen IDGenerator
+	idGen  IDGenerator
+	Config *Config
 }
 
 func (p *MatterpollPlugin) OnActivate() error {
 	p.idGen = &PollIDGenerator{}
-	return p.API.RegisterCommand(getCommand())
+	if p.Config == nil {
+		return errors.New("Config empty")
+	}
+	return nil
 }
 
 func (p *MatterpollPlugin) OnDeactivate() error {
-	return p.API.UnregisterCommand("", trigger)
+	return p.API.UnregisterCommand("", p.Config.Trigger)
 }
 
 func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {

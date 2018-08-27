@@ -27,6 +27,7 @@ func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
+
 	matches := voteRoute.FindStringSubmatch(r.URL.Path)
 	pollID := matches[1]
 	optionNumber, _ := strconv.Atoi(matches[2])

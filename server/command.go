@@ -6,7 +6,6 @@ import (
 )
 
 const (
-	trigger          = "matterpoll"
 	responseIconURL  = "https://raw.githubusercontent.com/matterpoll/matterpoll/master/assets/logo_dark.png"
 	responseUsername = "Matterpoll"
 
@@ -16,7 +15,7 @@ const (
 )
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	q, o := ParseInput(args.Command)
+	q, o := ParseInput(args.Command, p.Config.Trigger)
 	userID := args.UserId
 	if len(o) == 0 && q == "help" {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandHelpText, nil), nil
@@ -58,7 +57,7 @@ func getCommandResponse(responseType, text string, attachments []*model.SlackAtt
 	}
 }
 
-func getCommand() *model.Command {
+func getCommand(trigger string) *model.Command {
 	return &model.Command{
 		Trigger:          trigger,
 		DisplayName:      "Matterpoll",
