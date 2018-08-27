@@ -57,16 +57,10 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 		},
 	})
 
-	var hasText string
-	if numberOfVotes == 1 {
-		hasText = "has"
-	} else {
-		hasText = "have"
-	}
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       fmt.Sprintf("%d people %s voted", numberOfVotes, hasText),
+		Text:       fmt.Sprintf("Total votes: %d", numberOfVotes),
 		Actions:    actions,
 	}}
 }
