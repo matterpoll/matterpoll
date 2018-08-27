@@ -22,6 +22,7 @@ deploy:
   api_key:
     secure: "BkhVwjiVJ7SHCELeKYna/Rkcubx2j+GfJkyXsl4iiESFJKulfv7ZTBXIlYpv8wLn8F9A6hsHss37Z3ktghlm8SM1Nz1nUma5t92ZTQHfyAKpxIFF79g7vYWLzMEAcasVY2XntkGfIKq0uiXoRb/aQclyOm8L67HFqCRn18C12MHTY80yDLlJr9fpsZy0cjL9JEnMunrmhhIbPCLlh8lr852k/EvTkf3VaKag1We8mqrGkujFz3cFLYcWdoxDukyzG2uUCyX8tW4VVDoFOVRCAL3CJKrL6WBKKBmKfhP/iiwaVuKr4MU9LcWoaleiIAhdo6obQPzzvjiS0HhanF1UHBk9j6BzjQXZ4hlQjQEVyQDYsc6UAYXj31A3bRHkj7CkStNkTAKviU2LdDXikguN7yy+2H0A5WIoMX627LqhDxQ3HI/DeOuD/ar8rVTSs2ccbRdGZop7I+YdhWAn6E/wIcPYl/CB+IEupNmSUXs8LBCx4NGQmvJX5KwT1CnN1TkUGtEtu5T07jlf/mGgje3cVqCfLg/q0IqZDBIgnT8IwPw9z6t0NnWklPsNs6Y4gZC8hWgiJP7iUEq7N24z9+7SD8Hkt7sWgVHJ+NRRflD9Nd+OeXRJzR4AU5gfkYCPJijKPk9rKzg9N6xu3s7SwBTgM0JQyuUlTvVWfjmr35qw/z4="
   file: "dist/com.github.matterpoll.matterpoll.tar.gz"
+  skip_cleanup: true
   on:
     repo: matterpoll/matterpoll
     tags: true
