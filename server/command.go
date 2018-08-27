@@ -42,7 +42,9 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	if err != nil {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), err
 	}
-	return poll.ToCommandResponse(args.SiteURL, user.GetFullName(), pollID), nil
+	response := poll.ToCommandResponse(args.SiteURL, user.GetFullName(), pollID)
+	p.API.LogDebug("Created a new poll", "response", response.ToJson())
+	return response, nil
 }
 
 func getCommandResponse(responseType, text string, attachments []*model.SlackAttachment) *model.CommandResponse {

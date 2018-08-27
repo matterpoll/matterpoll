@@ -11,12 +11,14 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestServeHTTP(t *testing.T) {
 	idGen := new(MockPollIDGenerator)
 
 	api1 := &plugintest.API{}
+	api1.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 	for name, test := range map[string]struct {
 		API                *plugintest.API
 		RequestURL         string
@@ -155,6 +157,8 @@ func TestHandleVote(t *testing.T) {
 			p := &MatterpollPlugin{
 				idGen: idGen,
 			}
+			test.API.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
+
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
@@ -304,6 +308,7 @@ func TestHandleEndPoll(t *testing.T) {
 			p := &MatterpollPlugin{
 				idGen: idGen,
 			}
+			test.API.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
@@ -420,6 +425,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			p := &MatterpollPlugin{
 				idGen: idGen,
 			}
+			test.API.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
