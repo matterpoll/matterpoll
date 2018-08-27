@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 0.0.3 - 2018-08-27
 ### Added
+- Add debug logging
 - Add http info route to $SIT_URL/plugins/com.github.matterpoll.matterpoll/
 - Build releases with travis
 
