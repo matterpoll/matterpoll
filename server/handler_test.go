@@ -18,7 +18,6 @@ func TestServeHTTP(t *testing.T) {
 	idGen := new(MockPollIDGenerator)
 
 	api1 := &plugintest.API{}
-	api1.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 	for name, test := range map[string]struct {
 		API                *plugintest.API
 		RequestURL         string
@@ -46,6 +45,7 @@ func TestServeHTTP(t *testing.T) {
 			p := &MatterpollPlugin{
 				idGen: idGen,
 			}
+			AllowRequestLogging(test.API)
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
@@ -157,8 +157,7 @@ func TestHandleVote(t *testing.T) {
 			p := &MatterpollPlugin{
 				idGen: idGen,
 			}
-			test.API.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
-
+			AllowRequestLogging(test.API)
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
@@ -308,7 +307,7 @@ func TestHandleEndPoll(t *testing.T) {
 			p := &MatterpollPlugin{
 				idGen: idGen,
 			}
-			test.API.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
+			AllowRequestLogging(test.API)
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
@@ -425,7 +424,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			p := &MatterpollPlugin{
 				idGen: idGen,
 			}
-			test.API.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
+			AllowRequestLogging(test.API)
 			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
@@ -444,4 +443,8 @@ func TestHandleDeletePoll(t *testing.T) {
 			assert.Equal(test.ExpectedResponse, response)
 		})
 	}
+}
+
+func AllowRequestLogging(api *plugintest.API) {
+	api.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 }

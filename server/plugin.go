@@ -33,7 +33,7 @@ func (p *MatterpollPlugin) OnDeactivate() error {
 }
 
 func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	p.API.LogDebug("New request:", "RequestURI", r.RequestURI, "Host", r.Host, "Method", r.Method)
+	p.API.LogDebug("New request:", "Host", r.Host, "RequestURI", r.RequestURI, "Method", r.Method)
 	switch {
 	case r.URL.Path == "/":
 		p.handleInfo(w, r)
