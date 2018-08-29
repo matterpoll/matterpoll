@@ -241,6 +241,8 @@ func TestHandleEndPoll(t *testing.T) {
 	api1.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 	api1.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
 	api1.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
+	api1.On("GetPost", "postID1").Return(&model.Post{ChannelId: "cannel_id"}, nil)
+	api1.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
 	defer api1.AssertExpectations(t)
 
 	expectedattachments1 := []*model.SlackAttachment{{

@@ -19,6 +19,7 @@ const (
 	voteCounted = "Your vote has been counted."
 	voteUpdated = "Your vote has been updated."
 
+	endPollSuccessfully      = "Poll has ended. Let's see results!\nYou can see results as the parent post of this."
 	endPollInvalidPermission = "Only the creator of a poll is allowed to end it."
 
 	deletePollInvalidPermission = "Only the creator of a poll is allowed to delete it."
@@ -161,6 +162,21 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 	}
 
 	writePostActionIntegrationResponse(w, response)
+
+	pollPost, _ := p.API.GetPost(request.PostId)
+	endPost := &model.Post{
+		UserId:    request.UserId,
+		ChannelId: pollPost.ChannelId,
+		RootId:    request.PostId,
+		Message:   endPollSuccessfully,
+		Type:      model.POST_DEFAULT,
+		Props: model.StringInterface{
+			"override_username": responseUsername,
+			"override_icon_url": responseIconURL,
+			"from_webhook":      "true",
+		},
+	}
+	p.API.CreatePost(endPost)
 }
 
 func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Request) {
