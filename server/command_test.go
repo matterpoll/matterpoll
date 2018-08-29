@@ -58,7 +58,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         commandInputError,
+			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Help text": {
@@ -66,7 +66,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         commandHelpText,
+			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Two arguments": {
@@ -74,7 +74,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         commandInputError,
+			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Just question": {

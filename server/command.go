@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 )
@@ -9,20 +11,21 @@ const (
 	responseIconURL  = "https://raw.githubusercontent.com/matterpoll/matterpoll/master/assets/logo_dark.png"
 	responseUsername = "Matterpoll"
 
-	commandHelpText     = "To create a poll with the answer options \"Yes\" and \"No\" type `/matterpoll \"Question\"`.\nYou can customise the options by typing `/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"` "
-	commandInputError   = "Invalid Input. Try `/matterpoll \"Question\"` or `/matterpoll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
-	commandGenericError = "Something went bad. Please try again later."
+	commandHelpTextFormat   = "To create a poll with the answer options \"Yes\" and \"No\" type `/%s \"Question\"`.\nYou can customise the options by typing `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"` "
+	commandInputErrorFormat = "Invalid Input. Try `/%s \"Question\"` or `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
+	commandGenericError     = "Something went bad. Please try again later."
 )
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	q, o := ParseInput(args.Command, p.Config.Trigger)
 	userID := args.UserId
 	if len(o) == 0 && q == "help" {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandHelpText, nil), nil
-
+		msg := fmt.Sprintf(commandHelpTextFormat, p.Config.Trigger, p.Config.Trigger)
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, nil), nil
 	}
 	if len(o) == 1 || q == "" {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandInputError, nil), nil
+		msg := fmt.Sprintf(commandInputErrorFormat, p.Config.Trigger, p.Config.Trigger)
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, nil), nil
 	}
 
 	pollID := p.idGen.NewID()
