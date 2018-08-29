@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	infoMessage = "Thanks for using MatterPoll\n"
+	infoMessage = "Thanks for using Matterpoll\n"
 
 	voteCounted = "Your vote has been counted."
 	voteUpdated = "Your vote has been updated."
