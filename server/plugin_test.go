@@ -9,6 +9,7 @@ import (
 )
 
 var samplePoll = Poll{
+	CreatedAt:         1234567890,
 	Creator:           "userID1",
 	DataSchemaVersion: "v1",
 	Question:          "Question",
@@ -20,6 +21,7 @@ var samplePoll = Poll{
 }
 
 var samplePollWithVotes = Poll{
+	CreatedAt:         1234567890,
 	Creator:           "userID1",
 	DataSchemaVersion: "v1",
 	Question:          "Question",

@@ -3,8 +3,29 @@ package main
 import (
 	"testing"
 
+	"github.com/bouk/monkey"
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestNewPoll(t *testing.T) {
+	assert := assert.New(t)
+	patch := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
+	defer patch.Unpatch()
+
+	creator := model.NewRandomString(10)
+	question := model.NewRandomString(10)
+	answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
+	p := NewPoll(creator, question, answerOptions)
+
+	assert.Equal(int64(1234567890), p.CreatedAt)
+	assert.Equal(creator, p.Creator)
+	assert.Equal(CurrentDataSchemaVersion, p.DataSchemaVersion)
+	assert.Equal(question, p.Question)
+	assert.Equal(&AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
+	assert.Equal(&AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
+	assert.Equal(&AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
+}
 
 func TestEncodeDecode(t *testing.T) {
 	p1 := &Poll{
