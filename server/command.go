@@ -8,10 +8,13 @@ import (
 )
 
 const (
-	responseIconURL  = "https://raw.githubusercontent.com/matterpoll/matterpoll/master/assets/logo_dark.png"
+	// Parameter: SiteURL, PluginId
+	responseIconURL  = "%s/plugins/%s/logo_dark.png"
 	responseUsername = "Matterpoll"
 
-	commandHelpTextFormat   = "To create a poll with the answer options \"Yes\" and \"No\" type `/%s \"Question\"`.\nYou can customise the options by typing `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"` "
+	// Parameter: Trigger
+	commandHelpTextFormat = "To create a poll with the answer options \"Yes\" and \"No\" type `/%s \"Question\"`.\nYou can customise the options by typing `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
+	// Parameter: Trigger, Trigger
 	commandInputErrorFormat = "Invalid Input. Try `/%s \"Question\"` or `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
 	commandGenericError     = "Something went bad. Please try again later."
 )
@@ -56,7 +59,7 @@ func getCommandResponse(responseType, text string, attachments []*model.SlackAtt
 		ResponseType: responseType,
 		Text:         text,
 		Username:     responseUsername,
-		IconURL:      responseIconURL,
+		IconURL:      fmt.Sprintf(responseIconURL, "http://localhost:8065", PluginId),
 		Type:         model.POST_DEFAULT,
 		Attachments:  attachments,
 	}
