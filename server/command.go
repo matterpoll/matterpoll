@@ -51,7 +51,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
 	}
 
-	response := poll.ToCommandResponse(*p.ServerConfig.ServiceSettings.SiteURL, pollID, displayName)
+	response := poll.ToCommandResponse(*p.ServerConfig.ServiceSettings.SiteURL, teamID, pollID, displayName)
 	p.API.LogDebug("Created a new poll", "response", response.ToJson())
 	return response, nil
 }

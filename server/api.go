@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -19,8 +20,9 @@ const (
 	voteCounted = "Your vote has been counted."
 	voteUpdated = "Your vote has been updated."
 
-	endPollSuccessfully      = "Poll has ended. Let's see results!\nYou can see results as the parent post of this."
-	endPollInvalidPermission = "Only the creator of a poll is allowed to end it."
+	// Parameter: Question, Permalink
+	endPollSuccessfullyFormat = "The poll **%s** has ended.  The original post have been updated. You can jump to it by pressing [here](%s)"
+	endPollInvalidPermission  = "Only the creator of a poll is allowed to end it."
 
 	deletePollInvalidPermission = "Only the creator of a poll is allowed to delete it."
 	deletePollSuccess           = "Succefully deleted the poll."
@@ -98,6 +100,10 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var teamID string
+	if v, ok := request.Context["team_id"]; ok {
+		teamID = v.(string)
+	}
 	post := &model.Post{}
 	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, pollID, displayName))
 	response.Update = post
@@ -161,18 +167,40 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	writePostActionIntegrationResponse(w, response)
+	p.postEndPollAnnouncement(request, poll.Question)
 
-	pollPost, _ := p.API.GetPost(request.PostId)
+	writePostActionIntegrationResponse(w, response)
+}
+
+func (p *MatterpollPlugin) postEndPollAnnouncement(request *model.PostActionIntegrationRequest, question string) {
+	var teamID string
+	if v, ok := request.Context["team_id"]; !ok {
+		return
+	} else {
+		teamID = v.(string)
+	}
+
+	team, err := p.API.GetTeam(teamID)
+	if err != nil {
+		return
+	}
+	permalink := fmt.Sprintf("%s/%s/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, team.Name, request.PostId)
+
+	pollPost, err := p.API.GetPost(request.PostId)
+	if err != nil {
+		return
+	}
+	channelID := pollPost.ChannelId
+
 	endPost := &model.Post{
 		UserId:    request.UserId,
-		ChannelId: pollPost.ChannelId,
+		ChannelId: channelID,
 		RootId:    request.PostId,
-		Message:   endPollSuccessfully,
+		Message:   fmt.Sprintf(endPollSuccessfullyFormat, question, permalink),
 		Type:      model.POST_DEFAULT,
 		Props: model.StringInterface{
 			"override_username": responseUsername,
-			"override_icon_url": responseIconURL,
+			"override_icon_url": fmt.Sprintf(responseIconURL, *p.ServerConfig.ServiceSettings.SiteURL, PluginId),
 			"from_webhook":      "true",
 		},
 	}

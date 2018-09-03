@@ -179,6 +179,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			r, err := p.ExecuteCommand(nil, &model.CommandArgs{
 				Command: test.Command,
 				UserId:  "userID1",
+				TeamId:  "teamID1",
 			})
 
 			assert.Equal(test.ExpectedError, err)

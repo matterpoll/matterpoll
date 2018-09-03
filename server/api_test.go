@@ -147,7 +147,7 @@ func TestHandleVote(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			API:                api1,
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: voteCounted, Update: expectedPost1},
@@ -242,6 +242,7 @@ func TestHandleEndPoll(t *testing.T) {
 	api1.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
 	api1.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
 	api1.On("GetPost", "postID1").Return(&model.Post{ChannelId: "cannel_id"}, nil)
+	api1.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
 	api1.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
 	defer api1.AssertExpectations(t)
 
@@ -306,7 +307,7 @@ func TestHandleEndPoll(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			API:                api1,
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
 		},
@@ -384,6 +385,68 @@ func TestHandleEndPoll(t *testing.T) {
 	}
 }
 
+func TestPostEndPollAnnouncement(t *testing.T) {
+	api1 := &plugintest.API{}
+	api1.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+	api1.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channelID1"}, nil)
+	api1.On("CreatePost", &model.Post{
+		UserId:    "userID1",
+		ChannelId: "channelID1",
+		RootId:    "postID1",
+		Message:   fmt.Sprintf(endPollSuccessfullyFormat, "Question1", "http://localhost:8065/team1/pl/postID1"),
+		Type:      model.POST_DEFAULT,
+		Props: model.StringInterface{
+			"override_username": responseUsername,
+			"override_icon_url": fmt.Sprintf(responseIconURL, "http://localhost:8065", PluginId),
+			"from_webhook":      "true",
+		},
+	}).Return(nil, nil)
+	defer api1.AssertExpectations(t)
+
+	api2 := &plugintest.API{}
+	api2.On("GetTeam", "teamID1").Return(nil, &model.AppError{})
+	defer api1.AssertExpectations(t)
+
+	api3 := &plugintest.API{}
+	api3.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+	api3.On("GetPost", "postID1").Return(nil, &model.AppError{})
+	defer api1.AssertExpectations(t)
+
+	for name, test := range map[string]struct {
+		API      *plugintest.API
+		Request  *model.PostActionIntegrationRequest
+		Question string
+	}{
+		"Valid request with teamID": {
+			API:      api1,
+			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
+			Question: "Question1",
+		},
+		"Valid request without context": {
+			API:      &plugintest.API{},
+			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Question: "Question1",
+		},
+		"Valid request, GetTeam fails": {
+			API:      api2,
+			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
+			Question: "Question1",
+		},
+		"Valid request, GetPost fails": {
+			API:      api3,
+			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
+			Question: "Question1",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			p := &MatterpollPlugin{
+				ServerConfig: &model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("http://localhost:8065")}},
+			}
+			p.SetAPI(test.API)
+			p.postEndPollAnnouncement(test.Request, test.Question)
+		})
+	}
+}
 func TestHandleDeletePoll(t *testing.T) {
 	api1 := &plugintest.API{}
 	api1.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
