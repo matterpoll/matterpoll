@@ -66,7 +66,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 }
 
 func (p *Poll) ToCommandResponse(siteURL, pollID, authorName string) *model.CommandResponse {
-	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", p.ToPostActions(siteURL, pollID, authorName))
+	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", siteURL, p.ToPostActions(siteURL, pollID, authorName))
 }
 
 func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {
