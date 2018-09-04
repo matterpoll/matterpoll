@@ -23,7 +23,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	creatorID := args.UserId
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 
-	q, o := ParseInput(args.Command, p.Config.Trigger)
+	q, o, _ := ParseInput(args.Command, p.Config.Trigger)
 	if len(o) == 0 && q == "help" {
 		msg := fmt.Sprintf(commandHelpTextFormat, p.Config.Trigger, p.Config.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil

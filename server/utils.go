@@ -5,11 +5,32 @@ import (
 	"strings"
 )
 
-func ParseInput(input string, trigger string) (string, []string) {
-	o := strings.TrimRight(strings.TrimLeft(strings.TrimSpace(strings.TrimPrefix(input, fmt.Sprintf("/%s", trigger))), "\""), "\"")
-	if o == "" {
-		return "", []string{}
+func ParseInput(input string, trigger string) (string, []string, []string) {
+	/*
+			reg := regexp.MustCompile(fmt.Sprintf(`/%s(?:\s*"([0-9a-zA-Z]+)"\s*)*`, trigger))
+			matches := reg.FindAllStringSubmatch(input, -1000)
+
+		  return "", []string{}, []string{}
+
+			reg := regexp.MustCompile(`\s*--([[:alpha:]]+)\s*`)
+
+			matches := reg.FindAllStringSubmatch(input, -1)
+			for i := len(matches) - 1; i >= 0; i-- {
+				in = strings.TrimRight(in, matches[i][0])
+				setting = append(setting, matches[i][1])
+			}
+	*/
+	setting := []string{}
+	in := input
+
+	prossedInput := strings.TrimRight(strings.TrimLeft(strings.TrimSpace(strings.TrimPrefix(in, fmt.Sprintf("/%s", trigger))), "\""), "\"")
+	if prossedInput == "" {
+		return "", []string{}, []string{}
 	}
-	s := strings.Split(o, "\" \"")
-	return s[0], s[1:]
+
+	split := strings.Split(prossedInput, "\" \"")
+	q := split[0]
+	o := split[1:]
+
+	return q, o, setting
 }
