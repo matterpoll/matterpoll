@@ -34,6 +34,7 @@ func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.Comm
 	for i, o := range p.AnswerOptions {
 		actions = append(actions, &model.PostAction{
 			Name: o.Answer,
+			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/%v", siteURL, PluginId, CurrentApiVersion, pollID, i),
 			},
@@ -42,6 +43,7 @@ func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.Comm
 
 	actions = append(actions, &model.PostAction{
 		Name: "Delete Poll",
+		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
 			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentApiVersion, pollID),
 		},
@@ -49,6 +51,7 @@ func (p *Poll) ToCommandResponse(siteURL, authorName, pollID string) *model.Comm
 
 	actions = append(actions, &model.PostAction{
 		Name: "End Poll",
+		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
 			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentApiVersion, pollID),
 		},
