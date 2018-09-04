@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
@@ -15,6 +16,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 	trigger := "poll"
 	idGen := new(MockPollIDGenerator)
 	poll := Poll{
+		CreatedAt:         1234567890,
 		Creator:           "userID1",
 		DataSchemaVersion: "v1",
 		Question:          "Question",
@@ -165,6 +167,9 @@ func TestPluginExecuteCommand(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
+			patch := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
+			defer patch.Unpatch()
+
 			idGen := new(MockPollIDGenerator)
 			p := &MatterpollPlugin{
 				idGen: idGen,
