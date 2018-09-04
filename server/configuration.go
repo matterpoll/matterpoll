@@ -25,6 +25,7 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 		return err
 	}
 
+	p.ServerConfig = p.API.GetConfig()
 	p.Config = c
 	return nil
 }

@@ -178,12 +178,16 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Config: &Config{
 					Trigger: trigger,
 				},
+				ServerConfig: &model.Config{
+					ServiceSettings: model.ServiceSettings{
+						SiteURL: &siteURL,
+					},
+				},
 			}
 			p.SetAPI(test.API)
 
 			r, err := p.ExecuteCommand(nil, &model.CommandArgs{
 				Command: test.Command,
-				SiteURL: siteURL,
 				UserId:  "userID1",
 			})
 

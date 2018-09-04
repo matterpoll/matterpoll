@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -17,6 +18,7 @@ func TestOnConfigurationChange(t *testing.T) {
 	})
 	api1.On("UnregisterCommand", "", "oldTrigger").Return(nil)
 	api1.On("RegisterCommand", getCommand("poll")).Return(nil)
+	api1.On("GetConfig").Return(&model.Config{})
 	defer api1.AssertExpectations(t)
 
 	api2 := &plugintest.API{}
@@ -25,6 +27,7 @@ func TestOnConfigurationChange(t *testing.T) {
 		arg.Trigger = "poll"
 	})
 	api2.On("RegisterCommand", getCommand("poll")).Return(nil)
+	api2.On("GetConfig").Return(&model.Config{})
 	defer api2.AssertExpectations(t)
 
 	err3 := errors.New("LoadPluginConfiguration failed")

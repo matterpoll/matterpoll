@@ -18,8 +18,6 @@ const (
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	userID := args.UserId
-	// NOTE: We should better fetch the server config and use this
-	p.SiteURL = args.SiteURL
 
 	q, o := ParseInput(args.Command, p.Config.Trigger)
 	if len(o) == 0 && q == "help" {
@@ -48,7 +46,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	if appErr != nil {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), appErr
 	}
-	response := poll.ToCommandResponse(p.SiteURL, pollID, displayName)
+	response := poll.ToCommandResponse(*p.ServerConfig.ServiceSettings.SiteURL, pollID, displayName)
 	p.API.LogDebug("Created a new poll", "response", response.ToJson())
 	return response, nil
 }

@@ -174,8 +174,12 @@ func TestHandleVote(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			p := &MatterpollPlugin{
-				idGen:   idGen,
-				SiteURL: siteURL,
+				idGen: idGen,
+				ServerConfig: &model.Config{
+					ServiceSettings: model.ServiceSettings{
+						SiteURL: &siteURL,
+					},
+				},
 			}
 			AllowRequestLogging(test.API)
 			p.SetAPI(test.API)

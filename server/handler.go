@@ -75,9 +75,9 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post := model.Post{}
-	post.AddProp("attachments", poll.ToPostActions(p.SiteURL, pollID, displayName))
-	response.Update = &post
+	post := &model.Post{}
+	post.AddProp("attachments", poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, pollID, displayName))
+	response.Update = post
 
 	if hasVoted {
 		response.EphemeralText = voteUpdated

@@ -17,9 +17,9 @@ var (
 
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
-	idGen   IDGenerator
-	Config  *Config
-	SiteURL string
+	idGen        IDGenerator
+	Config       *Config
+	ServerConfig *model.Config
 }
 
 func (p *MatterpollPlugin) OnActivate() error {
@@ -56,5 +56,6 @@ func (p *MatterpollPlugin) ConvertUserToDisplayName(userID string) (string, *mod
 		return "", err
 	}
 	// NOTE: We should better fetch the server config and us this instead of model.SHOW_FULLNAME
-	return user.GetDisplayName(model.SHOW_FULLNAME), nil
+	nameFormat := model.SHOW_FULLNAME
+	return user.GetDisplayName(nameFormat), nil
 }
