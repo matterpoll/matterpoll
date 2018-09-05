@@ -121,7 +121,7 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:da0bc986ae147196f4a089323d9287afc14a93d99371838786bad6fe346bda18"
+  digest = "1:e3a514baeb09eb05a8567b3fe5ca3625eb41152256a461400151aa2f70c5c549"
   name = "github.com/mattermost/mattermost-server"
   packages = [
     "einterfaces",
@@ -134,8 +134,8 @@
     "utils/markdown",
   ]
   pruneopts = "NUT"
-  revision = "d2190527eafdae31e14ba0832dcfb79a0a1e223b"
-  version = "v5.3.0-rc1"
+  revision = "fd21e53365d504155ab87f9bef60b1ab4faeb38d"
+  version = "v5.3.0"
 
 [[projects]]
   branch = "mattermost"

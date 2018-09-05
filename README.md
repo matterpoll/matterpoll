@@ -8,7 +8,7 @@
 
 Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows users to create poll by using a slash command.
 
-Supported Mattermost Server Versions: 5.2+
+Supported Mattermost Server Versions: 5.3+
 
 ## Installation
 
