@@ -412,12 +412,6 @@ func TestHandleDeletePoll(t *testing.T) {
 			ExpectedStatusCode: http.StatusBadRequest,
 			ExpectedResponse:   nil,
 		},
-		"Invalid request, PostId of request empty": {
-			API:                api4,
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: ""},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollFeatureNotAvailable},
-		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
