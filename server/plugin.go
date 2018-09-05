@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
@@ -39,6 +40,8 @@ func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r
 	switch {
 	case r.URL.Path == "/":
 		p.handleInfo(w, r)
+	case r.URL.Path == "/logo_dark.png":
+		http.ServeFile(w, r, strings.TrimPrefix(r.RequestURI, "/"))
 	case voteRoute.MatchString(r.URL.Path):
 		p.handleVote(w, r)
 	case endPollRoute.MatchString(r.URL.Path):

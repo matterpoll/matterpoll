@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os/exec"
 	"strings"
 	"testing"
 
@@ -16,8 +17,8 @@ import (
 
 func TestServeHTTP(t *testing.T) {
 	idGen := new(MockPollIDGenerator)
-
 	api1 := &plugintest.API{}
+
 	for name, test := range map[string]struct {
 		API                *plugintest.API
 		RequestURL         string
@@ -63,6 +64,36 @@ func TestServeHTTP(t *testing.T) {
 			assert.Equal(test.ExpectedHeader, result.Header)
 		})
 	}
+}
+
+func TestServeFile(t *testing.T) {
+	cpCmd := exec.Command("cp", "../assets/logo_dark.png", ".")
+	cpCmd.Run()
+	defer func() {
+		cpCmd := exec.Command("rm", "logo_dark.png")
+		cpCmd.Run()
+	}()
+
+	assert := assert.New(t)
+	idGen := new(MockPollIDGenerator)
+	api1 := &plugintest.API{}
+	p := &MatterpollPlugin{
+		idGen: idGen,
+	}
+	AllowRequestLogging(api1)
+	p.SetAPI(api1)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/logo_dark.png", nil)
+	p.ServeHTTP(nil, w, r)
+
+	result := w.Result()
+
+	bodyBytes, err := ioutil.ReadAll(result.Body)
+	assert.Nil(err)
+	assert.NotNil(bodyBytes)
+	assert.Equal(http.StatusOK, result.StatusCode)
+	assert.Contains([]string{"image/png"}, result.Header.Get("Content-Type"))
 }
 
 func TestHandleVote(t *testing.T) {

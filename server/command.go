@@ -8,25 +8,29 @@ import (
 )
 
 const (
-	responseIconURL  = "https://raw.githubusercontent.com/matterpoll/matterpoll/master/assets/logo_dark.png"
+	// Parameter: SiteURL, PluginId
+	responseIconURL  = "%s/plugins/%s/logo_dark.png"
 	responseUsername = "Matterpoll"
 
-	commandHelpTextFormat   = "To create a poll with the answer options \"Yes\" and \"No\" type `/%s \"Question\"`.\nYou can customise the options by typing `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"` "
+	// Parameter: Trigger
+	commandHelpTextFormat = "To create a poll with the answer options \"Yes\" and \"No\" type `/%s \"Question\"`.\nYou can customise the options by typing `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
+	// Parameter: Trigger, Trigger
 	commandInputErrorFormat = "Invalid Input. Try `/%s \"Question\"` or `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
 	commandGenericError     = "Something went bad. Please try again later."
 )
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	userID := args.UserId
+	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 
 	q, o := ParseInput(args.Command, p.Config.Trigger)
 	if len(o) == 0 && q == "help" {
 		msg := fmt.Sprintf(commandHelpTextFormat, p.Config.Trigger, p.Config.Trigger)
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, nil), nil
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 	if len(o) == 1 || q == "" {
 		msg := fmt.Sprintf(commandInputErrorFormat, p.Config.Trigger, p.Config.Trigger)
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, nil), nil
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 
 	pollID := p.idGen.NewID()
@@ -39,24 +43,25 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 
 	appErr := p.API.KVSet(pollID, poll.Encode())
 	if appErr != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), appErr
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
 	}
 
 	displayName, appErr := p.ConvertUserToDisplayName(userID)
 	if appErr != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, nil), appErr
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
 	}
+
 	response := poll.ToCommandResponse(*p.ServerConfig.ServiceSettings.SiteURL, pollID, displayName)
 	p.API.LogDebug("Created a new poll", "response", response.ToJson())
 	return response, nil
 }
 
-func getCommandResponse(responseType, text string, attachments []*model.SlackAttachment) *model.CommandResponse {
+func getCommandResponse(responseType, text, siteURL string, attachments []*model.SlackAttachment) *model.CommandResponse {
 	return &model.CommandResponse{
 		ResponseType: responseType,
 		Text:         text,
 		Username:     responseUsername,
-		IconURL:      responseIconURL,
+		IconURL:      fmt.Sprintf(responseIconURL, siteURL, PluginId),
 		Type:         model.POST_DEFAULT,
 		Attachments:  attachments,
 	}

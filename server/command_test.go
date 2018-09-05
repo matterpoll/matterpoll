@@ -196,7 +196,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 
 			assert.Equal(model.POST_DEFAULT, r.Type)
 			assert.Equal(responseUsername, r.Username)
-			assert.Equal(responseIconURL, r.IconURL)
+			assert.Equal(fmt.Sprintf(responseIconURL, siteURL, PluginId), r.IconURL)
 			assert.Equal(test.ExpectedResponseType, r.ResponseType)
 			assert.Equal(test.ExpectedText, r.Text)
 			assert.Equal(test.ExpectedAttachments, r.Attachments)
