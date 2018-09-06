@@ -17,8 +17,9 @@ func TestNewPoll(t *testing.T) {
 	creator := model.NewRandomString(10)
 	question := model.NewRandomString(10)
 	answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-	p := NewPoll(creator, question, answerOptions)
+	p, err := NewPoll(creator, question, answerOptions, []string{"anonymous", "progress"})
 
+	require.Nil(t, err)
 	require.NotNil(t, p)
 	assert.Equal(int64(1234567890), p.CreatedAt)
 	assert.Equal(creator, p.Creator)
@@ -27,6 +28,19 @@ func TestNewPoll(t *testing.T) {
 	assert.Equal(&AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
 	assert.Equal(&AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
 	assert.Equal(&AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
+	assert.Equal(PollSettings{Anonymous: true, Progress: true}, p.Settings)
+}
+
+func TestNewPollError(t *testing.T) {
+	assert := assert.New(t)
+
+	creator := model.NewRandomString(10)
+	question := model.NewRandomString(10)
+	answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
+	p, err := NewPoll(creator, question, answerOptions, []string{"unkownOption"})
+
+	assert.Nil(p)
+	assert.NotNil(err)
 }
 
 func TestEncodeDecode(t *testing.T) {

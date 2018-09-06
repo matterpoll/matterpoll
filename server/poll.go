@@ -14,6 +14,7 @@ type Poll struct {
 	DataSchemaVersion string
 	Question          string
 	AnswerOptions     []*AnswerOption
+	Settings          PollSettings
 }
 
 type AnswerOption struct {
@@ -21,12 +22,27 @@ type AnswerOption struct {
 	Voter  []string
 }
 
-func NewPoll(creator, question string, answerOptions []string) *Poll {
+type PollSettings struct {
+	Anonymous bool
+	Progress  bool
+}
+
+func NewPoll(creator, question string, answerOptions, settings []string) (*Poll, error) {
 	p := Poll{CreatedAt: model.GetMillis(), Creator: creator, DataSchemaVersion: CurrentDataSchemaVersion, Question: question}
 	for _, o := range answerOptions {
 		p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: o})
 	}
-	return &p
+	for _, s := range settings {
+		switch s {
+		case "anonymous":
+			p.Settings.Anonymous = true
+		case "progress":
+			p.Settings.Progress = true
+		default:
+			return nil, errors.New(fmt.Sprintf("Unrecognised poll setting %s", s))
+		}
+	}
+	return &p, nil
 }
 
 func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackAttachment {
@@ -35,8 +51,12 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
+		answer := o.Answer
+		if p.Settings.Progress {
+			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
+		}
 		actions = append(actions, &model.PostAction{
-			Name: o.Answer,
+			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/%v", siteURL, PluginId, CurrentApiVersion, pollID, i),
@@ -78,17 +98,19 @@ func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *m
 
 	for _, o := range p.AnswerOptions {
 		var voter string
-		for i := 0; i < len(o.Voter); i++ {
-			displayName, err := convert(o.Voter[i])
-			if err != nil {
-				return nil, err
+		if !p.Settings.Anonymous {
+			for i := 0; i < len(o.Voter); i++ {
+				displayName, err := convert(o.Voter[i])
+				if err != nil {
+					return nil, err
+				}
+				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
+					voter += " and "
+				} else if i != 0 {
+					voter += ", "
+				}
+				voter += displayName
 			}
-			if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-				voter += " and "
-			} else if i != 0 {
-				voter += ", "
-			}
-			voter += displayName
 		}
 		var voteText string
 		if len(o.Voter) == 1 {

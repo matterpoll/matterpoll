@@ -15,7 +15,7 @@ const (
 	// Parameter: Trigger
 	commandHelpTextFormat = "To create a poll with the answer options \"Yes\" and \"No\" type `/%s \"Question\"`.\nYou can customise the options by typing `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
 	// Parameter: Trigger, Trigger
-	commandInputErrorFormat = "Invalid Input. Try `/%s \"Question\"` or `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
+	commandInputErrorFormat = "Invalid input. Try `/%s \"Question\"` or `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
 	commandGenericError     = "Something went bad. Please try again later."
 )
 
@@ -23,7 +23,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	creatorID := args.UserId
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 
-	q, o, _ := ParseInput(args.Command, p.Config.Trigger)
+	q, o, s := ParseInput(args.Command, p.Config.Trigger)
 	if len(o) == 0 && q == "help" {
 		msg := fmt.Sprintf(commandHelpTextFormat, p.Config.Trigger, p.Config.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
@@ -36,10 +36,15 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	pollID := model.NewId()
 	var poll *Poll
 	if len(o) == 0 {
-		poll = NewPoll(creatorID, q, []string{"Yes", "No"})
+		poll, _ = NewPoll(creatorID, q, []string{"Yes", "No"}, s)
 	} else {
-		poll = NewPoll(creatorID, q, o)
+		poll, _ = NewPoll(creatorID, q, o, s)
 	}
+	/*
+		if err != nil {
+			return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, fmt.Sprintf("Invalid input: %s", err.Error()), siteURL, nil), nil
+		}
+	*/
 
 	appErr := p.API.KVSet(pollID, poll.Encode())
 	if appErr != nil {
