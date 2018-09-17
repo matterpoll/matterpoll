@@ -179,22 +179,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
+			p := setupTestPlugin(t, test.API, siteURL)
+			p.Config.Trigger = trigger
 			patch := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
 			defer patch.Unpatch()
-
-			idGen := new(MockPollIDGenerator)
-			p := &MatterpollPlugin{
-				idGen: idGen,
-				Config: &Config{
-					Trigger: trigger,
-				},
-				ServerConfig: &model.Config{
-					ServiceSettings: model.ServiceSettings{
-						SiteURL: &siteURL,
-					},
-				},
-			}
-			p.SetAPI(test.API)
 
 			r, err := p.ExecuteCommand(nil, &model.CommandArgs{
 				Command: test.Command,

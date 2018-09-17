@@ -46,7 +46,9 @@ func (m *MockPollIDGenerator) NewID() string {
 
 func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *MatterpollPlugin {
 	p := &MatterpollPlugin{
-		Config: &Config{},
+		Config: &Config{
+			Trigger: "poll",
+		},
 		ServerConfig: &model.Config{
 			ServiceSettings: model.ServiceSettings{
 				SiteURL: &siteURL,
@@ -75,13 +77,10 @@ func TestPluginOnActivateEmptyConfig(t *testing.T) {
 }
 
 func TestPluginOnDeactivate(t *testing.T) {
-	p := &MatterpollPlugin{
-		Config: &Config{Trigger: "poll"},
-	}
 	api := &plugintest.API{}
+	p := setupTestPlugin(t, api, "https://example.org")
 	api.On("UnregisterCommand", "", p.Config.Trigger).Return(nil)
 	defer api.AssertExpectations(t)
-	p.SetAPI(api)
 
 	err := p.OnDeactivate()
 	assert.Nil(t, err)
