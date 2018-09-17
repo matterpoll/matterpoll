@@ -17,6 +17,7 @@
      "type": "text",
      "help_text": "Trigger Word must be unique, and cannot begin with a slash or contain any spaces.",
      "default": "poll"
-     }]
+     }],
+     "footer": "* To report an issue, make a suggestion or a contribution, [check the repository](https://github.com/matterpoll/matterpoll)."
   }
 }
