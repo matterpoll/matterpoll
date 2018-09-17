@@ -2,10 +2,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
-	"strings"
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
@@ -15,6 +13,11 @@ var (
 	voteRoute       = regexp.MustCompile("/api/v1/polls/([0-9a-z]+)/vote/([0-9]+)")
 	endPollRoute    = regexp.MustCompile("/api/v1/polls/([0-9a-z]+)/end")
 	deletePollRoute = regexp.MustCompile("/api/v1/polls/([0-9a-z]+)/delete")
+)
+
+const (
+	iconFilename = "logo_dark.png"
+	iconPath     = "plugins/" + PluginId + "/"
 )
 
 type MatterpollPlugin struct {
@@ -41,8 +44,8 @@ func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r
 	switch {
 	case r.URL.Path == "/":
 		p.handleInfo(w, r)
-	case r.URL.Path == "/logo_dark.png":
-		http.ServeFile(w, r, strings.TrimPrefix(r.RequestURI, "/"))
+	case r.URL.Path == "/"+iconFilename:
+		http.ServeFile(w, r, iconPath+iconFilename)
 	case voteRoute.MatchString(r.URL.Path):
 		p.handleVote(w, r)
 	case endPollRoute.MatchString(r.URL.Path):
@@ -60,7 +63,7 @@ func (p *MatterpollPlugin) ConvertUserIDToDisplayName(userID string) (string, *m
 		return "", err
 	}
 	displayName := user.GetDisplayName(model.SHOW_USERNAME)
-	displayName = fmt.Sprintf("@%s", displayName)
+	displayName = "@" + displayName
 	return displayName, nil
 }
 

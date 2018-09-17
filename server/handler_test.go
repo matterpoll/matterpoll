@@ -67,11 +67,13 @@ func TestServeHTTP(t *testing.T) {
 }
 
 func TestServeFile(t *testing.T) {
-	cpCmd := exec.Command("cp", "../assets/logo_dark.png", ".")
+	mkdirCmd := exec.Command("mkdir", "-p", iconPath)
+	cpCmd := exec.Command("cp", "../assets/"+iconFilename, iconPath+iconFilename)
+	mkdirCmd.Run()
 	cpCmd.Run()
 	defer func() {
-		cpCmd := exec.Command("rm", "logo_dark.png")
-		cpCmd.Run()
+		rmCmd := exec.Command("rm", "-r", "plugins")
+		rmCmd.Run()
 	}()
 
 	assert := assert.New(t)
