@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -53,12 +54,21 @@ func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r
 	}
 }
 
-func (p *MatterpollPlugin) ConvertUserToDisplayName(userID string) (string, *model.AppError) {
+func (p *MatterpollPlugin) ConvertUserIDToDisplayName(userID string) (string, *model.AppError) {
 	user, err := p.API.GetUser(userID)
 	if err != nil {
 		return "", err
 	}
-	// NOTE: We should better fetch the server config and us this instead of model.SHOW_FULLNAME
-	nameFormat := model.SHOW_FULLNAME
-	return user.GetDisplayName(nameFormat), nil
+	displayName := user.GetDisplayName(model.SHOW_USERNAME)
+	displayName = fmt.Sprintf("@%s", displayName)
+	return displayName, nil
+}
+
+func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (string, *model.AppError) {
+	user, err := p.API.GetUser(creatorID)
+	if err != nil {
+		return "", err
+	}
+	displayName := user.GetDisplayName(model.SHOW_NICKNAME_FULLNAME)
+	return displayName, nil
 }

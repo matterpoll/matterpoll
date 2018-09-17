@@ -27,7 +27,6 @@ func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
-
 	matches := voteRoute.FindStringSubmatch(r.URL.Path)
 	pollID := matches[1]
 	optionNumber, _ := strconv.Atoi(matches[2])
@@ -53,7 +52,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	displayName, appErr := p.ConvertUserToDisplayName(poll.Creator)
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
@@ -117,14 +116,14 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	user, err := p.API.GetUser(poll.Creator)
-	if err != nil {
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
+	if appErr != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
-	response.Update, appErr = poll.ToEndPollPost(user.GetFullName(), p.ConvertUserToDisplayName)
+	response.Update, appErr = poll.ToEndPollPost(displayName, p.ConvertUserIDToDisplayName)
 	if appErr != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)

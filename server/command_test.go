@@ -44,7 +44,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 
 	api4 := &plugintest.API{}
 	api4.On("KVSet", idGen.NewID(), samplePoll.Encode()).Return(nil)
-	api4.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, &model.AppError{})
+	api4.On("GetUser", "userID1").Return(nil, &model.AppError{})
 	defer api4.AssertExpectations(t)
 
 	for name, test := range map[string]struct {
