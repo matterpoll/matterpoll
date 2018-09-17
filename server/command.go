@@ -20,7 +20,7 @@ const (
 )
 
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	userID := args.UserId
+	creatorID := args.UserId
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 
 	q, o := ParseInput(args.Command, p.Config.Trigger)
@@ -36,9 +36,9 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	pollID := p.idGen.NewID()
 	var poll *Poll
 	if len(o) == 0 {
-		poll = NewPoll(userID, q, []string{"Yes", "No"})
+		poll = NewPoll(creatorID, q, []string{"Yes", "No"})
 	} else {
-		poll = NewPoll(userID, q, o)
+		poll = NewPoll(creatorID, q, o)
 	}
 
 	appErr := p.API.KVSet(pollID, poll.Encode())
@@ -46,7 +46,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
 	}
 
-	displayName, appErr := p.ConvertUserToDisplayName(userID)
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
 	}
