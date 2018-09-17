@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -22,7 +21,7 @@ const (
 )
 
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, infoMessage)
+	_, _ = io.WriteString(w, infoMessage)
 }
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
