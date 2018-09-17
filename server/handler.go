@@ -17,9 +17,8 @@ const (
 
 	endPollInvalidPermission = "Only the creator of a poll is allowed to end it."
 
-	deletePollInvalidPermission   = "Only the creator of a poll is allowed to delete it."
-	deletePollFeatureNotAvailable = "This feature is only available on Mattermost v5.3."
-	deletePollSuccess             = "Succefully deleted the poll."
+	deletePollInvalidPermission = "Only the creator of a poll is allowed to delete it."
+	deletePollSuccess           = "Succefully deleted the poll."
 )
 
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
@@ -167,12 +166,6 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 
 	if userID != poll.Creator {
 		response.EphemeralText = deletePollInvalidPermission
-		writePostActionIntegrationResponse(w, response)
-		return
-	}
-
-	if request.PostId == "" {
-		response.EphemeralText = deletePollFeatureNotAvailable
 		writePostActionIntegrationResponse(w, response)
 		return
 	}

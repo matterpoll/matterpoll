@@ -37,6 +37,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 		numberOfVotes += len(o.Voter)
 		actions = append(actions, &model.PostAction{
 			Name: o.Answer,
+			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/%v", siteURL, PluginId, CurrentApiVersion, pollID, i),
 			},
@@ -45,6 +46,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 
 	actions = append(actions, &model.PostAction{
 		Name: "Delete Poll",
+		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
 			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentApiVersion, pollID),
 		},
@@ -52,6 +54,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 
 	actions = append(actions, &model.PostAction{
 		Name: "End Poll",
+		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
 			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentApiVersion, pollID),
 		},
