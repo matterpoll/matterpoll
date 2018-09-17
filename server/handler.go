@@ -5,11 +5,16 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/plugin"
 )
 
 const (
 	infoMessage = "Thanks for using Matterpoll v" + PluginVersion + "\n"
+
+	iconFilename = "logo_dark.png"
+	iconPath     = "plugins/" + PluginId + "/"
 
 	voteCounted = "Your vote has been counted."
 	voteUpdated = "Your vote has been updated."
@@ -20,14 +25,23 @@ const (
 	deletePollSuccess           = "Succefully deleted the poll."
 )
 
+func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+	p.API.LogDebug("New request:", "Host", r.Host, "RequestURI", r.RequestURI, "Method", r.Method)
+	p.router.ServeHTTP(w, r)
+}
+
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
 	_, _ = io.WriteString(w, infoMessage)
 }
 
+func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, iconPath+iconFilename)
+}
+
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
-	matches := voteRoute.FindStringSubmatch(r.URL.Path)
-	pollID := matches[1]
-	optionNumber, _ := strconv.Atoi(matches[2])
+	vars := mux.Vars(r)
+	pollID := vars["id"]
+	optionNumber, _ := strconv.Atoi(vars["optionNumber"])
 	response := &model.PostActionIntegrationResponse{}
 
 	request := model.PostActionIntegrationRequesteFromJson(r.Body)
@@ -85,7 +99,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request) {
-	pollID := endPollRoute.FindStringSubmatch(r.URL.Path)[1]
+	pollID := mux.Vars(r)["id"]
 	response := &model.PostActionIntegrationResponse{}
 
 	request := model.PostActionIntegrationRequesteFromJson(r.Body)
@@ -139,7 +153,7 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 }
 
 func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Request) {
-	pollID := deletePollRoute.FindStringSubmatch(r.URL.Path)[1]
+	pollID := mux.Vars(r)["id"]
 	response := &model.PostActionIntegrationResponse{}
 
 	request := model.PostActionIntegrationRequesteFromJson(r.Body)

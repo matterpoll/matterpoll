@@ -56,6 +56,22 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:c01767916c59f084bb7c41a7d5877c0f3099b1595cfa066e84ec6ad6b084dd89"
+  name = "github.com/gorilla/context"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
+  version = "v1.1.1"
+
+[[projects]]
+  digest = "1:bf5cf1d53d703332e9bd8984c69784645b73a938317bf5ace9aadf20ac49379a"
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
+  version = "v1.6.2"
+
+[[projects]]
   branch = "master"
   digest = "1:6456ae9a3ccc02b86853b4b329c91c6e9fc422e10878459c093cc766c52975c4"
   name = "github.com/gorilla/websocket"
@@ -314,11 +330,12 @@
   version = "v0.1.1"
 
 [[projects]]
-  digest = "1:81d363777b015e85bd42b978b80f4f5ecdaa43e11452ba8ff7ea93db3ce166bd"
+  digest = "1:72cea38d2957d95d18be2287ef9d4b06b89796d2e3070bc7f796bea3a4844381"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "mock",
+    "require",
   ]
   pruneopts = "NUT"
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
@@ -504,11 +521,13 @@
   analyzer-version = 1
   input-imports = [
     "github.com/bouk/monkey",
+    "github.com/gorilla/mux",
     "github.com/mattermost/mattermost-server/model",
     "github.com/mattermost/mattermost-server/plugin",
     "github.com/mattermost/mattermost-server/plugin/plugintest",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
+    "github.com/stretchr/testify/require",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

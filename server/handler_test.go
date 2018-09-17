@@ -13,10 +13,10 @@ import (
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServeHTTP(t *testing.T) {
-	idGen := new(MockPollIDGenerator)
 	api1 := &plugintest.API{}
 
 	for name, test := range map[string]struct {
@@ -37,17 +37,14 @@ func TestServeHTTP(t *testing.T) {
 			API:                api1,
 			RequestURL:         "/not_found",
 			ExpectedStatusCode: http.StatusNotFound,
-			ExpectedHeader:     http.Header{},
-			ExpectedbodyString: "",
+			ExpectedHeader:     http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}, "X-Content-Type-Options": []string{"nosniff"}},
+			ExpectedbodyString: "404 page not found\n",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			p := &MatterpollPlugin{
-				idGen: idGen,
-			}
+			p := setupTestPlugin(t, test.API, "https://example.org")
 			AllowRequestLogging(test.API)
-			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", test.RequestURL, nil)
@@ -56,7 +53,7 @@ func TestServeHTTP(t *testing.T) {
 			result := w.Result()
 
 			bodyBytes, err := ioutil.ReadAll(result.Body)
-			assert.Nil(err)
+			require.Nil(t, err)
 			bodyString := string(bodyBytes)
 
 			assert.Equal(test.ExpectedbodyString, bodyString)
@@ -77,16 +74,12 @@ func TestServeFile(t *testing.T) {
 	}()
 
 	assert := assert.New(t)
-	idGen := new(MockPollIDGenerator)
 	api1 := &plugintest.API{}
-	p := &MatterpollPlugin{
-		idGen: idGen,
-	}
+	p := setupTestPlugin(t, api1, "https://example.org")
 	AllowRequestLogging(api1)
-	p.SetAPI(api1)
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("POST", "/logo_dark.png", nil)
+	r := httptest.NewRequest("POST", fmt.Sprintf("/%s", iconFilename), nil)
 	p.ServeHTTP(nil, w, r)
 
 	result := w.Result()
@@ -206,16 +199,8 @@ func TestHandleVote(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			p := &MatterpollPlugin{
-				idGen: idGen,
-				ServerConfig: &model.Config{
-					ServiceSettings: model.ServiceSettings{
-						SiteURL: &siteURL,
-					},
-				},
-			}
+			p := setupTestPlugin(t, test.API, "https://example.org")
 			AllowRequestLogging(test.API)
-			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", idGen.NewID(), test.VoteIndex), strings.NewReader(test.Request.ToJson()))
@@ -365,11 +350,8 @@ func TestHandleEndPoll(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			p := &MatterpollPlugin{
-				idGen: idGen,
-			}
+			p := setupTestPlugin(t, test.API, "https://example.org")
 			AllowRequestLogging(test.API)
-			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", idGen.NewID()), strings.NewReader(test.Request.ToJson()))
@@ -476,11 +458,8 @@ func TestHandleDeletePoll(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			p := &MatterpollPlugin{
-				idGen: idGen,
-			}
+			p := setupTestPlugin(t, test.API, "https://example.org")
 			AllowRequestLogging(test.API)
-			p.SetAPI(test.API)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", idGen.NewID()), strings.NewReader(test.Request.ToJson()))

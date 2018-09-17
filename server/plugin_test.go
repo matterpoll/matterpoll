@@ -3,9 +3,11 @@ package main
 import (
 	"testing"
 
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 var samplePoll = Poll{
@@ -40,6 +42,22 @@ type MockPollIDGenerator struct {
 
 func (m *MockPollIDGenerator) NewID() string {
 	return "1234567890abcdefghij"
+}
+
+func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *MatterpollPlugin {
+	p := &MatterpollPlugin{
+		Config: &Config{},
+		ServerConfig: &model.Config{
+			ServiceSettings: model.ServiceSettings{
+				SiteURL: &siteURL,
+			},
+		},
+	}
+	p.SetAPI(api)
+	err := p.OnActivate()
+	require.Nil(t, err)
+	p.idGen = new(MockPollIDGenerator)
+	return p
 }
 
 func TestPluginOnActivate(t *testing.T) {
