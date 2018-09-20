@@ -33,7 +33,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 
-	pollID := p.idGen.NewID()
+	pollID := model.NewId()
 	var poll *Poll
 	if len(o) == 0 {
 		poll = NewPoll(creatorID, q, []string{"Yes", "No"})

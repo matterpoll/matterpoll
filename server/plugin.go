@@ -10,14 +10,12 @@ import (
 
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
-	idGen        IDGenerator
 	router       *mux.Router
 	Config       *Config
 	ServerConfig *model.Config
 }
 
 func (p *MatterpollPlugin) OnActivate() error {
-	p.idGen = &PollIDGenerator{}
 	if p.Config == nil {
 		return errors.New("Config empty")
 	}

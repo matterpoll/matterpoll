@@ -6,8 +6,12 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+)
+
+const (
+	sampleID      = "1234567890abcdefghij"
+	samplesiteURL = "https://example.org"
 )
 
 var samplePoll = Poll{
@@ -47,14 +51,6 @@ var samplePoll_twoOptions = Poll{
 	},
 }
 
-type MockPollIDGenerator struct {
-	mock.Mock
-}
-
-func (m *MockPollIDGenerator) NewID() string {
-	return "1234567890abcdefghij"
-}
-
 func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *MatterpollPlugin {
 	p := &MatterpollPlugin{
 		Config: &Config{
@@ -69,7 +65,6 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *Matterp
 	p.SetAPI(api)
 	err := p.OnActivate()
 	require.Nil(t, err)
-	p.idGen = new(MockPollIDGenerator)
 	return p
 }
 
@@ -89,7 +84,7 @@ func TestPluginOnActivateEmptyConfig(t *testing.T) {
 
 func TestPluginOnDeactivate(t *testing.T) {
 	api := &plugintest.API{}
-	p := setupTestPlugin(t, api, "https://example.org")
+	p := setupTestPlugin(t, api, samplesiteURL)
 	api.On("UnregisterCommand", "", p.Config.Trigger).Return(nil)
 	defer api.AssertExpectations(t)
 
