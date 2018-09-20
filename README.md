@@ -18,9 +18,9 @@ Supported Mattermost Server Versions: 5.3+
 
 ## Usage
 
-`/matterpoll "Is Matterpoll great?"` creates a poll with the answer options "Yes" and "No". You can also leave out the double quotes and just type `/matterpoll Is Matterpoll great?`.
+`/poll "Is Matterpoll great?"` creates a poll with the answer options "Yes" and "No". You can also leave out the double quotes and just type `/poll Is Matterpoll great?`.
 
-If you want to define all answer options by yourself, type `/matterpoll "Is Matterpoll great?" "Of course" "In any case" "Definitely"`- Note that the double quotes are required in this case.
+If you want to define all answer options by yourself, type `/poll "Is Matterpoll great?" "Of course" "In any case" "Definitely"`- Note that the double quotes are required in this case.
 
 ## Troubleshooting
 
