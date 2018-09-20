@@ -155,8 +155,8 @@ func TestUpdateVote(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-
 			err := test.Poll.UpdateVote(test.UserID, test.Index)
+
 			if test.Error {
 				assert.NotNil(t, err)
 			} else {
@@ -177,4 +177,15 @@ func TestHasVoted(t *testing.T) {
 	}
 	assert.True(t, p1.HasVoted("a"))
 	assert.False(t, p1.HasVoted("b"))
+}
+
+func TestPollCopy(t *testing.T) {
+	assert := assert.New(t)
+	p := &samplePoll
+	p2 := p.Copy()
+
+	assert.Equal(p, p2)
+
+	p.AnswerOptions[0].Answer = "abc"
+	assert.NotEqual(p.AnswerOptions[0].Answer, p2.AnswerOptions[0].Answer)
 }

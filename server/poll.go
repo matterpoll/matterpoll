@@ -156,3 +156,15 @@ func Decode(b []byte) *Poll {
 	}
 	return &p
 }
+
+func (p *Poll) Copy() *Poll {
+	p2 := new(Poll)
+	*p2 = *p
+	p2.AnswerOptions = make([]*AnswerOption, len(p.AnswerOptions))
+	for i, o := range p.AnswerOptions {
+		p2.AnswerOptions[i] = new(AnswerOption)
+		p2.AnswerOptions[i].Answer = o.Answer
+		p2.AnswerOptions[i].Voter = o.Voter
+	}
+	return p2
+}
