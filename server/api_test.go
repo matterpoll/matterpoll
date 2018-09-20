@@ -102,7 +102,6 @@ func TestHandleVote(t *testing.T) {
 	api1.On("KVSet", idGen.NewID(), poll1.Encode()).Return(nil)
 	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api1.AssertExpectations(t)
-
 	expectedPost1 := &model.Post{}
 	expectedPost1.AddProp("attachments", poll1.ToPostActions(siteURL, idGen.NewID(), "John Doe"))
 
@@ -114,6 +113,8 @@ func TestHandleVote(t *testing.T) {
 	api2.On("KVSet", idGen.NewID(), poll2.Encode()).Return(nil)
 	api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api2.AssertExpectations(t)
+	expectedPost2 := &model.Post{}
+	expectedPost2.AddProp("attachments", poll2.ToPostActions(siteURL, idGen.NewID(), "John Doe"))
 
 	api3 := &plugintest.API{}
 	api3.On("KVGet", idGen.NewID()).Return(nil, &model.AppError{})
@@ -155,7 +156,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: voteUpdated},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: voteUpdated, Update: expectedPost2},
 		},
 		"Valid request, KVGet fails": {
 			API:                api3,
@@ -219,8 +220,9 @@ func TestHandleVote(t *testing.T) {
 				}, result.Header)
 				require.NotNil(t, response)
 				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
-				//// FIXME:response.Update.SlackAttachment is map[string]interface {} not []*model.SlackAttachment
-				// assert.Equal(test.ExpectedResponse.Update, response.Update)
+				if test.ExpectedResponse.Update != nil {
+					assert.Equal(test.ExpectedResponse.Update.Attachments(), response.Update.Attachments())
+				}
 			} else {
 				assert.Equal(test.ExpectedResponse, response)
 			}
@@ -241,26 +243,22 @@ func TestHandleEndPoll(t *testing.T) {
 	defer api1.AssertExpectations(t)
 
 	expectedattachments1 := []*model.SlackAttachment{{
-		AuthorName: "John Doue",
+		AuthorName: "John Doe",
 		Title:      "Question",
 		Text:       "This poll has ended. The results are:",
-		Fields: []*model.SlackAttachmentField{
-			{
-				Title: "Answer 1 Answer 1 (3 votes)",
-				Value: "user1, user2 and user3",
-				Short: true,
-			},
-			{
-				Title: "Answer 1 (1 vote)",
-				Value: "user4",
-				Short: true,
-			},
-			{
-				Title: "Answer 3 (0 votes)",
-				Value: "",
-				Short: true,
-			},
-		},
+		Fields: []*model.SlackAttachmentField{{
+			Title: "Answer 1 (3 votes)",
+			Value: "@user1, @user2 and @user3",
+			Short: true,
+		}, {
+			Title: "Answer 2 (1 vote)",
+			Value: "@user4",
+			Short: true,
+		}, {
+			Title: "Answer 3 (0 votes)",
+			Value: "",
+			Short: true,
+		}},
 	}}
 	expectedPost1 := model.Post{}
 	expectedPost1.AddProp("attachments", expectedattachments1)
@@ -371,8 +369,9 @@ func TestHandleEndPoll(t *testing.T) {
 				}, result.Header)
 				require.NotNil(t, response)
 				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
-				//// FIXME:response.Update.SlackAttachment is map[string]interface {} not []*model.SlackAttachment
-				// assert.Equal(test.ExpectedResponse.Update, response.Update)
+				if test.ExpectedResponse.Update != nil {
+					assert.Equal(test.ExpectedResponse.Update.Attachments(), response.Update.Attachments())
+				}
 			} else {
 				assert.Equal(test.ExpectedResponse, response)
 			}
@@ -479,6 +478,10 @@ func TestHandleDeletePoll(t *testing.T) {
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
 				require.NotNil(t, response)
+				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
+				if test.ExpectedResponse.Update != nil {
+					assert.Equal(test.ExpectedResponse.Update.Attachments(), response.Update.Attachments())
+				}
 			}
 			assert.Equal(test.ExpectedResponse, response)
 		})
