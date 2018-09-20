@@ -25,6 +25,16 @@ const (
 	deletePollSuccess           = "Succefully deleted the poll."
 )
 
+func (p *MatterpollPlugin) InitAPI() *mux.Router {
+	m := mux.NewRouter()
+	m.HandleFunc("/", p.handleInfo)
+	m.HandleFunc("/"+iconFilename, p.handleLogo)
+	m.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/vote/{optionNumber:[0-9]+}", p.handleVote)
+	m.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/end", p.handleEndPoll)
+	m.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/delete", p.handleDeletePoll)
+	return m
+}
+
 func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.API.LogDebug("New request:", "Host", r.Host, "RequestURI", r.RequestURI, "Method", r.Method)
 	p.router.ServeHTTP(w, r)

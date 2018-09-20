@@ -21,12 +21,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 	if p.Config == nil {
 		return errors.New("Config empty")
 	}
-	p.router = mux.NewRouter()
-	p.router.HandleFunc("/", p.handleInfo)
-	p.router.HandleFunc("/"+iconFilename, p.handleLogo)
-	p.router.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/vote/{optionNumber:[0-9]+}", p.handleVote)
-	p.router.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/end", p.handleEndPoll)
-	p.router.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/delete", p.handleDeletePoll)
+	p.router = p.InitAPI()
 	return nil
 }
 
