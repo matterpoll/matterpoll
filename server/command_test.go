@@ -15,19 +15,9 @@ func TestPluginExecuteCommand(t *testing.T) {
 	siteURL := "https://example.org"
 	trigger := "poll"
 	idGen := new(MockPollIDGenerator)
-	poll := Poll{
-		CreatedAt:         1234567890,
-		Creator:           "userID1",
-		DataSchemaVersion: "v1",
-		Question:          "Question",
-		AnswerOptions: []*AnswerOption{
-			{Answer: "Yes"},
-			{Answer: "No"},
-		},
-	}
 
 	api1 := &plugintest.API{}
-	api1.On("KVSet", idGen.NewID(), poll.Encode()).Return(nil)
+	api1.On("KVSet", idGen.NewID(), samplePoll_twoOptions.Encode()).Return(nil)
 	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	api1.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 	defer api1.AssertExpectations(t)

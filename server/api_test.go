@@ -85,7 +85,7 @@ func TestServeFile(t *testing.T) {
 	result := w.Result()
 
 	bodyBytes, err := ioutil.ReadAll(result.Body)
-	assert.Nil(err)
+	require.Nil(t, err)
 	assert.NotNil(bodyBytes)
 	assert.Equal(http.StatusOK, result.StatusCode)
 	assert.Contains([]string{"image/png"}, result.Header.Get("Content-Type"))
@@ -95,21 +95,23 @@ func TestHandleVote(t *testing.T) {
 	siteURL := "https://example.org"
 	idGen := new(MockPollIDGenerator)
 
+	poll1 := samplePoll.Copy()
 	api1 := &plugintest.API{}
-	api1.On("KVGet", idGen.NewID()).Return(samplePoll.Encode(), nil)
-	samplePoll.UpdateVote("userID1", 0)
-	api1.On("KVSet", idGen.NewID(), samplePoll.Encode()).Return(nil)
+	api1.On("KVGet", idGen.NewID()).Return(poll1.Encode(), nil)
+	poll1.UpdateVote("userID1", 0)
+	api1.On("KVSet", idGen.NewID(), poll1.Encode()).Return(nil)
 	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api1.AssertExpectations(t)
 
 	expectedPost1 := &model.Post{}
-	expectedPost1.AddProp("attachments", samplePoll.ToPostActions(siteURL, idGen.NewID(), "John Doe"))
+	expectedPost1.AddProp("attachments", poll1.ToPostActions(siteURL, idGen.NewID(), "John Doe"))
 
+	poll2 := samplePoll.Copy()
 	api2 := &plugintest.API{}
-	samplePoll.UpdateVote("userID1", 0)
-	api2.On("KVGet", idGen.NewID()).Return(samplePoll.Encode(), nil)
-	samplePoll.UpdateVote("userID1", 1)
-	api2.On("KVSet", idGen.NewID(), samplePoll.Encode()).Return(nil)
+	poll2.UpdateVote("userID1", 0)
+	api2.On("KVGet", idGen.NewID()).Return(poll2.Encode(), nil)
+	poll2.UpdateVote("userID1", 1)
+	api2.On("KVSet", idGen.NewID(), poll2.Encode()).Return(nil)
 	api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api2.AssertExpectations(t)
 
@@ -121,10 +123,11 @@ func TestHandleVote(t *testing.T) {
 	api4.On("KVGet", idGen.NewID()).Return(nil, nil)
 	defer api4.AssertExpectations(t)
 
+	poll5 := samplePoll.Copy()
 	api5 := &plugintest.API{}
-	api5.On("KVGet", idGen.NewID()).Return(samplePoll.Encode(), nil)
-	samplePoll.UpdateVote("userID1", 0)
-	api5.On("KVSet", idGen.NewID(), samplePoll.Encode()).Return(&model.AppError{})
+	api5.On("KVGet", idGen.NewID()).Return(poll5.Encode(), nil)
+	poll5.UpdateVote("userID1", 0)
+	api5.On("KVSet", idGen.NewID(), poll5.Encode()).Return(&model.AppError{})
 	api5.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api5.AssertExpectations(t)
 
@@ -214,6 +217,7 @@ func TestHandleVote(t *testing.T) {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
+				require.NotNil(t, response)
 				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
 				//// FIXME:response.Update.SlackAttachment is map[string]interface {} not []*model.SlackAttachment
 				// assert.Equal(test.ExpectedResponse.Update, response.Update)
@@ -365,6 +369,7 @@ func TestHandleEndPoll(t *testing.T) {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
+				require.NotNil(t, response)
 				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
 				//// FIXME:response.Update.SlackAttachment is map[string]interface {} not []*model.SlackAttachment
 				// assert.Equal(test.ExpectedResponse.Update, response.Update)
@@ -473,6 +478,7 @@ func TestHandleDeletePoll(t *testing.T) {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
+				require.NotNil(t, response)
 			}
 			assert.Equal(test.ExpectedResponse, response)
 		})

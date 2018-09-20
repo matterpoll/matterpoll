@@ -36,6 +36,17 @@ var samplePollWithVotes = Poll{
 	},
 }
 
+var samplePoll_twoOptions = Poll{
+	CreatedAt:         1234567890,
+	Creator:           "userID1",
+	DataSchemaVersion: "v1",
+	Question:          "Question",
+	AnswerOptions: []*AnswerOption{
+		{Answer: "Yes"},
+		{Answer: "No"},
+	},
+}
+
 type MockPollIDGenerator struct {
 	mock.Mock
 }
