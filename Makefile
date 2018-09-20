@@ -6,7 +6,7 @@ CURL ?= $(shell command -v curl 2> /dev/null)
 MANIFEST_FILE ?= plugin.json
 BUNDLE_NAME = $(PLUGIN_ID)_$(PLUGIN_VERSION).tar.gz
 
-# Verify environment, and define PLUGIN_ID, HAS_SERVER and HAS_WEBAPP as needed.
+# Verify environment, and define PLUGIN_ID, PLUGIN_VERSION, HAS_SERVER and HAS_WEBAPP as needed.
 include build/setup.mk
 
 # all, the default target, tests, builds and bundles the plugin.
@@ -54,6 +54,7 @@ bundle:
 	rm -rf dist/
 	mkdir -p dist/$(PLUGIN_ID)
 	cp $(MANIFEST_FILE) dist/$(PLUGIN_ID)/
+	cp assets/logo_dark.png dist/$(PLUGIN_ID)/
 ifneq ($(HAS_SERVER),)
 	mkdir -p dist/$(PLUGIN_ID)/server/dist;
 	cp -r server/dist/* dist/$(PLUGIN_ID)/server/dist/;
@@ -96,7 +97,7 @@ else ifneq ($(and $(MM_SERVICESETTINGS_SITEURL),$(MM_ADMIN_USERNAME),$(MM_ADMIN_
 else ifneq ($(wildcard ../mattermost-server/.*),)
 	@echo "Installing plugin via filesystem. Server restart and manual plugin enabling required"
 	mkdir -p ../mattermost-server/plugins
-	tar -C ../mattermost-server/plugins -zxvf dist/$(PLUGIN_ID).tar.gz
+	tar -C ../mattermost-server/plugins -zxvf dist/$(BUNDLE_NAME)
 else
 	@echo "No supported deployment method available. Install plugin manually."
 endif
