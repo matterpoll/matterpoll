@@ -103,7 +103,7 @@ func TestHandleVote(t *testing.T) {
 	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api1.AssertExpectations(t)
 	expectedPost1 := &model.Post{}
-	expectedPost1.AddProp("attachments", poll1.ToPostActions(siteURL, idGen.NewID(), "John Doe"))
+	model.ParseSlackAttachment(expectedPost1, poll1.ToPostActions(siteURL, idGen.NewID(), "John Doe"))
 
 	poll2 := samplePoll.Copy()
 	api2 := &plugintest.API{}
@@ -114,7 +114,7 @@ func TestHandleVote(t *testing.T) {
 	api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api2.AssertExpectations(t)
 	expectedPost2 := &model.Post{}
-	expectedPost2.AddProp("attachments", poll2.ToPostActions(siteURL, idGen.NewID(), "John Doe"))
+	model.ParseSlackAttachment(expectedPost2, poll2.ToPostActions(siteURL, idGen.NewID(), "John Doe"))
 
 	api3 := &plugintest.API{}
 	api3.On("KVGet", idGen.NewID()).Return(nil, &model.AppError{})
@@ -260,8 +260,8 @@ func TestHandleEndPoll(t *testing.T) {
 			Short: true,
 		}},
 	}}
-	expectedPost1 := model.Post{}
-	expectedPost1.AddProp("attachments", expectedattachments1)
+	expectedPost1 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost1, expectedattachments1)
 
 	api2 := &plugintest.API{}
 	api2.On("KVGet", idGen.NewID()).Return(nil, &model.AppError{})
@@ -305,7 +305,7 @@ func TestHandleEndPoll(t *testing.T) {
 			API:                api1,
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: &expectedPost1},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
 		},
 		"Valid request, KVGet fails": {
 			API:                api2,
