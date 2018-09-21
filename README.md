@@ -21,3 +21,10 @@ Supported Mattermost Server Versions: 5.3+
 `/matterpoll "Is Matterpoll great?"` creates a poll with the answer options "Yes" and "No". You can also leave out the double quotes and just type `/matterpoll Is Matterpoll great?`.
 
 If you want to define all answer options by yourself, type `/matterpoll "Is Matterpoll great?" "Of course" "In any case" "Definitely"`- Note that the double quotes are required in this case.
+
+## Troubleshooting
+
+#### Pressing the poll buttons does nothing and creates a 400 error in the Mattermost log
+
+Make sure to set your [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url) properly.
+For example, this error happens in case you set SiteURL starting with `http://`, in spite of running Mattermost server through https.
