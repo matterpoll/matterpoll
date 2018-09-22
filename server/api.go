@@ -21,7 +21,7 @@ const (
 	voteUpdated = "Your vote has been updated."
 
 	// Parameter: Question, Permalink
-	endPollSuccessfullyFormat = "The poll **%s** has ended.  The original post have been updated. You can jump to it by pressing [here](%s)"
+	endPollSuccessfullyFormat = "The poll **%s** has ended. The original post have been updated. You can jump to it by pressing [here](%s)"
 	endPollInvalidPermission  = "Only the creator of a poll is allowed to end it."
 
 	deletePollInvalidPermission = "Only the creator of a poll is allowed to delete it."
