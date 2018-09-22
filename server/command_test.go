@@ -9,29 +9,30 @@ import (
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPluginExecuteCommand(t *testing.T) {
 	trigger := "poll"
 
 	api1 := &plugintest.API{}
-	api1.On("KVSet", sampleID, samplePoll_twoOptions.Encode()).Return(nil)
+	api1.On("KVSet", samplePollID, samplePoll_twoOptions.Encode()).Return(nil)
 	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	api1.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 	defer api1.AssertExpectations(t)
 
 	api2 := &plugintest.API{}
-	api2.On("KVSet", sampleID, samplePoll.Encode()).Return(nil)
+	api2.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
 	api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	api2.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 	defer api2.AssertExpectations(t)
 
 	api3 := &plugintest.API{}
-	api3.On("KVSet", sampleID, samplePoll.Encode()).Return(&model.AppError{})
+	api3.On("KVSet", samplePollID, samplePoll.Encode()).Return(&model.AppError{})
 	defer api3.AssertExpectations(t)
 
 	api4 := &plugintest.API{}
-	api4.On("KVSet", sampleID, samplePoll.Encode()).Return(nil)
+	api4.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
 	api4.On("GetUser", "userID1").Return(nil, &model.AppError{})
 	defer api4.AssertExpectations(t)
 
@@ -81,25 +82,25 @@ func TestPluginExecuteCommand(t *testing.T) {
 					Name: "Yes",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					},
 				}, {
 					Name: "No",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					},
 				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					}},
 				},
 			}},
@@ -118,31 +119,31 @@ func TestPluginExecuteCommand(t *testing.T) {
 					Name: "Answer 1",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					},
 				}, {
 					Name: "Answer 2",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					},
 				}, {
 					Name: "Answer 3",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					},
 				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentApiVersion, sampleID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
 					},
 				},
 				},
@@ -167,10 +168,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
+
 			p := setupTestPlugin(t, test.API, samplesiteURL)
 			p.Config.Trigger = trigger
 			patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-			patch2 := monkey.Patch(model.NewId, func() string { return sampleID })
+			patch2 := monkey.Patch(model.NewId, func() string { return samplePollID })
 			defer patch1.Unpatch()
 			defer patch2.Unpatch()
 
@@ -180,7 +182,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			})
 
 			assert.Equal(test.ExpectedError, err)
-			assert.NotNil(r)
+			require.NotNil(t, r)
 
 			assert.Equal(model.POST_DEFAULT, r.Type)
 			assert.Equal(responseUsername, r.Username)

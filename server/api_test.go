@@ -43,6 +43,7 @@ func TestServeHTTP(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
+
 			p := setupTestPlugin(t, test.API, samplesiteURL)
 			AllowRequestLogging(test.API)
 
@@ -51,6 +52,7 @@ func TestServeHTTP(t *testing.T) {
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
+			require.NotNil(t, result)
 
 			bodyBytes, err := ioutil.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -83,9 +85,11 @@ func TestServeFile(t *testing.T) {
 	p.ServeHTTP(nil, w, r)
 
 	result := w.Result()
+	require.NotNil(t, result)
 
 	bodyBytes, err := ioutil.ReadAll(result.Body)
 	require.Nil(t, err)
+
 	assert.NotNil(bodyBytes)
 	assert.Equal(http.StatusOK, result.StatusCode)
 	assert.Contains([]string{"image/png"}, result.Header.Get("Content-Type"))
@@ -94,43 +98,43 @@ func TestServeFile(t *testing.T) {
 func TestHandleVote(t *testing.T) {
 	poll1 := samplePoll.Copy()
 	api1 := &plugintest.API{}
-	api1.On("KVGet", sampleID).Return(poll1.Encode(), nil)
+	api1.On("KVGet", samplePollID).Return(poll1.Encode(), nil)
 	poll1.UpdateVote("userID1", 0)
-	api1.On("KVSet", sampleID, poll1.Encode()).Return(nil)
+	api1.On("KVSet", samplePollID, poll1.Encode()).Return(nil)
 	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api1.AssertExpectations(t)
 	expectedPost1 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost1, poll1.ToPostActions(samplesiteURL, sampleID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost1, poll1.ToPostActions(samplesiteURL, samplePollID, "John Doe"))
 
 	poll2 := samplePoll.Copy()
 	api2 := &plugintest.API{}
 	poll2.UpdateVote("userID1", 0)
-	api2.On("KVGet", sampleID).Return(poll2.Encode(), nil)
+	api2.On("KVGet", samplePollID).Return(poll2.Encode(), nil)
 	poll2.UpdateVote("userID1", 1)
-	api2.On("KVSet", sampleID, poll2.Encode()).Return(nil)
+	api2.On("KVSet", samplePollID, poll2.Encode()).Return(nil)
 	api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api2.AssertExpectations(t)
 	expectedPost2 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost2, poll2.ToPostActions(samplesiteURL, sampleID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost2, poll2.ToPostActions(samplesiteURL, samplePollID, "John Doe"))
 
 	api3 := &plugintest.API{}
-	api3.On("KVGet", sampleID).Return(nil, &model.AppError{})
+	api3.On("KVGet", samplePollID).Return(nil, &model.AppError{})
 	defer api3.AssertExpectations(t)
 
 	api4 := &plugintest.API{}
-	api4.On("KVGet", sampleID).Return(nil, nil)
+	api4.On("KVGet", samplePollID).Return(nil, nil)
 	defer api4.AssertExpectations(t)
 
 	poll5 := samplePoll.Copy()
 	api5 := &plugintest.API{}
-	api5.On("KVGet", sampleID).Return(poll5.Encode(), nil)
+	api5.On("KVGet", samplePollID).Return(poll5.Encode(), nil)
 	poll5.UpdateVote("userID1", 0)
-	api5.On("KVSet", sampleID, poll5.Encode()).Return(&model.AppError{})
+	api5.On("KVSet", samplePollID, poll5.Encode()).Return(&model.AppError{})
 	api5.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 	defer api5.AssertExpectations(t)
 
 	api6 := &plugintest.API{}
-	api6.On("KVGet", sampleID).Return(samplePoll.Encode(), nil)
+	api6.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
 	api6.On("GetUser", "userID1").Return(nil, &model.AppError{})
 	defer api6.AssertExpectations(t)
 
@@ -200,14 +204,16 @@ func TestHandleVote(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
+
 			p := setupTestPlugin(t, test.API, samplesiteURL)
 			AllowRequestLogging(test.API)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", sampleID, test.VoteIndex), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", samplePollID, test.VoteIndex), strings.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
+			require.NotNil(t, result)
 			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
@@ -229,8 +235,8 @@ func TestHandleVote(t *testing.T) {
 
 func TestHandleEndPoll(t *testing.T) {
 	api1 := &plugintest.API{}
-	api1.On("KVGet", sampleID).Return(samplePollWithVotes.Encode(), nil)
-	api1.On("KVDelete", sampleID).Return(nil)
+	api1.On("KVGet", samplePollID).Return(samplePollWithVotes.Encode(), nil)
+	api1.On("KVDelete", samplePollID).Return(nil)
 	api1.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 	api1.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 	api1.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
@@ -259,20 +265,20 @@ func TestHandleEndPoll(t *testing.T) {
 	model.ParseSlackAttachment(expectedPost1, expectedattachments1)
 
 	api2 := &plugintest.API{}
-	api2.On("KVGet", sampleID).Return(nil, &model.AppError{})
+	api2.On("KVGet", samplePollID).Return(nil, &model.AppError{})
 	defer api2.AssertExpectations(t)
 
 	api3 := &plugintest.API{}
-	api3.On("KVGet", sampleID).Return(nil, nil)
+	api3.On("KVGet", samplePollID).Return(nil, nil)
 	defer api3.AssertExpectations(t)
 
 	api4 := &plugintest.API{}
-	api4.On("KVGet", sampleID).Return(samplePollWithVotes.Encode(), nil)
+	api4.On("KVGet", samplePollID).Return(samplePollWithVotes.Encode(), nil)
 	defer api4.AssertExpectations(t)
 
 	api5 := &plugintest.API{}
-	api5.On("KVGet", sampleID).Return(samplePollWithVotes.Encode(), nil)
-	api5.On("KVDelete", sampleID).Return(&model.AppError{})
+	api5.On("KVGet", samplePollID).Return(samplePollWithVotes.Encode(), nil)
+	api5.On("KVDelete", samplePollID).Return(&model.AppError{})
 	api5.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 	api5.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 	api5.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
@@ -280,12 +286,12 @@ func TestHandleEndPoll(t *testing.T) {
 	defer api5.AssertExpectations(t)
 
 	api6 := &plugintest.API{}
-	api6.On("KVGet", sampleID).Return(samplePollWithVotes.Encode(), nil)
+	api6.On("KVGet", samplePollID).Return(samplePollWithVotes.Encode(), nil)
 	api6.On("GetUser", "userID1").Return(nil, &model.AppError{})
 	defer api6.AssertExpectations(t)
 
 	api7 := &plugintest.API{}
-	api7.On("KVGet", sampleID).Return(samplePollWithVotes.Encode(), nil)
+	api7.On("KVGet", samplePollID).Return(samplePollWithVotes.Encode(), nil)
 	api7.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 	api7.On("GetUser", "userID2").Return(nil, &model.AppError{})
 	defer api7.AssertExpectations(t)
@@ -347,14 +353,16 @@ func TestHandleEndPoll(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
+
 			p := setupTestPlugin(t, test.API, samplesiteURL)
 			AllowRequestLogging(test.API)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", sampleID), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", samplePollID), strings.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
+			require.NotNil(t, result)
 			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
@@ -376,32 +384,32 @@ func TestHandleEndPoll(t *testing.T) {
 
 func TestHandleDeletePoll(t *testing.T) {
 	api1 := &plugintest.API{}
-	api1.On("KVGet", sampleID).Return(samplePoll.Encode(), nil)
+	api1.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
 	api1.On("DeletePost", "postID1").Return(nil)
-	api1.On("KVDelete", sampleID).Return(nil)
+	api1.On("KVDelete", samplePollID).Return(nil)
 	defer api1.AssertExpectations(t)
 
 	api2 := &plugintest.API{}
-	api2.On("KVGet", sampleID).Return(nil, &model.AppError{})
+	api2.On("KVGet", samplePollID).Return(nil, &model.AppError{})
 	defer api2.AssertExpectations(t)
 
 	api3 := &plugintest.API{}
-	api3.On("KVGet", sampleID).Return(nil, nil)
+	api3.On("KVGet", samplePollID).Return(nil, nil)
 	defer api3.AssertExpectations(t)
 
 	api4 := &plugintest.API{}
-	api4.On("KVGet", sampleID).Return(samplePoll.Encode(), nil)
+	api4.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
 	defer api4.AssertExpectations(t)
 
 	api5 := &plugintest.API{}
-	api5.On("KVGet", sampleID).Return(samplePoll.Encode(), nil)
+	api5.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
 	api5.On("DeletePost", "postID1").Return(&model.AppError{})
 	defer api1.AssertExpectations(t)
 
 	api6 := &plugintest.API{}
-	api6.On("KVGet", sampleID).Return(samplePoll.Encode(), nil)
+	api6.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
 	api6.On("DeletePost", "postID1").Return(nil)
-	api6.On("KVDelete", sampleID).Return(&model.AppError{})
+	api6.On("KVDelete", samplePollID).Return(&model.AppError{})
 	defer api6.AssertExpectations(t)
 
 	for name, test := range map[string]struct {
@@ -455,14 +463,16 @@ func TestHandleDeletePoll(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
+
 			p := setupTestPlugin(t, test.API, samplesiteURL)
 			AllowRequestLogging(test.API)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", sampleID), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", samplePollID), strings.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
+			require.NotNil(t, result)
 			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)

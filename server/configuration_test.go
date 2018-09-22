@@ -106,6 +106,7 @@ func TestOnConfigurationChange(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
+
 			p := setupTestPlugin(t, test.API, samplesiteURL)
 			p.Config = test.Config
 

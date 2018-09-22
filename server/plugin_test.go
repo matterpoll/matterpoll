@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	sampleID      = "1234567890abcdefghij"
+	samplePollID  = "1234567890abcdefghij"
 	samplesiteURL = "https://example.org"
 )
 
