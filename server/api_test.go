@@ -405,12 +405,14 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 
 	api2 := &plugintest.API{}
 	api2.On("GetTeam", "teamID1").Return(nil, &model.AppError{})
-	defer api1.AssertExpectations(t)
+	api2.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
+	defer api2.AssertExpectations(t)
 
 	api3 := &plugintest.API{}
 	api3.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
 	api3.On("GetPost", "postID1").Return(nil, &model.AppError{})
-	defer api1.AssertExpectations(t)
+	api3.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
+	defer api3.AssertExpectations(t)
 
 	for name, test := range map[string]struct {
 		API      *plugintest.API
@@ -553,4 +555,12 @@ func TestHandleDeletePoll(t *testing.T) {
 
 func AllowRequestLogging(api *plugintest.API) {
 	api.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
+}
+
+func GetMockArgumentsWithType(typeString string, num int) []interface{} {
+	var ret []interface{} = make([]interface{}, num)
+	for i := 0; i < len(ret); i++ {
+		ret[i] = mock.AnythingOfTypeArgument(typeString)
+	}
+	return ret
 }
