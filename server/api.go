@@ -26,13 +26,14 @@ const (
 )
 
 func (p *MatterpollPlugin) InitAPI() *mux.Router {
-	m := mux.NewRouter()
-	m.HandleFunc("/", p.handleInfo)
-	m.HandleFunc("/"+iconFilename, p.handleLogo)
-	m.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/vote/{optionNumber:[0-9]+}", p.handleVote)
-	m.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/end", p.handleEndPoll)
-	m.HandleFunc("/api/v1/polls/{id:[a-z0-9]+}/delete", p.handleDeletePoll)
-	return m
+	r := mux.NewRouter()
+	r.HandleFunc("/", p.handleInfo)
+	r.HandleFunc("/"+iconFilename, p.handleLogo)
+	s := r.PathPrefix("/api/v1").Subrouter()
+	s.HandleFunc("/polls/{id:[a-z0-9]+}/vote/{optionNumber:[0-9]+}", p.handleVote)
+	s.HandleFunc("/polls/{id:[a-z0-9]+}/end", p.handleEndPoll)
+	s.HandleFunc("/polls/{id:[a-z0-9]+}/delete", p.handleDeletePoll)
+	return r
 }
 
 func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
