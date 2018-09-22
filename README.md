@@ -16,11 +16,16 @@ Supported Mattermost Server Versions: 5.3+
 2. Upload this file in the Mattermost **System Console > Plugins > Management** page to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
 3. You should set **Enable integrations to override usernames** and **Enable integrations to override profile picture icons** in **System Console > Custom Integrations** to `true`.
 
+## Settings
+You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
+
+* **Trigger**: Change trigger word for poll command. (default `/poll`)
+
 ## Usage
 
-`/matterpoll "Is Matterpoll great?"` creates a poll with the answer options "Yes" and "No". You can also leave out the double quotes and just type `/matterpoll Is Matterpoll great?`.
+`/poll "Is Matterpoll great?"` creates a poll with the answer options "Yes" and "No". You can also leave out the double quotes and just type `/poll Is Matterpoll great?`.
 
-If you want to define all answer options by yourself, type `/matterpoll "Is Matterpoll great?" "Of course" "In any case" "Definitely"`- Note that the double quotes are required in this case.
+If you want to define all answer options by yourself, type `/poll "Is Matterpoll great?" "Of course" "In any case" "Definitely"`- Note that the double quotes are required in this case.
 
 ## Troubleshooting
 
