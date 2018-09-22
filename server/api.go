@@ -100,10 +100,6 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var teamID string
-	if v, ok := request.Context["team_id"]; ok {
-		teamID = v.(string)
-	}
 	post := &model.Post{}
 	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, pollID, displayName))
 	response.Update = post
@@ -173,14 +169,7 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 }
 
 func (p *MatterpollPlugin) postEndPollAnnouncement(request *model.PostActionIntegrationRequest, question string) {
-	var teamID string
-	if v, ok := request.Context["team_id"]; !ok {
-		return
-	} else {
-		teamID = v.(string)
-	}
-
-	team, err := p.API.GetTeam(teamID)
+	team, err := p.API.GetTeam(request.TeamId)
 	if err != nil {
 		return
 	}

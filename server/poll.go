@@ -29,7 +29,7 @@ func NewPoll(creator, question string, answerOptions []string) *Poll {
 	return &p
 }
 
-func (p *Poll) ToPostActions(siteURL, teamID, pollID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackAttachment {
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
 
@@ -40,9 +40,6 @@ func (p *Poll) ToPostActions(siteURL, teamID, pollID, authorName string) []*mode
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/%v", siteURL, PluginId, CurrentApiVersion, pollID, i),
-				Context: model.StringInterface{
-					"team_id": teamID,
-				},
 			},
 		})
 	}
@@ -52,9 +49,6 @@ func (p *Poll) ToPostActions(siteURL, teamID, pollID, authorName string) []*mode
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
 			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentApiVersion, pollID),
-			Context: model.StringInterface{
-				"team_id": teamID,
-			},
 		},
 	})
 
@@ -63,9 +57,6 @@ func (p *Poll) ToPostActions(siteURL, teamID, pollID, authorName string) []*mode
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
 			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentApiVersion, pollID),
-			Context: model.StringInterface{
-				"team_id": teamID,
-			},
 		},
 	})
 
@@ -77,8 +68,8 @@ func (p *Poll) ToPostActions(siteURL, teamID, pollID, authorName string) []*mode
 	}}
 }
 
-func (p *Poll) ToCommandResponse(siteURL, teamID, pollID, authorName string) *model.CommandResponse {
-	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", siteURL, p.ToPostActions(siteURL, teamID, pollID, authorName))
+func (p *Poll) ToCommandResponse(siteURL, pollID, authorName string) *model.CommandResponse {
+	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", siteURL, p.ToPostActions(siteURL, pollID, authorName))
 }
 
 func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {

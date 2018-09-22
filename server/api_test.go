@@ -147,7 +147,7 @@ func TestHandleVote(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			API:                api1,
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: voteCounted, Update: expectedPost1},
@@ -241,7 +241,7 @@ func TestHandleEndPoll(t *testing.T) {
 	api1.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 	api1.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
 	api1.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
-	api1.On("GetPost", "postID1").Return(&model.Post{ChannelId: "cannel_id"}, nil)
+	api1.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channel_id"}, nil)
 	api1.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
 	api1.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
 	defer api1.AssertExpectations(t)
@@ -307,7 +307,7 @@ func TestHandleEndPoll(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			API:                api1,
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
 		},
@@ -417,24 +417,19 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		Request  *model.PostActionIntegrationRequest
 		Question string
 	}{
-		"Valid request with teamID": {
+		"Valid request": {
 			API:      api1,
-			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
-			Question: "Question1",
-		},
-		"Valid request without context": {
-			API:      &plugintest.API{},
-			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 			Question: "Question1",
 		},
 		"Valid request, GetTeam fails": {
 			API:      api2,
-			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
+			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 			Question: "Question1",
 		},
 		"Valid request, GetPost fails": {
 			API:      api3,
-			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", Context: model.StringInterface{"team_id": "teamID1"}},
+			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 			Question: "Question1",
 		},
 	} {
