@@ -3,9 +3,15 @@ package main
 import (
 	"testing"
 
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+)
+
+const (
+	samplePollID  = "1234567890abcdefghij"
+	samplesiteURL = "https://example.org"
 )
 
 var samplePoll = Poll{
@@ -34,12 +40,32 @@ var samplePollWithVotes = Poll{
 	},
 }
 
-type MockPollIDGenerator struct {
-	mock.Mock
+var samplePoll_twoOptions = Poll{
+	CreatedAt:         1234567890,
+	Creator:           "userID1",
+	DataSchemaVersion: "v1",
+	Question:          "Question",
+	AnswerOptions: []*AnswerOption{
+		{Answer: "Yes"},
+		{Answer: "No"},
+	},
 }
 
-func (m *MockPollIDGenerator) NewID() string {
-	return "1234567890abcdefghij"
+func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *MatterpollPlugin {
+	p := &MatterpollPlugin{
+		Config: &Config{
+			Trigger: "poll",
+		},
+		ServerConfig: &model.Config{
+			ServiceSettings: model.ServiceSettings{
+				SiteURL: &siteURL,
+			},
+		},
+	}
+	p.SetAPI(api)
+	err := p.OnActivate()
+	require.Nil(t, err)
+	return p
 }
 
 func TestPluginOnActivate(t *testing.T) {
@@ -57,13 +83,10 @@ func TestPluginOnActivateEmptyConfig(t *testing.T) {
 }
 
 func TestPluginOnDeactivate(t *testing.T) {
-	p := &MatterpollPlugin{
-		Config: &Config{Trigger: "poll"},
-	}
 	api := &plugintest.API{}
+	p := setupTestPlugin(t, api, samplesiteURL)
 	api.On("UnregisterCommand", "", p.Config.Trigger).Return(nil)
 	defer api.AssertExpectations(t)
-	p.SetAPI(api)
 
 	err := p.OnDeactivate()
 	assert.Nil(t, err)

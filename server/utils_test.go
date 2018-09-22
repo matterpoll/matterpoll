@@ -33,10 +33,12 @@ func TestParseInput(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
 
 			q, o := ParseInput(test.Input, test.Trigger)
-			assert.Equal(t, test.ExpectedQuestion, q)
-			assert.Equal(t, test.ExpectedOptions, o)
+
+			assert.Equal(test.ExpectedQuestion, q)
+			assert.Equal(test.ExpectedOptions, o)
 		})
 	}
 }

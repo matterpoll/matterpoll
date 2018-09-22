@@ -73,7 +73,7 @@ func (p *Poll) ToCommandResponse(siteURL, pollID, authorName string) *model.Comm
 }
 
 func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {
-	post := model.Post{}
+	post := &model.Post{}
 	fields := []*model.SlackAttachmentField{}
 
 	for _, o := range p.AnswerOptions {
@@ -109,9 +109,9 @@ func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *m
 		Text:       "This poll has ended. The results are:",
 		Fields:     fields,
 	}}
-	post.AddProp("attachments", attachments)
+	model.ParseSlackAttachment(post, attachments)
 
-	return &post, nil
+	return post, nil
 }
 
 func (p *Poll) UpdateVote(userID string, index int) error {
@@ -155,4 +155,16 @@ func Decode(b []byte) *Poll {
 		return nil
 	}
 	return &p
+}
+
+func (p *Poll) Copy() *Poll {
+	p2 := new(Poll)
+	*p2 = *p
+	p2.AnswerOptions = make([]*AnswerOption, len(p.AnswerOptions))
+	for i, o := range p.AnswerOptions {
+		p2.AnswerOptions[i] = new(AnswerOption)
+		p2.AnswerOptions[i].Answer = o.Answer
+		p2.AnswerOptions[i].Voter = o.Voter
+	}
+	return p2
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewPoll(t *testing.T) {
@@ -18,6 +19,7 @@ func TestNewPoll(t *testing.T) {
 	answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
 	p := NewPoll(creator, question, answerOptions)
 
+	require.NotNil(t, p)
 	assert.Equal(int64(1234567890), p.CreatedAt)
 	assert.Equal(creator, p.Creator)
 	assert.Equal(CurrentDataSchemaVersion, p.DataSchemaVersion)
@@ -155,14 +157,16 @@ func TestUpdateVote(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
 
 			err := test.Poll.UpdateVote(test.UserID, test.Index)
+
 			if test.Error {
-				assert.NotNil(t, err)
+				assert.NotNil(err)
 			} else {
-				assert.Nil(t, err)
+				assert.Nil(err)
 			}
-			assert.Equal(t, test.ExpectedPoll, test.Poll)
+			assert.Equal(test.ExpectedPoll, test.Poll)
 		})
 	}
 }
@@ -177,4 +181,32 @@ func TestHasVoted(t *testing.T) {
 	}
 	assert.True(t, p1.HasVoted("a"))
 	assert.False(t, p1.HasVoted("b"))
+}
+
+func TestPollCopy(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Run("no change", func(t *testing.T) {
+		p := &samplePoll
+		p2 := p.Copy()
+
+		assert.Equal(p, p2)
+	})
+	t.Run("change Question", func(t *testing.T) {
+		p := &samplePoll
+		p2 := p.Copy()
+
+		p.Question = "Different question"
+		assert.NotEqual(p.Question, p2.Question)
+		assert.NotEqual(p, p2)
+	})
+	t.Run("change AnswerOptions", func(t *testing.T) {
+		p := &samplePoll
+		p2 := p.Copy()
+
+		p.AnswerOptions[0].Answer = "abc"
+		assert.NotEqual(p.AnswerOptions[0].Answer, p2.AnswerOptions[0].Answer)
+		assert.NotEqual(p, p2)
+	})
+
 }

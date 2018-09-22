@@ -106,12 +106,9 @@ func TestOnConfigurationChange(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			idGen := new(MockPollIDGenerator)
-			p := &MatterpollPlugin{
-				idGen:  idGen,
-				Config: test.Config,
-			}
-			p.SetAPI(test.API)
+
+			p := setupTestPlugin(t, test.API, samplesiteURL)
+			p.Config = test.Config
 
 			err := p.OnConfigurationChange()
 			assert.Equal(test.ExpectedError, err)
