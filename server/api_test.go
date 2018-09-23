@@ -414,6 +414,13 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 	api3.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
 	defer api3.AssertExpectations(t)
 
+	api4 := &plugintest.API{}
+	api4.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+	api4.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channelID1"}, nil)
+	api4.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
+	api4.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
+	defer api4.AssertExpectations(t)
+
 	for name, test := range map[string]struct {
 		API      *plugintest.API
 		Request  *model.PostActionIntegrationRequest
@@ -431,6 +438,11 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		},
 		"Valid request, GetPost fails": {
 			API:      api3,
+			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
+			Question: "Question1",
+		},
+		"Valid request, CreatePost fails": {
+			API:      api4,
 			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 			Question: "Question1",
 		},
