@@ -556,11 +556,3 @@ func TestHandleDeletePoll(t *testing.T) {
 func AllowRequestLogging(api *plugintest.API) {
 	api.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 }
-
-func GetMockArgumentsWithType(typeString string, num int) []interface{} {
-	var ret []interface{} = make([]interface{}, num)
-	for i := 0; i < len(ret); i++ {
-		ret[i] = mock.AnythingOfTypeArgument(typeString)
-	}
-	return ret
-}
