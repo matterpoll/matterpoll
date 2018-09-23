@@ -45,7 +45,7 @@ func TestServeHTTP(t *testing.T) {
 			assert := assert.New(t)
 
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			AllowRequestLogging(test.API)
+			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", test.RequestURL, nil)
@@ -78,7 +78,7 @@ func TestServeFile(t *testing.T) {
 	assert := assert.New(t)
 	api1 := &plugintest.API{}
 	p := setupTestPlugin(t, api1, samplesiteURL)
-	AllowRequestLogging(api1)
+	api1.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", fmt.Sprintf("/%s", iconFilename), nil)
@@ -206,7 +206,7 @@ func TestHandleVote(t *testing.T) {
 			assert := assert.New(t)
 
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			AllowRequestLogging(test.API)
+			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", samplePollID, test.VoteIndex), strings.NewReader(test.Request.ToJson()))
@@ -358,7 +358,7 @@ func TestHandleEndPoll(t *testing.T) {
 			assert := assert.New(t)
 
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			AllowRequestLogging(test.API)
+			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", samplePollID), strings.NewReader(test.Request.ToJson()))
@@ -527,7 +527,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			assert := assert.New(t)
 
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			AllowRequestLogging(test.API)
+			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", samplePollID), strings.NewReader(test.Request.ToJson()))
@@ -551,8 +551,4 @@ func TestHandleDeletePoll(t *testing.T) {
 			assert.Equal(test.ExpectedResponse, response)
 		})
 	}
-}
-
-func AllowRequestLogging(api *plugintest.API) {
-	api.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 }
