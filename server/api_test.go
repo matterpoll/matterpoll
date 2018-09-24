@@ -422,9 +422,8 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 	defer api4.AssertExpectations(t)
 
 	for name, test := range map[string]struct {
-		API      *plugintest.API
-		Request  *model.PostActionIntegrationRequest
-		Question string
+		API     *plugintest.API
+		Request *model.PostActionIntegrationRequest
 	}{
 		"Valid request": {
 			API:     api1,
