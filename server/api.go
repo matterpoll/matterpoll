@@ -199,7 +199,8 @@ func (p *MatterpollPlugin) postEndPollAnnouncement(request *model.PostActionInte
 			"from_webhook":      "true",
 		},
 	}
-	if _, err := p.API.CreatePost(endPost); err != nil {
+	_, err = p.API.CreatePost(endPost)
+	if err != nil {
 		p.API.LogError(endPollAnnouncementPostError, "details", "failed to CreatePost")
 	}
 }
