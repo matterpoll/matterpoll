@@ -393,7 +393,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		UserId:    "userID1",
 		ChannelId: "channelID1",
 		RootId:    "postID1",
-		Message:   fmt.Sprintf(endPollSuccessfullyFormat, "Question1", "https://example.org/team1/pl/postID1"),
+		Message:   fmt.Sprintf(endPollSuccessfullyFormat, "Question", "https://example.org/team1/pl/postID1"),
 		Type:      model.POST_DEFAULT,
 		Props: model.StringInterface{
 			"override_username": responseUsername,
@@ -427,29 +427,25 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		Question string
 	}{
 		"Valid request": {
-			API:      api1,
-			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
-			Question: "Question1",
+			API:     api1,
+			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 		},
 		"Valid request, GetTeam fails": {
-			API:      api2,
-			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
-			Question: "Question1",
+			API:     api2,
+			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 		},
 		"Valid request, GetPost fails": {
-			API:      api3,
-			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
-			Question: "Question1",
+			API:     api3,
+			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 		},
 		"Valid request, CreatePost fails": {
-			API:      api4,
-			Request:  &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
-			Question: "Question1",
+			API:     api4,
+			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			p.postEndPollAnnouncement(test.Request, test.Question)
+			p.postEndPollAnnouncement(test.Request, "Question")
 		})
 	}
 }
