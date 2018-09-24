@@ -164,7 +164,10 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	p.postEndPollAnnouncement(request, poll.Question)
+	// TODO: Remove this check, when we drop the support Mattermost v5.3
+	if request.TeamId != "" {
+		p.postEndPollAnnouncement(request, poll.Question)
+	}
 
 	writePostActionIntegrationResponse(w, response)
 }
