@@ -45,7 +45,7 @@ func TestServeHTTP(t *testing.T) {
 			assert := assert.New(t)
 
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			AllowRequestLogging(test.API)
+			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", test.RequestURL, nil)
@@ -78,7 +78,7 @@ func TestServeFile(t *testing.T) {
 	assert := assert.New(t)
 	api1 := &plugintest.API{}
 	p := setupTestPlugin(t, api1, samplesiteURL)
-	AllowRequestLogging(api1)
+	api1.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", fmt.Sprintf("/%s", iconFilename), nil)
@@ -206,7 +206,7 @@ func TestHandleVote(t *testing.T) {
 			assert := assert.New(t)
 
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			AllowRequestLogging(test.API)
+			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", samplePollID, test.VoteIndex), strings.NewReader(test.Request.ToJson()))
@@ -241,6 +241,9 @@ func TestHandleEndPoll(t *testing.T) {
 	api1.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 	api1.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
 	api1.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
+	api1.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channel_id"}, nil)
+	api1.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+	api1.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
 	defer api1.AssertExpectations(t)
 
 	expectedattachments1 := []*model.SlackAttachment{{
@@ -304,7 +307,7 @@ func TestHandleEndPoll(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			API:                api1,
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
 		},
@@ -355,7 +358,7 @@ func TestHandleEndPoll(t *testing.T) {
 			assert := assert.New(t)
 
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			AllowRequestLogging(test.API)
+			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", samplePollID), strings.NewReader(test.Request.ToJson()))
@@ -382,6 +385,69 @@ func TestHandleEndPoll(t *testing.T) {
 	}
 }
 
+func TestPostEndPollAnnouncement(t *testing.T) {
+	api1 := &plugintest.API{}
+	api1.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+	api1.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channelID1"}, nil)
+	api1.On("CreatePost", &model.Post{
+		UserId:    "userID1",
+		ChannelId: "channelID1",
+		RootId:    "postID1",
+		Message:   fmt.Sprintf(endPollSuccessfullyFormat, "Question", "https://example.org/team1/pl/postID1"),
+		Type:      model.POST_DEFAULT,
+		Props: model.StringInterface{
+			"override_username": responseUsername,
+			"override_icon_url": fmt.Sprintf(responseIconURL, "https://example.org", PluginId),
+			"from_webhook":      "true",
+		},
+	}).Return(nil, nil)
+	defer api1.AssertExpectations(t)
+
+	api2 := &plugintest.API{}
+	api2.On("GetTeam", "teamID1").Return(nil, &model.AppError{})
+	api2.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
+	defer api2.AssertExpectations(t)
+
+	api3 := &plugintest.API{}
+	api3.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+	api3.On("GetPost", "postID1").Return(nil, &model.AppError{})
+	api3.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
+	defer api3.AssertExpectations(t)
+
+	api4 := &plugintest.API{}
+	api4.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+	api4.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channelID1"}, nil)
+	api4.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
+	api4.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
+	defer api4.AssertExpectations(t)
+
+	for name, test := range map[string]struct {
+		API     *plugintest.API
+		Request *model.PostActionIntegrationRequest
+	}{
+		"Valid request": {
+			API:     api1,
+			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
+		},
+		"Valid request, GetTeam fails": {
+			API:     api2,
+			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
+		},
+		"Valid request, GetPost fails": {
+			API:     api3,
+			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
+		},
+		"Valid request, CreatePost fails": {
+			API:     api4,
+			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			p := setupTestPlugin(t, test.API, samplesiteURL)
+			p.postEndPollAnnouncement(test.Request, "Question")
+		})
+	}
+}
 func TestHandleDeletePoll(t *testing.T) {
 	api1 := &plugintest.API{}
 	api1.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
@@ -465,7 +531,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			assert := assert.New(t)
 
 			p := setupTestPlugin(t, test.API, samplesiteURL)
-			AllowRequestLogging(test.API)
+			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", samplePollID), strings.NewReader(test.Request.ToJson()))
@@ -489,8 +555,4 @@ func TestHandleDeletePoll(t *testing.T) {
 			assert.Equal(test.ExpectedResponse, response)
 		})
 	}
-}
-
-func AllowRequestLogging(api *plugintest.API) {
-	api.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
 }

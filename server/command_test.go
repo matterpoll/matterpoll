@@ -8,7 +8,6 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,13 +17,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 	api1 := &plugintest.API{}
 	api1.On("KVSet", samplePollID, samplePoll_twoOptions.Encode()).Return(nil)
 	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-	api1.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
+	api1.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 	defer api1.AssertExpectations(t)
 
 	api2 := &plugintest.API{}
 	api2.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
 	api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-	api2.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
+	api2.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 	defer api2.AssertExpectations(t)
 
 	api3 := &plugintest.API{}

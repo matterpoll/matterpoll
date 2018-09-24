@@ -6,6 +6,7 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -90,4 +91,12 @@ func TestPluginOnDeactivate(t *testing.T) {
 
 	err := p.OnDeactivate()
 	assert.Nil(t, err)
+}
+
+func GetMockArgumentsWithType(typeString string, num int) []interface{} {
+	var ret []interface{} = make([]interface{}, num)
+	for i := 0; i < len(ret); i++ {
+		ret[i] = mock.AnythingOfTypeArgument(typeString)
+	}
+	return ret
 }
