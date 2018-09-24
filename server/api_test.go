@@ -393,11 +393,11 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		UserId:    "userID1",
 		ChannelId: "channelID1",
 		RootId:    "postID1",
-		Message:   fmt.Sprintf(endPollSuccessfullyFormat, "Question1", "http://localhost:8065/team1/pl/postID1"),
+		Message:   fmt.Sprintf(endPollSuccessfullyFormat, "Question1", "https://example.org/team1/pl/postID1"),
 		Type:      model.POST_DEFAULT,
 		Props: model.StringInterface{
 			"override_username": responseUsername,
-			"override_icon_url": fmt.Sprintf(responseIconURL, "http://localhost:8065", PluginId),
+			"override_icon_url": fmt.Sprintf(responseIconURL, "https://example.org", PluginId),
 			"from_webhook":      "true",
 		},
 	}).Return(nil, nil)
@@ -448,10 +448,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			p := &MatterpollPlugin{
-				ServerConfig: &model.Config{ServiceSettings: model.ServiceSettings{SiteURL: model.NewString("http://localhost:8065")}},
-			}
-			p.SetAPI(test.API)
+			p := setupTestPlugin(t, test.API, samplesiteURL)
 			p.postEndPollAnnouncement(test.Request, test.Question)
 		})
 	}
