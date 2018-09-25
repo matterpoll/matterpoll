@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/mattermost/mattermost-server/model"
@@ -39,7 +38,7 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 		case "progress":
 			p.Settings.Progress = true
 		default:
-			return nil, errors.New(fmt.Sprintf("Unrecognised poll setting %s", s))
+			return nil, fmt.Errorf("Unrecognised poll setting %s", s)
 		}
 	}
 	return &p, nil
@@ -138,10 +137,10 @@ func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *m
 
 func (p *Poll) UpdateVote(userID string, index int) error {
 	if len(p.AnswerOptions) <= index || index < 0 {
-		return errors.New("invalid index")
+		return fmt.Errorf("invalid index")
 	}
 	if userID == "" {
-		return errors.New("invalid userID")
+		return fmt.Errorf("invalid userID")
 	}
 	for _, o := range p.AnswerOptions {
 		for i := 0; i < len(o.Voter); i++ {
