@@ -31,7 +31,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 	api3 := &plugintest.API{}
 	api3.On("KVSet", samplePollID, poll3.Encode()).Return(nil)
 	api3.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-	api3.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return()
+	api3.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 	defer api3.AssertExpectations(t)
 
 	api4 := &plugintest.API{}
