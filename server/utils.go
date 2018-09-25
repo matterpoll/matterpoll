@@ -6,31 +6,26 @@ import (
 )
 
 func ParseInput(input string, trigger string) (string, []string, []string) {
-	/*
-			reg := regexp.MustCompile(fmt.Sprintf(`/%s(?:\s*"([0-9a-zA-Z]+)"\s*)*`, trigger))
-			matches := reg.FindAllStringSubmatch(input, -1000)
+	settings := []string{}
+	in := strings.TrimLeft(strings.TrimSpace(strings.TrimPrefix(input, fmt.Sprintf("/%s", trigger))), `"`)
 
-		  return "", []string{}, []string{}
-
-			reg := regexp.MustCompile(`\s*--([[:alpha:]]+)\s*`)
-
-			matches := reg.FindAllStringSubmatch(input, -1)
-			for i := len(matches) - 1; i >= 0; i-- {
-				in = strings.TrimRight(in, matches[i][0])
-				setting = append(setting, matches[i][1])
-			}
-	*/
-	setting := []string{}
-	in := input
-
-	prossedInput := strings.TrimRight(strings.TrimLeft(strings.TrimSpace(strings.TrimPrefix(in, fmt.Sprintf("/%s", trigger))), "\""), "\"")
-	if prossedInput == "" {
-		return "", []string{}, []string{}
+	split := strings.Split(in, `" "`)
+	lastIndex := len(split) - 1
+	l := strings.Split(split[lastIndex], string('"'))
+	split[lastIndex] = l[0]
+	if len(l) == 2 && l[1] != "" {
+		ops := strings.TrimPrefix(strings.TrimSpace(l[1]), "--")
+		opsList := strings.Split(ops, "--")
+		for i := 0; i < len(opsList); i++ {
+			s := strings.TrimSpace(opsList[i])
+			settings = append(settings, s)
+		}
 	}
 
-	split := strings.Split(prossedInput, "\" \"")
-	q := split[0]
-	o := split[1:]
-
-	return q, o, setting
+	question := strings.Replace(split[0], `\"`, `"`, -1)
+	options := split[1:]
+	for i := 0; i < len(options); i++ {
+		options[i] = strings.Replace(options[i], `\"`, `"`, -1)
+	}
+	return question, options, settings
 }

@@ -21,8 +21,22 @@ func TestParseInput(t *testing.T) {
 			ExpectedOptions:  []string{"B", "C"},
 			ExpectedSettings: []string{},
 		},
+		"With quotationmark in question": {
+			Input:            `/poll "A\"AA" "BBB" "CCC"`,
+			Trigger:          "poll",
+			ExpectedQuestion: `A"AA`,
+			ExpectedOptions:  []string{"BBB", "CCC"},
+			ExpectedSettings: []string{},
+		},
+		"With quotationmark in option": {
+			Input:            `/poll "AAA" "\"BBB" "CCC"`,
+			Trigger:          "poll",
+			ExpectedQuestion: `AAA`,
+			ExpectedOptions:  []string{`"BBB`, `CCC`},
+			ExpectedSettings: []string{},
+		},
 		"Trim whitespace": {
-			Input:            `/poll   "A" "B" "C"`,
+			Input:            `/poll  "A" "B" "C"  `,
 			Trigger:          "poll",
 			ExpectedQuestion: "A",
 			ExpectedOptions:  []string{"B", "C"},
@@ -35,44 +49,41 @@ func TestParseInput(t *testing.T) {
 			ExpectedOptions:  []string{},
 			ExpectedSettings: []string{},
 		},
-		/*
-			"With one setting": {
-				Input:            `/poll "A" "B" "C" --secret`,
-				Trigger:          "poll",
-				ExpectedQuestion: "A",
-				ExpectedOptions:  []string{"B", "C"},
-				ExpectedSettings: []string{"secret"},
-			},
-			"With two settings": {
-				Input:            `/poll "A" "B" "C" --secret --abc`,
-				Trigger:          "poll",
-				ExpectedQuestion: "A",
-				ExpectedOptions:  []string{"B", "C"},
-				ExpectedSettings: []string{"abc", "secret"},
-			},
-			"With two settings, multipile whitespaces": {
-				Input:            `/poll "A" "B" "C"    --secret   --abc   `,
-				Trigger:          "poll",
-				ExpectedQuestion: "A",
-				ExpectedOptions:  []string{"B", "C"},
-				ExpectedSettings: []string{"abc", "secret"},
-			},
-			"With two settings, no whitespaces": {
-				Input:            `/poll "A" "B" "C"--secret--abc`,
-				Trigger:          "poll",
-				ExpectedQuestion: "A",
-				ExpectedOptions:  []string{"B", "C"},
-				ExpectedSettings: []string{"abc", "secret"},
-			},
-			"With two settings, dashes in question": {
-				Input:            `/poll "--A" "B" "C"--secret--abc`,
-				Trigger:          "poll",
-				ExpectedQuestion: "--A",
-				ExpectedOptions:  []string{"B", "C"},
-				// NOTE: This might not be the expected result, but its okay for now
-				ExpectedSettings: []string{"abc", "secret", "A"},
-			},
-		*/
+		"With one setting": {
+			Input:            `/poll "A" "B" "C" --secret`,
+			Trigger:          "poll",
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"secret"},
+		},
+		"With two settings": {
+			Input:            `/poll "A" "B" "C" --secret --abc`,
+			Trigger:          "poll",
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"secret", "abc"},
+		},
+		"With two settings, multipile whitespaces": {
+			Input:            `/poll "A" "B" "C"    --secret   --abc   `,
+			Trigger:          "poll",
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"secret", "abc"},
+		},
+		"With two settings, no whitespaces": {
+			Input:            `/poll "A" "B" "C"--secret--abc`,
+			Trigger:          "poll",
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"secret", "abc"},
+		},
+		"With two settings, dashes in question": {
+			Input:            `/poll "--A" "B" "C"--secret--abc`,
+			Trigger:          "poll",
+			ExpectedQuestion: "--A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"secret", "abc"},
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
