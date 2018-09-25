@@ -48,7 +48,7 @@ func TestServeHTTP(t *testing.T) {
 			test.API.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", test.RequestURL, nil)
+			r := httptest.NewRequest("GET", test.RequestURL, nil)
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -81,7 +81,7 @@ func TestServeFile(t *testing.T) {
 	api1.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("POST", fmt.Sprintf("/%s", iconFilename), nil)
+	r := httptest.NewRequest("GET", fmt.Sprintf("/%s", iconFilename), nil)
 	p.ServeHTTP(nil, w, r)
 
 	result := w.Result()

@@ -31,12 +31,12 @@ const (
 
 func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/", p.handleInfo)
-	r.HandleFunc("/"+iconFilename, p.handleLogo)
+	r.HandleFunc("/", p.handleInfo).Methods("GET")
+	r.HandleFunc("/"+iconFilename, p.handleLogo).Methods("GET")
 	s := r.PathPrefix("/api/v1").Subrouter()
-	s.HandleFunc("/polls/{id:[a-z0-9]+}/vote/{optionNumber:[0-9]+}", p.handleVote)
-	s.HandleFunc("/polls/{id:[a-z0-9]+}/end", p.handleEndPoll)
-	s.HandleFunc("/polls/{id:[a-z0-9]+}/delete", p.handleDeletePoll)
+	s.HandleFunc("/polls/{id:[a-z0-9]+}/vote/{optionNumber:[0-9]+}", p.handleVote).Methods("POST")
+	s.HandleFunc("/polls/{id:[a-z0-9]+}/end", p.handleEndPoll).Methods("POST")
+	s.HandleFunc("/polls/{id:[a-z0-9]+}/delete", p.handleDeletePoll).Methods("POST")
 	return r
 }
 
@@ -50,6 +50,7 @@ func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "public, max-age=604800")
 	http.ServeFile(w, r, iconPath+iconFilename)
 }
 
