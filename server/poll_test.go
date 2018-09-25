@@ -222,5 +222,12 @@ func TestPollCopy(t *testing.T) {
 		assert.NotEqual(p.AnswerOptions[0].Answer, p2.AnswerOptions[0].Answer)
 		assert.NotEqual(p, p2)
 	})
+	t.Run("change Settings", func(t *testing.T) {
+		p := &samplePoll
+		p2 := p.Copy()
 
+		p.Settings.Progress = true
+		assert.NotEqual(p.Settings.Progress, p2.Settings.Progress)
+		assert.NotEqual(p, p2)
+	})
 }
