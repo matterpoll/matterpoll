@@ -23,9 +23,9 @@ const (
 	// Parameter: Question, Permalink
 	endPollSuccessfullyFormat    = "The poll **%s** has ended and the original post have been updated. You can jump to it by pressing [here](%s)."
 	endPollAnnouncementPostError = "Failed to post the end poll announcement."
-	endPollInvalidPermission     = "Only the creator of a poll is allowed to end it."
+	endPollInvalidPermission     = "Only the creator of a poll and System Admins are allowed to end it."
 
-	deletePollInvalidPermission = "Only the creator of a poll is allowed to delete it."
+	deletePollInvalidPermission = "Only the creator of a poll and System Admins are allowed to delete it."
 	deletePollSuccess           = "Succefully deleted the poll."
 )
 
@@ -123,7 +123,6 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	userID := request.UserId
 
 	b, appErr := p.API.KVGet(pollID)
 	if appErr != nil {
@@ -138,7 +137,13 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if userID != poll.Creator {
+	hasPermission, appErr := p.HasPermission(poll, request.UserId)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+	if !hasPermission {
 		response.EphemeralText = endPollInvalidPermission
 		writePostActionIntegrationResponse(w, response)
 		return
@@ -215,7 +220,6 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	userID := request.UserId
 
 	b, appErr := p.API.KVGet(pollID)
 	if appErr != nil {
@@ -230,7 +234,13 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if userID != poll.Creator {
+	hasPermission, appErr := p.HasPermission(poll, request.UserId)
+	if appErr != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+	if !hasPermission {
 		response.EphemeralText = deletePollInvalidPermission
 		writePostActionIntegrationResponse(w, response)
 		return
