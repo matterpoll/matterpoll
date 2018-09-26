@@ -267,6 +267,21 @@ func TestHandleEndPoll(t *testing.T) {
 	expectedPost1 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost1, expectedattachments1)
 
+	api9 := &plugintest.API{}
+	api9.On("KVGet", samplePollID).Return(samplePollWithVotes.Encode(), nil)
+	api9.On("KVDelete", samplePollID).Return(nil)
+	api9.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
+	api9.On("GetUser", "userID2").Return(&model.User{
+		Username: "user2",
+		Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
+	}, nil)
+	api9.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
+	api9.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
+	api9.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channel_id"}, nil)
+	api9.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+	api9.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
+	defer api9.AssertExpectations(t)
+
 	api2 := &plugintest.API{}
 	api2.On("KVGet", samplePollID).Return(nil, &model.AppError{})
 	defer api2.AssertExpectations(t)
@@ -275,8 +290,14 @@ func TestHandleEndPoll(t *testing.T) {
 	api3.On("KVGet", samplePollID).Return(nil, nil)
 	defer api3.AssertExpectations(t)
 
+	api8 := &plugintest.API{}
+	api8.On("KVGet", samplePollID).Return(samplePollWithVotes.Encode(), nil)
+	api8.On("GetUser", "userID2").Return(nil, &model.AppError{})
+	defer api8.AssertExpectations(t)
+
 	api4 := &plugintest.API{}
 	api4.On("KVGet", samplePollID).Return(samplePollWithVotes.Encode(), nil)
+	api4.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
 	defer api4.AssertExpectations(t)
 
 	api5 := &plugintest.API{}
@@ -311,6 +332,12 @@ func TestHandleEndPoll(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
 		},
+		"Valid request with no votes, issuer is system admin": {
+			API:                api9,
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1", TeamId: "teamID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
+		},
 		"Valid request, KVGet fails": {
 			API:                api2,
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
@@ -323,7 +350,13 @@ func TestHandleEndPoll(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
-		"Invalid permission": {
+		"Valid request, GetUser fails for issuer": {
+			API:                api8,
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+		"Valid request, Invalid permission": {
 			API:                api4,
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
@@ -455,6 +488,16 @@ func TestHandleDeletePoll(t *testing.T) {
 	api1.On("KVDelete", samplePollID).Return(nil)
 	defer api1.AssertExpectations(t)
 
+	api7 := &plugintest.API{}
+	api7.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
+	api7.On("GetUser", "userID2").Return(&model.User{
+		Username: "user2",
+		Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
+	}, nil)
+	api7.On("DeletePost", "postID1").Return(nil)
+	api7.On("KVDelete", samplePollID).Return(nil)
+	defer api7.AssertExpectations(t)
+
 	api2 := &plugintest.API{}
 	api2.On("KVGet", samplePollID).Return(nil, &model.AppError{})
 	defer api2.AssertExpectations(t)
@@ -463,8 +506,14 @@ func TestHandleDeletePoll(t *testing.T) {
 	api3.On("KVGet", samplePollID).Return(nil, nil)
 	defer api3.AssertExpectations(t)
 
+	api8 := &plugintest.API{}
+	api8.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
+	api8.On("GetUser", "userID2").Return(nil, &model.AppError{})
+	defer api8.AssertExpectations(t)
+
 	api4 := &plugintest.API{}
 	api4.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
+	api4.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
 	defer api4.AssertExpectations(t)
 
 	api5 := &plugintest.API{}
@@ -490,6 +539,12 @@ func TestHandleDeletePoll(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollSuccess},
 		},
+		"Valid request with no votes, issuer is system admin": {
+			API:                api7,
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1", TeamId: "teamID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollSuccess},
+		},
 		"Valid request, KVGet fails": {
 			API:                api2,
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
@@ -499,6 +554,12 @@ func TestHandleDeletePoll(t *testing.T) {
 		"Valid request, Decode fails": {
 			API:                api3,
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+		"Valid request, GetUser fails for issuer": {
+			API:                api8,
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},

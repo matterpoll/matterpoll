@@ -45,3 +45,18 @@ func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (stri
 	displayName := user.GetDisplayName(model.SHOW_NICKNAME_FULLNAME)
 	return displayName, nil
 }
+
+func (p *MatterpollPlugin) HasPermission(poll *Poll, issuerID string) (bool, *model.AppError) {
+	if issuerID == poll.Creator {
+		return true, nil
+	}
+
+	user, appErr := p.API.GetUser(issuerID)
+	if appErr != nil {
+		return false, appErr
+	}
+	if user.IsInRole(model.SYSTEM_ADMIN_ROLE_ID) {
+		return true, nil
+	}
+	return false, nil
+}
