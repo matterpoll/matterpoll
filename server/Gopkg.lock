@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:aba270497eb2d49f5cba6f4162d524b9a1195a24cbce8be20bf56a0051f47deb"
+  name = "github.com/blang/semver"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
+  version = "v3.5.1"
+
+[[projects]]
   digest = "1:d83a0c69ae2f09a89d2c2a05d1158c522947d681c26cd5a0c25a39ca8ed031a9"
   name = "github.com/bouk/monkey"
   packages = ["."]
@@ -424,6 +432,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/blang/semver",
     "github.com/bouk/monkey",
     "github.com/gorilla/mux",
     "github.com/mattermost/mattermost-server/model",

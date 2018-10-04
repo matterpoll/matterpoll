@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 
+	"github.com/blang/semver"
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
@@ -23,8 +25,14 @@ type MatterpollPlugin struct {
 	ServerConfig  *model.Config
 }
 
+const minimumServerVersion = "5.4.0-rc1"
+
 // OnActivate ensures a configuration is set and initalises the API
 func (p *MatterpollPlugin) OnActivate() error {
+	if err := p.checkServerVersion(); err != nil {
+		return err
+	}
+
 	p.router = p.InitAPI()
 	return nil
 }
@@ -35,6 +43,21 @@ func (p *MatterpollPlugin) OnDeactivate() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to dectivate command")
 	}
+	return nil
+}
+
+// checkServerVersion checks Mattermost Server has at least the required version
+func (p *MatterpollPlugin) checkServerVersion() error {
+	serverVersion, err := semver.Parse(p.API.GetServerVersion())
+	if err != nil {
+		return errors.Wrap(err, "failed to parse server version")
+	}
+
+	r := semver.MustParseRange(">=" + minimumServerVersion)
+	if !r(serverVersion) {
+		return fmt.Errorf("this plugin requires Mattermost v%s or later", minimumServerVersion)
+	}
+
 	return nil
 }
 
