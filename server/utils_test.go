@@ -12,33 +12,87 @@ func TestParseInput(t *testing.T) {
 		Trigger          string
 		ExpectedQuestion string
 		ExpectedOptions  []string
+		ExpectedSettings []string
 	}{
 		"Normal test": {
-			Input:            "/poll \"A\" \"B\" \"C\"",
+			Input:            `/poll "A" "B" "C"`,
 			Trigger:          "poll",
 			ExpectedQuestion: "A",
 			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{},
+		},
+		"With quotationmark in question": {
+			Input:            `/poll "A\"AA" "BBB" "CCC"`,
+			Trigger:          "poll",
+			ExpectedQuestion: `A"AA`,
+			ExpectedOptions:  []string{"BBB", "CCC"},
+			ExpectedSettings: []string{},
+		},
+		"With quotationmark in option": {
+			Input:            `/poll "AAA" "\"BBB" "CCC"`,
+			Trigger:          "poll",
+			ExpectedQuestion: `AAA`,
+			ExpectedOptions:  []string{`"BBB`, `CCC`},
+			ExpectedSettings: []string{},
 		},
 		"Trim whitespace": {
-			Input:            "/poll   \"A\" \"B\" \"C\"",
+			Input:            `/poll  "A" "B" "C"  `,
 			Trigger:          "poll",
 			ExpectedQuestion: "A",
 			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{},
 		},
 		"No options": {
-			Input:            "/poll  ",
+			Input:            `/poll  `,
 			Trigger:          "poll",
 			ExpectedQuestion: "",
 			ExpectedOptions:  []string{},
+			ExpectedSettings: []string{},
+		},
+		"With one setting": {
+			Input:            `/poll "A" "B" "C" --anonymous`,
+			Trigger:          "poll",
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"anonymous"},
+		},
+		"With two settings": {
+			Input:            `/poll "A" "B" "C" --anonymous --abc`,
+			Trigger:          "poll",
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"anonymous", "abc"},
+		},
+		"With two settings, multipile whitespaces": {
+			Input:            `/poll "A" "B" "C"    --anonymous   --abc   `,
+			Trigger:          "poll",
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"anonymous", "abc"},
+		},
+		"With two settings, no whitespaces": {
+			Input:            `/poll "A" "B" "C"--anonymous--abc`,
+			Trigger:          "poll",
+			ExpectedQuestion: "A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"anonymous", "abc"},
+		},
+		"With two settings, dashes in question": {
+			Input:            `/poll "--A" "B" "C"--anonymous--abc`,
+			Trigger:          "poll",
+			ExpectedQuestion: "--A",
+			ExpectedOptions:  []string{"B", "C"},
+			ExpectedSettings: []string{"anonymous", "abc"},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			q, o := ParseInput(test.Input, test.Trigger)
+			q, o, s := ParseInput(test.Input, test.Trigger)
 
 			assert.Equal(test.ExpectedQuestion, q)
 			assert.Equal(test.ExpectedOptions, o)
+			assert.Equal(test.ExpectedSettings, s)
 		})
 	}
 }

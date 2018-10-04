@@ -26,14 +26,22 @@ func TestPluginExecuteCommand(t *testing.T) {
 	api2.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 	defer api2.AssertExpectations(t)
 
+	poll3 := samplePoll.Copy()
+	poll3.Settings.Progress = true
 	api3 := &plugintest.API{}
-	api3.On("KVSet", samplePollID, samplePoll.Encode()).Return(&model.AppError{})
+	api3.On("KVSet", samplePollID, poll3.Encode()).Return(nil)
+	api3.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+	api3.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 	defer api3.AssertExpectations(t)
 
 	api4 := &plugintest.API{}
-	api4.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
-	api4.On("GetUser", "userID1").Return(nil, &model.AppError{})
+	api4.On("KVSet", samplePollID, samplePoll.Encode()).Return(&model.AppError{})
 	defer api4.AssertExpectations(t)
+
+	api5 := &plugintest.API{}
+	api5.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
+	api5.On("GetUser", "userID1").Return(nil, &model.AppError{})
+	defer api5.AssertExpectations(t)
 
 	for name, test := range map[string]struct {
 		API                  *plugintest.API
@@ -48,7 +56,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger, trigger),
+			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Help text": {
@@ -56,7 +64,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger, trigger),
+			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Two arguments": {
@@ -64,7 +72,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger, trigger),
+			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Just question": {
@@ -148,9 +156,53 @@ func TestPluginExecuteCommand(t *testing.T) {
 				},
 			}},
 		},
+		"With 4 arguments and settting progress": {
+			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
+			API:                  api3,
+			ExpectedError:        nil,
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
+			ExpectedText:         "",
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "John Doe",
+				Title:      "Question",
+				Text:       "Total votes: 0",
+				Actions: []*model.PostAction{{
+					Name: "Answer 1 (0)",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+					},
+				}, {
+					Name: "Answer 2 (0)",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+					},
+				}, {
+					Name: "Answer 3 (0)",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+					},
+				}, {
+					Name: "Delete Poll",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+					},
+				}, {
+					Name: "End Poll",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+					},
+				},
+				},
+			}},
+		},
 		"KVSet fails": {
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
-			API:                  api3,
+			API:                  api4,
 			ExpectedError:        &model.AppError{},
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         commandGenericError,
@@ -158,10 +210,18 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"GetUser fails": {
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
-			API:                  api4,
+			API:                  api5,
 			ExpectedError:        &model.AppError{},
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         commandGenericError,
+			ExpectedAttachments:  nil,
+		},
+		"Invalid setting": {
+			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
+			API:                  &plugintest.API{},
+			ExpectedError:        nil,
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ExpectedText:         fmt.Sprintf("Invalid input: Unrecognised poll setting unkownOption"),
 			ExpectedAttachments:  nil,
 		},
 	} {

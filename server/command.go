@@ -13,9 +13,14 @@ const (
 	responseUsername = "Matterpoll"
 
 	// Parameter: Trigger
-	commandHelpTextFormat = "To create a poll with the answer options \"Yes\" and \"No\" type `/%s \"Question\"`.\nYou can customise the options by typing `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
-	// Parameter: Trigger, Trigger
-	commandInputErrorFormat = "Invalid Input. Try `/%s \"Question\"` or `/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
+	commandHelpTextFormat = "To create a poll with the answer options \"Yes\" and \"No\" type `/%[1]s \"Question\"`.\n" +
+		"You can customise the options by typing `/%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
+		"Poll Settings provider further customisation, e.g. `/%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
+		"- `--anonymous`: Don't show who voted for what at the end\n" +
+		"- `--progress`: During the poll, show how many votes each answer option got\n"
+
+	// Parameter: Trigger
+	commandInputErrorFormat = "Invalid input. Try `/%[1]s \"Question\"` or `/%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
 	commandGenericError     = "Something went bad. Please try again later."
 )
 
@@ -23,22 +28,26 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	creatorID := args.UserId
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 
-	q, o := ParseInput(args.Command, p.Config.Trigger)
-	if len(o) == 0 && q == "help" {
-		msg := fmt.Sprintf(commandHelpTextFormat, p.Config.Trigger, p.Config.Trigger)
+	q, o, s := ParseInput(args.Command, p.Config.Trigger)
+	if q == "" || q == "help" {
+		msg := fmt.Sprintf(commandHelpTextFormat, p.Config.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
-	if len(o) == 1 || q == "" {
-		msg := fmt.Sprintf(commandInputErrorFormat, p.Config.Trigger, p.Config.Trigger)
+	if len(o) == 1 {
+		msg := fmt.Sprintf(commandInputErrorFormat, p.Config.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 
 	pollID := model.NewId()
 	var poll *Poll
+	var err error
 	if len(o) == 0 {
-		poll = NewPoll(creatorID, q, []string{"Yes", "No"})
+		poll, err = NewPoll(creatorID, q, []string{"Yes", "No"}, s)
 	} else {
-		poll = NewPoll(creatorID, q, o)
+		poll, err = NewPoll(creatorID, q, o, s)
+	}
+	if err != nil {
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, "Invalid input: "+err.Error(), siteURL, nil), nil
 	}
 
 	appErr := p.API.KVSet(pollID, poll.Encode())
