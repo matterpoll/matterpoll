@@ -14,37 +14,38 @@ import (
 func TestPluginExecuteCommand(t *testing.T) {
 	trigger := "poll"
 
-	api1 := &plugintest.API{}
-	api1.On("KVSet", samplePollID, samplePoll_twoOptions.Encode()).Return(nil)
-	api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-	api1.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
-	defer api1.AssertExpectations(t)
+	/*
+		api1 := &plugintest.API{}
+		api1.On("KVSet", samplePollID, samplePoll_twoOptions.Encode()).Return(nil)
+		api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+		api1.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+		defer api1.AssertExpectations(t)
 
-	api2 := &plugintest.API{}
-	api2.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
-	api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-	api2.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
-	defer api2.AssertExpectations(t)
+		api2 := &plugintest.API{}
+		api2.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
+		api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+		api2.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+		defer api2.AssertExpectations(t)
 
-	poll3 := samplePoll.Copy()
-	poll3.Settings.Progress = true
-	api3 := &plugintest.API{}
-	api3.On("KVSet", samplePollID, poll3.Encode()).Return(nil)
-	api3.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-	api3.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
-	defer api3.AssertExpectations(t)
+		poll3 := samplePoll.Copy()
+		poll3.Settings.Progress = true
+		api3 := &plugintest.API{}
+		api3.On("KVSet", samplePollID, poll3.Encode()).Return(nil)
+		api3.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+		api3.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+		defer api3.AssertExpectations(t)
 
-	api4 := &plugintest.API{}
-	api4.On("KVSet", samplePollID, samplePoll.Encode()).Return(&model.AppError{})
-	defer api4.AssertExpectations(t)
+		api4 := &plugintest.API{}
+		api4.On("KVSet", samplePollID, samplePoll.Encode()).Return(&model.AppError{})
+		defer api4.AssertExpectations(t)
 
-	api5 := &plugintest.API{}
-	api5.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
-	api5.On("GetUser", "userID1").Return(nil, &model.AppError{})
-	defer api5.AssertExpectations(t)
-
+		api5 := &plugintest.API{}
+		api5.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
+		api5.On("GetUser", "userID1").Return(nil, &model.AppError{})
+		defer api5.AssertExpectations(t)
+	*/
 	for name, test := range map[string]struct {
-		API                  *plugintest.API
+		SetupAPI             func(*plugintest.API) *plugintest.API
 		Command              string
 		ExpectedError        *model.AppError
 		ExpectedResponseType string
@@ -52,32 +53,37 @@ func TestPluginExecuteCommand(t *testing.T) {
 		ExpectedAttachments  []*model.SlackAttachment
 	}{
 		"No argument": {
+			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			Command:              fmt.Sprintf("/%s", trigger),
-			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Help text": {
+			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			Command:              fmt.Sprintf("/%s help", trigger),
-			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Two arguments": {
+			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			Command:              fmt.Sprintf("/%s \"Question\" \"Just one option\"", trigger),
-			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger),
 			ExpectedAttachments:  nil,
 		},
 		"Just question": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("KVSet", samplePollID, samplePoll_twoOptions.Encode()).Return(nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				return api
+			},
 			Command:              fmt.Sprintf("/%s \"Question\"", trigger),
-			API:                  api1,
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
@@ -113,8 +119,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 			}},
 		},
 		"With 4 arguments": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				return api
+			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
-			API:                  api2,
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
@@ -157,8 +168,16 @@ func TestPluginExecuteCommand(t *testing.T) {
 			}},
 		},
 		"With 4 arguments and settting progress": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				poll := samplePoll.Copy()
+				poll.Settings.Progress = true
+
+				api.On("KVSet", samplePollID, poll.Encode()).Return(nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				return api
+			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
-			API:                  api3,
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
@@ -201,24 +220,31 @@ func TestPluginExecuteCommand(t *testing.T) {
 			}},
 		},
 		"KVSet fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("KVSet", samplePollID, samplePoll.Encode()).Return(&model.AppError{})
+				return api
+			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
-			API:                  api4,
 			ExpectedError:        &model.AppError{},
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         commandGenericError,
 			ExpectedAttachments:  nil,
 		},
 		"GetUser fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
+				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
+				return api
+			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
-			API:                  api5,
 			ExpectedError:        &model.AppError{},
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         commandGenericError,
 			ExpectedAttachments:  nil,
 		},
 		"Invalid setting": {
+			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
-			API:                  &plugintest.API{},
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf("Invalid input: Unrecognised poll setting unkownOption"),
@@ -228,7 +254,9 @@ func TestPluginExecuteCommand(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			p := setupTestPlugin(t, test.API, samplesiteURL)
+			api := test.SetupAPI(&plugintest.API{})
+			defer api.AssertExpectations(t)
+			p := setupTestPlugin(t, api, samplesiteURL)
 			p.Config.Trigger = trigger
 			patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
 			patch2 := monkey.Patch(model.NewId, func() string { return samplePollID })
