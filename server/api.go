@@ -29,6 +29,7 @@ const (
 	deletePollSuccess           = "Succefully deleted the poll."
 )
 
+// InitAPI initializes the REST API
 func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", p.handleInfo).Methods("GET")

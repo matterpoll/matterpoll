@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// ParseInput pares a given input and tries to extract the poll question and poll options
 func ParseInput(input string, trigger string) (string, []string, []string) {
 	settings := []string{}
 

@@ -41,7 +41,7 @@ var samplePollWithVotes = Poll{
 	},
 }
 
-var samplePoll_twoOptions = Poll{
+var samplePollTwoOptions = Poll{
 	CreatedAt:         1234567890,
 	Creator:           "userID1",
 	DataSchemaVersion: "v1",
@@ -70,31 +70,47 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *Matterp
 }
 
 func TestPluginOnActivate(t *testing.T) {
-	p := &MatterpollPlugin{
-		Config: &Config{},
-	}
-	err := p.OnActivate()
-	assert.Nil(t, err)
-}
+	t.Run("all fine", func(t *testing.T) {
+		p := &MatterpollPlugin{
+			Config: &Config{
+				Trigger: "poll",
+			},
+		}
+		err := p.OnActivate()
+		assert.Nil(t, err)
+	})
 
-func TestPluginOnActivateEmptyConfig(t *testing.T) {
-	p := &MatterpollPlugin{}
-	err := p.OnActivate()
-	assert.NotNil(t, err)
+	t.Run("empty config", func(t *testing.T) {
+		p := &MatterpollPlugin{}
+		err := p.OnActivate()
+		assert.NotNil(t, err)
+	})
 }
 
 func TestPluginOnDeactivate(t *testing.T) {
-	api := &plugintest.API{}
-	p := setupTestPlugin(t, api, samplesiteURL)
-	api.On("UnregisterCommand", "", p.Config.Trigger).Return(nil)
-	defer api.AssertExpectations(t)
+	t.Run("all fine", func(t *testing.T) {
+		api := &plugintest.API{}
+		p := setupTestPlugin(t, api, samplesiteURL)
+		api.On("UnregisterCommand", "", p.Config.Trigger).Return(nil)
+		defer api.AssertExpectations(t)
 
-	err := p.OnDeactivate()
-	assert.Nil(t, err)
+		err := p.OnDeactivate()
+		assert.Nil(t, err)
+	})
+
+	t.Run("UnregisterCommand fails", func(t *testing.T) {
+		api := &plugintest.API{}
+		p := setupTestPlugin(t, api, samplesiteURL)
+		api.On("UnregisterCommand", "", p.Config.Trigger).Return(&model.AppError{})
+		defer api.AssertExpectations(t)
+
+		err := p.OnDeactivate()
+		assert.NotNil(t, err)
+	})
 }
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {
-	var ret []interface{} = make([]interface{}, num)
+	ret := make([]interface{}, num)
 	for i := 0; i < len(ret); i++ {
 		ret[i] = mock.AnythingOfTypeArgument(typeString)
 	}

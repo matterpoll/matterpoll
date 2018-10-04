@@ -58,7 +58,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/%v", siteURL, PluginId, CurrentApiVersion, pollID, i),
+				URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/%v", siteURL, PluginId, CurrentAPIVersion, pollID, i),
 			},
 		})
 	}
@@ -67,7 +67,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 		Name: "Delete Poll",
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentApiVersion, pollID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentAPIVersion, pollID),
 		},
 	})
 
@@ -75,7 +75,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 		Name: "End Poll",
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentApiVersion, pollID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentAPIVersion, pollID),
 		},
 	})
 
