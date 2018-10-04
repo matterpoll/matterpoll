@@ -15,8 +15,8 @@ const (
 	// Parameter: Trigger
 	commandHelpTextFormat = "To create a poll with the answer options \"Yes\" and \"No\" type `/%[1]s \"Question\"`.\n" +
 		"You can customise the options by typing `/%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
-		"Poll Settings provider further customisation, e.g. `/%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --secret`. The available Poll Settings are:\n" +
-		"- `--secret`: Don't show who voted for what at the end\n" +
+		"Poll Settings provider further customisation, e.g. `/%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
+		"- `--anonymous`: Don't show who voted for what at the end\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n"
 
 	// Parameter: Trigger
