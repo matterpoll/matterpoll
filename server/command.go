@@ -24,13 +24,15 @@ const (
 	commandGenericError     = "Something went bad. Please try again later."
 )
 
+// ExecuteCommand parses a given input and creates a poll if the input is correct
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	creatorID := args.UserId
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
+	config := p.getConfiguration()
 
-	q, o, s := ParseInput(args.Command, p.Config.Trigger)
+	q, o, s := ParseInput(args.Command, config.Trigger)
 	if q == "" || q == "help" {
-		msg := fmt.Sprintf(commandHelpTextFormat, p.Config.Trigger)
+		msg := fmt.Sprintf(commandHelpTextFormat, config.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 	if len(o) == 1 {

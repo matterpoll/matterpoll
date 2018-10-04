@@ -15,7 +15,7 @@ func TestOnConfigurationChange(t *testing.T) {
 		SetupAPI       func(*plugintest.API) *plugintest.API
 		Config         *Config
 		ExpectedConfig *Config
-		ExpectedError  error
+		ShouldError    bool
 	}{
 		"Load and save succesfull, with old config": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -30,7 +30,7 @@ func TestOnConfigurationChange(t *testing.T) {
 			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "poll"},
-			ExpectedError:  nil,
+			ShouldError:    false,
 		},
 		"Load and save succesfull, without old config": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -44,7 +44,7 @@ func TestOnConfigurationChange(t *testing.T) {
 			},
 			Config:         nil,
 			ExpectedConfig: &Config{Trigger: "poll"},
-			ExpectedError:  nil,
+			ShouldError:    false,
 		},
 		"LoadPluginConfiguration fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -53,7 +53,7 @@ func TestOnConfigurationChange(t *testing.T) {
 			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "oldTrigger"},
-			ExpectedError:  errors.New("LoadPluginConfiguration failed"),
+			ShouldError:    true,
 		},
 		"Load empty trigger": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -65,7 +65,7 @@ func TestOnConfigurationChange(t *testing.T) {
 			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "oldTrigger"},
-			ExpectedError:  errors.New("Empty trigger not allowed"),
+			ShouldError:    true,
 		},
 		"UnregisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -78,7 +78,7 @@ func TestOnConfigurationChange(t *testing.T) {
 			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "oldTrigger"},
-			ExpectedError:  errors.New("UnregisterCommand failed"),
+			ShouldError:    true,
 		},
 		"RegisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -92,7 +92,7 @@ func TestOnConfigurationChange(t *testing.T) {
 			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "oldTrigger"},
-			ExpectedError:  errors.New("RegisterCommand failed"),
+			ShouldError:    true,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -104,8 +104,60 @@ func TestOnConfigurationChange(t *testing.T) {
 			p.Config = test.Config
 
 			err := p.OnConfigurationChange()
-			assert.Equal(test.ExpectedError, err)
 			assert.Equal(test.ExpectedConfig, p.Config)
+			if test.ShouldError {
+				assert.NotNil(err)
+			} else {
+				assert.Nil(err)
+			}
 		})
 	}
+}
+
+func TestConfiguration(t *testing.T) {
+	t.Run("null configuration", func(t *testing.T) {
+		plugin := &MatterpollPlugin{}
+
+		assert.Equal(t, &Config{}, plugin.getConfiguration())
+	})
+
+	t.Run("changing configuration", func(t *testing.T) {
+		plugin := &MatterpollPlugin{}
+		config1 := &Config{Trigger: "poll"}
+
+		plugin.setConfiguration(config1)
+
+		assert.Equal(t, config1, plugin.getConfiguration())
+
+		config2 := &Config{Trigger: "otherTrigger"}
+		plugin.setConfiguration(config2)
+
+		assert.Equal(t, config2, plugin.getConfiguration())
+		assert.NotEqual(t, config1, plugin.getConfiguration())
+		assert.False(t, plugin.getConfiguration() == config1)
+		assert.True(t, plugin.getConfiguration() == config2)
+	})
+
+	t.Run("setting same configuration", func(t *testing.T) {
+		plugin := &MatterpollPlugin{}
+		config := &Config{}
+		plugin.setConfiguration(config)
+
+		assert.Panics(t, func() {
+			plugin.setConfiguration(config)
+		})
+	})
+
+	t.Run("clearing configuration", func(t *testing.T) {
+		plugin := &MatterpollPlugin{}
+		config := &Config{Trigger: "poll"}
+		plugin.setConfiguration(config)
+
+		assert.NotPanics(t, func() {
+			plugin.setConfiguration(nil)
+		})
+
+		assert.NotNil(t, plugin.getConfiguration())
+		assert.NotEqual(t, plugin, plugin.getConfiguration())
+	})
 }
