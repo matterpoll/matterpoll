@@ -75,6 +75,7 @@ func TestServeFile(t *testing.T) {
 	assert := assert.New(t)
 	api := &plugintest.API{}
 	api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+	defer api.AssertExpectations(t)
 	p := setupTestPlugin(t, api, samplesiteURL)
 
 	w := httptest.NewRecorder()
@@ -113,7 +114,6 @@ func TestHandleVote(t *testing.T) {
 		ExpectedStatusCode int
 		ExpectedResponse   *model.PostActionIntegrationResponse
 	}{
-
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("KVGet", samplePollID).Return(poll1_in.Encode(), nil)
@@ -178,12 +178,7 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Invalid index": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				poll_in := samplePoll.Copy()
-				poll_out := poll_in.Copy()
-				poll_out.UpdateVote("userID1", 0)
-
-				api.On("KVGet", samplePollID).Return(poll_in.Encode(), nil)
-				api.On("KVSet", samplePollID, poll_out.Encode()).Return(nil)
+				api.On("KVGet", samplePollID).Return(samplePoll.Encode(), nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -216,6 +211,7 @@ func TestHandleVote(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, samplesiteURL)
 
 			w := httptest.NewRecorder()
@@ -585,6 +581,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, samplesiteURL)
 
 			w := httptest.NewRecorder()

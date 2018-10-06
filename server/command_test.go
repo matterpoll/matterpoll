@@ -14,36 +14,6 @@ import (
 func TestPluginExecuteCommand(t *testing.T) {
 	trigger := "poll"
 
-	/*
-		api1 := &plugintest.API{}
-		api1.On("KVSet", samplePollID, samplePoll_twoOptions.Encode()).Return(nil)
-		api1.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-		api1.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
-		defer api1.AssertExpectations(t)
-
-		api2 := &plugintest.API{}
-		api2.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
-		api2.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-		api2.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
-		defer api2.AssertExpectations(t)
-
-		poll3 := samplePoll.Copy()
-		poll3.Settings.Progress = true
-		api3 := &plugintest.API{}
-		api3.On("KVSet", samplePollID, poll3.Encode()).Return(nil)
-		api3.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-		api3.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
-		defer api3.AssertExpectations(t)
-
-		api4 := &plugintest.API{}
-		api4.On("KVSet", samplePollID, samplePoll.Encode()).Return(&model.AppError{})
-		defer api4.AssertExpectations(t)
-
-		api5 := &plugintest.API{}
-		api5.On("KVSet", samplePollID, samplePoll.Encode()).Return(nil)
-		api5.On("GetUser", "userID1").Return(nil, &model.AppError{})
-		defer api5.AssertExpectations(t)
-	*/
 	for name, test := range map[string]struct {
 		SetupAPI             func(*plugintest.API) *plugintest.API
 		Command              string
