@@ -11,103 +11,96 @@ import (
 )
 
 func TestOnConfigurationChange(t *testing.T) {
-	api1 := &plugintest.API{}
-	api1.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
-		arg := args.Get(0).(*Config)
-		arg.Trigger = "poll"
-	})
-	api1.On("UnregisterCommand", "", "oldTrigger").Return(nil)
-	api1.On("RegisterCommand", getCommand("poll")).Return(nil)
-	api1.On("GetConfig").Return(&model.Config{})
-	defer api1.AssertExpectations(t)
-
-	api2 := &plugintest.API{}
-	api2.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
-		arg := args.Get(0).(*Config)
-		arg.Trigger = "poll"
-	})
-	api2.On("RegisterCommand", getCommand("poll")).Return(nil)
-	api2.On("GetConfig").Return(&model.Config{})
-	defer api2.AssertExpectations(t)
-
-	err3 := errors.New("LoadPluginConfiguration failed")
-	api3 := &plugintest.API{}
-	api3.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(err3)
-	defer api3.AssertExpectations(t)
-
-	api4 := &plugintest.API{}
-	api4.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
-		arg := args.Get(0).(*Config)
-		arg.Trigger = ""
-	})
-	defer api4.AssertExpectations(t)
-
-	err5 := errors.New("UnregisterCommand failed")
-	api5 := &plugintest.API{}
-	api5.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
-		arg := args.Get(0).(*Config)
-		arg.Trigger = "poll"
-	})
-	api5.On("UnregisterCommand", "", "oldTrigger").Return(err5)
-	defer api5.AssertExpectations(t)
-
-	err6 := errors.New("RegisterCommand failed")
-	api6 := &plugintest.API{}
-	api6.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
-		arg := args.Get(0).(*Config)
-		arg.Trigger = "poll"
-	})
-	api6.On("UnregisterCommand", "", "oldTrigger").Return(nil)
-	api6.On("RegisterCommand", getCommand("poll")).Return(err6)
-	defer api6.AssertExpectations(t)
-
 	for name, test := range map[string]struct {
-		API            *plugintest.API
+		SetupAPI       func(*plugintest.API) *plugintest.API
 		Config         *Config
 		ExpectedConfig *Config
 		ExpectedError  error
 	}{
 		"Load and save succesfull, with old config": {
-			API:            api1,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
+					arg := args.Get(0).(*Config)
+					arg.Trigger = "poll"
+				})
+				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
+				api.On("RegisterCommand", getCommand("poll")).Return(nil)
+				api.On("GetConfig").Return(&model.Config{})
+				return api
+			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "poll"},
 			ExpectedError:  nil,
 		},
 		"Load and save succesfull, without old config": {
-			API:            api2,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
+					arg := args.Get(0).(*Config)
+					arg.Trigger = "poll"
+				})
+				api.On("RegisterCommand", getCommand("poll")).Return(nil)
+				api.On("GetConfig").Return(&model.Config{})
+				return api
+			},
 			Config:         nil,
 			ExpectedConfig: &Config{Trigger: "poll"},
 			ExpectedError:  nil,
 		},
 		"LoadPluginConfiguration fails": {
-			API:            api3,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(errors.New("LoadPluginConfiguration failed"))
+				return api
+			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "oldTrigger"},
-			ExpectedError:  err3,
+			ExpectedError:  errors.New("LoadPluginConfiguration failed"),
 		},
 		"Load empty trigger": {
-			API:            api4,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
+					arg := args.Get(0).(*Config)
+					arg.Trigger = ""
+				})
+				return api
+			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "oldTrigger"},
 			ExpectedError:  errors.New("Empty trigger not allowed"),
 		},
 		"UnregisterCommand fails": {
-			API:            api5,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
+					arg := args.Get(0).(*Config)
+					arg.Trigger = "poll"
+				})
+				api.On("UnregisterCommand", "", "oldTrigger").Return(errors.New("UnregisterCommand failed"))
+				return api
+			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "oldTrigger"},
-			ExpectedError:  err5,
+			ExpectedError:  errors.New("UnregisterCommand failed"),
 		},
 		"RegisterCommand fails": {
-			API:            api6,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.Config")).Return(nil).Run(func(args mock.Arguments) {
+					arg := args.Get(0).(*Config)
+					arg.Trigger = "poll"
+				})
+				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
+				api.On("RegisterCommand", getCommand("poll")).Return(errors.New("RegisterCommand failed"))
+				return api
+			},
 			Config:         &Config{Trigger: "oldTrigger"},
 			ExpectedConfig: &Config{Trigger: "oldTrigger"},
-			ExpectedError:  err6,
+			ExpectedError:  errors.New("RegisterCommand failed"),
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			p := setupTestPlugin(t, test.API, samplesiteURL)
+			api := test.SetupAPI(&plugintest.API{})
+			defer api.AssertExpectations(t)
+			p := setupTestPlugin(t, api, samplesiteURL)
 			p.Config = test.Config
 
 			err := p.OnConfigurationChange()
