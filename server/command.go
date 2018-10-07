@@ -36,7 +36,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 	if len(o) == 1 {
-		msg := fmt.Sprintf(commandInputErrorFormat, p.Config.Trigger)
+		msg := fmt.Sprintf(commandInputErrorFormat, config.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 

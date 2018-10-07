@@ -4,50 +4,50 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Config captures the plugin's external configuration as exposed in the Mattermost server
+// configuration captures the plugin's external configuration as exposed in the Mattermost server
 // configuration, as well as values computed from the configuration. Any public fields will be
 // deserialized from the Mattermost server configuration in OnConfigurationChange.
-type Config struct {
+type configuration struct {
 	Trigger string
 }
 
 // OnConfigurationChange loads the plugin configuration, validates it and saves it.
 func (p *MatterpollPlugin) OnConfigurationChange() error {
-	config := new(Config)
+	configuration := new(configuration)
 
-	if err := p.API.LoadPluginConfiguration(config); err != nil {
+	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
 	}
 
-	if config.Trigger == "" {
+	if configuration.Trigger == "" {
 		return errors.New("Empty trigger not allowed")
 	}
 
-	if p.Config != nil {
-		if err := p.API.UnregisterCommand("", p.Config.Trigger); err != nil {
+	if p.getConfiguration().Trigger != "" {
+		if err := p.API.UnregisterCommand("", p.getConfiguration().Trigger); err != nil {
 			return errors.Wrap(err, "failed to unregister old command")
 		}
 	}
-	if err := p.API.RegisterCommand(getCommand(config.Trigger)); err != nil {
+	if err := p.API.RegisterCommand(getCommand(configuration.Trigger)); err != nil {
 		return errors.Wrap(err, "failed to register new command")
 	}
 
 	p.ServerConfig = p.API.GetConfig()
-	p.setConfiguration(config)
+	p.setConfiguration(configuration)
 	return nil
 }
 
 // getConfiguration retrieves the active configuration under lock, making it safe to use
 // concurrently. The active configuration may change underneath the client of this method, but
 // the struct returned by this API call is considered immutable.
-func (p *MatterpollPlugin) getConfiguration() *Config {
+func (p *MatterpollPlugin) getConfiguration() *configuration {
 	p.configurationLock.RLock()
 	defer p.configurationLock.RUnlock()
 
-	if p.Config == nil {
-		return &Config{}
+	if p.configuration == nil {
+		return &configuration{}
 	}
-	return p.Config
+	return p.configuration
 }
 
 // setConfiguration replaces the active configuration under lock.
@@ -59,12 +59,12 @@ func (p *MatterpollPlugin) getConfiguration() *Config {
 // This method panics if setConfiguration is called with the existing configuration. This almost
 // certainly means that the configuration was modified without being cloned and may result in
 // an unsafe access.
-func (p *MatterpollPlugin) setConfiguration(config *Config) {
+func (p *MatterpollPlugin) setConfiguration(configuration *configuration) {
 	p.configurationLock.Lock()
 	defer p.configurationLock.Unlock()
 
-	if config != nil && p.Config == config {
+	if configuration != nil && p.configuration == configuration {
 		panic("setConfiguration called with the existing configuration")
 	}
-	p.Config = config
+	p.configuration = configuration
 }

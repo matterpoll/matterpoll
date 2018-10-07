@@ -17,24 +17,21 @@ type MatterpollPlugin struct {
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
 
-	// Config is the active plugin configuration. Consult getConfiguration and
+	// configuration is the active plugin configuration. Consult getConfiguration and
 	// setConfiguration for usage.
-	Config       *Config
-	ServerConfig *model.Config
+	configuration *configuration
+	ServerConfig  *model.Config
 }
 
 // OnActivate ensures a configuration is set and initalises the API
 func (p *MatterpollPlugin) OnActivate() error {
-	if p.Config == nil {
-		return errors.New("Config empty")
-	}
 	p.router = p.InitAPI()
 	return nil
 }
 
 // OnDeactivate unregisters the command
 func (p *MatterpollPlugin) OnDeactivate() error {
-	err := p.API.UnregisterCommand("", p.Config.Trigger)
+	err := p.API.UnregisterCommand("", p.getConfiguration().Trigger)
 	if err != nil {
 		return errors.Wrap(err, "failed to dectivate command")
 	}

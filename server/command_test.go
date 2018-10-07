@@ -227,7 +227,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, samplesiteURL)
-			p.Config.Trigger = trigger
+			p.configuration.Trigger = trigger
+
 			patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
 			patch2 := monkey.Patch(model.NewId, func() string { return samplePollID })
 			defer patch1.Unpatch()
