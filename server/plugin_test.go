@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
@@ -73,23 +74,36 @@ func TestPluginOnActivate(t *testing.T) {
 		SetupAPI    func(*plugintest.API) *plugintest.API
 		ShouldError bool
 	}{
-		"server version: 5.5.0": {
+		"greater minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return("5.5.0")
+				m := semver.MustParse(minimumServerVersion)
+				m.Minor += 1
+				m.Patch = 0
+
+				api.On("GetServerVersion").Return(m.String())
 				return api
 			},
 			ShouldError: false,
 		},
-		"server version: 5.4.0": {
+		"same version as minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return("5.4.0")
+				api.On("GetServerVersion").Return(minimumServerVersion)
 				return api
 			},
 			ShouldError: false,
 		},
-		"server version: 5.3.0": {
+		"lesser minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return("5.3.0")
+				m := semver.MustParse(minimumServerVersion)
+				if m.Minor == 0 {
+					m.Major -= 1
+					m.Minor = 0
+					m.Patch = 0
+				} else {
+					m.Minor -= 1
+					m.Patch = 0
+				}
+				api.On("GetServerVersion").Return(m.String())
 				return api
 			},
 			ShouldError: true,
