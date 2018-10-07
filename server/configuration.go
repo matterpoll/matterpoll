@@ -14,6 +14,7 @@ type configuration struct {
 // OnConfigurationChange loads the plugin configuration, validates it and saves it.
 func (p *MatterpollPlugin) OnConfigurationChange() error {
 	configuration := new(configuration)
+	oldConfiguration := p.getConfiguration()
 
 	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
@@ -23,8 +24,8 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 		return errors.New("Empty trigger not allowed")
 	}
 
-	if p.getConfiguration().Trigger != "" {
-		if err := p.API.UnregisterCommand("", p.getConfiguration().Trigger); err != nil {
+	if oldConfiguration.Trigger != "" {
+		if err := p.API.UnregisterCommand("", oldConfiguration.Trigger); err != nil {
 			return errors.Wrap(err, "failed to unregister old command")
 		}
 	}
