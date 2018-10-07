@@ -28,15 +28,15 @@ const (
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	creatorID := args.UserId
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
-	config := p.getConfiguration()
+	configuration := p.getConfiguration()
 
-	q, o, s := ParseInput(args.Command, config.Trigger)
+	q, o, s := ParseInput(args.Command, configuration.Trigger)
 	if q == "" || q == "help" {
-		msg := fmt.Sprintf(commandHelpTextFormat, config.Trigger)
+		msg := fmt.Sprintf(commandHelpTextFormat, configuration.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 	if len(o) == 1 {
-		msg := fmt.Sprintf(commandInputErrorFormat, config.Trigger)
+		msg := fmt.Sprintf(commandInputErrorFormat, configuration.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 

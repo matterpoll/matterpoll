@@ -12,12 +12,12 @@ import (
 
 func TestOnConfigurationChange(t *testing.T) {
 	for name, test := range map[string]struct {
-		SetupAPI       func(*plugintest.API) *plugintest.API
-		Config         *configuration
-		ExpectedConfig *configuration
-		ShouldError    bool
+		SetupAPI              func(*plugintest.API) *plugintest.API
+		Configuration         *configuration
+		ExpectedConfiguration *configuration
+		ShouldError           bool
 	}{
-		"Load and save succesfull, with old config": {
+		"Load and save succesfull, with old configuration": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
@@ -28,11 +28,11 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetConfig").Return(&model.Config{})
 				return api
 			},
-			Config:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfig: &configuration{Trigger: "poll"},
-			ShouldError:    false,
+			Configuration:         &configuration{Trigger: "oldTrigger"},
+			ExpectedConfiguration: &configuration{Trigger: "poll"},
+			ShouldError:           false,
 		},
-		"Load and save succesfull, without old config": {
+		"Load and save succesfull, without old configuration": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
@@ -42,18 +42,18 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetConfig").Return(&model.Config{})
 				return api
 			},
-			Config:         nil,
-			ExpectedConfig: &configuration{Trigger: "poll"},
-			ShouldError:    false,
+			Configuration:         nil,
+			ExpectedConfiguration: &configuration{Trigger: "poll"},
+			ShouldError:           false,
 		},
 		"LoadPluginConfiguration fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(errors.New("LoadPluginConfiguration failed"))
 				return api
 			},
-			Config:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfig: &configuration{Trigger: "oldTrigger"},
-			ShouldError:    true,
+			Configuration:         &configuration{Trigger: "oldTrigger"},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			ShouldError:           true,
 		},
 		"Load empty trigger": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -63,9 +63,9 @@ func TestOnConfigurationChange(t *testing.T) {
 				})
 				return api
 			},
-			Config:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfig: &configuration{Trigger: "oldTrigger"},
-			ShouldError:    true,
+			Configuration:         &configuration{Trigger: "oldTrigger"},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			ShouldError:           true,
 		},
 		"UnregisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -76,9 +76,9 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("UnregisterCommand", "", "oldTrigger").Return(errors.New("UnregisterCommand failed"))
 				return api
 			},
-			Config:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfig: &configuration{Trigger: "oldTrigger"},
-			ShouldError:    true,
+			Configuration:         &configuration{Trigger: "oldTrigger"},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			ShouldError:           true,
 		},
 		"RegisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -90,9 +90,9 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("RegisterCommand", getCommand("poll")).Return(errors.New("RegisterCommand failed"))
 				return api
 			},
-			Config:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfig: &configuration{Trigger: "oldTrigger"},
-			ShouldError:    true,
+			Configuration:         &configuration{Trigger: "oldTrigger"},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			ShouldError:           true,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -101,10 +101,10 @@ func TestOnConfigurationChange(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, samplesiteURL)
-			p.setConfiguration(test.Config)
+			p.setConfiguration(test.Configuration)
 
 			err := p.OnConfigurationChange()
-			assert.Equal(test.ExpectedConfig, p.getConfiguration())
+			assert.Equal(test.ExpectedConfiguration, p.getConfiguration())
 			if test.ShouldError {
 				assert.NotNil(err)
 			} else {
