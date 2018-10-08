@@ -14,8 +14,10 @@ import (
 func TestNewPoll(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		assert := assert.New(t)
-		patch := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-		defer patch.Unpatch()
+		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
+		patch2 := monkey.Patch(model.NewId, func() string { return "gi3oxerjo3nabd14mzdfbhft1a" })
+		defer patch1.Unpatch()
+		defer patch2.Unpatch()
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
@@ -24,6 +26,7 @@ func TestNewPoll(t *testing.T) {
 
 		require.Nil(t, err)
 		require.NotNil(t, p)
+		assert.Equal("gi3oxerjo3nabd14mzdfbhft1a", p.ID)
 		assert.Equal(int64(1234567890), p.CreatedAt)
 		assert.Equal(creator, p.Creator)
 		assert.Equal("v1", p.DataSchemaVersion)
