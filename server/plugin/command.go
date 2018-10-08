@@ -45,9 +45,9 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	var newPoll *poll.Poll
 	var err error
 	if len(o) == 0 {
-		newPoll, err = poll.NewPoll(CurrentDataSchemaVersion, creatorID, q, []string{"Yes", "No"}, s)
+		newPoll, err = poll.NewPoll(creatorID, q, []string{"Yes", "No"}, s)
 	} else {
-		newPoll, err = poll.NewPoll(CurrentDataSchemaVersion, creatorID, q, o, s)
+		newPoll, err = poll.NewPoll(creatorID, q, o, s)
 	}
 	if err != nil {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, "Invalid input: "+err.Error(), siteURL, nil), nil

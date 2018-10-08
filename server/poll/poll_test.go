@@ -15,21 +15,20 @@ func TestNewPoll(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		assert := assert.New(t)
 		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-		patch2 := monkey.Patch(model.NewId, func() string { return "gi3oxerjo3nabd14mzdfbhft1a" })
+		patch2 := monkey.Patch(model.NewId, func() string { return testutils.GetPollID() })
 		defer patch1.Unpatch()
 		defer patch2.Unpatch()
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll("v1", creator, question, answerOptions, []string{"anonymous", "progress"})
+		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress"})
 
 		require.Nil(t, err)
 		require.NotNil(t, p)
-		assert.Equal("gi3oxerjo3nabd14mzdfbhft1a", p.ID)
+		assert.Equal(testutils.GetPollID(), p.ID)
 		assert.Equal(int64(1234567890), p.CreatedAt)
 		assert.Equal(creator, p.Creator)
-		assert.Equal("v1", p.DataSchemaVersion)
 		assert.Equal(question, p.Question)
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
@@ -42,7 +41,7 @@ func TestNewPoll(t *testing.T) {
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll("v1", creator, question, answerOptions, []string{"unkownOption"})
+		p, err := poll.NewPoll(creator, question, answerOptions, []string{"unkownOption"})
 
 		assert.Nil(p)
 		assert.NotNil(err)

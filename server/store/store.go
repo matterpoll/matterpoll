@@ -46,7 +46,8 @@ func (s *Store) UpdateDatabase() error {
 	}
 	// If no version is set, set to to the newest version
 	if v == "" {
-		v = PluginVersion
+		// TODO: Dont hardcode this
+		v = "1.0.0"
 	}
 
 	// TODO: Uncomment following condition when version 1.0.0 is released
