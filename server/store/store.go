@@ -2,18 +2,26 @@ package store
 
 import (
 	"errors"
+	"fmt"
 
+	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/matterpoll/matterpoll/server/poll"
 )
 
+const (
+	oldestVersion = "0.1.0"
+)
+
 type Store struct {
+	api         plugin.API
 	pollStore   PollStore
 	systemStore SystemStore
 }
 
-func NewStore(api plugin.API) Store {
+func NewStore(api plugin.API) (*Store, error) {
 	store := Store{
+		api: api,
 		pollStore: PollStore{
 			api: api,
 		},
@@ -21,11 +29,56 @@ func NewStore(api plugin.API) Store {
 			api: api,
 		},
 	}
-	return store
+	err := store.UpdateDatabase()
+	if err != nil {
+		return nil, err
+	}
+	return &store, nil
 }
 
 func (s *Store) Poll() *PollStore     { return &s.pollStore }
 func (s *Store) System() *SystemStore { return &s.systemStore }
+
+func (s *Store) UpdateDatabase() error {
+	v, err := s.System().GetVersion()
+	if err != nil {
+		return err
+	}
+	// TODO: Is this realy a good idea? Can we differ beween a new installation and an old installation without a saved version?
+	if v == "" {
+		v = oldestVersion
+	}
+
+	// TODO: Uncomment following condition when version 1.0.0 is released
+	/*
+		currentSchemaVersion := semver.MustParse(v)
+		if err := s.UpgradeDatabaseToVersion10(currentSchemaVersion); err != nil {
+			return err
+		}
+	*/
+
+	return nil
+}
+
+func (s *Store) shouldPerformUpgrade(currentSchemaVersion semver.Version, expectedSchemaVersion semver.Version) bool {
+	if currentSchemaVersion.LT(expectedSchemaVersion) {
+		s.api.LogWarn(fmt.Sprintf("The database schema version of %v appears to be out of date", currentSchemaVersion.String()))
+		s.api.LogWarn(fmt.Sprintf("Attempting to upgrade the database schema version to %v", expectedSchemaVersion.String()))
+		return true
+	}
+	return false
+}
+
+func (s *Store) UpgradeDatabaseToVersion10(currentSchemaVersion semver.Version) error {
+	if s.shouldPerformUpgrade(currentSchemaVersion, semver.MustParse("1.0.0")) {
+		s.api.LogWarn("Update complete")
+		// Do migration
+		if err := s.System().SaveVersion("1.0.0"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 type PollStore struct {
 	api plugin.API

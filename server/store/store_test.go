@@ -12,7 +12,9 @@ func TestGetVersion(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
-		store := NewStore(api)
+		store, err := NewStore(api)
+		require.Nil(t, err)
+		require.NotNil(t, store)
 
 		version, err := store.System().GetVersion()
 		require.Nil(t, err)

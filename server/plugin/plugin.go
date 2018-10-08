@@ -17,7 +17,7 @@ import (
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
 	router *mux.Router
-	Store  store.Store
+	Store  *store.Store
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -36,8 +36,13 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return err
 	}
 
+	store, err := store.NewStore(p.API)
+	if err != nil {
+		return err
+	}
+	p.Store = store
+
 	p.router = p.InitAPI()
-	p.Store = store.NewStore(p.API)
 	return nil
 }
 

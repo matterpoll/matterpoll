@@ -10,6 +10,7 @@ import (
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *MatterpollPlugin {
@@ -23,9 +24,15 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *Matterp
 	p.setConfiguration(&configuration{
 		Trigger: "poll",
 	})
+
 	p.SetAPI(api)
+	// TODO: Dont hardcode the key
+	api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
+	store, err := store.NewStore(api)
+	require.Nil(t, err)
+	require.NotNil(t, store)
+	p.Store = store
 	p.router = p.InitAPI()
-	p.Store = store.NewStore(api)
 
 	return p
 }
@@ -42,6 +49,9 @@ func TestPluginOnActivate(t *testing.T) {
 				m.Patch = 0
 
 				api.On("GetServerVersion").Return(m.String())
+				// TODO: Dont hardcode the key
+				api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
+				//api.On("LogInfo", mock.AnythingOfType("string")).Return(nil)
 				return api
 			},
 			ShouldError: false,
@@ -49,6 +59,9 @@ func TestPluginOnActivate(t *testing.T) {
 		"same version as minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
+				// TODO: Dont hardcode the key
+				api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
+				//api.On("LogInfo", mock.AnythingOfType("string")).Return(nil)
 				return api
 			},
 			ShouldError: false,
