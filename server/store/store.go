@@ -100,9 +100,8 @@ func (s *PollStore) Get(id string) (*poll.Poll, error) {
 }
 
 func (s *PollStore) Save(poll *poll.Poll) error {
-	// err := s.api.KVSet(pollPrefix + poll.ID, poll.Encode())
-	err := s.api.KVSet(poll.ID, poll.EncodeToByte())
-	if err != nil {
+	// err := s.api.KVSet(pollPrefix+poll.ID, poll.Encode())
+	if err := s.api.KVSet(poll.ID, poll.EncodeToByte()); err != nil {
 		return err
 	}
 	return nil
@@ -110,8 +109,7 @@ func (s *PollStore) Save(poll *poll.Poll) error {
 
 func (s *PollStore) Delete(poll *poll.Poll) error {
 	// err := s.api.KVDelete(pollPrefix + poll.ID)
-	err := s.api.KVDelete(poll.ID)
-	if err != nil {
+	if err := s.api.KVDelete(poll.ID); err != nil {
 		return err
 	}
 	return nil
