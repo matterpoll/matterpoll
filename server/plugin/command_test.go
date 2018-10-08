@@ -19,7 +19,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 	for name, test := range map[string]struct {
 		SetupAPI             func(*plugintest.API) *plugintest.API
 		Command              string
-		ExpectedError        *model.AppError
 		ExpectedResponseType string
 		ExpectedText         string
 		ExpectedAttachments  []*model.SlackAttachment
@@ -27,7 +26,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"No argument": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			Command:              fmt.Sprintf("/%s", trigger),
-			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
 			ExpectedAttachments:  nil,
@@ -35,7 +33,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"Help text": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			Command:              fmt.Sprintf("/%s help", trigger),
-			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
 			ExpectedAttachments:  nil,
@@ -43,7 +40,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"Two arguments": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			Command:              fmt.Sprintf("/%s \"Question\" \"Just one option\"", trigger),
-			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger),
 			ExpectedAttachments:  nil,
@@ -56,7 +52,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			Command:              fmt.Sprintf("/%s \"Question\"", trigger),
-			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
 			ExpectedAttachments:  testutils.GetPollTwoOptions().ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
@@ -69,7 +64,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
-			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
 			ExpectedAttachments:  testutils.GetPoll().ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
@@ -84,7 +78,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
-			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true}).ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
 		},
@@ -98,7 +91,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --anonymous --progress", trigger),
-			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
 			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
@@ -109,7 +101,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
-			ExpectedError:        &model.AppError{},
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         commandGenericError,
 			ExpectedAttachments:  nil,
@@ -121,7 +112,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
-			ExpectedError:        &model.AppError{},
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         commandGenericError,
 			ExpectedAttachments:  nil,
@@ -129,7 +119,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"Invalid setting": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
-			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf("Invalid input: Unrecognised poll setting unkownOption"),
 			ExpectedAttachments:  nil,
@@ -153,7 +142,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				UserId:  "userID1",
 			})
 
-			assert.Equal(test.ExpectedError, err)
+			assert.Nil(err)
 			require.NotNil(t, r)
 
 			assert.Equal(model.POST_DEFAULT, r.Type)

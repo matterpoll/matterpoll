@@ -6,6 +6,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,6 +25,7 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *Matterp
 	})
 	p.SetAPI(api)
 	p.router = p.InitAPI()
+	p.Store = store.NewStore(api)
 
 	return p
 }
