@@ -44,9 +44,9 @@ func (s *Store) UpdateDatabase() error {
 	if err != nil {
 		return err
 	}
-	// TODO: Is this realy a good idea? Can we differ beween a new installation and an old installation without a saved version?
+	// If no version is set, set to to the newest version
 	if v == "" {
-		v = oldestVersion
+		v = PluginVersion
 	}
 
 	// TODO: Uncomment following condition when version 1.0.0 is released
