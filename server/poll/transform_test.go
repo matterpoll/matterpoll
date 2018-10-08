@@ -221,7 +221,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(testutils.GetSiteURL(), PluginID, testutils.GetPollID(), authorName))
+			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(testutils.GetSiteURL(), PluginID, authorName))
 		})
 	}
 }
