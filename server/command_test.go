@@ -48,7 +48,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Just question": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", samplePollID, samplePoll_twoOptions.Encode()).Return(nil)
+				api.On("KVSet", samplePollID, samplePollTwoOptions.Encode()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
@@ -65,25 +65,25 @@ func TestPluginExecuteCommand(t *testing.T) {
 					Name: "Yes",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "No",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					}},
 				},
 			}},
@@ -107,31 +107,31 @@ func TestPluginExecuteCommand(t *testing.T) {
 					Name: "Answer 1",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "Answer 2",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "Answer 3",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				},
 				},
@@ -159,31 +159,31 @@ func TestPluginExecuteCommand(t *testing.T) {
 					Name: "Answer 1 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "Answer 2 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "Answer 3 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentApiVersion, samplePollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
 					},
 				},
 				},
@@ -227,7 +227,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, samplesiteURL)
-			p.Config.Trigger = trigger
+			p.configuration.Trigger = trigger
+
 			patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
 			patch2 := monkey.Patch(model.NewId, func() string { return samplePollID })
 			defer patch1.Unpatch()

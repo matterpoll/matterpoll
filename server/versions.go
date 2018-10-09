@@ -5,9 +5,13 @@ package main
 var apiVersions = []string{
 	"v1",
 }
-var CurrentApiVersion = apiVersions[0]
+
+// CurrentAPIVersion is the newest API version
+var CurrentAPIVersion = apiVersions[0]
 
 var dataSchemaVersions = []string{
 	"v1",
 }
+
+// CurrentDataSchemaVersion is the newest data schema version
 var CurrentDataSchemaVersion = dataSchemaVersions[0]
