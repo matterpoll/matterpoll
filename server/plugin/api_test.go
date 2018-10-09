@@ -1,4 +1,4 @@
-package main
+package plugin
 
 import (
 	"fmt"
@@ -64,7 +64,7 @@ func TestServeHTTP(t *testing.T) {
 
 func TestServeFile(t *testing.T) {
 	mkdirCmd := exec.Command("mkdir", "-p", iconPath)
-	cpCmd := exec.Command("cp", "../assets/"+iconFilename, iconPath+iconFilename)
+	cpCmd := exec.Command("cp", "../../assets/"+iconFilename, iconPath+iconFilename)
 	mkdirCmd.Run()
 	cpCmd.Run()
 	defer func() {

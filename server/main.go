@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/mattermost/mattermost-server/plugin"
+	mmplugin "github.com/mattermost/mattermost-server/plugin"
+	"github.com/matterpoll/matterpoll/server/plugin"
 )
 
 func main() {
-	plugin.ClientMain(&MatterpollPlugin{})
+	mmplugin.ClientMain(&plugin.MatterpollPlugin{})
 }
