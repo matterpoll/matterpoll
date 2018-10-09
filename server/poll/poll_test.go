@@ -1,4 +1,4 @@
-package plugin
+package poll
 
 import (
 	"testing"
@@ -9,6 +9,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var samplePoll = Poll{
+	CreatedAt:         1234567890,
+	Creator:           "userID1",
+	DataSchemaVersion: "v1",
+	Question:          "Question",
+	AnswerOptions: []*AnswerOption{
+		{Answer: "Answer 1"},
+		{Answer: "Answer 2"},
+		{Answer: "Answer 3"},
+	},
+}
+
 func TestNewPoll(t *testing.T) {
 	assert := assert.New(t)
 	patch := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
@@ -17,13 +29,13 @@ func TestNewPoll(t *testing.T) {
 	creator := model.NewRandomString(10)
 	question := model.NewRandomString(10)
 	answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-	p, err := NewPoll(creator, question, answerOptions, []string{"anonymous", "progress"})
+	p, err := NewPoll("v1", creator, question, answerOptions, []string{"anonymous", "progress"})
 
 	require.Nil(t, err)
 	require.NotNil(t, p)
 	assert.Equal(int64(1234567890), p.CreatedAt)
 	assert.Equal(creator, p.Creator)
-	assert.Equal(CurrentDataSchemaVersion, p.DataSchemaVersion)
+	assert.Equal("v1", p.DataSchemaVersion)
 	assert.Equal(question, p.Question)
 	assert.Equal(&AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
 	assert.Equal(&AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
@@ -37,7 +49,7 @@ func TestNewPollError(t *testing.T) {
 	creator := model.NewRandomString(10)
 	question := model.NewRandomString(10)
 	answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-	p, err := NewPoll(creator, question, answerOptions, []string{"unkownOption"})
+	p, err := NewPoll("v1", creator, question, answerOptions, []string{"unkownOption"})
 
 	assert.Nil(p)
 	assert.NotNil(err)

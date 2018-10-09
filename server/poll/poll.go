@@ -1,4 +1,4 @@
-package plugin
+package poll
 
 import (
 	"encoding/json"
@@ -27,8 +27,8 @@ type PollSettings struct {
 	Progress  bool
 }
 
-func NewPoll(creator, question string, answerOptions, settings []string) (*Poll, error) {
-	p := Poll{CreatedAt: model.GetMillis(), Creator: creator, DataSchemaVersion: CurrentDataSchemaVersion, Question: question}
+func NewPoll(currentDataSchemaVersion, creator, question string, answerOptions, settings []string) (*Poll, error) {
+	p := Poll{CreatedAt: model.GetMillis(), DataSchemaVersion: currentDataSchemaVersion, Creator: creator, Question: question}
 	for _, o := range answerOptions {
 		p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: o})
 	}
@@ -45,7 +45,7 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 	return &p, nil
 }
 
-func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(siteURL, pluginID, pollID, authorName string) []*model.SlackAttachment {
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
 
@@ -59,7 +59,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/%v", siteURL, PluginId, CurrentAPIVersion, pollID, i),
+				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/vote/%v", siteURL, pluginID, pollID, i),
 			},
 		})
 	}
@@ -68,7 +68,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 		Name: "Delete Poll",
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentAPIVersion, pollID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, pluginID, pollID),
 		},
 	})
 
@@ -76,7 +76,7 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 		Name: "End Poll",
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentAPIVersion, pollID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, pluginID, pollID),
 		},
 	})
 
@@ -105,10 +105,6 @@ func (p *Poll) makeAdditionalText(numberOfVotes int) string {
 	}
 	lines = append(lines, fmt.Sprintf("**Total votes**: %d", numberOfVotes))
 	return strings.Join(lines, "\n")
-}
-
-func (p *Poll) ToCommandResponse(siteURL, pollID, authorName string) *model.CommandResponse {
-	return getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", siteURL, p.ToPostActions(siteURL, pollID, authorName))
 }
 
 func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {

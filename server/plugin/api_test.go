@@ -98,14 +98,14 @@ func TestHandleVote(t *testing.T) {
 	poll1_out := poll1_in.Copy()
 	poll1_out.UpdateVote("userID1", 0)
 	expectedPost1 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost1, poll1_out.ToPostActions(samplesiteURL, samplePollID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost1, poll1_out.ToPostActions(samplesiteURL, PluginId, samplePollID, "John Doe"))
 
 	poll2_in := samplePoll.Copy()
 	poll2_in.UpdateVote("userID1", 0)
 	poll2_out := poll2_in.Copy()
 	poll2_out.UpdateVote("userID1", 1)
 	expectedPost2 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost2, poll2_out.ToPostActions(samplesiteURL, samplePollID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost2, poll2_out.ToPostActions(samplesiteURL, PluginId, samplePollID, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API

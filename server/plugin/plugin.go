@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/pkg/errors"
 )
 
@@ -83,7 +84,7 @@ func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (stri
 }
 
 // HasPermission checks if a given user has the permission to end or delete a given poll
-func (p *MatterpollPlugin) HasPermission(poll *Poll, issuerID string) (bool, *model.AppError) {
+func (p *MatterpollPlugin) HasPermission(poll *poll.Poll, issuerID string) (bool, *model.AppError) {
 	if issuerID == poll.Creator {
 		return true, nil
 	}

@@ -6,6 +6,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -15,24 +16,24 @@ const (
 	samplesiteURL = "https://example.org"
 )
 
-var samplePoll = Poll{
+var samplePoll = poll.Poll{
 	CreatedAt:         1234567890,
 	Creator:           "userID1",
 	DataSchemaVersion: "v1",
 	Question:          "Question",
-	AnswerOptions: []*AnswerOption{
+	AnswerOptions: []*poll.AnswerOption{
 		{Answer: "Answer 1"},
 		{Answer: "Answer 2"},
 		{Answer: "Answer 3"},
 	},
 }
 
-var samplePollWithVotes = Poll{
+var samplePollWithVotes = poll.Poll{
 	CreatedAt:         1234567890,
 	Creator:           "userID1",
 	DataSchemaVersion: "v1",
 	Question:          "Question",
-	AnswerOptions: []*AnswerOption{
+	AnswerOptions: []*poll.AnswerOption{
 		{Answer: "Answer 1",
 			Voter: []string{"userID1", "userID2", "userID3"}},
 		{Answer: "Answer 2",
@@ -41,12 +42,12 @@ var samplePollWithVotes = Poll{
 	},
 }
 
-var samplePollTwoOptions = Poll{
+var samplePollTwoOptions = poll.Poll{
 	CreatedAt:         1234567890,
 	Creator:           "userID1",
 	DataSchemaVersion: "v1",
 	Question:          "Question",
-	AnswerOptions: []*AnswerOption{
+	AnswerOptions: []*poll.AnswerOption{
 		{Answer: "Yes"},
 		{Answer: "No"},
 	},
