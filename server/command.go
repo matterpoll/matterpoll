@@ -5,6 +5,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/matterpoll/matterpoll/server/utils"
 )
 
 const (
@@ -30,7 +31,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	configuration := p.getConfiguration()
 
-	q, o, s := ParseInput(args.Command, configuration.Trigger)
+	q, o, s := utils.ParseInput(args.Command, configuration.Trigger)
 	if q == "" || q == "help" {
 		msg := fmt.Sprintf(commandHelpTextFormat, configuration.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
