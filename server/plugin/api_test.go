@@ -240,25 +240,22 @@ func TestHandleVote(t *testing.T) {
 }
 
 func TestHandleEndPoll(t *testing.T) {
-	expectedPost := &model.Post{}
-	model.ParseSlackAttachment(expectedPost, []*model.SlackAttachment{{
-		AuthorName: "John Doe",
-		Title:      "Question",
-		Text:       "This poll has ended. The results are:",
-		Fields: []*model.SlackAttachmentField{{
-			Title: "Answer 1 (3 votes)",
-			Value: "@user1, @user2 and @user3",
-			Short: true,
-		}, {
-			Title: "Answer 2 (1 vote)",
-			Value: "@user4",
-			Short: true,
-		}, {
-			Title: "Answer 3 (0 votes)",
-			Value: "",
-			Short: true,
-		}},
-	}})
+	converter := func(userID string) (string, *model.AppError) {
+		switch userID {
+		case "userID1":
+			return "@user1", nil
+		case "userID2":
+			return "@user2", nil
+		case "userID3":
+			return "@user3", nil
+		case "userID4":
+			return "@user4", nil
+		default:
+			return "", &model.AppError{}
+		}
+	}
+	expectedPost, err := samplePollWithVotes.ToEndPollPost("John Doe", converter)
+	require.Nil(t, err)
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
