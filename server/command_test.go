@@ -60,7 +60,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "Total votes: 0",
+				Text:       "---\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Yes",
 					Type: model.POST_ACTION_TYPE_BUTTON,
@@ -102,7 +102,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "Total votes: 0",
+				Text:       "---\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1",
 					Type: model.POST_ACTION_TYPE_BUTTON,
@@ -154,7 +154,60 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "Total votes: 0",
+				Text:       "---\n**Poll settings**: progress\n**Total votes**: 0",
+				Actions: []*model.PostAction{{
+					Name: "Answer 1 (0)",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
+					},
+				}, {
+					Name: "Answer 2 (0)",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
+					},
+				}, {
+					Name: "Answer 3 (0)",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
+					},
+				}, {
+					Name: "Delete Poll",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
+					},
+				}, {
+					Name: "End Poll",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", samplesiteURL, PluginId, CurrentAPIVersion, samplePollID),
+					},
+				},
+				},
+			}},
+		},
+		"With 4 arguments and settting anonymous and progress": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				poll := samplePoll.Copy()
+				poll.Settings.Anonymous = true
+				poll.Settings.Progress = true
+
+				api.On("KVSet", samplePollID, poll.Encode()).Return(nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				return api
+			},
+			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --anonymous --progress", trigger),
+			ExpectedError:        nil,
+			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
+			ExpectedText:         "",
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "John Doe",
+				Title:      "Question",
+				Text:       "---\n**Poll settings**: anonymous, progress\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,

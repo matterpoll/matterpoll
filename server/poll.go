@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/model"
 )
@@ -82,9 +83,28 @@ func (p *Poll) ToPostActions(siteURL, pollID, authorName string) []*model.SlackA
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       fmt.Sprintf("Total votes: %d", numberOfVotes),
+		Text:       p.makeAdditionalText(numberOfVotes),
 		Actions:    actions,
 	}}
+}
+
+// makeAdditionalText make descriptions about poll
+// This method returns markdown text, because it is used for SlackAttachment.Text field.
+func (p *Poll) makeAdditionalText(numberOfVotes int) string {
+	var settingsText []string
+	if p.Settings.Anonymous {
+		settingsText = append(settingsText, "anonymous")
+	}
+	if p.Settings.Progress {
+		settingsText = append(settingsText, "progress")
+	}
+
+	lines := []string{"---"}
+	if len(settingsText) > 0 {
+		lines = append(lines, fmt.Sprintf("**Poll settings**: %s", strings.Join(settingsText, ", ")))
+	}
+	lines = append(lines, fmt.Sprintf("**Total votes**: %d", numberOfVotes))
+	return strings.Join(lines, "\n")
 }
 
 func (p *Poll) ToCommandResponse(siteURL, pollID, authorName string) *model.CommandResponse {
