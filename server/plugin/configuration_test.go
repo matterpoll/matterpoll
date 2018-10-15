@@ -6,6 +6,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -100,7 +101,7 @@ func TestOnConfigurationChange(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
-			p := setupTestPlugin(t, api, samplesiteURL)
+			p := setupTestPlugin(t, api, testutils.GetSiteURL())
 			p.setConfiguration(test.Configuration)
 
 			err := p.OnConfigurationChange()

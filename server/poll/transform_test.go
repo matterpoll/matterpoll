@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/matterpoll/matterpoll/server/poll"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -46,7 +48,7 @@ func TestPollToEndPollPost(t *testing.T) {
 
 	}
 
-	post, err := samplePollWithVotes.ToEndPollPost("John Doe", converter)
+	post, err := testutils.GetPollWithVotes().ToEndPollPost("John Doe", converter)
 
 	require.Nil(t, err)
 	assert.Equal(t, expectedPost, post)
@@ -58,39 +60,49 @@ func TestPollToPostActions(t *testing.T) {
 	pollID := "1234567890abcdefghij"
 	authorName := "John Doe"
 	currentAPIVersion := "v1"
-	t.Run("one question", func(t *testing.T) {
-		expectedAttachments := []*model.SlackAttachment{{
-			AuthorName: "John Doe",
-			Title:      "Question",
-			Text:       "---\n**Total votes**: 0",
-			Actions: []*model.PostAction{{
-				Name: "Yes",
-				Type: model.POST_ACTION_TYPE_BUTTON,
-				Integration: &model.PostActionIntegration{
-					URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", siteURL, PluginID, currentAPIVersion, pollID),
+
+	for name, test := range map[string]struct {
+		Poll                *poll.Poll
+		ExpectedAttachments []*model.SlackAttachment
+	}{
+		"No argument": {
+			Poll: testutils.GetPollTwoOptions(),
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "John Doe",
+				Title:      "Question",
+				Text:       "---\n**Total votes**: 0",
+				Actions: []*model.PostAction{{
+					Name: "Yes",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", siteURL, PluginID, currentAPIVersion, pollID),
+					},
+				}, {
+					Name: "No",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", siteURL, PluginID, currentAPIVersion, pollID),
+					},
+				}, {
+					Name: "Delete Poll",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginID, currentAPIVersion, pollID),
+					},
+				}, {
+					Name: "End Poll",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginID, currentAPIVersion, pollID),
+					}},
 				},
-			}, {
-				Name: "No",
-				Type: model.POST_ACTION_TYPE_BUTTON,
-				Integration: &model.PostActionIntegration{
-					URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", siteURL, PluginID, currentAPIVersion, pollID),
-				},
-			}, {
-				Name: "Delete Poll",
-				Type: model.POST_ACTION_TYPE_BUTTON,
-				Integration: &model.PostActionIntegration{
-					URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginID, currentAPIVersion, pollID),
-				},
-			}, {
-				Name: "End Poll",
-				Type: model.POST_ACTION_TYPE_BUTTON,
-				Integration: &model.PostActionIntegration{
-					URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginID, currentAPIVersion, pollID),
-				}},
-			},
-		}}
-		assert.Equal(t, expectedAttachments, samplePollTwoOptions.ToPostActions(siteURL, PluginID, pollID, authorName))
-	})
+			}},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(siteURL, PluginID, pollID, authorName))
+		})
+	}
 
 	t.Run("multipile questions, settings: progress", func(t *testing.T) {
 		expectedAttachments := []*model.SlackAttachment{{
@@ -130,7 +142,7 @@ func TestPollToPostActions(t *testing.T) {
 			},
 			},
 		}}
-		p := samplePoll.Copy()
+		p := testutils.GetPoll()
 		p.Settings.Progress = true
 		assert.Equal(t, expectedAttachments, p.ToPostActions(siteURL, PluginID, pollID, authorName))
 	})
@@ -173,7 +185,7 @@ func TestPollToPostActions(t *testing.T) {
 			},
 			},
 		}}
-		p := samplePoll.Copy()
+		p := testutils.GetPoll()
 		p.Settings.Anonymous = true
 		assert.Equal(t, expectedAttachments, p.ToPostActions(siteURL, PluginID, pollID, authorName))
 	})

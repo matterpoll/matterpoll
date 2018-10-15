@@ -6,46 +6,10 @@ import (
 	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/matterpoll/matterpoll/server/poll"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-var samplePoll = poll.Poll{
-	CreatedAt:         1234567890,
-	Creator:           "userID1",
-	DataSchemaVersion: "v1",
-	Question:          "Question",
-	AnswerOptions: []*poll.AnswerOption{
-		{Answer: "Answer 1"},
-		{Answer: "Answer 2"},
-		{Answer: "Answer 3"},
-	},
-}
-
-var samplePollWithVotes = poll.Poll{
-	CreatedAt:         1234567890,
-	Creator:           "userID1",
-	DataSchemaVersion: "v1",
-	Question:          "Question",
-	AnswerOptions: []*poll.AnswerOption{
-		{Answer: "Answer 1",
-			Voter: []string{"userID1", "userID2", "userID3"}},
-		{Answer: "Answer 2",
-			Voter: []string{"userID4"}},
-		{Answer: "Answer 3"},
-	},
-}
-
-var samplePollTwoOptions = poll.Poll{
-	CreatedAt:         1234567890,
-	Creator:           "userID1",
-	DataSchemaVersion: "v1",
-	Question:          "Question",
-	AnswerOptions: []*poll.AnswerOption{
-		{Answer: "Yes"},
-		{Answer: "No"},
-	},
-}
 
 func TestNewPoll(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
@@ -240,13 +204,13 @@ func TestPollCopy(t *testing.T) {
 	assert := assert.New(t)
 
 	t.Run("no change", func(t *testing.T) {
-		p := samplePoll.Copy()
+		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		assert.Equal(p, p2)
 	})
 	t.Run("change Question", func(t *testing.T) {
-		p := samplePoll.Copy()
+		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.Question = "Different question"
@@ -254,7 +218,7 @@ func TestPollCopy(t *testing.T) {
 		assert.NotEqual(p, p2)
 	})
 	t.Run("change AnswerOptions", func(t *testing.T) {
-		p := samplePoll.Copy()
+		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.AnswerOptions[0].Answer = "abc"
@@ -262,7 +226,7 @@ func TestPollCopy(t *testing.T) {
 		assert.NotEqual(p, p2)
 	})
 	t.Run("change Settings", func(t *testing.T) {
-		p := samplePoll.Copy()
+		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.Settings.Progress = true

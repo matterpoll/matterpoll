@@ -6,52 +6,10 @@ import (
 	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/poll"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-const (
-	samplePollID  = "1234567890abcdefghij"
-	samplesiteURL = "https://example.org"
-)
-
-var samplePoll = poll.Poll{
-	CreatedAt:         1234567890,
-	Creator:           "userID1",
-	DataSchemaVersion: "v1",
-	Question:          "Question",
-	AnswerOptions: []*poll.AnswerOption{
-		{Answer: "Answer 1"},
-		{Answer: "Answer 2"},
-		{Answer: "Answer 3"},
-	},
-}
-
-var samplePollWithVotes = poll.Poll{
-	CreatedAt:         1234567890,
-	Creator:           "userID1",
-	DataSchemaVersion: "v1",
-	Question:          "Question",
-	AnswerOptions: []*poll.AnswerOption{
-		{Answer: "Answer 1",
-			Voter: []string{"userID1", "userID2", "userID3"}},
-		{Answer: "Answer 2",
-			Voter: []string{"userID4"}},
-		{Answer: "Answer 3"},
-	},
-}
-
-var samplePollTwoOptions = poll.Poll{
-	CreatedAt:         1234567890,
-	Creator:           "userID1",
-	DataSchemaVersion: "v1",
-	Question:          "Question",
-	AnswerOptions: []*poll.AnswerOption{
-		{Answer: "Yes"},
-		{Answer: "No"},
-	},
-}
 
 func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *MatterpollPlugin {
 	p := &MatterpollPlugin{
@@ -140,7 +98,7 @@ func TestPluginOnActivate(t *testing.T) {
 func TestPluginOnDeactivate(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, samplesiteURL)
+		p := setupTestPlugin(t, api, testutils.GetSiteURL())
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(nil)
 		defer api.AssertExpectations(t)
 
@@ -150,7 +108,7 @@ func TestPluginOnDeactivate(t *testing.T) {
 
 	t.Run("UnregisterCommand fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, samplesiteURL)
+		p := setupTestPlugin(t, api, testutils.GetSiteURL())
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(&model.AppError{})
 		defer api.AssertExpectations(t)
 
