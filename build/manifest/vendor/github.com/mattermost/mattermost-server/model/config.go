@@ -644,16 +644,17 @@ type SSOSettings struct {
 }
 
 type SqlSettings struct {
-	DriverName                  *string
-	DataSource                  *string
-	DataSourceReplicas          []string
-	DataSourceSearchReplicas    []string
-	MaxIdleConns                *int
-	ConnMaxLifetimeMilliseconds *int
-	MaxOpenConns                *int
-	Trace                       bool
-	AtRestEncryptKey            string
-	QueryTimeout                *int
+	DriverName                          *string
+	DataSource                          *string
+	DataSourceReplicas                  []string
+	DataSourceSearchReplicas            []string
+	MaxIdleConns                        *int
+	ConnMaxLifetimeMilliseconds         *int
+	MaxOpenConns                        *int
+	Trace                               bool
+	AtRestEncryptKey                    string
+	QueryTimeout                        *int
+	EnablePublicChannelsMaterialization *bool
 }
 
 func (s *SqlSettings) SetDefaults() {
@@ -683,6 +684,10 @@ func (s *SqlSettings) SetDefaults() {
 
 	if s.QueryTimeout == nil {
 		s.QueryTimeout = NewInt(30)
+	}
+
+	if s.EnablePublicChannelsMaterialization == nil {
+		s.EnablePublicChannelsMaterialization = NewBool(true)
 	}
 }
 
@@ -991,12 +996,13 @@ type PrivacySettings struct {
 }
 
 type SupportSettings struct {
-	TermsOfServiceLink *string
-	PrivacyPolicyLink  *string
-	AboutLink          *string
-	HelpLink           *string
-	ReportAProblemLink *string
-	SupportEmail       *string
+	TermsOfServiceLink          *string
+	PrivacyPolicyLink           *string
+	AboutLink                   *string
+	HelpLink                    *string
+	ReportAProblemLink          *string
+	SupportEmail                *string
+	CustomTermsOfServiceEnabled *bool
 }
 
 func (s *SupportSettings) SetDefaults() {
@@ -1042,6 +1048,10 @@ func (s *SupportSettings) SetDefaults() {
 
 	if s.SupportEmail == nil {
 		s.SupportEmail = NewString(SUPPORT_SETTINGS_DEFAULT_SUPPORT_EMAIL)
+	}
+
+	if s.CustomTermsOfServiceEnabled == nil {
+		s.CustomTermsOfServiceEnabled = NewBool(false)
 	}
 }
 
@@ -2370,7 +2380,7 @@ func (ss *ServiceSettings) isValid() *AppError {
 		}
 	}
 
-	host, port, err := net.SplitHostPort(*ss.ListenAddress)
+	host, port, _ := net.SplitHostPort(*ss.ListenAddress)
 	var isValidHost bool
 	if host == "" {
 		isValidHost = true

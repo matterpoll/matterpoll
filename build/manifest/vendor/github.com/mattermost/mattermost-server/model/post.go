@@ -97,9 +97,12 @@ type PostPatch struct {
 }
 
 type SearchParameter struct {
-	Terms          *string `json:"terms"`
-	IsOrSearch     *bool   `json:"is_or_search"`
-	TimeZoneOffset *int    `json:"time_zone_offset"`
+	Terms                  *string `json:"terms"`
+	IsOrSearch             *bool   `json:"is_or_search"`
+	TimeZoneOffset         *int    `json:"time_zone_offset"`
+	Page                   *int    `json:"page"`
+	PerPage                *int    `json:"per_page"`
+	IncludeDeletedChannels *bool   `json:"include_deleted_channels"`
 }
 
 func (o *PostPatch) WithRewrittenImageURLs(f func(string) string) *PostPatch {
@@ -108,6 +111,19 @@ func (o *PostPatch) WithRewrittenImageURLs(f func(string) string) *PostPatch {
 		*copy.Message = RewriteImageURLs(*o.Message, f)
 	}
 	return &copy
+}
+
+type PostForExport struct {
+	Post
+	TeamName    string
+	ChannelName string
+	Username    string
+	ReplyCount  int
+}
+
+type ReplyForExport struct {
+	Post
+	Username string
 }
 
 type PostForIndexing struct {
@@ -141,6 +157,8 @@ type PostActionIntegration struct {
 
 type PostActionIntegrationRequest struct {
 	UserId     string          `json:"user_id"`
+	ChannelId  string          `json:"channel_id"`
+	TeamId     string          `json:"team_id"`
 	PostId     string          `json:"post_id"`
 	Type       string          `json:"type"`
 	DataSource string          `json:"data_source"`
