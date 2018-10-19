@@ -47,15 +47,14 @@ func TestNewPoll(t *testing.T) {
 }
 
 func TestEncodeDecode(t *testing.T) {
-	p1 := &poll.Poll{
-		Question: "Question",
-		AnswerOptions: []*poll.AnswerOption{
-			{Answer: "Answer 1"},
-			{Answer: "Answer 2"},
-		},
-	}
+	p1 := testutils.GetPollWithVotes()
 	p2 := poll.Decode(p1.Encode())
 	assert.Equal(t, p1, p2)
+}
+
+func TestDecode(t *testing.T) {
+	p := poll.Decode([]byte{})
+	assert.Nil(t, p)
 }
 
 func TestUpdateVote(t *testing.T) {

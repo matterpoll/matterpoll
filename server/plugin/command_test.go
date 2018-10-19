@@ -7,6 +7,7 @@ import (
 	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -60,36 +61,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
-			ExpectedAttachments: []*model.SlackAttachment{{
-				AuthorName: "John Doe",
-				Title:      "Question",
-				Text:       "---\n**Total votes**: 0",
-				Actions: []*model.PostAction{{
-					Name: "Yes",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "No",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "Delete Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "End Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					}},
-				},
-			}},
+			ExpectedAttachments:  testutils.GetPollTwoOptions().ToPostActions(siteURL, PluginId, pollID, "John Doe"),
 		},
 		"With 4 arguments": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -102,48 +74,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
-			ExpectedAttachments: []*model.SlackAttachment{{
-				AuthorName: "John Doe",
-				Title:      "Question",
-				Text:       "---\n**Total votes**: 0",
-				Actions: []*model.PostAction{{
-					Name: "Answer 1",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "Answer 2",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "Answer 3",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "Delete Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "End Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				},
-				},
-			}},
+			ExpectedAttachments:  testutils.GetPoll().ToPostActions(siteURL, PluginId, pollID, "John Doe"),
 		},
 		"With 4 arguments and settting progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				poll := testutils.GetPoll().Copy()
-				poll.Settings.Progress = true
+				poll := testutils.GetPollWithSettings(poll.PollSettings{Progress: true})
 
 				api.On("KVSet", testutils.GetPollID(), poll.Encode()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
@@ -153,50 +88,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
-			ExpectedText:         "",
-			ExpectedAttachments: []*model.SlackAttachment{{
-				AuthorName: "John Doe",
-				Title:      "Question",
-				Text:       "---\n**Poll settings**: progress\n**Total votes**: 0",
-				Actions: []*model.PostAction{{
-					Name: "Answer 1 (0)",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", siteURL, PluginId, CurrentAPIVersion, pollID),
-					},
-				}, {
-					Name: "Answer 2 (0)",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", siteURL, PluginId, CurrentAPIVersion, pollID),
-					},
-				}, {
-					Name: "Answer 3 (0)",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", siteURL, PluginId, CurrentAPIVersion, pollID),
-					},
-				}, {
-					Name: "Delete Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginId, CurrentAPIVersion, pollID),
-					},
-				}, {
-					Name: "End Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginId, CurrentAPIVersion, pollID),
-					},
-				},
-				},
-			}},
+			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true}).ToPostActions(siteURL, PluginId, pollID, "John Doe"),
 		},
 		"With 4 arguments and settting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				poll := testutils.GetPoll()
-				poll.Settings.Anonymous = true
-				poll.Settings.Progress = true
+				poll := testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true})
 
 				api.On("KVSet", pollID, poll.Encode()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
@@ -207,43 +103,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedError:        nil,
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
-			ExpectedAttachments: []*model.SlackAttachment{{
-				AuthorName: "John Doe",
-				Title:      "Question",
-				Text:       "---\n**Poll settings**: anonymous, progress\n**Total votes**: 0",
-				Actions: []*model.PostAction{{
-					Name: "Answer 1 (0)",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "Answer 2 (0)",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "Answer 3 (0)",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "Delete Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Name: "End Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", testutils.GetSiteURL(), PluginId, CurrentAPIVersion, testutils.GetPollID()),
-					},
-				},
-				},
-			}},
+			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true}).ToPostActions(siteURL, PluginId, pollID, "John Doe"),
 		},
 		"KVSet fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {

@@ -26,6 +26,12 @@ func GetPoll() *poll.Poll {
 	}
 }
 
+func GetPollWithSettings(settings poll.PollSettings) *poll.Poll {
+	poll := GetPoll()
+	poll.Settings = settings
+	return poll
+}
+
 func GetPollWithVotes() *poll.Poll {
 	return &poll.Poll{
 		CreatedAt:         1234567890,
@@ -40,6 +46,12 @@ func GetPollWithVotes() *poll.Poll {
 			{Answer: "Answer 3"},
 		},
 	}
+}
+
+func GetPollWithVotesAndSettings(settings poll.PollSettings) *poll.Poll {
+	poll := GetPollWithVotes()
+	poll.Settings = settings
+	return poll
 }
 
 func GetPollTwoOptions() *poll.Poll {
