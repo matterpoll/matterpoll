@@ -66,11 +66,14 @@ func TestServeHTTP(t *testing.T) {
 func TestServeFile(t *testing.T) {
 	mkdirCmd := exec.Command("mkdir", "-p", iconPath)
 	cpCmd := exec.Command("cp", "../../assets/"+iconFilename, iconPath+iconFilename)
-	mkdirCmd.Run()
-	cpCmd.Run()
+	err := mkdirCmd.Run()
+	require.Nil(t, err)
+	err = cpCmd.Run()
+	require.Nil(t, err)
 	defer func() {
 		rmCmd := exec.Command("rm", "-r", "plugins")
-		rmCmd.Run()
+		err = rmCmd.Run()
+		require.Nil(t, err)
 	}()
 
 	assert := assert.New(t)
@@ -97,18 +100,21 @@ func TestServeFile(t *testing.T) {
 func TestHandleVote(t *testing.T) {
 	pollID := testutils.GetPollID()
 
-	poll1_in := testutils.GetPoll()
-	poll1_out := poll1_in.Copy()
-	poll1_out.UpdateVote("userID1", 0)
+	poll1In := testutils.GetPoll()
+	poll1Out := poll1In.Copy()
+	err := poll1Out.UpdateVote("userID1", 0)
+	require.Nil(t, err)
 	expectedPost1 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost1, poll1_out.ToPostActions(testutils.GetSiteURL(), PluginId, pollID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetSiteURL(), PluginId, pollID, "John Doe"))
 
-	poll2_in := testutils.GetPoll()
-	poll2_in.UpdateVote("userID1", 0)
-	poll2_out := poll2_in.Copy()
-	poll2_out.UpdateVote("userID1", 1)
+	poll2In := testutils.GetPoll()
+	err = poll2In.UpdateVote("userID1", 0)
+	require.Nil(t, err)
+	poll2Out := poll2In.Copy()
+	err = poll2Out.UpdateVote("userID1", 1)
+	require.Nil(t, err)
 	expectedPost2 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost2, poll2_out.ToPostActions(testutils.GetSiteURL(), PluginId, pollID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetSiteURL(), PluginId, pollID, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -119,8 +125,8 @@ func TestHandleVote(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(poll1_in.Encode(), nil)
-				api.On("KVSet", pollID, poll1_out.Encode()).Return(nil)
+				api.On("KVGet", pollID).Return(poll1In.Encode(), nil)
+				api.On("KVSet", pollID, poll1Out.Encode()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -131,8 +137,8 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(poll2_in.Encode(), nil)
-				api.On("KVSet", pollID, poll2_out.Encode()).Return(nil)
+				api.On("KVGet", pollID).Return(poll2In.Encode(), nil)
+				api.On("KVSet", pollID, poll2Out.Encode()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -165,12 +171,13 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Valid request, KVSet fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				poll_in := testutils.GetPoll()
-				poll_out := poll_in.Copy()
-				poll_out.UpdateVote("userID1", 0)
+				pollIn := testutils.GetPoll()
+				pollOut := pollIn.Copy()
+				err := pollOut.UpdateVote("userID1", 0)
+				require.Nil(t, err)
 
-				api.On("KVGet", pollID).Return(poll_in.Encode(), nil)
-				api.On("KVSet", pollID, poll_out.Encode()).Return(&model.AppError{})
+				api.On("KVGet", pollID).Return(pollIn.Encode(), nil)
+				api.On("KVSet", pollID, pollOut.Encode()).Return(&model.AppError{})
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},

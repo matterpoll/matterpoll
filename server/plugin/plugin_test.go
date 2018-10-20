@@ -36,7 +36,7 @@ func TestPluginOnActivate(t *testing.T) {
 		"greater minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				m := semver.MustParse(minimumServerVersion)
-				m.Minor += 1
+				m.Minor++
 				m.Patch = 0
 
 				api.On("GetServerVersion").Return(m.String())
@@ -55,11 +55,11 @@ func TestPluginOnActivate(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				m := semver.MustParse(minimumServerVersion)
 				if m.Minor == 0 {
-					m.Major -= 1
+					m.Major--
 					m.Minor = 0
 					m.Patch = 0
 				} else {
-					m.Minor -= 1
+					m.Minor--
 					m.Patch = 0
 				}
 				api.On("GetServerVersion").Return(m.String())

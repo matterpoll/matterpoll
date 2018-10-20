@@ -7,6 +7,7 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 )
 
+// Poll stores all needed information for a poll
 type Poll struct {
 	CreatedAt         int64
 	Creator           string
@@ -16,11 +17,13 @@ type Poll struct {
 	Settings          PollSettings
 }
 
+// AnswerOption stores a possible answer and a list of user who voted for this
 type AnswerOption struct {
 	Answer string
 	Voter  []string
 }
 
+// PollSettings stores possible settings for a poll
 type PollSettings struct {
 	Anonymous bool
 	Progress  bool
@@ -76,7 +79,7 @@ func (p *Poll) HasVoted(userID string) bool {
 	return false
 }
 
-// Encodes returs a poll as a byte array
+// Encode returns a poll as a byte array
 func (p *Poll) Encode() []byte {
 	b, _ := json.Marshal(p)
 	return b
