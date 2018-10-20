@@ -7,6 +7,7 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 )
 
+// ToPostActions returns the poll as a message
 func (p *Poll) ToPostActions(siteURL, pluginID, pollID, authorName string) []*model.SlackAttachment {
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
@@ -69,6 +70,7 @@ func (p *Poll) makeAdditionalText(numberOfVotes int) string {
 	return strings.Join(lines, "\n")
 }
 
+// ToEndPollPost returns the poll end message
 func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {
 	post := &model.Post{}
 	fields := []*model.SlackAttachmentField{}

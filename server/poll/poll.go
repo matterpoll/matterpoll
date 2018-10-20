@@ -26,6 +26,7 @@ type PollSettings struct {
 	Progress  bool
 }
 
+// NewPoll creates a new poll with the given paramatern
 func NewPoll(currentDataSchemaVersion, creator, question string, answerOptions, settings []string) (*Poll, error) {
 	p := Poll{CreatedAt: model.GetMillis(), DataSchemaVersion: currentDataSchemaVersion, Creator: creator, Question: question}
 	for _, o := range answerOptions {
@@ -44,6 +45,7 @@ func NewPoll(currentDataSchemaVersion, creator, question string, answerOptions, 
 	return &p, nil
 }
 
+// UpdateVote performs a vote for a given user
 func (p *Poll) UpdateVote(userID string, index int) error {
 	if len(p.AnswerOptions) <= index || index < 0 {
 		return fmt.Errorf("invalid index")
@@ -62,6 +64,7 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	return nil
 }
 
+// HasVoted return true if a given user has voted in this poll
 func (p *Poll) HasVoted(userID string) bool {
 	for _, o := range p.AnswerOptions {
 		for i := 0; i < len(o.Voter); i++ {
@@ -73,11 +76,13 @@ func (p *Poll) HasVoted(userID string) bool {
 	return false
 }
 
+// Encodes returs a poll as a byte array
 func (p *Poll) Encode() []byte {
 	b, _ := json.Marshal(p)
 	return b
 }
 
+// Decode tries to create a poll from a byte array
 func Decode(b []byte) *Poll {
 	p := Poll{}
 	err := json.Unmarshal(b, &p)
@@ -87,6 +92,7 @@ func Decode(b []byte) *Poll {
 	return &p
 }
 
+// Copy deep copys a poll
 func (p *Poll) Copy() *Poll {
 	p2 := new(Poll)
 	*p2 = *p
