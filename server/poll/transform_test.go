@@ -98,9 +98,7 @@ func TestPollToEndPollPost(t *testing.T) {
 }
 
 func TestPollToPostActions(t *testing.T) {
-	siteURL := "https://example.org"
 	PluginID := "com.github.matterpoll.matterpoll"
-	pollID := "1234567890abcdefghij"
 	authorName := "John Doe"
 	currentAPIVersion := "v1"
 
@@ -118,25 +116,25 @@ func TestPollToPostActions(t *testing.T) {
 					Name: "Yes",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "No",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					}},
 				},
 			}},
@@ -151,31 +149,31 @@ func TestPollToPostActions(t *testing.T) {
 					Name: "Answer 1 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Answer 2 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Answer 3 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				},
 				},
@@ -191,31 +189,31 @@ func TestPollToPostActions(t *testing.T) {
 					Name: "Answer 1",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/0", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Answer 2",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Answer 3",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/delete", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", siteURL, PluginID, currentAPIVersion, pollID),
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/end", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				},
 				},
@@ -223,7 +221,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(siteURL, PluginID, pollID, authorName))
+			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(testutils.GetSiteURL(), PluginID, testutils.GetPollID(), authorName))
 		})
 	}
 }
