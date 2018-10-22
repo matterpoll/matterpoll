@@ -125,8 +125,8 @@ func TestHandleVote(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(poll1In.Encode(), nil)
-				api.On("KVSet", pollID, poll1Out.Encode()).Return(nil)
+				api.On("KVGet", pollID).Return(poll1In.EncodeToByte(), nil)
+				api.On("KVSet", pollID, poll1Out.EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -137,8 +137,8 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(poll2In.Encode(), nil)
-				api.On("KVSet", pollID, poll2Out.Encode()).Return(nil)
+				api.On("KVGet", pollID).Return(poll2In.EncodeToByte(), nil)
+				api.On("KVSet", pollID, poll2Out.EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -176,8 +176,8 @@ func TestHandleVote(t *testing.T) {
 				err := pollOut.UpdateVote("userID1", 0)
 				require.Nil(t, err)
 
-				api.On("KVGet", pollID).Return(pollIn.Encode(), nil)
-				api.On("KVSet", pollID, pollOut.Encode()).Return(&model.AppError{})
+				api.On("KVGet", pollID).Return(pollIn.EncodeToByte(), nil)
+				api.On("KVSet", pollID, pollOut.EncodeToByte()).Return(&model.AppError{})
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -188,7 +188,7 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Invalid index": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPoll().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPoll().EncodeToByte(), nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -206,7 +206,7 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Valid request, GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPoll().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPoll().EncodeToByte(), nil)
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				return api
 			},
@@ -276,7 +276,7 @@ func TestHandleEndPoll(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().EncodeToByte(), nil)
 				api.On("KVDelete", pollID).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
@@ -293,7 +293,7 @@ func TestHandleEndPoll(t *testing.T) {
 		},
 		"Valid request with no votes, issuer is system admin": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().EncodeToByte(), nil)
 				api.On("KVDelete", pollID).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{
@@ -331,7 +331,7 @@ func TestHandleEndPoll(t *testing.T) {
 		},
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().EncodeToByte(), nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				return api
 			},
@@ -341,7 +341,7 @@ func TestHandleEndPoll(t *testing.T) {
 		},
 		"Valid request, Invalid permission": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().EncodeToByte(), nil)
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
 				return api
 			},
@@ -351,7 +351,7 @@ func TestHandleEndPoll(t *testing.T) {
 		},
 		"Valid request, DeletePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().EncodeToByte(), nil)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
@@ -365,7 +365,7 @@ func TestHandleEndPoll(t *testing.T) {
 		},
 		"Valid request, GetUser fails for poll creator": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().EncodeToByte(), nil)
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				return api
 			},
@@ -375,7 +375,7 @@ func TestHandleEndPoll(t *testing.T) {
 		},
 		"Valid request, GetUser fails for voter": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPollWithVotes().EncodeToByte(), nil)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				return api
@@ -496,7 +496,7 @@ func TestHandleDeletePoll(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPoll().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPoll().EncodeToByte(), nil)
 				api.On("DeletePost", "postID1").Return(nil)
 				api.On("KVDelete", pollID).Return(nil)
 				return api
@@ -507,7 +507,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request with no votes, issuer is system admin": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPoll().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPoll().EncodeToByte(), nil)
 				api.On("GetUser", "userID2").Return(&model.User{
 					Username: "user2",
 					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
@@ -540,7 +540,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPoll().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPoll().EncodeToByte(), nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				return api
 			},
@@ -550,7 +550,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request, Invalid permission": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPoll().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPoll().EncodeToByte(), nil)
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
 				return api
 			},
@@ -560,7 +560,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request, DeletePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPoll().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPoll().EncodeToByte(), nil)
 				api.On("DeletePost", "postID1").Return(&model.AppError{})
 				return api
 			},
@@ -570,7 +570,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request, KVDelete fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", pollID).Return(testutils.GetPoll().Encode(), nil)
+				api.On("KVGet", pollID).Return(testutils.GetPoll().EncodeToByte(), nil)
 				api.On("DeletePost", "postID1").Return(nil)
 				api.On("KVDelete", pollID).Return(&model.AppError{})
 				return api

@@ -97,7 +97,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	appErr = p.API.KVSet(pollID, poll.Encode())
+	appErr = p.API.KVSet(pollID, poll.EncodeToByte())
 	if appErr != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)

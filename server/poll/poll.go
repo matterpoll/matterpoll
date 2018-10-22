@@ -79,8 +79,8 @@ func (p *Poll) HasVoted(userID string) bool {
 	return false
 }
 
-// Encode returns a poll as a byte array
-func (p *Poll) Encode() []byte {
+// EncodeToByte returns a poll as a byte array
+func (p *Poll) EncodeToByte() []byte {
 	b, _ := json.Marshal(p)
 	return b
 }

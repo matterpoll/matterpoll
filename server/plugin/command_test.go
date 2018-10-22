@@ -52,7 +52,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Just question": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", testutils.GetPollID(), testutils.GetPollTwoOptions().Encode()).Return(nil)
+				api.On("KVSet", testutils.GetPollID(), testutils.GetPollTwoOptions().EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
@@ -65,7 +65,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"With 4 arguments": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().Encode()).Return(nil)
+				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
@@ -80,7 +80,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				poll := testutils.GetPollWithSettings(poll.PollSettings{Progress: true})
 
-				api.On("KVSet", testutils.GetPollID(), poll.Encode()).Return(nil)
+				api.On("KVSet", testutils.GetPollID(), poll.EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
@@ -94,7 +94,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				poll := testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true})
 
-				api.On("KVSet", pollID, poll.Encode()).Return(nil)
+				api.On("KVSet", pollID, poll.EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
@@ -107,7 +107,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"KVSet fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().Encode()).Return(&model.AppError{})
+				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(&model.AppError{})
 				return api
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
@@ -118,7 +118,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().Encode()).Return(nil)
+				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				return api
 			},

@@ -48,7 +48,7 @@ func TestNewPoll(t *testing.T) {
 
 func TestEncodeDecode(t *testing.T) {
 	p1 := testutils.GetPollWithVotes()
-	p2 := poll.DecodePollFromByte(p1.Encode())
+	p2 := poll.DecodePollFromByte(p1.EncodeToByte())
 	assert.Equal(t, p1, p2)
 }
 
