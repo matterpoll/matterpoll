@@ -75,7 +75,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
-	poll := poll.Decode(b)
+	poll := poll.DecodePollFromByte(b)
 	if poll == nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
@@ -132,7 +132,7 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
-	poll := poll.Decode(b)
+	poll := poll.DecodePollFromByte(b)
 	if poll == nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
@@ -226,7 +226,7 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
-	poll := poll.Decode(b)
+	poll := poll.DecodePollFromByte(b)
 	if poll == nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)

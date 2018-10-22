@@ -85,8 +85,8 @@ func (p *Poll) Encode() []byte {
 	return b
 }
 
-// Decode tries to create a poll from a byte array
-func Decode(b []byte) *Poll {
+// DecodePollFromByte tries to create a poll from a byte array
+func DecodePollFromByte(b []byte) *Poll {
 	p := Poll{}
 	err := json.Unmarshal(b, &p)
 	if err != nil {
