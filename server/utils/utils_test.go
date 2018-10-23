@@ -1,8 +1,9 @@
-package main
+package utils_test
 
 import (
 	"testing"
 
+	"github.com/matterpoll/matterpoll/server/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -88,7 +89,7 @@ func TestParseInput(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			q, o, s := ParseInput(test.Input, test.Trigger)
+			q, o, s := utils.ParseInput(test.Input, test.Trigger)
 
 			assert.Equal(test.ExpectedQuestion, q)
 			assert.Equal(test.ExpectedOptions, o)

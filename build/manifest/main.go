@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const PluginIdGoFileTemplate = `package main
+const PluginIdGoFileTemplate = `package plugin
 
 const PluginId = "%s"
 const PluginVersion = "%s"
@@ -97,7 +97,7 @@ func dumpPluginVersion(manifest *model.Manifest) {
 func applyManifest(manifest *model.Manifest) error {
 	if manifest.HasServer() {
 		if err := ioutil.WriteFile(
-			"server/manifest.go",
+			"server/plugin/manifest.go",
 			[]byte(fmt.Sprintf(PluginIdGoFileTemplate, manifest.Id, manifest.Version)),
 			0644,
 		); err != nil {

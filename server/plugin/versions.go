@@ -1,4 +1,4 @@
-package main
+package plugin
 
 // It should be maintained in chronological order with most current
 // release at the front of the list.

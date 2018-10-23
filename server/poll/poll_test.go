@@ -1,72 +1,74 @@
-package main
+package poll_test
 
 import (
 	"testing"
 
 	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/matterpoll/matterpoll/server/poll"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewPoll(t *testing.T) {
-	assert := assert.New(t)
-	patch := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-	defer patch.Unpatch()
+	t.Run("all fine", func(t *testing.T) {
+		assert := assert.New(t)
+		patch := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
+		defer patch.Unpatch()
 
-	creator := model.NewRandomString(10)
-	question := model.NewRandomString(10)
-	answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-	p, err := NewPoll(creator, question, answerOptions, []string{"anonymous", "progress"})
+		creator := model.NewRandomString(10)
+		question := model.NewRandomString(10)
+		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
+		p, err := poll.NewPoll("v1", creator, question, answerOptions, []string{"anonymous", "progress"})
 
-	require.Nil(t, err)
-	require.NotNil(t, p)
-	assert.Equal(int64(1234567890), p.CreatedAt)
-	assert.Equal(creator, p.Creator)
-	assert.Equal(CurrentDataSchemaVersion, p.DataSchemaVersion)
-	assert.Equal(question, p.Question)
-	assert.Equal(&AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
-	assert.Equal(&AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
-	assert.Equal(&AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
-	assert.Equal(PollSettings{Anonymous: true, Progress: true}, p.Settings)
-}
+		require.Nil(t, err)
+		require.NotNil(t, p)
+		assert.Equal(int64(1234567890), p.CreatedAt)
+		assert.Equal(creator, p.Creator)
+		assert.Equal("v1", p.DataSchemaVersion)
+		assert.Equal(question, p.Question)
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
+		assert.Equal(poll.PollSettings{Anonymous: true, Progress: true}, p.Settings)
+	})
+	t.Run("error", func(t *testing.T) {
+		assert := assert.New(t)
 
-func TestNewPollError(t *testing.T) {
-	assert := assert.New(t)
+		creator := model.NewRandomString(10)
+		question := model.NewRandomString(10)
+		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
+		p, err := poll.NewPoll("v1", creator, question, answerOptions, []string{"unkownOption"})
 
-	creator := model.NewRandomString(10)
-	question := model.NewRandomString(10)
-	answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-	p, err := NewPoll(creator, question, answerOptions, []string{"unkownOption"})
-
-	assert.Nil(p)
-	assert.NotNil(err)
+		assert.Nil(p)
+		assert.NotNil(err)
+	})
 }
 
 func TestEncodeDecode(t *testing.T) {
-	p1 := &Poll{
-		Question: "Question",
-		AnswerOptions: []*AnswerOption{
-			{Answer: "Answer 1"},
-			{Answer: "Answer 2"},
-		},
-	}
-	p2 := Decode(p1.Encode())
+	p1 := testutils.GetPollWithVotes()
+	p2 := poll.DecodePollFromByte(p1.EncodeToByte())
 	assert.Equal(t, p1, p2)
+}
+
+func TestDecode(t *testing.T) {
+	p := poll.DecodePollFromByte([]byte{})
+	assert.Nil(t, p)
 }
 
 func TestUpdateVote(t *testing.T) {
 	for name, test := range map[string]struct {
-		Poll         Poll
+		Poll         poll.Poll
 		UserID       string
 		Index        int
-		ExpectedPoll Poll
+		ExpectedPoll poll.Poll
 		Error        bool
 	}{
 		"Negative Index": {
-			Poll: Poll{
+			Poll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -74,9 +76,9 @@ func TestUpdateVote(t *testing.T) {
 			},
 			UserID: "a",
 			Index:  -1,
-			ExpectedPoll: Poll{
+			ExpectedPoll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -85,9 +87,9 @@ func TestUpdateVote(t *testing.T) {
 			Error: true,
 		},
 		"To high Index": {
-			Poll: Poll{
+			Poll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -95,9 +97,9 @@ func TestUpdateVote(t *testing.T) {
 			},
 			UserID: "a",
 			Index:  2,
-			ExpectedPoll: Poll{
+			ExpectedPoll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -106,9 +108,9 @@ func TestUpdateVote(t *testing.T) {
 			Error: true,
 		},
 		"Invalid userID": {
-			Poll: Poll{
+			Poll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -116,9 +118,9 @@ func TestUpdateVote(t *testing.T) {
 			},
 			UserID: "",
 			Index:  1,
-			ExpectedPoll: Poll{
+			ExpectedPoll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -127,9 +129,9 @@ func TestUpdateVote(t *testing.T) {
 			Error: true,
 		},
 		"Idempotent": {
-			Poll: Poll{
+			Poll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -137,9 +139,9 @@ func TestUpdateVote(t *testing.T) {
 			},
 			UserID: "a",
 			Index:  0,
-			ExpectedPoll: Poll{
+			ExpectedPoll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -148,9 +150,9 @@ func TestUpdateVote(t *testing.T) {
 			Error: false,
 		},
 		"Valid Vote": {
-			Poll: Poll{
+			Poll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
@@ -158,9 +160,9 @@ func TestUpdateVote(t *testing.T) {
 			},
 			UserID: "a",
 			Index:  1,
-			ExpectedPoll: Poll{
+			ExpectedPoll: poll.Poll{
 				Question: "Question",
-				AnswerOptions: []*AnswerOption{
+				AnswerOptions: []*poll.AnswerOption{
 					{Answer: "Answer 1",
 						Voter: []string{}},
 					{Answer: "Answer 2",
@@ -186,8 +188,8 @@ func TestUpdateVote(t *testing.T) {
 }
 
 func TestHasVoted(t *testing.T) {
-	p1 := &Poll{Question: "Question",
-		AnswerOptions: []*AnswerOption{
+	p1 := &poll.Poll{Question: "Question",
+		AnswerOptions: []*poll.AnswerOption{
 			{Answer: "Answer 1",
 				Voter: []string{"a"}},
 			{Answer: "Answer 2"},
@@ -201,13 +203,13 @@ func TestPollCopy(t *testing.T) {
 	assert := assert.New(t)
 
 	t.Run("no change", func(t *testing.T) {
-		p := &samplePoll
+		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		assert.Equal(p, p2)
 	})
 	t.Run("change Question", func(t *testing.T) {
-		p := &samplePoll
+		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.Question = "Different question"
@@ -215,7 +217,7 @@ func TestPollCopy(t *testing.T) {
 		assert.NotEqual(p, p2)
 	})
 	t.Run("change AnswerOptions", func(t *testing.T) {
-		p := &samplePoll
+		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.AnswerOptions[0].Answer = "abc"
@@ -223,7 +225,7 @@ func TestPollCopy(t *testing.T) {
 		assert.NotEqual(p, p2)
 	})
 	t.Run("change Settings", func(t *testing.T) {
-		p := &samplePoll
+		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.Settings.Progress = true

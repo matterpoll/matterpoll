@@ -1,10 +1,12 @@
-package main
+package plugin
 
 import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/matterpoll/matterpoll/server/poll"
+	"github.com/matterpoll/matterpoll/server/utils"
 )
 
 const (
@@ -30,7 +32,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	configuration := p.getConfiguration()
 
-	q, o, s := ParseInput(args.Command, configuration.Trigger)
+	q, o, s := utils.ParseInput(args.Command, configuration.Trigger)
 	if q == "" || q == "help" {
 		msg := fmt.Sprintf(commandHelpTextFormat, configuration.Trigger)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
@@ -41,18 +43,18 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	}
 
 	pollID := model.NewId()
-	var poll *Poll
+	var newPoll *poll.Poll
 	var err error
 	if len(o) == 0 {
-		poll, err = NewPoll(creatorID, q, []string{"Yes", "No"}, s)
+		newPoll, err = poll.NewPoll(CurrentDataSchemaVersion, creatorID, q, []string{"Yes", "No"}, s)
 	} else {
-		poll, err = NewPoll(creatorID, q, o, s)
+		newPoll, err = poll.NewPoll(CurrentDataSchemaVersion, creatorID, q, o, s)
 	}
 	if err != nil {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, "Invalid input: "+err.Error(), siteURL, nil), nil
 	}
 
-	appErr := p.API.KVSet(pollID, poll.Encode())
+	appErr := p.API.KVSet(pollID, newPoll.EncodeToByte())
 	if appErr != nil {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
 	}
@@ -62,7 +64,8 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
 	}
 
-	response := poll.ToCommandResponse(*p.ServerConfig.ServiceSettings.SiteURL, pollID, displayName)
+	actions := newPoll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, pollID, displayName)
+	response := getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", *p.ServerConfig.ServiceSettings.SiteURL, actions)
 	p.API.LogDebug("Created a new poll", "response", response.ToJson())
 	return response, nil
 }

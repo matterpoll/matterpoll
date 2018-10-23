@@ -1,4 +1,4 @@
-package main
+package plugin
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/matterpoll/matterpoll/server/poll"
 )
 
 const (
@@ -74,7 +75,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
-	poll := Decode(b)
+	poll := poll.DecodePollFromByte(b)
 	if poll == nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
@@ -96,7 +97,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	appErr = p.API.KVSet(pollID, poll.Encode())
+	appErr = p.API.KVSet(pollID, poll.EncodeToByte())
 	if appErr != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
@@ -104,7 +105,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post := &model.Post{}
-	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, pollID, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, pollID, displayName))
 	response.Update = post
 
 	if hasVoted {
@@ -131,7 +132,7 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
-	poll := Decode(b)
+	poll := poll.DecodePollFromByte(b)
 	if poll == nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
@@ -225,7 +226,7 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
-	poll := Decode(b)
+	poll := poll.DecodePollFromByte(b)
 	if poll == nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
