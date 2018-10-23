@@ -51,7 +51,6 @@ func TestPluginOnActivate(t *testing.T) {
 				api.On("GetServerVersion").Return(m.String())
 				// TODO: Dont hardcode the key
 				api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
-				//api.On("LogInfo", mock.AnythingOfType("string")).Return(nil)
 				return api
 			},
 			ShouldError: false,
@@ -61,7 +60,6 @@ func TestPluginOnActivate(t *testing.T) {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				// TODO: Dont hardcode the key
 				api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
-				//api.On("LogInfo", mock.AnythingOfType("string")).Return(nil)
 				return api
 			},
 			ShouldError: false,
@@ -85,6 +83,15 @@ func TestPluginOnActivate(t *testing.T) {
 		"GetServerVersion not implemented, returns empty string": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return("")
+				return api
+			},
+			ShouldError: true,
+		},
+		"NewStore() fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+				// TODO: Dont hardcode the key
+				api.On("KVGet", "version").Return([]byte{}, &model.AppError{})
 				return api
 			},
 			ShouldError: true,

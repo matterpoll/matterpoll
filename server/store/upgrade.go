@@ -6,10 +6,6 @@ import (
 	"github.com/blang/semver"
 )
 
-const (
-	oldestVersion = "0.1.0"
-)
-
 func (s *Store) UpdateDatabase() error {
 	v, err := s.System().GetVersion()
 	if err != nil {
@@ -21,10 +17,10 @@ func (s *Store) UpdateDatabase() error {
 		v = "1.0.0"
 	}
 
-	// TODO: Uncomment following condition when version 1.0.0 is released
+	// TODO: Uncomment following condition when version 1.1.0 is released
 	/*
 		currentSchemaVersion := semver.MustParse(v)
-		if err := s.UpgradeDatabaseToVersion10(currentSchemaVersion); err != nil {
+		if err := s.UpgradeDatabaseToVersion11(currentSchemaVersion); err != nil {
 			return err
 		}
 	*/
@@ -41,13 +37,15 @@ func (s *Store) shouldPerformUpgrade(currentSchemaVersion semver.Version, expect
 	return false
 }
 
-func (s *Store) UpgradeDatabaseToVersion10(currentSchemaVersion semver.Version) error {
-	if s.shouldPerformUpgrade(currentSchemaVersion, semver.MustParse("1.0.0")) {
+/*
+func (s *Store) UpgradeDatabaseToVersion11(currentSchemaVersion semver.Version) error {
+	if s.shouldPerformUpgrade(currentSchemaVersion, semver.MustParse("1.1.0")) {
 		s.api.LogWarn("Update complete")
 		// Do migration
-		if err := s.System().SaveVersion("1.0.0"); err != nil {
+		if err := s.System().SaveVersion("1.1.0"); err != nil {
 			return err
 		}
 	}
 	return nil
 }
+*/
