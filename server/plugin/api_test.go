@@ -156,17 +156,6 @@ func TestHandleVote(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
 		},
-
-		"Valid request, Decode fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", testutils.GetPollID()).Return(nil, nil)
-				return api
-			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
-			VoteIndex:          1,
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
-		},
 		"Valid request, KVSet fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				pollIn := testutils.GetPoll()
@@ -311,15 +300,6 @@ func TestHandleEndPoll(t *testing.T) {
 		"Valid request, KVGet fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("KVGet", testutils.GetPollID()).Return(nil, &model.AppError{})
-				return api
-			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
-		},
-		"Valid request, Decode fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", testutils.GetPollID()).Return(nil, nil)
 				return api
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
@@ -518,15 +498,6 @@ func TestHandleDeletePoll(t *testing.T) {
 		"Valid request, KVGet fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("KVGet", testutils.GetPollID()).Return(nil, &model.AppError{})
-				return api
-			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
-		},
-		"Valid request, Decode fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVGet", testutils.GetPollID()).Return(nil, nil)
 				return api
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
