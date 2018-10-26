@@ -8,6 +8,7 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/poll"
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -18,6 +19,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 
 	for name, test := range map[string]struct {
 		SetupAPI             func(*plugintest.API) *plugintest.API
+		SetupStore           func(*mockstore.Store) *mockstore.Store
 		Command              string
 		ExpectedResponseType string
 		ExpectedText         string
@@ -25,6 +27,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 	}{
 		"No argument": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:              fmt.Sprintf("/%s", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
@@ -32,6 +35,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Help text": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:              fmt.Sprintf("/%s help", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
@@ -39,6 +43,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Two arguments": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:              fmt.Sprintf("/%s \"Question\" \"Just one option\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger),
@@ -46,10 +51,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Just question": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", testutils.GetPollID(), testutils.GetPollTwoOptions().EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Save", testutils.GetPollTwoOptions()).Return(nil)
+				return store
 			},
 			Command:              fmt.Sprintf("/%s \"Question\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
@@ -58,10 +66,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"With 4 arguments": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Save", testutils.GetPoll()).Return(nil)
+				return store
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
@@ -70,12 +81,14 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"With 4 arguments and settting progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				poll := testutils.GetPollWithSettings(poll.PollSettings{Progress: true})
-
-				api.On("KVSet", testutils.GetPollID(), poll.EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				poll := testutils.GetPollWithSettings(poll.PollSettings{Progress: true})
+				store.PollStore.On("Save", poll).Return(nil)
+				return store
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
@@ -83,12 +96,14 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"With 4 arguments and settting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				poll := testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true})
-
-				api.On("KVSet", testutils.GetPollID(), poll.EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				poll := testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true})
+				store.PollStore.On("Save", poll).Return(nil)
+				return store
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --anonymous --progress", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
@@ -96,9 +111,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
 		},
 		"KVSet fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(&model.AppError{})
-				return api
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Save", testutils.GetPoll()).Return(&model.AppError{})
+				return store
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -107,9 +123,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(nil)
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Save", testutils.GetPoll()).Return(nil)
+				return store
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -118,6 +137,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Invalid setting": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf("Invalid input: Unrecognised poll setting unkownOption"),
@@ -129,7 +149,9 @@ func TestPluginExecuteCommand(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
-			p := setupTestPlugin(t, api, testutils.GetSiteURL())
+			store := test.SetupStore(&mockstore.Store{})
+			defer store.AssertExpectations(t)
+			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
 			p.configuration.Trigger = trigger
 
 			patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })

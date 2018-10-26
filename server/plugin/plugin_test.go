@@ -6,14 +6,13 @@ import (
 	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store/apistore"
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
-func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *MatterpollPlugin {
+func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, siteURL string) *MatterpollPlugin {
 	p := &MatterpollPlugin{
 		ServerConfig: &model.Config{
 			ServiceSettings: model.ServiceSettings{
@@ -26,11 +25,6 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *Matterp
 	})
 
 	p.SetAPI(api)
-	// TODO: Dont hardcode the key
-	api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
-	store, err := apistore.NewStore(api)
-	require.Nil(t, err)
-	require.NotNil(t, store)
 	p.Store = store
 	p.router = p.InitAPI()
 
@@ -120,7 +114,7 @@ func TestPluginOnActivate(t *testing.T) {
 func TestPluginOnDeactivate(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(nil)
 		defer api.AssertExpectations(t)
 
@@ -130,7 +124,7 @@ func TestPluginOnDeactivate(t *testing.T) {
 
 	t.Run("UnregisterCommand fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(&model.AppError{})
 		defer api.AssertExpectations(t)
 
