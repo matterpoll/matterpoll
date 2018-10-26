@@ -1,4 +1,4 @@
-package apistore
+package kvstore
 
 import (
 	"fmt"

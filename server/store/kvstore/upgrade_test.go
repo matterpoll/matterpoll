@@ -1,4 +1,4 @@
-package apistore
+package kvstore
 
 import (
 	"testing"
@@ -13,6 +13,7 @@ func TestStoreShouldPerformUpgrade(t *testing.T) {
 	t.Run("Should upgrade", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogWarn", mock.AnythingOfType("string")).Return(nil)
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		b := store.shouldPerformUpgrade(semver.MustParse("1.0.0"), semver.MustParse("1.1.0"))
@@ -20,6 +21,7 @@ func TestStoreShouldPerformUpgrade(t *testing.T) {
 	})
 	t.Run("shouldn't upgrade", func(t *testing.T) {
 		api := &plugintest.API{}
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		b := store.shouldPerformUpgrade(semver.MustParse("1.0.0"), semver.MustParse("1.0.0"))
@@ -31,6 +33,7 @@ func TestStoreUpdateDatabase(t *testing.T) {
 	t.Run("Fresh install", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte(""), nil)
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		err := store.UpdateDatabase()

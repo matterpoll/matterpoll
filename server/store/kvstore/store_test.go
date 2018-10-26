@@ -1,4 +1,4 @@
-package apistore
+package kvstore
 
 import (
 	"testing"
@@ -25,6 +25,7 @@ func TestNewStore(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
+		defer api.AssertExpectations(t)
 
 		store, err := NewStore(api)
 		assert.Nil(t, err)
@@ -33,6 +34,7 @@ func TestNewStore(t *testing.T) {
 	t.Run("UpdateDatabase() fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte{}, &model.AppError{})
+		defer api.AssertExpectations(t)
 
 		store, err := NewStore(api)
 		assert.NotNil(t, err)

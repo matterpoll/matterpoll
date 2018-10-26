@@ -1,4 +1,4 @@
-package apistore
+package kvstore
 
 import (
 	"testing"
@@ -13,6 +13,7 @@ func TestSystemStoreGetVersion(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		version, err := store.System().GetVersion()
@@ -22,6 +23,7 @@ func TestSystemStoreGetVersion(t *testing.T) {
 	t.Run("KVGet() fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte{}, &model.AppError{})
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		version, err := store.System().GetVersion()
@@ -34,6 +36,7 @@ func TestSystemStoreSetVersion(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVSet", versionKey, []byte("1.0.0")).Return(nil)
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		err := store.System().SaveVersion("1.0.0")
@@ -42,6 +45,7 @@ func TestSystemStoreSetVersion(t *testing.T) {
 	t.Run("KVSet() fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVSet", versionKey, []byte("1.0.0")).Return(&model.AppError{})
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		err := store.System().SaveVersion("1.0.0")

@@ -10,7 +10,7 @@ import (
 	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
-	"github.com/matterpoll/matterpoll/server/store/apistore"
+	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/pkg/errors"
 )
 
@@ -37,7 +37,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return err
 	}
 
-	store, err := apistore.NewStore(p.API)
+	store, err := kvstore.NewStore(p.API)
 	if err != nil {
 		return err
 	}

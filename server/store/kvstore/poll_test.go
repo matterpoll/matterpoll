@@ -1,4 +1,4 @@
-package apistore
+package kvstore
 
 import (
 	"testing"
@@ -14,6 +14,7 @@ func TestPollStoreGet(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", testutils.GetPollID()).Return(testutils.GetPoll().EncodeToByte(), nil)
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		rpoll, err := store.Poll().Get(testutils.GetPollID())
@@ -23,6 +24,7 @@ func TestPollStoreGet(t *testing.T) {
 	t.Run("KVGet() fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", testutils.GetPollID()).Return([]byte{}, &model.AppError{})
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		rpoll, err := store.Poll().Get(testutils.GetPollID())
@@ -32,6 +34,7 @@ func TestPollStoreGet(t *testing.T) {
 	t.Run("Decode fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", testutils.GetPollID()).Return([]byte{}, nil)
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		rpoll, err := store.Poll().Get(testutils.GetPollID())
@@ -44,6 +47,7 @@ func TestPollStoreSave(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(nil)
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		err := store.Poll().Save(testutils.GetPoll())
@@ -52,6 +56,7 @@ func TestPollStoreSave(t *testing.T) {
 	t.Run("KVSet() fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(&model.AppError{})
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		err := store.Poll().Save(testutils.GetPoll())
@@ -63,6 +68,7 @@ func TestPollStoreDelete(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVDelete", testutils.GetPollID()).Return(nil)
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		err := store.Poll().Delete(testutils.GetPoll())
@@ -71,6 +77,7 @@ func TestPollStoreDelete(t *testing.T) {
 	t.Run("KVDelete() fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVDelete", testutils.GetPollID()).Return(&model.AppError{})
+		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		err := store.Poll().Delete(testutils.GetPoll())
