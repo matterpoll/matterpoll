@@ -162,3 +162,8 @@ ifneq ($(HAS_WEBAPP),)
 	rm -fr webapp/node_modules
 endif
 	rm -fr build/bin/
+
+# generate store mocks
+.PHONY: store-mocks
+store-mocks:
+	mockery -name=".Store" -dir server/store -output server/store/mockstore/mocks -note 'Regenerate this file using `make store-mocks`.'
