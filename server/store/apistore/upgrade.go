@@ -1,4 +1,4 @@
-package store
+package apistore
 
 import (
 	"fmt"

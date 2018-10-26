@@ -10,6 +10,7 @@ import (
 	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
+	"github.com/matterpoll/matterpoll/server/store/apistore"
 	"github.com/pkg/errors"
 )
 
@@ -17,7 +18,7 @@ import (
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
 	router *mux.Router
-	Store  *store.Store
+	Store  store.Store
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -36,7 +37,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return err
 	}
 
-	store, err := store.NewStore(p.API)
+	store, err := apistore.NewStore(p.API)
 	if err != nil {
 		return err
 	}

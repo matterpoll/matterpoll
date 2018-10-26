@@ -1,6 +1,8 @@
-package store
+package apistore
 
-import "github.com/mattermost/mattermost-server/plugin"
+import (
+	"github.com/mattermost/mattermost-server/plugin"
+)
 
 type SystemStore struct {
 	api plugin.API

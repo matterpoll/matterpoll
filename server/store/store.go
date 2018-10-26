@@ -1,31 +1,19 @@
 package store
 
-import (
-	"github.com/mattermost/mattermost-server/plugin"
-)
+import "github.com/matterpoll/matterpoll/server/poll"
 
-type Store struct {
-	api         plugin.API
-	pollStore   PollStore
-	systemStore SystemStore
+type Store interface {
+	Poll() PollStore
+	System() SystemStore
 }
 
-func NewStore(api plugin.API) (*Store, error) {
-	store := Store{
-		api: api,
-		pollStore: PollStore{
-			api: api,
-		},
-		systemStore: SystemStore{
-			api: api,
-		},
-	}
-	err := store.UpdateDatabase()
-	if err != nil {
-		return nil, err
-	}
-	return &store, nil
+type PollStore interface {
+	Get(id string) (*poll.Poll, error)
+	Save(poll *poll.Poll) error
+	Delete(poll *poll.Poll) error
 }
 
-func (s *Store) Poll() *PollStore     { return &s.pollStore }
-func (s *Store) System() *SystemStore { return &s.systemStore }
+type SystemStore interface {
+	GetVersion() (string, error)
+	SaveVersion(version string) error
+}

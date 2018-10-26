@@ -6,7 +6,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store"
+	"github.com/matterpoll/matterpoll/server/store/apistore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -28,7 +28,7 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *Matterp
 	p.SetAPI(api)
 	// TODO: Dont hardcode the key
 	api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
-	store, err := store.NewStore(api)
+	store, err := apistore.NewStore(api)
 	require.Nil(t, err)
 	require.NotNil(t, store)
 	p.Store = store
