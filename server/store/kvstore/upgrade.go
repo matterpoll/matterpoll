@@ -16,7 +16,7 @@ func (s *Store) UpdateDatabase() error {
 		// TODO: Dont hardcode this
 		newestVersion := "1.0.0"
 		v = newestVersion
-		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v", newestVersion))
+		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", newestVersion))
 		if err := s.System().SaveVersion(newestVersion); err != nil {
 			return err
 		}
@@ -36,8 +36,8 @@ func (s *Store) UpdateDatabase() error {
 
 func (s *Store) shouldPerformUpgrade(currentSchemaVersion semver.Version, expectedSchemaVersion semver.Version) bool {
 	if currentSchemaVersion.LT(expectedSchemaVersion) {
-		s.api.LogWarn(fmt.Sprintf("The database schema version of %v appears to be out of date", currentSchemaVersion.String()))
-		s.api.LogWarn(fmt.Sprintf("Attempting to upgrade the database schema version to %v", expectedSchemaVersion.String()))
+		s.api.LogWarn(fmt.Sprintf("The database schema version of %v appears to be out of date.", currentSchemaVersion.String()))
+		s.api.LogWarn(fmt.Sprintf("Attempting to upgrade the database schema version to %v.", expectedSchemaVersion.String()))
 		return true
 	}
 	return false

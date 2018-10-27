@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -110,10 +112,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedText:         "",
 			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
 		},
-		"KVSet fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+		"Store.Save fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("*errors.errorString")).Return(nil)
+				return api
+			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", testutils.GetPoll()).Return(&model.AppError{})
+				store.PollStore.On("Save", testutils.GetPoll()).Return(errors.New(""))
 				return store
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
@@ -124,6 +129,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
+				api.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("*model.AppError")).Return(nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -136,7 +142,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  nil,
 		},
 		"Invalid setting": {
-			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("*errors.errorString")).Return(nil)
+				return api
+			},
 			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,

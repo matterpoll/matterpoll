@@ -50,15 +50,18 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		newPoll, err = poll.NewPoll(creatorID, q, o, s)
 	}
 	if err != nil {
+		p.API.LogError("failed to create poll", "err", err)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, "Invalid input: "+err.Error(), siteURL, nil), nil
 	}
 
 	if err := p.Store.Poll().Save(newPoll); err != nil {
+		p.API.LogError("failed to save poll", "err", err)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), nil
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
+		p.API.LogError("failed to ConvertCreatorIDToDisplayName", "err", appErr)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), nil
 	}
 
