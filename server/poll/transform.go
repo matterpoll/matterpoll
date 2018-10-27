@@ -64,7 +64,7 @@ func (p *Poll) makeAdditionalText(numberOfVotes int) string {
 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {
-		lines = append(lines, fmt.Sprintf("**Poll settings**: %s", strings.Join(settingsText, ", ")))
+		lines = append(lines, fmt.Sprintf("**Poll Settings**: %s", strings.Join(settingsText, ", ")))
 	}
 	lines = append(lines, fmt.Sprintf("**Total votes**: %d", numberOfVotes))
 	return strings.Join(lines, "\n")
