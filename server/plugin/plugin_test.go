@@ -4,8 +4,12 @@ import (
 	"testing"
 
 	"github.com/blang/semver"
+	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/matterpoll/matterpoll/server/store"
+	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
@@ -43,8 +47,6 @@ func TestPluginOnActivate(t *testing.T) {
 				m.Patch = 0
 
 				api.On("GetServerVersion").Return(m.String())
-				// TODO: Dont hardcode the key
-				api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
 				return api
 			},
 			ShouldError: false,
@@ -52,8 +54,6 @@ func TestPluginOnActivate(t *testing.T) {
 		"same version as minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
-				// TODO: Dont hardcode the key
-				api.On("KVGet", "version").Return([]byte(PluginVersion), nil)
 				return api
 			},
 			ShouldError: false,
@@ -81,19 +81,15 @@ func TestPluginOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"NewStore() fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-				// TODO: Dont hardcode the key
-				api.On("KVGet", "version").Return([]byte{}, &model.AppError{})
-				return api
-			},
-			ShouldError: true,
-		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
+
+			patch := monkey.Patch(kvstore.NewStore, func(plugin.API) (store.Store, error) {
+				return &mockstore.Store{}, nil
+			})
+			defer patch.Unpatch()
 
 			p := &MatterpollPlugin{}
 			p.setConfiguration(&configuration{
@@ -109,6 +105,25 @@ func TestPluginOnActivate(t *testing.T) {
 			}
 		})
 	}
+	t.Run("NewStore() fails", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("GetServerVersion").Return(minimumServerVersion)
+		defer api.AssertExpectations(t)
+
+		patch := monkey.Patch(kvstore.NewStore, func(plugin.API) (store.Store, error) {
+			return nil, &model.AppError{}
+		})
+		defer patch.Unpatch()
+
+		p := &MatterpollPlugin{}
+		p.setConfiguration(&configuration{
+			Trigger: "poll",
+		})
+		p.SetAPI(api)
+		err := p.OnActivate()
+
+		assert.NotNil(t, err)
+	})
 }
 
 func TestPluginOnDeactivate(t *testing.T) {

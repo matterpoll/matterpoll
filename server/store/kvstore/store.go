@@ -11,7 +11,7 @@ type Store struct {
 	systemStore SystemStore
 }
 
-func NewStore(api plugin.API) (*Store, error) {
+func NewStore(api plugin.API) (store.Store, error) {
 	store := Store{
 		api: api,
 		pollStore: PollStore{
