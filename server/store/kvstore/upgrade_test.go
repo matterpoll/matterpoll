@@ -35,6 +35,7 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte(""), nil)
 		api.On("KVSet", versionKey, []byte("1.0.0")).Return(nil)
+		api.On("LogWarn", mock.AnythingOfType("string")).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
@@ -45,6 +46,7 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte(""), nil)
 		api.On("KVSet", versionKey, []byte("1.0.0")).Return(&model.AppError{})
+		api.On("LogWarn", mock.AnythingOfType("string")).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 

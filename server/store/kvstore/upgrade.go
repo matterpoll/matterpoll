@@ -16,6 +16,7 @@ func (s *Store) UpdateDatabase() error {
 		// TODO: Dont hardcode this
 		newestVersion := "1.0.0"
 		v = newestVersion
+		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v", newestVersion))
 		if err := s.System().SaveVersion(newestVersion); err != nil {
 			return err
 		}
