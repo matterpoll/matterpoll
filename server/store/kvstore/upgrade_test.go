@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/blang/semver"
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -33,10 +34,21 @@ func TestStoreUpdateDatabase(t *testing.T) {
 	t.Run("Fresh install", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte(""), nil)
+		api.On("KVSet", versionKey, []byte("1.0.0")).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
 		err := store.UpdateDatabase()
 		assert.Nil(t, err)
+	})
+	t.Run("Fresh install, KVSet fails", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("KVGet", versionKey).Return([]byte(""), nil)
+		api.On("KVSet", versionKey, []byte("1.0.0")).Return(&model.AppError{})
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		err := store.UpdateDatabase()
+		assert.NotNil(t, err)
 	})
 }

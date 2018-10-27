@@ -14,7 +14,12 @@ func (s *Store) UpdateDatabase() error {
 	// If no version is set, set to to the newest version
 	if v == "" {
 		// TODO: Dont hardcode this
-		v = "1.0.0"
+		newestVersion := "1.0.0"
+		v = newestVersion
+		if err := s.System().SaveVersion(newestVersion); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	// TODO: Uncomment following condition when version 1.1.0 is released
@@ -40,8 +45,8 @@ func (s *Store) shouldPerformUpgrade(currentSchemaVersion semver.Version, expect
 /*
 func (s *Store) UpgradeDatabaseToVersion11(currentSchemaVersion semver.Version) error {
 	if s.shouldPerformUpgrade(currentSchemaVersion, semver.MustParse("1.1.0")) {
-		s.api.LogWarn("Update complete")
 		// Do migration
+    s.api.LogWarn("Update complete")
 		if err := s.System().SaveVersion("1.1.0"); err != nil {
 			return err
 		}
