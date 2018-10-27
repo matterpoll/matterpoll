@@ -13,7 +13,7 @@ import (
 func TestPollStoreGet(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVGet", testutils.GetPollID()).Return(testutils.GetPoll().EncodeToByte(), nil)
+		api.On("KVGet", pollPrefix+testutils.GetPollID()).Return(testutils.GetPoll().EncodeToByte(), nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
@@ -23,7 +23,7 @@ func TestPollStoreGet(t *testing.T) {
 	})
 	t.Run("KVGet() fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVGet", testutils.GetPollID()).Return([]byte{}, &model.AppError{})
+		api.On("KVGet", pollPrefix+testutils.GetPollID()).Return([]byte{}, &model.AppError{})
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
@@ -33,7 +33,7 @@ func TestPollStoreGet(t *testing.T) {
 	})
 	t.Run("Decode fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVGet", testutils.GetPollID()).Return([]byte{}, nil)
+		api.On("KVGet", pollPrefix+testutils.GetPollID()).Return([]byte{}, nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
@@ -46,7 +46,7 @@ func TestPollStoreGet(t *testing.T) {
 func TestPollStoreSave(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(nil)
+		api.On("KVSet", pollPrefix+testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
@@ -55,7 +55,7 @@ func TestPollStoreSave(t *testing.T) {
 	})
 	t.Run("KVSet() fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVSet", testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(&model.AppError{})
+		api.On("KVSet", pollPrefix+testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(&model.AppError{})
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
@@ -67,7 +67,7 @@ func TestPollStoreSave(t *testing.T) {
 func TestPollStoreDelete(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVDelete", testutils.GetPollID()).Return(nil)
+		api.On("KVDelete", pollPrefix+testutils.GetPollID()).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
@@ -76,7 +76,7 @@ func TestPollStoreDelete(t *testing.T) {
 	})
 	t.Run("KVDelete() fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVDelete", testutils.GetPollID()).Return(&model.AppError{})
+		api.On("KVDelete", pollPrefix+testutils.GetPollID()).Return(&model.AppError{})
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 

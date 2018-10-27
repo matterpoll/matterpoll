@@ -14,8 +14,7 @@ type PollStore struct {
 const pollPrefix = "poll_"
 
 func (s *PollStore) Get(id string) (*poll.Poll, error) {
-	// b, err := s.api.KVGet(pollPrefix + id)
-	b, err := s.api.KVGet(id)
+	b, err := s.api.KVGet(pollPrefix + id)
 	if err != nil {
 		return nil, err
 	}
@@ -27,16 +26,14 @@ func (s *PollStore) Get(id string) (*poll.Poll, error) {
 }
 
 func (s *PollStore) Save(poll *poll.Poll) error {
-	// err := s.api.KVSet(pollPrefix+poll.ID, poll.Encode())
-	if err := s.api.KVSet(poll.ID, poll.EncodeToByte()); err != nil {
+	if err := s.api.KVSet(pollPrefix+poll.ID, poll.EncodeToByte()); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *PollStore) Delete(poll *poll.Poll) error {
-	// err := s.api.KVDelete(pollPrefix + poll.ID)
-	if err := s.api.KVDelete(poll.ID); err != nil {
+	if err := s.api.KVDelete(pollPrefix + poll.ID); err != nil {
 		return err
 	}
 	return nil
