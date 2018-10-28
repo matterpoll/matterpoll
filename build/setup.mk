@@ -16,7 +16,7 @@ endif
 # Extract the plugin version from the manifest.
 PLUGIN_VERSION ?= $(shell build/bin/manifest version)
 ifeq ($(PLUGIN_VERSION),)
-    $(error "Cannot parse id from $(MANIFEST_FILE)")
+    $(error "Cannot parse version from $(MANIFEST_FILE)")
 endif
 
 # Determine if a server is defined in the manifest.
