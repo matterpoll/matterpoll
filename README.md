@@ -3,7 +3,7 @@
 [![Build Status](https://img.shields.io/travis/com/matterpoll/matterpoll/master.svg)](https://travis-ci.com/matterpoll/matterpoll)
 [![Code Coverage](https://img.shields.io/codecov/c/github/matterpoll/matterpoll/master.svg)](https://codecov.io/gh/matterpoll/matterpoll/branch/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/matterpoll/matterpoll)](https://goreportcard.com/report/github.com/matterpoll/matterpoll)
-[![Releases](https://img.shields.io/github/release/matterpoll/matterpoll/all.svg)](https://github.com/matterpoll/matterpoll/releases/latest)
+[![Releases](https://img.shields.io/github/release/matterpoll/matterpoll.svg)](https://github.com/matterpoll/matterpoll/releases/latest)
 
 
 Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows users to create poll by using a slash command.
