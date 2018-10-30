@@ -11,7 +11,7 @@ type Store struct {
 	systemStore SystemStore
 }
 
-func NewStore(api plugin.API) (store.Store, error) {
+func NewStore(api plugin.API, pluginVersion string) (store.Store, error) {
 	store := Store{
 		api: api,
 		pollStore: PollStore{
@@ -21,10 +21,11 @@ func NewStore(api plugin.API) (store.Store, error) {
 			api: api,
 		},
 	}
-	err := store.UpdateDatabase()
+	err := store.UpdateDatabase(pluginVersion)
 	if err != nil {
 		return nil, err
 	}
+
 	return &store, nil
 }
 

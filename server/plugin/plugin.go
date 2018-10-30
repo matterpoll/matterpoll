@@ -37,7 +37,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return err
 	}
 
-	store, err := kvstore.NewStore(p.API)
+	store, err := kvstore.NewStore(p.API, PluginVersion)
 	if err != nil {
 		return err
 	}

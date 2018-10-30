@@ -6,18 +6,16 @@ import (
 	"github.com/blang/semver"
 )
 
-func (s *Store) UpdateDatabase() error {
+func (s *Store) UpdateDatabase(pluginVersion string) error {
 	v, err := s.System().GetVersion()
 	if err != nil {
 		return err
 	}
 	// If no version is set, set to to the newest version
 	if v == "" {
-		// TODO: Dont hardcode this
-		newestVersion := "1.0.0"
-		v = newestVersion
-		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", newestVersion))
-		if err := s.System().SaveVersion(newestVersion); err != nil {
+		v = pluginVersion
+		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", pluginVersion))
+		if err := s.System().SaveVersion(pluginVersion); err != nil {
 			return err
 		}
 		return nil

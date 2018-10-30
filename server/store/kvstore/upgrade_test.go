@@ -31,6 +31,15 @@ func TestStoreShouldPerformUpgrade(t *testing.T) {
 }
 
 func TestStoreUpdateDatabase(t *testing.T) {
+	t.Run("Old install", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		err := store.UpdateDatabase("1.0.0")
+		assert.Nil(t, err)
+	})
 	t.Run("Fresh install", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte(""), nil)
@@ -39,7 +48,7 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
-		err := store.UpdateDatabase()
+		err := store.UpdateDatabase("1.0.0")
 		assert.Nil(t, err)
 	})
 	t.Run("Fresh install, KVSet fails", func(t *testing.T) {
@@ -50,7 +59,16 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
-		err := store.UpdateDatabase()
+		err := store.UpdateDatabase("1.0.0")
+		assert.NotNil(t, err)
+	})
+	t.Run("System.GetVersion fails", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("KVGet", versionKey).Return([]byte{}, &model.AppError{})
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		err := store.UpdateDatabase("1.0.0")
 		assert.NotNil(t, err)
 	})
 }

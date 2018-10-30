@@ -86,7 +86,7 @@ func TestPluginOnActivate(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
 
-			patch := monkey.Patch(kvstore.NewStore, func(plugin.API) (store.Store, error) {
+			patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 				return &mockstore.Store{}, nil
 			})
 			defer patch.Unpatch()
@@ -110,7 +110,7 @@ func TestPluginOnActivate(t *testing.T) {
 		api.On("GetServerVersion").Return(minimumServerVersion)
 		defer api.AssertExpectations(t)
 
-		patch := monkey.Patch(kvstore.NewStore, func(plugin.API) (store.Store, error) {
+		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
 		defer patch.Unpatch()

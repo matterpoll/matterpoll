@@ -27,7 +27,7 @@ func TestNewStore(t *testing.T) {
 		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
 		defer api.AssertExpectations(t)
 
-		store, err := NewStore(api)
+		store, err := NewStore(api, "1.0.0")
 		assert.Nil(t, err)
 		assert.NotNil(t, store)
 	})
@@ -36,7 +36,7 @@ func TestNewStore(t *testing.T) {
 		api.On("KVGet", versionKey).Return([]byte{}, &model.AppError{})
 		defer api.AssertExpectations(t)
 
-		store, err := NewStore(api)
+		store, err := NewStore(api, "1.0.0")
 		assert.NotNil(t, err)
 		assert.Nil(t, store)
 	})
