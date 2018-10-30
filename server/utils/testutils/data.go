@@ -14,10 +14,10 @@ func GetSiteURL() string {
 
 func GetPoll() *poll.Poll {
 	return &poll.Poll{
-		CreatedAt:         1234567890,
-		Creator:           "userID1",
-		DataSchemaVersion: "v1",
-		Question:          "Question",
+		ID:        GetPollID(),
+		CreatedAt: 1234567890,
+		Creator:   "userID1",
+		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{
 			{Answer: "Answer 1"},
 			{Answer: "Answer 2"},
@@ -34,10 +34,10 @@ func GetPollWithSettings(settings poll.PollSettings) *poll.Poll {
 
 func GetPollWithVotes() *poll.Poll {
 	return &poll.Poll{
-		CreatedAt:         1234567890,
-		Creator:           "userID1",
-		DataSchemaVersion: "v1",
-		Question:          "Question",
+		ID:        GetPollID(),
+		CreatedAt: 1234567890,
+		Creator:   "userID1",
+		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{
 			{Answer: "Answer 1",
 				Voter: []string{"userID1", "userID2", "userID3"}},
@@ -56,10 +56,10 @@ func GetPollWithVotesAndSettings(settings poll.PollSettings) *poll.Poll {
 
 func GetPollTwoOptions() *poll.Poll {
 	return &poll.Poll{
-		CreatedAt:         1234567890,
-		Creator:           "userID1",
-		DataSchemaVersion: "v1",
-		Question:          "Question",
+		ID:        GetPollID(),
+		CreatedAt: 1234567890,
+		Creator:   "userID1",
+		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{
 			{Answer: "Yes"},
 			{Answer: "No"},

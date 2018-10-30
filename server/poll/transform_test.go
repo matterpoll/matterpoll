@@ -144,7 +144,7 @@ func TestPollToPostActions(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n**Poll settings**: progress\n**Total votes**: 0",
+				Text:       "---\n**Poll Settings**: progress\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
@@ -184,7 +184,7 @@ func TestPollToPostActions(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n**Poll settings**: anonymous\n**Total votes**: 0",
+				Text:       "---\n**Poll Settings**: anonymous\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1",
 					Type: model.POST_ACTION_TYPE_BUTTON,
@@ -221,7 +221,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(testutils.GetSiteURL(), PluginID, testutils.GetPollID(), authorName))
+			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(testutils.GetSiteURL(), PluginID, authorName))
 		})
 	}
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
-	"github.com/matterpoll/matterpoll/server/poll"
 )
 
 const (
@@ -69,14 +68,8 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := request.UserId
 
-	b, appErr := p.API.KVGet(pollID)
-	if appErr != nil {
-		response.EphemeralText = commandGenericError
-		writePostActionIntegrationResponse(w, response)
-		return
-	}
-	poll := poll.DecodePollFromByte(b)
-	if poll == nil {
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
@@ -90,22 +83,20 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasVoted := poll.HasVoted(userID)
-	err := poll.UpdateVote(userID, optionNumber)
-	if err != nil {
+	if err := poll.UpdateVote(userID, optionNumber); err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
-	appErr = p.API.KVSet(pollID, poll.EncodeToByte())
-	if appErr != nil {
+	if err = p.Store.Poll().Save(poll); err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	post := &model.Post{}
-	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, pollID, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
 	response.Update = post
 
 	if hasVoted {
@@ -126,14 +117,8 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	b, appErr := p.API.KVGet(pollID)
-	if appErr != nil {
-		response.EphemeralText = commandGenericError
-		writePostActionIntegrationResponse(w, response)
-		return
-	}
-	poll := poll.DecodePollFromByte(b)
-	if poll == nil {
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
@@ -165,8 +150,7 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	appErr = p.API.KVDelete(pollID)
-	if appErr != nil {
+	if err := p.Store.Poll().Delete(poll); err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
@@ -220,14 +204,8 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	b, appErr := p.API.KVGet(pollID)
-	if appErr != nil {
-		response.EphemeralText = commandGenericError
-		writePostActionIntegrationResponse(w, response)
-		return
-	}
-	poll := poll.DecodePollFromByte(b)
-	if poll == nil {
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
@@ -252,8 +230,7 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	appErr = p.API.KVDelete(pollID)
-	if appErr != nil {
+	if err := p.Store.Poll().Delete(poll); err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return

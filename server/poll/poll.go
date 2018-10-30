@@ -9,12 +9,12 @@ import (
 
 // Poll stores all needed information for a poll
 type Poll struct {
-	CreatedAt         int64
-	Creator           string
-	DataSchemaVersion string
-	Question          string
-	AnswerOptions     []*AnswerOption
-	Settings          PollSettings
+	ID            string
+	CreatedAt     int64
+	Creator       string
+	Question      string
+	AnswerOptions []*AnswerOption
+	Settings      PollSettings
 }
 
 // AnswerOption stores a possible answer and a list of user who voted for this
@@ -30,8 +30,13 @@ type PollSettings struct {
 }
 
 // NewPoll creates a new poll with the given paramatern
-func NewPoll(currentDataSchemaVersion, creator, question string, answerOptions, settings []string) (*Poll, error) {
-	p := Poll{CreatedAt: model.GetMillis(), DataSchemaVersion: currentDataSchemaVersion, Creator: creator, Question: question}
+func NewPoll(creator, question string, answerOptions, settings []string) (*Poll, error) {
+	p := Poll{
+		ID:        model.NewId(),
+		CreatedAt: model.GetMillis(),
+		Creator:   creator,
+		Question:  question,
+	}
 	for _, o := range answerOptions {
 		p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: o})
 	}

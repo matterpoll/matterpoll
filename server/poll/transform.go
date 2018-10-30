@@ -8,7 +8,7 @@ import (
 )
 
 // ToPostActions returns the poll as a message
-func (p *Poll) ToPostActions(siteURL, pluginID, pollID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(siteURL, pluginID, authorName string) []*model.SlackAttachment {
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
 
@@ -22,7 +22,7 @@ func (p *Poll) ToPostActions(siteURL, pluginID, pollID, authorName string) []*mo
 			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/vote/%v", siteURL, pluginID, pollID, i),
+				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/vote/%v", siteURL, pluginID, p.ID, i),
 			},
 		})
 	}
@@ -31,7 +31,7 @@ func (p *Poll) ToPostActions(siteURL, pluginID, pollID, authorName string) []*mo
 		Name: "Delete Poll",
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, pluginID, pollID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, pluginID, p.ID),
 		},
 	})
 
@@ -39,7 +39,7 @@ func (p *Poll) ToPostActions(siteURL, pluginID, pollID, authorName string) []*mo
 		Name: "End Poll",
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, pluginID, pollID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, pluginID, p.ID),
 		},
 	})
 
@@ -64,7 +64,7 @@ func (p *Poll) makeAdditionalText(numberOfVotes int) string {
 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {
-		lines = append(lines, fmt.Sprintf("**Poll settings**: %s", strings.Join(settingsText, ", ")))
+		lines = append(lines, fmt.Sprintf("**Poll Settings**: %s", strings.Join(settingsText, ", ")))
 	}
 	lines = append(lines, fmt.Sprintf("**Total votes**: %d", numberOfVotes))
 	return strings.Join(lines, "\n")

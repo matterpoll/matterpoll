@@ -42,29 +42,30 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 
-	pollID := model.NewId()
 	var newPoll *poll.Poll
 	var err error
 	if len(o) == 0 {
-		newPoll, err = poll.NewPoll(CurrentDataSchemaVersion, creatorID, q, []string{"Yes", "No"}, s)
+		newPoll, err = poll.NewPoll(creatorID, q, []string{"Yes", "No"}, s)
 	} else {
-		newPoll, err = poll.NewPoll(CurrentDataSchemaVersion, creatorID, q, o, s)
+		newPoll, err = poll.NewPoll(creatorID, q, o, s)
 	}
 	if err != nil {
+		p.API.LogError("failed to create poll", "err", err)
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, "Invalid input: "+err.Error(), siteURL, nil), nil
 	}
 
-	appErr := p.API.KVSet(pollID, newPoll.EncodeToByte())
-	if appErr != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
+	if err := p.Store.Poll().Save(newPoll); err != nil {
+		p.API.LogError("failed to save poll", "err", err)
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), nil
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), appErr
+		p.API.LogError("failed to ConvertCreatorIDToDisplayName", "err", appErr)
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), nil
 	}
 
-	actions := newPoll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, pollID, displayName)
+	actions := newPoll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName)
 	response := getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", *p.ServerConfig.ServiceSettings.SiteURL, actions)
 	p.API.LogDebug("Created a new poll", "response", response.ToJson())
 	return response, nil

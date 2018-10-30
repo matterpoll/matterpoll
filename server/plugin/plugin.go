@@ -9,6 +9,8 @@ import (
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/matterpoll/matterpoll/server/poll"
+	"github.com/matterpoll/matterpoll/server/store"
+	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/pkg/errors"
 )
 
@@ -16,6 +18,7 @@ import (
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
 	router *mux.Router
+	Store  store.Store
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -33,6 +36,12 @@ func (p *MatterpollPlugin) OnActivate() error {
 	if err := p.checkServerVersion(); err != nil {
 		return err
 	}
+
+	store, err := kvstore.NewStore(p.API, PluginVersion)
+	if err != nil {
+		return err
+	}
+	p.Store = store
 
 	p.router = p.InitAPI()
 	return nil

@@ -4,14 +4,19 @@ import (
 	"testing"
 
 	"github.com/blang/semver"
+	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/matterpoll/matterpoll/server/store"
+	"github.com/matterpoll/matterpoll/server/store/kvstore"
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *MatterpollPlugin {
+func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, siteURL string) *MatterpollPlugin {
 	p := &MatterpollPlugin{
 		ServerConfig: &model.Config{
 			ServiceSettings: model.ServiceSettings{
@@ -22,7 +27,9 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, siteURL string) *Matterp
 	p.setConfiguration(&configuration{
 		Trigger: "poll",
 	})
+
 	p.SetAPI(api)
+	p.Store = store
 	p.router = p.InitAPI()
 
 	return p
@@ -79,6 +86,11 @@ func TestPluginOnActivate(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
 
+			patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+				return &mockstore.Store{}, nil
+			})
+			defer patch.Unpatch()
+
 			p := &MatterpollPlugin{}
 			p.setConfiguration(&configuration{
 				Trigger: "poll",
@@ -93,12 +105,31 @@ func TestPluginOnActivate(t *testing.T) {
 			}
 		})
 	}
+	t.Run("NewStore() fails", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("GetServerVersion").Return(minimumServerVersion)
+		defer api.AssertExpectations(t)
+
+		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+			return nil, &model.AppError{}
+		})
+		defer patch.Unpatch()
+
+		p := &MatterpollPlugin{}
+		p.setConfiguration(&configuration{
+			Trigger: "poll",
+		})
+		p.SetAPI(api)
+		err := p.OnActivate()
+
+		assert.NotNil(t, err)
+	})
 }
 
 func TestPluginOnDeactivate(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(nil)
 		defer api.AssertExpectations(t)
 
@@ -108,7 +139,7 @@ func TestPluginOnDeactivate(t *testing.T) {
 
 	t.Run("UnregisterCommand fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(&model.AppError{})
 		defer api.AssertExpectations(t)
 
