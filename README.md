@@ -5,7 +5,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/matterpoll/matterpoll)](https://goreportcard.com/report/github.com/matterpoll/matterpoll)
 [![Releases](https://img.shields.io/github/release/matterpoll/matterpoll.svg)](https://github.com/matterpoll/matterpoll/releases/latest)
 
-
 Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows users to create poll by using a slash command.
 
 Supported Mattermost Server Versions: 5.4+
@@ -46,3 +45,7 @@ For example, this error happens in case you set SiteURL starting with `http://`,
 Check system logs. If you find the following message, Matterpoll doesn't support your Mattermost. Please update your Mattermost server.
 
 `RPC call to GetServerVersion API failed: rpc: can't find method Plugin.GetServerVersion	{"plugin_id": "com.github.matterpoll.matterpoll", "source": "plugin_stderr"}`
+
+## Contributing
+
+We welcome contributions of any bug reports, issues, feature requests, feature implementations and pull requests. Feel free to join the [Matterpoll channel](https://pre-release.mattermost.com/core/channels/matterpoll) on the Mattermost community server. 
