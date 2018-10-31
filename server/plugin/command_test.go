@@ -26,6 +26,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		ExpectedResponseType string
 		ExpectedText         string
 		ExpectedAttachments  []*model.SlackAttachment
+		ShouldError          bool
 	}{
 		"No argument": {
 			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
@@ -114,7 +115,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Store.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("*errors.errorString")).Return(nil)
+				api.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -142,15 +143,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  nil,
 		},
 		"Invalid setting": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("*errors.errorString")).Return(nil)
-				return api
-			},
+			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			ExpectedText:         fmt.Sprintf("Invalid input: Unrecognised poll setting unkownOption"),
 			ExpectedAttachments:  nil,
+			ShouldError:          true,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -173,15 +172,19 @@ func TestPluginExecuteCommand(t *testing.T) {
 				UserId:  "userID1",
 			})
 
-			assert.Nil(err)
-			require.NotNil(t, r)
-
-			assert.Equal(model.POST_DEFAULT, r.Type)
-			assert.Equal(responseUsername, r.Username)
-			assert.Equal(fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), PluginId), r.IconURL)
-			assert.Equal(test.ExpectedResponseType, r.ResponseType)
-			assert.Equal(test.ExpectedText, r.Text)
-			assert.Equal(test.ExpectedAttachments, r.Attachments)
+			if test.ShouldError {
+				assert.Nil(r)
+				assert.NotNil(err)
+			} else {
+				assert.Nil(err)
+				require.NotNil(t, r)
+				assert.Equal(model.POST_DEFAULT, r.Type)
+				assert.Equal(responseUsername, r.Username)
+				assert.Equal(fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), PluginId), r.IconURL)
+				assert.Equal(test.ExpectedResponseType, r.ResponseType)
+				assert.Equal(test.ExpectedText, r.Text)
+				assert.Equal(test.ExpectedAttachments, r.Attachments)
+			}
 		})
 	}
 }
