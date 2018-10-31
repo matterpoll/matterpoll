@@ -45,12 +45,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  nil,
 		},
 		"Two arguments": {
-			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
-			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
-			Command:              fmt.Sprintf("/%s \"Question\" \"Just one option\"", trigger),
-			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         fmt.Sprintf(commandInputErrorFormat, trigger),
-			ExpectedAttachments:  nil,
+			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
+			Command:     fmt.Sprintf("/%s \"Question\" \"Just one option\"", trigger),
+			ShouldError: true,
 		},
 		"Just question": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -143,13 +141,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 			ExpectedAttachments:  nil,
 		},
 		"Invalid setting": {
-			SetupAPI:             func(api *plugintest.API) *plugintest.API { return api },
-			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
-			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
-			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         fmt.Sprintf("Invalid input: Unrecognised poll setting unkownOption"),
-			ExpectedAttachments:  nil,
-			ShouldError:          true,
+			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
+			ShouldError: true,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
