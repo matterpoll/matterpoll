@@ -48,4 +48,4 @@ Check system logs. If you find the following message, Matterpoll doesn't support
 
 ## Contributing
 
-We welcome contributions of any bug reports, issues, feature requests, feature implementations and pull requests. Feel free to [**file a new issue**](https://github.com/matterpoll/matterpoll/issues/new) to join the [**Matterpoll channel**](https://pre-release.mattermost.com/core/channels/matterpoll) on the Mattermost community server.
+We welcome contributions of any bug reports, issues, feature requests, feature implementations and pull requests. Feel free to [**file a new issue**](https://github.com/matterpoll/matterpoll/issues/new/choose) to join the [**Matterpoll channel**](https://pre-release.mattermost.com/core/channels/matterpoll) on the Mattermost community server.
