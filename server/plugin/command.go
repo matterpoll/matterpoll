@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
@@ -22,7 +23,7 @@ const (
 		"- `--progress`: During the poll, show how many votes each answer option got\n"
 
 	// Parameter: Trigger
-	commandInputErrorFormat = "Invalid input. Try `/%[1]s \"Question\"` or `/%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`"
+	commandInputErrorFormat = "Invalid input. Try /%[1]s \"Question\" or /%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\""
 	commandGenericError     = "Something went bad. Please try again later."
 )
 
@@ -38,8 +39,11 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 	if len(o) == 1 {
-		msg := fmt.Sprintf(commandInputErrorFormat, configuration.Trigger)
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
+		return nil, &model.AppError{
+			Id:         fmt.Sprintf(commandInputErrorFormat, configuration.Trigger),
+			StatusCode: http.StatusBadRequest,
+			Where:      "ExecuteCommand",
+		}
 	}
 
 	var newPoll *poll.Poll
@@ -50,12 +54,15 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		newPoll, err = poll.NewPoll(creatorID, q, o, s)
 	}
 	if err != nil {
-		p.API.LogError("failed to create poll", "err", err)
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, "Invalid input: "+err.Error(), siteURL, nil), nil
+		return nil, &model.AppError{
+			Id:         "Invalid input: " + err.Error(),
+			StatusCode: http.StatusBadRequest,
+			Where:      "ExecuteCommand",
+		}
 	}
 
 	if err := p.Store.Poll().Save(newPoll); err != nil {
-		p.API.LogError("failed to save poll", "err", err)
+		p.API.LogError("failed to save poll", "err", err.Error())
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandGenericError, siteURL, nil), nil
 	}
 
