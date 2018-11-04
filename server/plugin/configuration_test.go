@@ -102,7 +102,7 @@ func TestOnConfigurationChange(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
-			p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL(), testutils.GetPluginDirectory())
 			p.setConfiguration(test.Configuration)
 
 			err := p.OnConfigurationChange()

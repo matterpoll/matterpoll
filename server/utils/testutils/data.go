@@ -12,6 +12,10 @@ func GetSiteURL() string {
 	return "https://example.org"
 }
 
+func GetPluginDirectory() string {
+	return "plugins"
+}
+
 func GetPoll() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),

@@ -16,11 +16,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, siteURL string) *MatterpollPlugin {
+func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, siteURL string, pluginDirectory string) *MatterpollPlugin {
 	p := &MatterpollPlugin{
 		ServerConfig: &model.Config{
 			ServiceSettings: model.ServiceSettings{
 				SiteURL: &siteURL,
+			},
+			PluginSettings: model.PluginSettings{
+				Directory: &pluginDirectory,
 			},
 		},
 	}
@@ -129,7 +132,7 @@ func TestPluginOnActivate(t *testing.T) {
 func TestPluginOnDeactivate(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL(), testutils.GetPluginDirectory())
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(nil)
 		defer api.AssertExpectations(t)
 
@@ -139,7 +142,7 @@ func TestPluginOnDeactivate(t *testing.T) {
 
 	t.Run("UnregisterCommand fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL(), testutils.GetPluginDirectory())
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(&model.AppError{})
 		defer api.AssertExpectations(t)
 

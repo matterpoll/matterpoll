@@ -154,7 +154,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
-			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, store, testutils.GetSiteURL(), testutils.GetPluginDirectory())
 			p.configuration.Trigger = trigger
 
 			patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
