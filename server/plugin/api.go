@@ -15,7 +15,7 @@ const (
 	infoMessage = "Thanks for using Matterpoll v" + PluginVersion + "\n"
 
 	iconFilename = "logo_dark.png"
-	iconPath     = "plugins/" + PluginId + "/"
+	iconPath     = "/" + PluginId + "/"
 
 	voteCounted = "Your vote has been counted."
 	voteUpdated = "Your vote has been updated."
@@ -52,7 +52,7 @@ func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "public, max-age=604800")
-	http.ServeFile(w, r, iconPath+iconFilename)
+	http.ServeFile(w, r, *p.ServerConfig.PluginSettings.Directory+iconPath+iconFilename)
 }
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
