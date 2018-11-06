@@ -5,7 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -65,37 +67,67 @@ func TestServeHTTP(t *testing.T) {
 }
 
 func TestServeFile(t *testing.T) {
-	mkdirCmd := exec.Command("mkdir", "-p", iconPath)
-	cpCmd := exec.Command("cp", "../../assets/"+iconFilename, iconPath+iconFilename)
-	err := mkdirCmd.Run()
-	require.Nil(t, err)
-	err = cpCmd.Run()
-	require.Nil(t, err)
-	defer func() {
-		rmCmd := exec.Command("rm", "-r", "plugins")
-		err = rmCmd.Run()
-		require.Nil(t, err)
-	}()
+	for name, test := range map[string]struct {
+		Setup              func()
+		Teardown           func()
+		ExpectedStatusCode int
+		ShouldError        bool
+	}{
+		"all fine": {
+			Setup: func() {
+				ex, err := os.Executable()
+				if err != nil {
+					panic(err)
+				}
+				exPath := filepath.Dir(ex)
+				iconPath := filepath.Dir(filepath.Dir(exPath)) + "/" + iconFilename
 
-	assert := assert.New(t)
-	api := &plugintest.API{}
-	api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-	defer api.AssertExpectations(t)
-	p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+				cpCmd := exec.Command("cp", "../../assets/"+iconFilename, iconPath)
+				err = cpCmd.Run()
+				require.Nil(t, err)
+			},
+			Teardown: func() {
+				ex, err := os.Executable()
+				if err != nil {
+					panic(err)
+				}
+				exPath := filepath.Dir(ex)
+				iconPath := filepath.Dir(filepath.Dir(exPath)) + "/" + iconFilename
+				rmCmd := exec.Command("rm", "-r", iconPath)
+				err = rmCmd.Run()
+				require.Nil(t, err)
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ShouldError:        false,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+			api := &plugintest.API{}
+			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			defer api.AssertExpectations(t)
+			p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+			test.Setup()
+			defer test.Teardown()
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", fmt.Sprintf("/%s", iconFilename), nil)
-	p.ServeHTTP(nil, w, r)
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", fmt.Sprintf("/%s", iconFilename), nil)
+			p.ServeHTTP(nil, w, r)
 
-	result := w.Result()
-	require.NotNil(t, result)
+			result := w.Result()
+			require.NotNil(t, result)
 
-	bodyBytes, err := ioutil.ReadAll(result.Body)
-	require.Nil(t, err)
+			bodyBytes, err := ioutil.ReadAll(result.Body)
+			require.Nil(t, err)
 
-	assert.NotNil(bodyBytes)
-	assert.Equal(http.StatusOK, result.StatusCode)
-	assert.Contains([]string{"image/png"}, result.Header.Get("Content-Type"))
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+			if test.ShouldError {
+			} else {
+				assert.NotNil(bodyBytes)
+				assert.Contains([]string{"image/png"}, result.Header.Get("Content-Type"))
+			}
+		})
+	}
 }
 
 func TestHandleVote(t *testing.T) {
