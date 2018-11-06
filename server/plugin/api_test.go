@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
@@ -99,6 +101,18 @@ func TestServeFile(t *testing.T) {
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ShouldError:        false,
+		},
+		"failed to get executable": {
+			Setup: func() {
+				monkey.Patch(os.Executable, func() (string, error) {
+					return "", errors.New("failed to get executable")
+				})
+			},
+			Teardown: func() {
+				monkey.Patch(os.Executable, func() (string, error) { return "", errors.New("failed to get executable") }).Unpatch()
+			},
+			ExpectedStatusCode: http.StatusInternalServerError,
+			ShouldError:        true,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
