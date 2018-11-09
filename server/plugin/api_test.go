@@ -78,9 +78,7 @@ func TestServeFile(t *testing.T) {
 		"all fine": {
 			Setup: func() {
 				ex, err := os.Executable()
-				if err != nil {
-					panic(err)
-				}
+				require.Nil(t, err)
 				exPath := filepath.Dir(ex)
 				iconPath := filepath.Dir(filepath.Dir(exPath)) + "/" + iconFilename
 
@@ -90,11 +88,10 @@ func TestServeFile(t *testing.T) {
 			},
 			Teardown: func() {
 				ex, err := os.Executable()
-				if err != nil {
-					panic(err)
-				}
+				require.Nil(t, err)
 				exPath := filepath.Dir(ex)
 				iconPath := filepath.Dir(filepath.Dir(exPath)) + "/" + iconFilename
+
 				rmCmd := exec.Command("rm", "-r", iconPath)
 				err = rmCmd.Run()
 				require.Nil(t, err)
@@ -136,6 +133,8 @@ func TestServeFile(t *testing.T) {
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if test.ShouldError {
+				assert.Equal([]byte{}, bodyBytes)
+				assert.Equal(http.Header{}, result.Header)
 			} else {
 				assert.NotNil(bodyBytes)
 				assert.Contains([]string{"image/png"}, result.Header.Get("Content-Type"))
