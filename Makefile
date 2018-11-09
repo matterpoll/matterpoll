@@ -142,7 +142,7 @@ endif
 .PHONY: test
 test: server/.depensure webapp/.npminstall
 ifneq ($(HAS_SERVER),)
-	cd server && $(GO) test -race -v -coverprofile=coverage.txt ./...
+	cd server && $(GO) test -race -gcflags=-l -v -coverprofile=coverage.txt ./...
 endif
 ifneq ($(HAS_WEBAPP),)
 	cd webapp && $(NPM) run fix;
