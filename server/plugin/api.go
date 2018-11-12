@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -15,7 +17,6 @@ const (
 	infoMessage = "Thanks for using Matterpoll v" + PluginVersion + "\n"
 
 	iconFilename = "logo_dark.png"
-	iconPath     = "plugins/" + PluginId + "/"
 
 	voteCounted = "Your vote has been counted."
 	voteUpdated = "Your vote has been updated."
@@ -51,8 +52,18 @@ func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
+	// com.github.matterpoll.matterpoll/server/dist/plugin-*
+	ex, err := os.Executable()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	// com.github.matterpoll.matterpoll/server/dist/
+	exPath := filepath.Dir(ex)
+	// com.github.matterpoll.matterpoll/logo_dark.png
+	iconPath := filepath.Dir(filepath.Dir(exPath)) + "/" + iconFilename
 	w.Header().Set("Cache-Control", "public, max-age=604800")
-	http.ServeFile(w, r, iconPath+iconFilename)
+	http.ServeFile(w, r, iconPath)
 }
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
