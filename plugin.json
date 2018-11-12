@@ -2,7 +2,7 @@
   "id": "com.github.matterpoll.matterpoll",
   "name": "Matterpoll",
   "description": "Polling feature for Mattermost's custom slash command",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "server": {
     "executables": {
       "linux-amd64": "server/dist/plugin-linux-amd64",
