@@ -31,7 +31,7 @@ type MatterpollPlugin struct {
 
 const minimumServerVersion = "5.4.0"
 
-// OnActivate ensures a configuration is set and initalises the API
+// OnActivate ensures a configuration is set and initialises the API
 func (p *MatterpollPlugin) OnActivate() error {
 	if err := p.checkServerVersion(); err != nil {
 		return err
