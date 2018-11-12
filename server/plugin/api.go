@@ -94,7 +94,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasVoted := poll.HasVoted(userID)
-	if err := poll.UpdateVote(userID, optionNumber); err != nil {
+	if err = poll.UpdateVote(userID, optionNumber); err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
