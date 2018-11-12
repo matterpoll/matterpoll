@@ -15,10 +15,7 @@ func (s *Store) UpdateDatabase(pluginVersion string) error {
 	if v == "" {
 		v = pluginVersion
 		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", pluginVersion))
-		if err := s.System().SaveVersion(pluginVersion); err != nil {
-			return err
-		}
-		return nil
+		return s.System().SaveVersion(pluginVersion)
 	}
 
 	// TODO: Uncomment following condition when version 1.1.0 is released
