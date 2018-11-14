@@ -6,6 +6,7 @@ import (
 	"github.com/blang/semver"
 )
 
+// UpdateDatabase upgrades the database schema from a given version to the newest version.
 func (s *Store) UpdateDatabase(pluginVersion string) error {
 	v, err := s.System().GetVersion()
 	if err != nil {
