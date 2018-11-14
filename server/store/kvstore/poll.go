@@ -29,10 +29,16 @@ func (s *PollStore) Get(id string) (*poll.Poll, error) {
 
 // Save stores a poll in the KV Store. Overwrittes any existing poll with the same id.
 func (s *PollStore) Save(poll *poll.Poll) error {
-	return s.api.KVSet(pollPrefix+poll.ID, poll.EncodeToByte())
+	if err := s.api.KVSet(pollPrefix+poll.ID, poll.EncodeToByte()); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Delete deletes a poll from the KV Store.
 func (s *PollStore) Delete(poll *poll.Poll) error {
-	return s.api.KVDelete(pollPrefix + poll.ID)
+	if err := s.api.KVDelete(pollPrefix + poll.ID); err != nil {
+		return err
+	}
+	return nil
 }
