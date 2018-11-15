@@ -92,10 +92,10 @@ func (p *Poll) ToEndPollPost(authorName string, convert func(string) (string, *m
 			}
 		}
 		var voteText string
-		if len(o.Voter) == 1 {
-			voteText = "vote"
-		} else {
+		if len(o.Voter) > 1 {
 			voteText = "votes"
+		} else {
+			voteText = "vote"
 		}
 		fields = append(fields, &model.SlackAttachmentField{
 			Short: true,
