@@ -23,7 +23,7 @@ func ParseInput(input string, trigger string) (string, []string, []string) {
 	split[lastIndex] = l[0]
 	if len(l) == 2 && l[1] != "" {
 		ops := strings.TrimPrefix(strings.TrimSpace(l[1]), "--")
-		// Split beween Settings
+		// Split between Settings
 		opsList := strings.Split(ops, "--")
 		for i := 0; i < len(opsList); i++ {
 			s := strings.TrimSpace(opsList[i])

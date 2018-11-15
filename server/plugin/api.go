@@ -47,7 +47,7 @@ func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r
 	p.router.ServeHTTP(w, r)
 }
 
-func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
 	_, _ = io.WriteString(w, infoMessage)
 }
 
@@ -94,7 +94,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasVoted := poll.HasVoted(userID)
-	if err := poll.UpdateVote(userID, optionNumber); err != nil {
+	if err = poll.UpdateVote(userID, optionNumber); err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return

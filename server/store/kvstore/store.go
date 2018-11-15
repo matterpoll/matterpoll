@@ -5,12 +5,14 @@ import (
 	"github.com/matterpoll/matterpoll/server/store"
 )
 
+// Store is an interface to interact with the KV Store.
 type Store struct {
 	api         plugin.API
 	pollStore   PollStore
 	systemStore SystemStore
 }
 
+// NewStore returns a fresh store and upgrades the db from the given schema version.
 func NewStore(api plugin.API, pluginVersion string) (store.Store, error) {
 	store := Store{
 		api: api,
@@ -29,5 +31,8 @@ func NewStore(api plugin.API, pluginVersion string) (store.Store, error) {
 	return &store, nil
 }
 
-func (s *Store) Poll() store.PollStore     { return &s.pollStore }
+// Poll returns the Poll Store
+func (s *Store) Poll() store.PollStore { return &s.pollStore }
+
+// System returns the System Store
 func (s *Store) System() store.SystemStore { return &s.systemStore }
