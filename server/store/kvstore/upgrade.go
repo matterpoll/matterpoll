@@ -14,12 +14,12 @@ func (s *Store) UpdateDatabase(pluginVersion string) error {
 	}
 	// If no version is set, set to to the newest version
 	if v == "" {
-		v = pluginVersion
-		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", pluginVersion))
-		if err := s.System().SaveVersion(pluginVersion); err != nil {
-			return err
-		}
-		return nil
+		newestSchema := semver.MustParse(pluginVersion)
+		// Don't store patch versions
+		newestSchema.Patch = 0
+
+		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", newestSchema.String()))
+		return s.System().SaveVersion(newestSchema.String())
 	}
 
 	// TODO: Uncomment following condition when version 1.1.0 is released

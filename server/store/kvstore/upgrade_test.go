@@ -51,6 +51,17 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		err := store.UpdateDatabase("1.0.0")
 		assert.Nil(t, err)
 	})
+	t.Run("Fresh install on patch release", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("KVGet", versionKey).Return([]byte(""), nil)
+		api.On("KVSet", versionKey, []byte("1.0.0")).Return(nil)
+		api.On("LogWarn", mock.AnythingOfType("string")).Return(nil)
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		err := store.UpdateDatabase("1.0.1")
+		assert.Nil(t, err)
+	})
 	t.Run("Fresh install, KVSet fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte(""), nil)
