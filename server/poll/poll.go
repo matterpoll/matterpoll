@@ -25,8 +25,9 @@ type AnswerOption struct {
 
 // PollSettings stores possible settings for a poll
 type PollSettings struct {
-	Anonymous bool
-	Progress  bool
+	Anonymous         bool
+	Progress          bool
+	AdditionalOptions bool
 }
 
 // NewPoll creates a new poll with the given paramatern
@@ -37,8 +38,8 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 		Creator:   creator,
 		Question:  question,
 	}
-	for _, o := range answerOptions {
-		p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: o})
+	for _, answerOption := range answerOptions {
+		p.AddAnswerOption(answerOption)
 	}
 	for _, s := range settings {
 		switch s {
@@ -46,6 +47,8 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 			p.Settings.Anonymous = true
 		case "progress":
 			p.Settings.Progress = true
+		case "additional-options":
+			p.Settings.AdditionalOptions = true
 		default:
 			return nil, fmt.Errorf("Unrecognised poll setting %s", s)
 		}
@@ -70,6 +73,11 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	}
 	p.AnswerOptions[index].Voter = append(p.AnswerOptions[index].Voter, userID)
 	return nil
+}
+
+// AddAnswerOption // TODO: Add docs
+func (p *Poll) AddAnswerOption(answerOption string) {
+	p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: answerOption})
 }
 
 // HasVoted return true if a given user has voted in this poll

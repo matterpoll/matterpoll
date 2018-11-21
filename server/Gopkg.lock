@@ -48,12 +48,12 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:a1578f7323eca2b88021fdc9a79a99833d40b12c32a5ea4f284e2fad19ea2657"
+  digest = "1:56a1f3949ebb7fa22fa6b4e4ac0fe0f77cc4faee5b57413e6fa9199a8458faf1"
   name = "github.com/google/uuid"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "d460ce9f8df2e77fb1ba55ca87fafed96c607494"
-  version = "v1.0.0"
+  revision = "9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:c01767916c59f084bb7c41a7d5877c0f3099b1595cfa066e84ec6ad6b084dd89"
@@ -72,26 +72,26 @@
   version = "v1.6.2"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a72658ddf229d4a6825f7641adb83143ce9eb47de635571af9ad62806fc0919e"
+  digest = "1:4a0c072e44da763409da72d41492373a034baf2e6d849c76d239b4abdfbb6c49"
   name = "github.com/gorilla/websocket"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "76e4896901ef89d253d69b528d3701dd146fe2ae"
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
 
 [[projects]]
-  digest = "1:58ba5285227b0f635652cd4aa82c4cfd00b590191eadd823462f0c9f64e3ae07"
+  digest = "1:ce8deaa2f422b7315ee4fa91f29963ed24f33eb1e1f921fe9f27ce7987776c01"
   name = "github.com/hashicorp/go-hclog"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "69ff559dc25f3b435631604f573a5fa1efdb6433"
+  revision = "e45cbeb79f0411b1cfedd3f226ff69d5d433c762"
 
 [[projects]]
-  digest = "1:532090ffc3b05a7e4c0229dd2698d79149f2e0683df993224a8b202f607fb605"
+  digest = "1:af00abbd22cc527703068245c819a5f53567918f8c088157a4c01dd6244b58fb"
   name = "github.com/hashicorp/go-plugin"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "e8d22c780116115ae5624720c9af0c97afe4f551"
+  revision = "a4620f9913d19f03a6bf19b2f304daaaf83ea130"
 
 [[projects]]
   digest = "1:11c6c696067d3127ecf332b10f89394d386d9083f82baf71f40f2da31841a009"
@@ -129,7 +129,8 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:7546f35053e3c9767d3db5965e4346751c8f686c7b92da5ee9d327da0459b380"
+  branch = "master"
+  digest = "1:89ed94bf7822a54a6fcd633dde6c0819ac7e1015c28f069e7526e49216c7c81c"
   name = "github.com/mattermost/mattermost-server"
   packages = [
     "einterfaces",
@@ -142,8 +143,7 @@
     "utils/markdown",
   ]
   pruneopts = "NUT"
-  revision = "d5b613cb1bbdaa856fa126e7102d94783b9e80b6"
-  version = "v5.4.0"
+  revision = "7253b2c59c737491898fe9bff1c1d23c183dcb34"
 
 [[projects]]
   branch = "mattermost"
@@ -151,7 +151,7 @@
   name = "github.com/mattermost/viper"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "362ff1e71044349d56d37d8b75cd317bff8369b9"
+  revision = "f99c30686b8675673ed42548816de2b0ff751c01"
   source = "https://github.com/mattermost/viper"
 
 [[projects]]
@@ -318,11 +318,11 @@
     "blowfish",
   ]
   pruneopts = "NUT"
-  revision = "e84da0312774c21d64ee2317962ef669b27ffb41"
+  revision = "9eb0be3963eaeb646c9a9b6d11f3da2b249bb2ca"
 
 [[projects]]
   branch = "master"
-  digest = "1:d39e451e542c7c064d7e29050eb50993a7484d4a3b538387c0f2ac32b5b9cdd8"
+  digest = "1:dc5dcbb306af980306fab456d4788e88c880177227bd488a92d5bef7d8743497"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -334,15 +334,15 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "9b4f9f5ad5197c79fd623a3638e70d8b26cef344"
+  revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
 
 [[projects]]
   branch = "master"
-  digest = "1:3393dbc238e6b9c79779c9228b967039d260fd7fc91974b2f58ae25aee3bb4f5"
+  digest = "1:6579cd293298feb18c9b3c3c62dc523d842e2d35bb0dbca3420c3c71a7f64774"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "95b1ffbd15a57cc5abb3f04402b9e8ec0016a52c"
+  revision = "62eef0e2fa9b2c385f7b2778e763486da6880d37"
 
 [[projects]]
   digest = "1:e7071ed636b5422cc51c0e3a6cebc229d6c9fffc528814b519a980641422d619"
@@ -373,7 +373,7 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "NUT"
-  revision = "8b5d7a19e2d98fbad9aaf9c599776bf066d7c70f"
+  revision = "b5d43981345bdb2c233eb4bf3277847b48c6fdc6"
 
 [[projects]]
   digest = "1:f112c6f3e9bbd16eb113db8f37adb6bd10270142079d00c7ac625534cbb16475"

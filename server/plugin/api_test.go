@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -9,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/bouk/monkey"
@@ -277,7 +277,7 @@ func TestHandleVote(t *testing.T) {
 			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex), bytes.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -468,7 +468,7 @@ func TestHandleEndPoll(t *testing.T) {
 			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -673,7 +673,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), strings.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()

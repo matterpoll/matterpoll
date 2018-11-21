@@ -125,6 +125,12 @@ func TestPollToPostActions(t *testing.T) {
 						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Name: "Add Option",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/option/add/request", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
@@ -162,6 +168,12 @@ func TestPollToPostActions(t *testing.T) {
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Name: "Add Option",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/option/add/request", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Delete Poll",
@@ -202,6 +214,12 @@ func TestPollToPostActions(t *testing.T) {
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Name: "Add Option",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/option/add/request", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Delete Poll",
