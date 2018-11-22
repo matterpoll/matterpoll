@@ -11,6 +11,9 @@
       "windows-amd64": "server/dist/plugin-windows-amd64.exe"
     }
   },
+  "webapp": {
+    "bundle_path": "webapp/dist/main.js"
+  },
   "settings_schema": {
     "settings": [{
      "key": "Trigger",

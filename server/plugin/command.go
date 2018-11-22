@@ -157,7 +157,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		UserId:    p.botUserID,
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
-		Type:      model.POST_DEFAULT,
+		Type:      MatterpollPostType,
 	}
 	model.ParseSlackAttachment(post, actions)
 

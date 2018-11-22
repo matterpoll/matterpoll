@@ -142,7 +142,7 @@ ifneq ($(HAS_SERVER),)
 	cd server && $(GO) test -race -gcflags=-l ./...
 endif
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && $(NPM) run fix;
+	cd webapp && $(NPM) run fix && $(NPM) run test;
 endif
 
 ## Creates a coverage report for the server code.

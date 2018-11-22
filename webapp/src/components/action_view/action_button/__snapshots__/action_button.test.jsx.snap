@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/action_button/ActionButton should match snapshot 1`] = `
+<button
+  data-action-id="action_id1"
+  key="action_id1"
+  onClick={[Function]}
+  style={
+    Object {
+      "background-color": "red",
+    }
+  }
+>
+  action_name
+</button>
+`;
+
+exports[`components/action_button/ActionButton should match snapshot without voted 1`] = `
+<button
+  data-action-id="action_id1"
+  key="action_id1"
+  onClick={[Function]}
+  style={Object {}}
+>
+  action_name
+</button>
+`;

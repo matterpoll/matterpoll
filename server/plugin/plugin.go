@@ -47,6 +47,8 @@ const (
 
 	botUserName    = "matterpoll"
 	botDisplayName = "Matterpoll"
+
+	MatterpollPostType = "custom_matterpoll"
 )
 
 // OnActivate ensures a configuration is set and initializes the API

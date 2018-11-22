@@ -31,6 +31,12 @@ type PollSettings struct {
 	PublicAddOption bool
 }
 
+type VotedAnswerResponse struct {
+	PollID       string   `json:"poll_id"`
+	UserID       string   `json:"user_id"`
+	VotedAnswers []string `json:"voted_answers"`
+}
+
 // NewPoll creates a new poll with the given paramatern
 func NewPoll(creator, question string, answerOptions, settings []string) (*Poll, error) {
 	p := Poll{
@@ -90,6 +96,25 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	}
 	p.AnswerOptions[index].Voter = append(p.AnswerOptions[index].Voter, userID)
 	return nil
+}
+
+func (p *Poll) GetVotedAnswer(userID string) (*VotedAnswerResponse, error) {
+	if userID == "" {
+		return nil, fmt.Errorf("invalid userID")
+	}
+	var votedAnswer []string
+	for _, o := range p.AnswerOptions {
+		for _, v := range o.Voter {
+			if userID == v {
+				votedAnswer = append(votedAnswer, o.Answer)
+			}
+		}
+	}
+	return &VotedAnswerResponse{
+		PollID:       p.ID,
+		UserID:       userID,
+		VotedAnswers: votedAnswer,
+	}, nil
 }
 
 // HasVoted return true if a given user has voted in this poll
