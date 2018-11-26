@@ -31,6 +31,7 @@ const (
 
 	addOptionInvalidPermission = "Only the creator of a poll and System Admins are allowed to add options."
 	addOptionSuccess           = "Succefully added an option."
+	addOptionKey               = "answerOption"
 )
 
 // InitAPI initializes the REST API
@@ -162,9 +163,18 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	poll.AddAnswerOption(request.Submission["option"].(string))
-	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	answerOption := request.Submission[addOptionKey].(string)
+	if err := poll.AddAnswerOption(answerOption); err != nil {
+		response := &model.SubmitDialogResponse{
+			Errors: map[string]string{
+				addOptionKey: err.Error(),
+			},
+		}
+		writeSubmitDialogResponse(w, response)
+		return
+	}
 
+	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
 		p.API.LogError("failed to update post", "err", err.Error())
 		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
@@ -226,7 +236,7 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r
 			SubmitLabel: "Add",
 			Elements: []model.DialogElement{{
 				DisplayName: "Option",
-				Name:        "option",
+				Name:        addOptionKey,
 				Type:        "text",
 				SubType:     "text",
 			},
@@ -377,6 +387,12 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 }
 
 func writePostActionIntegrationResponse(w http.ResponseWriter, response *model.PostActionIntegrationResponse) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(response.ToJson())
+}
+
+func writeSubmitDialogResponse(w http.ResponseWriter, response *model.SubmitDialogResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(response.ToJson())

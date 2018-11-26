@@ -35,13 +35,26 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
 		assert.Equal(poll.PollSettings{Anonymous: true, Progress: true}, p.Settings)
 	})
-	t.Run("error", func(t *testing.T) {
+	t.Run("error, unknown setting", func(t *testing.T) {
 		assert := assert.New(t)
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
 		p, err := poll.NewPoll(creator, question, answerOptions, []string{"unkownOption"})
+
+		assert.Nil(p)
+		assert.NotNil(err)
+	})
+
+	t.Run("error, duplicate option", func(t *testing.T) {
+		assert := assert.New(t)
+
+		creator := model.NewRandomString(10)
+		question := model.NewRandomString(10)
+		option := model.NewRandomString(10)
+		answerOptions := []string{option, model.NewRandomString(10), option}
+		p, err := poll.NewPoll(creator, question, answerOptions, nil)
 
 		assert.Nil(p)
 		assert.NotNil(err)

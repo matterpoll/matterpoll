@@ -39,7 +39,9 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 		Question:  question,
 	}
 	for _, answerOption := range answerOptions {
-		p.AddAnswerOption(answerOption)
+		if err := p.AddAnswerOption(answerOption); err != nil {
+			return nil, err
+		}
 	}
 	for _, s := range settings {
 		switch s {
@@ -54,6 +56,18 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 		}
 	}
 	return &p, nil
+}
+
+// TODO: Add docs
+// AddAnswerOption
+func (p *Poll) AddAnswerOption(newAnswerOption string) error {
+	for _, answerOption := range p.AnswerOptions {
+		if answerOption.Answer == newAnswerOption {
+			return fmt.Errorf("dublicant options: %s", newAnswerOption)
+		}
+	}
+	p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: newAnswerOption})
+	return nil
 }
 
 // UpdateVote performs a vote for a given user
@@ -73,11 +87,6 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	}
 	p.AnswerOptions[index].Voter = append(p.AnswerOptions[index].Voter, userID)
 	return nil
-}
-
-// AddAnswerOption // TODO: Add docs
-func (p *Poll) AddAnswerOption(answerOption string) {
-	p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: answerOption})
 }
 
 // HasVoted return true if a given user has voted in this poll
