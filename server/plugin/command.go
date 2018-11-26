@@ -96,6 +96,6 @@ func getCommand(trigger string) *model.Command {
 		Description:      "Polling feature by https://github.com/matterpoll/matterpoll",
 		AutoComplete:     true,
 		AutoCompleteDesc: "Create a poll",
-		AutoCompleteHint: "[Question] [Answer 1] [Answer 2]...",
+		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
 	}
 }
