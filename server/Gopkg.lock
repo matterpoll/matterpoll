@@ -130,7 +130,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:89ed94bf7822a54a6fcd633dde6c0819ac7e1015c28f069e7526e49216c7c81c"
+  digest = "1:37822b2ac6faa46bd40af78e0cd1011d398b082d2fe1121579233753cd20ad88"
   name = "github.com/mattermost/mattermost-server"
   packages = [
     "einterfaces",
@@ -143,7 +143,7 @@
     "utils/markdown",
   ]
   pruneopts = "NUT"
-  revision = "7253b2c59c737491898fe9bff1c1d23c183dcb34"
+  revision = "da265fbaf78a02333c00eec167540ac2119b2b89"
 
 [[projects]]
   branch = "mattermost"
@@ -318,7 +318,7 @@
     "blowfish",
   ]
   pruneopts = "NUT"
-  revision = "9eb0be3963eaeb646c9a9b6d11f3da2b249bb2ca"
+  revision = "eb0de9b17e854e9b1ccd9963efafc79862359959"
 
 [[projects]]
   branch = "master"
@@ -338,11 +338,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6579cd293298feb18c9b3c3c62dc523d842e2d35bb0dbca3420c3c71a7f64774"
+  digest = "1:134392bed1074be912a37ea13483f27e6e827f4e4d6cc319f69d3ac3617d5ac0"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "62eef0e2fa9b2c385f7b2778e763486da6880d37"
+  revision = "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31"
 
 [[projects]]
   digest = "1:e7071ed636b5422cc51c0e3a6cebc229d6c9fffc528814b519a980641422d619"
@@ -373,7 +373,7 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "NUT"
-  revision = "b5d43981345bdb2c233eb4bf3277847b48c6fdc6"
+  revision = "31ac5d88444a9e7ad18077db9a165d793ad06a2e"
 
 [[projects]]
   digest = "1:f112c6f3e9bbd16eb113db8f37adb6bd10270142079d00c7ac625534cbb16475"
