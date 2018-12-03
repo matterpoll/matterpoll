@@ -301,6 +301,185 @@ func TestHandleVote(t *testing.T) {
 	}
 }
 
+func TestHandleAddOption(t *testing.T) {
+	userID := testutils.GetPollWithVotes().Creator
+	channelID := model.NewId()
+	postID := model.NewId()
+
+	responsePost := &model.Post{
+		ChannelId: channelID,
+		UserId:    userID,
+		Message:   addOptionSuccess,
+		Props: map[string]interface{}{
+			"from_webhook":      "true",
+			"override_icon_url": fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), PluginId),
+			"override_username": responseUsername,
+		},
+	}
+
+	poll1In := testutils.GetPollWithVotes()
+	poll1Out := poll1In.Copy()
+	err := poll1Out.AddAnswerOption("New Option")
+	require.Nil(t, err)
+	expectedPost1 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"))
+
+	for name, test := range map[string]struct {
+		SetupAPI           func(*plugintest.API) *plugintest.API
+		SetupStore         func(*mockstore.Store) *mockstore.Store
+		Request            *model.SubmitDialogRequest
+		ExpectedStatusCode int
+		ExpectedResponse   *model.SubmitDialogResponse
+	}{
+		"Valid request": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetPost", postID).Return(&model.Post{}, nil)
+				api.On("UpdatePost", expectedPost1).Return(expectedPost1, nil)
+				api.On("SendEphemeralPost", userID, responsePost).Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				store.PollStore.On("Save", poll1Out).Return(nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					addOptionKey: "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			api := test.SetupAPI(&plugintest.API{})
+			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			defer api.AssertExpectations(t)
+			store := test.SetupStore(&mockstore.Store{})
+			defer store.AssertExpectations(t)
+			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			p.ServeHTTP(nil, w, r)
+
+			result := w.Result()
+			require.NotNil(t, result)
+			response := model.SubmitDialogResponseFromJson(result.Body)
+
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+			assert.Equal(test.ExpectedResponse, response)
+			if test.ExpectedResponse != nil {
+				assert.Equal(http.Header{
+					"Content-Type": []string{"application/json"},
+				}, result.Header)
+			}
+		})
+	}
+}
+
+func TestHandleAddOptionDialogRequest(t *testing.T) {
+	userID := testutils.GetPollWithVotes().Creator
+	triggerID := model.NewId()
+	postID := model.NewId()
+
+	dialogRequest := model.OpenDialogRequest{
+		TriggerId: triggerID,
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", testutils.GetSiteURL(), PluginId, testutils.GetPollID()),
+		Dialog: model.Dialog{
+			Title:       "Add Option",
+			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), PluginId),
+			CallbackId:  postID,
+			SubmitLabel: "Add",
+			Elements: []model.DialogElement{{
+				DisplayName: "Option",
+				Name:        addOptionKey,
+				Type:        "text",
+				SubType:     "text",
+			},
+			},
+		},
+	}
+
+	for name, test := range map[string]struct {
+		SetupAPI           func(*plugintest.API) *plugintest.API
+		SetupStore         func(*mockstore.Store) *mockstore.Store
+		Request            *model.PostActionIntegrationRequest
+		ExpectedStatusCode int
+		ExpectedResponse   *model.PostActionIntegrationResponse
+	}{
+		"Valid request": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("OpenInteractiveDialog", dialogRequest).Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    userID,
+				PostId:    postID,
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
+		},
+		"Valid request, OpenInteractiveDialog fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("OpenInteractiveDialog", dialogRequest).Return(&model.AppError{})
+				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    userID,
+				PostId:    postID,
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			api := test.SetupAPI(&plugintest.API{})
+			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			defer api.AssertExpectations(t)
+			store := test.SetupStore(&mockstore.Store{})
+			defer store.AssertExpectations(t)
+			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			p.ServeHTTP(nil, w, r)
+
+			result := w.Result()
+			require.NotNil(t, result)
+			response := model.PostActionIntegrationResponseFromJson(result.Body)
+
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+			assert.Equal(test.ExpectedResponse, response)
+			if test.ExpectedResponse != nil {
+				assert.Equal(http.Header{
+					"Content-Type": []string{"application/json"},
+				}, result.Header)
+			}
+		})
+	}
+}
+
 func TestHandleEndPoll(t *testing.T) {
 	converter := func(userID string) (string, *model.AppError) {
 		switch userID {
