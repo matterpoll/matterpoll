@@ -22,7 +22,7 @@ func TestNewPoll(t *testing.T) {
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress"})
+		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress", "public-add-option"})
 
 		require.Nil(t, err)
 		require.NotNil(t, p)
@@ -33,7 +33,7 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
-		assert.Equal(poll.PollSettings{Anonymous: true, Progress: true}, p.Settings)
+		assert.Equal(poll.PollSettings{Anonymous: true, Progress: true, PublicAddOption: true}, p.Settings)
 	})
 	t.Run("error, unknown setting", func(t *testing.T) {
 		assert := assert.New(t)

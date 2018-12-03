@@ -69,6 +69,9 @@ func (p *Poll) makeAdditionalText(numberOfVotes int) string {
 	if p.Settings.Progress {
 		settingsText = append(settingsText, "progress")
 	}
+	if p.Settings.PublicAddOption {
+		settingsText = append(settingsText, "public-add-option")
+	}
 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {

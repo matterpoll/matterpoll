@@ -25,9 +25,9 @@ type AnswerOption struct {
 
 // PollSettings stores possible settings for a poll
 type PollSettings struct {
-	Anonymous         bool
-	Progress          bool
-	AdditionalOptions bool
+	Anonymous       bool
+	Progress        bool
+	PublicAddOption bool
 }
 
 // NewPoll creates a new poll with the given paramatern
@@ -49,8 +49,8 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 			p.Settings.Anonymous = true
 		case "progress":
 			p.Settings.Progress = true
-		case "additional-options":
-			p.Settings.AdditionalOptions = true
+		case "public-add-option":
+			p.Settings.PublicAddOption = true
 		default:
 			return nil, fmt.Errorf("Unrecognised poll setting %s", s)
 		}

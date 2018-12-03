@@ -191,12 +191,12 @@ func TestPollToPostActions(t *testing.T) {
 				},
 			}},
 		},
-		"Multipile questions, settings: anonymous": {
-			Poll: testutils.GetPollWithSettings(poll.PollSettings{Anonymous: true}),
+		"Multipile questions, settings: anonymous, public-add-option": {
+			Poll: testutils.GetPollWithSettings(poll.PollSettings{Anonymous: true, PublicAddOption: true}),
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n**Poll Settings**: anonymous\n**Total votes**: 0",
+				Text:       "---\n**Poll Settings**: anonymous, public-add-option\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1",
 					Type: model.POST_ACTION_TYPE_BUTTON,

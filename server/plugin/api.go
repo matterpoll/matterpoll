@@ -211,7 +211,7 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r
 		return
 	}
 
-	if !poll.Settings.AdditionalOptions {
+	if !poll.Settings.PublicAddOption {
 		hasPermission, appErr := p.HasPermission(poll, request.UserId)
 		if appErr != nil {
 			response.EphemeralText = commandGenericError

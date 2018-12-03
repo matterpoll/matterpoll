@@ -21,7 +21,7 @@ const (
 		"Poll Settings provider further customisation, e.g. `/%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
 		"- `--anonymous`: Don't show who voted for what at the end\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
-		"- `--additional-options`: Allow other users to add additonal options"
+		"- `--public-add-option`: Allow other users to add additonal options"
 
 	// Parameter: Trigger
 	commandInputErrorFormat = "Invalid input. Try /%[1]s \"Question\" or /%[1]s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\""
