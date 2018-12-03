@@ -163,7 +163,14 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	answerOption := request.Submission[addOptionKey].(string)
+	answerOption, ok := request.Submission[addOptionKey].(string)
+	if !ok {
+		p.API.LogError("failed to parse request")
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	if err := poll.AddAnswerOption(answerOption); err != nil {
 		response := &model.SubmitDialogResponse{
 			Errors: map[string]string{
