@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/pkg/errors"
 )
 
 // Poll stores all needed information for a poll
@@ -25,8 +26,9 @@ type AnswerOption struct {
 
 // PollSettings stores possible settings for a poll
 type PollSettings struct {
-	Anonymous bool
-	Progress  bool
+	Anonymous       bool
+	Progress        bool
+	PublicAddOption bool
 }
 
 // NewPoll creates a new poll with the given paramatern
@@ -37,8 +39,10 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 		Creator:   creator,
 		Question:  question,
 	}
-	for _, o := range answerOptions {
-		p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: o})
+	for _, answerOption := range answerOptions {
+		if err := p.AddAnswerOption(answerOption); err != nil {
+			return nil, err
+		}
 	}
 	for _, s := range settings {
 		switch s {
@@ -46,11 +50,27 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 			p.Settings.Anonymous = true
 		case "progress":
 			p.Settings.Progress = true
+		case "public-add-option":
+			p.Settings.PublicAddOption = true
 		default:
 			return nil, fmt.Errorf("Unrecognised poll setting %s", s)
 		}
 	}
 	return &p, nil
+}
+
+// AddAnswerOption adds a new aAnswerOption to a poll
+func (p *Poll) AddAnswerOption(newAnswerOption string) error {
+	if newAnswerOption == "" {
+		return errors.New("empty option not allowed")
+	}
+	for _, answerOption := range p.AnswerOptions {
+		if answerOption.Answer == newAnswerOption {
+			return fmt.Errorf("duplicate options: %s", newAnswerOption)
+		}
+	}
+	p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: newAnswerOption})
+	return nil
 }
 
 // UpdateVote performs a vote for a given user

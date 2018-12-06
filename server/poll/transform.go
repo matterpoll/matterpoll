@@ -28,6 +28,14 @@ func (p *Poll) ToPostActions(siteURL, pluginID, authorName string) []*model.Slac
 	}
 
 	actions = append(actions, &model.PostAction{
+		Name: "Add Option",
+		Type: model.POST_ACTION_TYPE_BUTTON,
+		Integration: &model.PostActionIntegration{
+			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add/request", siteURL, pluginID, p.ID),
+		},
+	})
+
+	actions = append(actions, &model.PostAction{
 		Name: "Delete Poll",
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
@@ -60,6 +68,9 @@ func (p *Poll) makeAdditionalText(numberOfVotes int) string {
 	}
 	if p.Settings.Progress {
 		settingsText = append(settingsText, "progress")
+	}
+	if p.Settings.PublicAddOption {
+		settingsText = append(settingsText, "public-add-option")
 	}
 
 	lines := []string{"---"}

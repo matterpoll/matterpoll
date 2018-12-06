@@ -125,6 +125,12 @@ func TestPollToPostActions(t *testing.T) {
 						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/1", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Name: "Add Option",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/option/add/request", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
@@ -164,6 +170,12 @@ func TestPollToPostActions(t *testing.T) {
 						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Name: "Add Option",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/option/add/request", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
@@ -179,12 +191,12 @@ func TestPollToPostActions(t *testing.T) {
 				},
 			}},
 		},
-		"Multipile questions, settings: anonymous": {
-			Poll: testutils.GetPollWithSettings(poll.PollSettings{Anonymous: true}),
+		"Multipile questions, settings: anonymous, public-add-option": {
+			Poll: testutils.GetPollWithSettings(poll.PollSettings{Anonymous: true, PublicAddOption: true}),
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n**Poll Settings**: anonymous\n**Total votes**: 0",
+				Text:       "---\n**Poll Settings**: anonymous, public-add-option\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1",
 					Type: model.POST_ACTION_TYPE_BUTTON,
@@ -202,6 +214,12 @@ func TestPollToPostActions(t *testing.T) {
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/vote/2", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Name: "Add Option",
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/api/%s/polls/%s/option/add/request", testutils.GetSiteURL(), PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "Delete Poll",

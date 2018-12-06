@@ -28,6 +28,10 @@ const (
 
 	deletePollInvalidPermission = "Only the creator of a poll and System Admins are allowed to delete it."
 	deletePollSuccess           = "Succefully deleted the poll."
+
+	addOptionInvalidPermission = "Only the creator of a poll and System Admins are allowed to add options."
+	addOptionSuccess           = "Succefully added an option."
+	addOptionKey               = "answerOption"
 )
 
 // InitAPI initializes the REST API
@@ -35,10 +39,15 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", p.handleInfo).Methods("GET")
 	r.HandleFunc("/"+iconFilename, p.handleLogo).Methods("GET")
-	s := r.PathPrefix("/api/v1").Subrouter()
-	s.HandleFunc("/polls/{id:[a-z0-9]+}/vote/{optionNumber:[0-9]+}", p.handleVote).Methods("POST")
-	s.HandleFunc("/polls/{id:[a-z0-9]+}/end", p.handleEndPoll).Methods("POST")
-	s.HandleFunc("/polls/{id:[a-z0-9]+}/delete", p.handleDeletePoll).Methods("POST")
+
+	apiV1 := r.PathPrefix("/api/v1").Subrouter()
+
+	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
+	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handleVote).Methods("POST")
+	pollRouter.HandleFunc("/option/add", p.handleAddOption).Methods("POST")
+	pollRouter.HandleFunc("/option/add/request", p.handleAddOptionDialogRequest).Methods("POST")
+	pollRouter.HandleFunc("/end", p.handleEndPoll).Methods("POST")
+	pollRouter.HandleFunc("/delete", p.handleDeletePoll).Methods("POST")
 	return r
 }
 
@@ -72,7 +81,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	optionNumber, _ := strconv.Atoi(vars["optionNumber"])
 	response := &model.PostActionIntegrationResponse{}
 
-	request := model.PostActionIntegrationRequesteFromJson(r.Body)
+	request := model.PostActionIntegrationRequestFromJson(r.Body)
 	if request == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -118,11 +127,144 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	writePostActionIntegrationResponse(w, response)
 }
 
+func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pollID := vars["id"]
+
+	request := model.SubmitDialogRequestFromJson(r.Body)
+	if request == nil {
+		p.API.LogError("failed to decode poll")
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		p.API.LogError("failed to get poll", "err", err.Error())
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
+	if appErr != nil {
+		p.API.LogError("failed to get display name for creator", "err", err.Error())
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	post, appErr := p.API.GetPost(request.CallbackId)
+	if appErr != nil {
+		p.API.LogError("failed to get post", "err", err.Error())
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	answerOption, ok := request.Submission[addOptionKey].(string)
+	if !ok {
+		p.API.LogError("failed to parse request")
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if err := poll.AddAnswerOption(answerOption); err != nil {
+		response := &model.SubmitDialogResponse{
+			Errors: map[string]string{
+				addOptionKey: err.Error(),
+			},
+		}
+		writeSubmitDialogResponse(w, response)
+		return
+	}
+
+	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	if _, appErr = p.API.UpdatePost(post); appErr != nil {
+		p.API.LogError("failed to update post", "err", err.Error())
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if err = p.Store.Poll().Save(poll); err != nil {
+		p.API.LogError("failed to get save poll", "err", err.Error())
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	p.SendEphemeralPost(request.ChannelId, request.UserId, addOptionSuccess)
+	w.WriteHeader(http.StatusOK)
+}
+
+func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pollID := vars["id"]
+	response := &model.PostActionIntegrationResponse{}
+
+	request := model.PostActionIntegrationRequestFromJson(r.Body)
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+
+	if !poll.Settings.PublicAddOption {
+		hasPermission, appErr := p.HasPermission(poll, request.UserId)
+		if appErr != nil {
+			response.EphemeralText = commandGenericError
+			writePostActionIntegrationResponse(w, response)
+			return
+		}
+		if !hasPermission {
+			response.EphemeralText = addOptionInvalidPermission
+			writePostActionIntegrationResponse(w, response)
+			return
+		}
+	}
+
+	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
+	dialog := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", siteURL, PluginId, pollID),
+		Dialog: model.Dialog{
+			Title:       "Add Option",
+			IconURL:     fmt.Sprintf(responseIconURL, siteURL, PluginId),
+			CallbackId:  request.PostId,
+			SubmitLabel: "Add",
+			Elements: []model.DialogElement{{
+				DisplayName: "Option",
+				Name:        addOptionKey,
+				Type:        "text",
+				SubType:     "text",
+			},
+			},
+		},
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
+		p.API.LogError("failed to open add option dialog ", "err", appErr.Error())
+		response.EphemeralText = commandGenericError
+		writePostActionIntegrationResponse(w, response)
+		return
+	}
+	writePostActionIntegrationResponse(w, response)
+}
+
 func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request) {
 	pollID := mux.Vars(r)["id"]
 	response := &model.PostActionIntegrationResponse{}
 
-	request := model.PostActionIntegrationRequesteFromJson(r.Body)
+	request := model.PostActionIntegrationRequestFromJson(r.Body)
 	if request == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -209,7 +351,7 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 	pollID := mux.Vars(r)["id"]
 	response := &model.PostActionIntegrationResponse{}
 
-	request := model.PostActionIntegrationRequesteFromJson(r.Body)
+	request := model.PostActionIntegrationRequestFromJson(r.Body)
 	if request == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -254,5 +396,11 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 func writePostActionIntegrationResponse(w http.ResponseWriter, response *model.PostActionIntegrationResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_, _ = io.WriteString(w, response.ToJson())
+	_, _ = w.Write(response.ToJson())
+}
+
+func writeSubmitDialogResponse(w http.ResponseWriter, response *model.SubmitDialogResponse) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(response.ToJson())
 }

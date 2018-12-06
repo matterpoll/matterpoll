@@ -22,7 +22,7 @@ func TestNewPoll(t *testing.T) {
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress"})
+		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress", "public-add-option"})
 
 		require.Nil(t, err)
 		require.NotNil(t, p)
@@ -33,9 +33,9 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
-		assert.Equal(poll.PollSettings{Anonymous: true, Progress: true}, p.Settings)
+		assert.Equal(poll.PollSettings{Anonymous: true, Progress: true, PublicAddOption: true}, p.Settings)
 	})
-	t.Run("error", func(t *testing.T) {
+	t.Run("error, unknown setting", func(t *testing.T) {
 		assert := assert.New(t)
 
 		creator := model.NewRandomString(10)
@@ -44,6 +44,43 @@ func TestNewPoll(t *testing.T) {
 		p, err := poll.NewPoll(creator, question, answerOptions, []string{"unkownOption"})
 
 		assert.Nil(p)
+		assert.NotNil(err)
+	})
+
+	t.Run("error, duplicate option", func(t *testing.T) {
+		assert := assert.New(t)
+
+		creator := model.NewRandomString(10)
+		question := model.NewRandomString(10)
+		option := model.NewRandomString(10)
+		answerOptions := []string{option, model.NewRandomString(10), option}
+		p, err := poll.NewPoll(creator, question, answerOptions, nil)
+
+		assert.Nil(p)
+		assert.NotNil(err)
+	})
+}
+
+func TestAddAnswerOption(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Run("all fine", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.AddAnswerOption("new option")
+		assert.Nil(err)
+		assert.Equal("new option", p.AnswerOptions[len(p.AnswerOptions)-1].Answer)
+	})
+	t.Run("dublicant options", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.AddAnswerOption(p.AnswerOptions[0].Answer)
+		assert.NotNil(err)
+	})
+	t.Run("empty options", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.AddAnswerOption("")
 		assert.NotNil(err)
 	})
 }

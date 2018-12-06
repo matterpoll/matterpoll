@@ -29,7 +29,7 @@ type MatterpollPlugin struct {
 	ServerConfig  *model.Config
 }
 
-const minimumServerVersion = "5.4.0"
+const minimumServerVersion = "5.6.0"
 
 // OnActivate ensures a configuration is set and initialises the API
 func (p *MatterpollPlugin) OnActivate() error {
@@ -106,4 +106,16 @@ func (p *MatterpollPlugin) HasPermission(poll *poll.Poll, issuerID string) (bool
 		return true, nil
 	}
 	return false, nil
+}
+
+func (p *MatterpollPlugin) SendEphemeralPost(channelID, userID, message string) {
+	// This is mostly taken from https://github.com/mattermost/mattermost-server/blob/master/app/command.go#L304
+	ephemeralPost := &model.Post{}
+	ephemeralPost.ChannelId = channelID
+	ephemeralPost.UserId = userID
+	ephemeralPost.Message = message
+	ephemeralPost.AddProp("override_username", responseUsername)
+	ephemeralPost.AddProp("override_icon_url", fmt.Sprintf(responseIconURL, *p.ServerConfig.ServiceSettings.SiteURL, PluginId))
+	ephemeralPost.AddProp("from_webhook", "true")
+	_ = p.API.SendEphemeralPost(userID, ephemeralPost)
 }
