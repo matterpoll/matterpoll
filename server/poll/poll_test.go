@@ -61,6 +61,30 @@ func TestNewPoll(t *testing.T) {
 	})
 }
 
+func TestAddAnswerOption(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Run("all fine", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.AddAnswerOption("new option")
+		assert.Nil(err)
+		assert.Equal("new option", p.AnswerOptions[len(p.AnswerOptions)-1].Answer)
+	})
+	t.Run("dublicant options", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.AddAnswerOption(p.AnswerOptions[0].Answer)
+		assert.NotNil(err)
+	})
+	t.Run("empty options", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.AddAnswerOption("")
+		assert.NotNil(err)
+	})
+}
+
 func TestEncodeDecode(t *testing.T) {
 	p1 := testutils.GetPollWithVotes()
 	p2 := poll.DecodePollFromByte(p1.EncodeToByte())

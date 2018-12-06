@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/pkg/errors"
 )
 
 // Poll stores all needed information for a poll
@@ -58,12 +59,14 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 	return &p, nil
 }
 
-// TODO: Add docs
-// AddAnswerOption
+// AddAnswerOption adds a new aAnswerOption to a poll
 func (p *Poll) AddAnswerOption(newAnswerOption string) error {
+	if newAnswerOption == "" {
+		return errors.New("empty option not allowed")
+	}
 	for _, answerOption := range p.AnswerOptions {
 		if answerOption.Answer == newAnswerOption {
-			return fmt.Errorf("dublicant options: %s", newAnswerOption)
+			return fmt.Errorf("duplicate options: %s", newAnswerOption)
 		}
 	}
 	p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: newAnswerOption})
