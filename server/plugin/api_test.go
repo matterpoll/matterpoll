@@ -1042,7 +1042,6 @@ func TestHandleEndPoll(t *testing.T) {
 func TestPostEndPollAnnouncement(t *testing.T) {
 	for name, test := range map[string]struct {
 		SetupAPI func(*plugintest.API) *plugintest.API
-		Request  *model.PostActionIntegrationRequest
 	}{
 		"Valid request": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1063,7 +1062,6 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 				}).Return(nil, nil)
 				return api
 			},
-			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 		},
 		"Valid request, GetTeam fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1071,7 +1069,6 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
 				return api
 			},
-			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 		},
 		"Valid request, GetPost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1080,7 +1077,6 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
 				return api
 			},
-			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 		},
 		"Valid request, CreatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1090,12 +1086,11 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
 				return api
 			},
-			Request: &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			p := setupTestPlugin(t, test.SetupAPI(&plugintest.API{}), &mockstore.Store{})
-			p.postEndPollAnnouncement(test.Request, "Question")
+			p.postEndPollAnnouncement("teamID1", "postID1", "Question")
 		})
 	}
 }

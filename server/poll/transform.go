@@ -78,7 +78,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, siteURL, pluginID, autho
 		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeltePoll}),
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, pluginID, p.ID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete/request", siteURL, pluginID, p.ID),
 		},
 	})
 
@@ -86,7 +86,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, siteURL, pluginID, autho
 		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
 		Type: model.POST_ACTION_TYPE_BUTTON,
 		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, pluginID, p.ID),
+			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end/request", siteURL, pluginID, p.ID),
 		},
 	})
 
