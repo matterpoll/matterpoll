@@ -128,12 +128,11 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	pollID := vars["id"]
+	pollID := mux.Vars(r)["id"]
 
 	request := model.SubmitDialogRequestFromJson(r.Body)
 	if request == nil {
-		p.API.LogError("failed to decode poll")
+		p.API.LogError("failed to decode request")
 		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -149,7 +148,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
-		p.API.LogError("failed to get display name for creator", "err", err.Error())
+		p.API.LogError("failed to get display name for creator", "err", appErr.Error())
 		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
 		w.WriteHeader(http.StatusOK)
 		return
@@ -157,7 +156,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 
 	post, appErr := p.API.GetPost(request.CallbackId)
 	if appErr != nil {
-		p.API.LogError("failed to get post", "err", err.Error())
+		p.API.LogError("failed to get post", "err", appErr.Error())
 		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
 		w.WriteHeader(http.StatusOK)
 		return
@@ -183,7 +182,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 
 	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
-		p.API.LogError("failed to update post", "err", err.Error())
+		p.API.LogError("failed to update post", "err", appErr.Error())
 		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
 		w.WriteHeader(http.StatusOK)
 		return
@@ -201,8 +200,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	pollID := vars["id"]
+	pollID := mux.Vars(r)["id"]
 	response := &model.PostActionIntegrationResponse{}
 
 	request := model.PostActionIntegrationRequestFromJson(r.Body)
@@ -341,8 +339,8 @@ func (p *MatterpollPlugin) postEndPollAnnouncement(request *model.PostActionInte
 			"from_webhook":      "true",
 		},
 	}
-	_, err = p.API.CreatePost(endPost)
-	if err != nil {
+
+	if _, err = p.API.CreatePost(endPost); err != nil {
 		p.API.LogError(endPollAnnouncementPostError, "details", "failed to CreatePost")
 	}
 }
