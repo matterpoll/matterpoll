@@ -37,13 +37,6 @@ Poll Settings provider further customisation, e.g. `/poll "Is Matterpoll great?"
 Make sure to set your [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url) properly.
 For example, this error happens in case you set SiteURL starting with `http://`, in spite of running Mattermost server through https.
 
- <!-- TODO: Remove this when Mattermost 5.5 is released -->
-#### **Poll command returns error `Received invalid response from the server`**
-
-Check system logs. If you find the following message, Matterpoll doesn't support your Mattermost. Please update your Mattermost server.
-
-`RPC call to GetServerVersion API failed: rpc: can't find method Plugin.GetServerVersion	{"plugin_id": "com.github.matterpoll.matterpoll", "source": "plugin_stderr"}`
-
 ## Contributing
 
 We welcome contributions of any bug reports, issues, feature requests, feature implementations and pull requests. Feel free to [**file a new issue**](https://github.com/matterpoll/matterpoll/issues/new/choose) to join the [**Matterpoll channel**](https://pre-release.mattermost.com/core/channels/matterpoll) on the Mattermost community server.
