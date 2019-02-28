@@ -93,6 +93,7 @@ bundle:
 	mkdir -p dist/$(PLUGIN_ID)
 	cp $(MANIFEST_FILE) dist/$(PLUGIN_ID)/
 	cp assets/logo_dark.png dist/$(PLUGIN_ID)/
+	cp -r i18n/ dist/$(PLUGIN_ID)/
 ifneq ($(HAS_SERVER),)
 	mkdir -p dist/$(PLUGIN_ID)/server/dist;
 	cp -r server/dist/* dist/$(PLUGIN_ID)/server/dist/;

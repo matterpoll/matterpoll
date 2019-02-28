@@ -179,17 +179,20 @@
   version = "v1.1.2"
 
 [[projects]]
-  digest = "1:07140002dbf37da92090f731b46fa47be4820b82fe5c14a035203b0e813d0ec2"
+  digest = "1:e8361c2cf0d07059672f0831ec7926b9bf84c393e1e2dcdaec01c95be9564b42"
   name = "github.com/nicksnyder/go-i18n"
   packages = [
     "i18n",
     "i18n/bundle",
     "i18n/language",
     "i18n/translation",
+    "v2/i18n",
+    "v2/internal",
+    "v2/internal/plural",
   ]
   pruneopts = "NUT"
-  revision = "0dc1626d56435e9d605a29875701721c54bc9bbd"
-  version = "v1.10.0"
+  revision = "9c0db6e2b3a591b2dfabb8ef487e53cd080c57bf"
+  version = "v2.0.0-beta.6"
 
 [[projects]]
   digest = "1:3b517122f3aad1ecce45a630ea912b3092b4729f25532a911d0cb2935a1f9352"
@@ -453,6 +456,7 @@
     "github.com/mattermost/mattermost-server/model",
     "github.com/mattermost/mattermost-server/plugin",
     "github.com/mattermost/mattermost-server/plugin/plugintest",
+    "github.com/nicksnyder/go-i18n/v2/i18n",
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",

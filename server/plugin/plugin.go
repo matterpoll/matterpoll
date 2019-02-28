@@ -11,6 +11,7 @@ import (
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 )
 
@@ -27,6 +28,8 @@ type MatterpollPlugin struct {
 	// setConfiguration for usage.
 	configuration *configuration
 	ServerConfig  *model.Config
+
+	bundle *i18n.Bundle
 }
 
 const minimumServerVersion = "5.6.0"
@@ -44,6 +47,13 @@ func (p *MatterpollPlugin) OnActivate() error {
 	p.Store = store
 
 	p.router = p.InitAPI()
+
+	bundle, err := initBundle()
+	if err != nil {
+		return errors.Wrap(err, "failed to init localisation bundle")
+	}
+	p.bundle = bundle
+
 	return nil
 }
 

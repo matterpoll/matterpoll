@@ -26,3 +26,7 @@
 [[constraint]]
   name = "github.com/blang/semver"
   version = "~3.5.0"
+
+[[constraint]]
+  name = "github.com/nicksnyder/go-i18n"
+  version = "2.0.0-beta.6"
