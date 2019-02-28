@@ -461,6 +461,7 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
+    "golang.org/x/text/language",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
