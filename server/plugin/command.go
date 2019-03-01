@@ -54,7 +54,7 @@ var (
 
 	commandErrorGeneric = &i18n.Message{
 		ID:    "command.error.generic",
-		Other: "Something went bad. Please try again later.",
+		Other: "Something went wrong. Please try again later.",
 	}
 	commandErrorinvalidNumberOfOptions = &i18n.Message{
 		ID:    "command.error.invalidNumberOfOptions",

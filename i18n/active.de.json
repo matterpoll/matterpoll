@@ -8,7 +8,7 @@
     "other": "Ja"
   },
   "command.error.generic": {
-    "hash": "sha1-e612c126b2f6cd71516c48b30a13043244faeb36",
+    "hash": "sha1-73c841bf1e817ec2ab09b17eb0b43ec61bf1eda9",
     "other": "Etwas ist schlief gelaufen. Bitte versuch es später erneut."
   },
   "command.error.invalidInput": {

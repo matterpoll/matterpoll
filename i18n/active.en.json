@@ -1,7 +1,7 @@
 {
   "command.default.no": "No",
   "command.default.yes": "Yes",
-  "command.error.generic": "Something went bad. Please try again later.",
+  "command.error.generic": "Something went wrong. Please try again later.",
   "command.error.invalidInput": "Invalid input: {{.Error}}",
   "command.error.invalidNumberOfOptions": "You must provide either no answer or at least two answers.",
   "command.help.text.options": "You can customize the options by typing `/{{.Trigger}} \\\"Question\\\" \\\"Answer 1\\\" \\\"Answer 2\\\" \\\"Answer 3\\\"`",
