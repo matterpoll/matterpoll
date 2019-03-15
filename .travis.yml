@@ -3,7 +3,7 @@ notifications:
 
 language: go
 go:
-  - "1.11.x"
+  - "1.12.x"
 
 install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
