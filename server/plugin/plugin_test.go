@@ -12,15 +12,20 @@ import (
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, siteURL string) *MatterpollPlugin {
+	defaultServerLocale := "en"
 	p := &MatterpollPlugin{
 		ServerConfig: &model.Config{
 			ServiceSettings: model.ServiceSettings{
 				SiteURL: &siteURL,
+			},
+			LocalizationSettings: model.LocalizationSettings{
+				DefaultServerLocale: &defaultServerLocale,
 			},
 		},
 	}
@@ -31,6 +36,7 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, 
 	p.SetAPI(api)
 	p.Store = store
 	p.router = p.InitAPI()
+	p.bundle = &i18n.Bundle{}
 
 	return p
 }
@@ -86,10 +92,14 @@ func TestPluginOnActivate(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
 
-			patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+			patch1 := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 				return &mockstore.Store{}, nil
 			})
-			defer patch.Unpatch()
+			defer patch1.Unpatch()
+			patch2 := monkey.Patch(initBundle, func() (*i18n.Bundle, error) {
+				return &i18n.Bundle{}, nil
+			})
+			defer patch2.Unpatch()
 
 			p := &MatterpollPlugin{}
 			p.setConfiguration(&configuration{
@@ -110,10 +120,14 @@ func TestPluginOnActivate(t *testing.T) {
 		api.On("GetServerVersion").Return(minimumServerVersion)
 		defer api.AssertExpectations(t)
 
-		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+		patch1 := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
-		defer patch.Unpatch()
+		defer patch1.Unpatch()
+		patch2 := monkey.Patch(initBundle, func() (*i18n.Bundle, error) {
+			return &i18n.Bundle{}, nil
+		})
+		defer patch2.Unpatch()
 
 		p := &MatterpollPlugin{}
 		p.setConfiguration(&configuration{

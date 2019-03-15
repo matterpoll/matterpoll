@@ -202,7 +202,10 @@ func TestHandleVote(t *testing.T) {
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: responseVoteUpdated.Other, Update: expectedPost2},
 		},
 		"Valid request, PollStore.Get fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				return api
+			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
 				return store
@@ -257,6 +260,7 @@ func TestHandleVote(t *testing.T) {
 		"Valid request, GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -459,6 +463,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
@@ -552,7 +557,10 @@ func TestHandleEndPoll(t *testing.T) {
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost},
 		},
 		"Valid request, PollStore.Get fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				return api
+			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
 				return store
@@ -564,6 +572,7 @@ func TestHandleEndPoll(t *testing.T) {
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -589,7 +598,7 @@ func TestHandleEndPoll(t *testing.T) {
 		},
 		"Valid request, PollStore.Delete fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
 				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
@@ -607,6 +616,7 @@ func TestHandleEndPoll(t *testing.T) {
 		"Valid request, GetUser fails for poll creator": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -619,7 +629,7 @@ func TestHandleEndPoll(t *testing.T) {
 		},
 		"Valid request, GetUser fails for voter": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				return api
 			},
@@ -750,6 +760,7 @@ func TestHandleDeletePoll(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("DeletePost", "postID1").Return(nil)
 				return api
 			},
@@ -781,7 +792,10 @@ func TestHandleDeletePoll(t *testing.T) {
 			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: responseDeletePollSuccess.Other},
 		},
 		"Valid request, Store.Get fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				return api
+			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
 				return store
@@ -793,6 +807,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -818,6 +833,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request, DeletePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("DeletePost", "postID1").Return(&model.AppError{})
 				return api
 			},
@@ -831,6 +847,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request, KVDelete fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("DeletePost", "postID1").Return(nil)
 				return api
 			},

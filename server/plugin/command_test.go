@@ -12,16 +12,15 @@ import (
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestPluginExecuteCommand(t *testing.T) {
 	trigger := "poll"
-	helpText := "To create a poll with the answer options \"Yes\" and \"No\" type `/%[1]s \"Question\"`.\n" +
+	helpText := "To create a poll with the answer options \"Yes\" and \"No\" type `/poll \"Question\"`.\n" +
 		"You can customise the options by typing `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
 		"Poll Settings provider further customisation, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
-		"- `--anonymous`: Don't show who voted for what at the end\n" +
+		"- `--anonymous`: Don't show who voted for what\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options"
 
@@ -119,7 +118,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Store.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -134,7 +133,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
-				api.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("*model.AppError")).Return(nil)
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -157,6 +157,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
+			api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
