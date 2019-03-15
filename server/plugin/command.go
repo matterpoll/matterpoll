@@ -72,46 +72,44 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	configuration := p.getConfiguration()
 
-	user, appErr := p.API.GetUser(creatorID)
-	if appErr != nil {
+	userLocalizer, err := p.getUserLocalizer(creatorID)
+	if err != nil {
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandErrorGeneric.Other, siteURL, nil), nil
 	}
-	localizerUser := i18n.NewLocalizer(p.bundle, user.Locale)
-	localizerPublic := i18n.NewLocalizer(p.bundle, *p.ServerConfig.LocalizationSettings.DefaultServerLocale)
+	publicLocalizer := p.getServerLocalizer()
 
-	defaultYes := localizerPublic.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: commandDefaultYes})
-	defaultNo := localizerPublic.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: commandDefaultNo})
+	defaultYes := p.LocalizeDefaultMessage(publicLocalizer, commandDefaultYes)
+	defaultNo := p.LocalizeDefaultMessage(publicLocalizer, commandDefaultNo)
 
 	q, o, s := utils.ParseInput(args.Command, configuration.Trigger)
 	if q == "" || q == "help" {
-		msg := localizerUser.MustLocalize(&i18n.LocalizeConfig{
+		msg := p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextSimple,
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger, "Yes": defaultYes, "No": defaultNo},
 		}) + "\n"
-		msg += localizerUser.MustLocalize(&i18n.LocalizeConfig{
+		msg += p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextOptions,
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger},
 		}) + "\n"
-		msg += localizerUser.MustLocalize(&i18n.LocalizeConfig{
+		msg += p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextPollSettingIntroduction,
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger},
 		}) + "\n"
-		msg += "- `--anonymous`: " + localizerUser.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: commandHelpTextPollSettingAnonymous}) + "\n"
-		msg += "- `--progress`: " + localizerUser.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: commandHelpTextPollSettingProgress}) + "\n"
-		msg += "- `--public-add-option`: " + localizerUser.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: commandHelpTextPollSettingPublicAddOption})
+		msg += "- `--anonymous`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
+		msg += "- `--progress`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
+		msg += "- `--public-add-option`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption)
 
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
 	}
 	if len(o) == 1 {
 		return nil, &model.AppError{
-			Id:         localizerUser.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: commandErrorinvalidNumberOfOptions}),
+			Id:         p.LocalizeDefaultMessage(userLocalizer, commandErrorinvalidNumberOfOptions),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
 		}
 	}
 
 	var newPoll *poll.Poll
-	var err error
 	if len(o) == 0 {
 		newPoll, err = poll.NewPoll(creatorID, q, []string{defaultYes, defaultNo}, s)
 	} else {
@@ -119,7 +117,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	}
 	if err != nil {
 		return nil, &model.AppError{
-			Id: localizerUser.MustLocalize(&i18n.LocalizeConfig{
+			Id: p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
 				TemplateData: map[string]interface{}{
 					"Error": err.Error(),
@@ -131,16 +129,16 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 
 	if err := p.Store.Poll().Save(newPoll); err != nil {
 		p.API.LogError("failed to save poll", "err", err.Error())
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, localizerUser.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}), siteURL, nil), nil
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), siteURL, nil), nil
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
 		p.API.LogError("failed to ConvertCreatorIDToDisplayName", "err", appErr)
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, localizerUser.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}), siteURL, nil), nil
+		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), siteURL, nil), nil
 	}
 
-	actions := newPoll.ToPostActions(localizerPublic, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName)
+	actions := newPoll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName)
 	response := getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", *p.ServerConfig.ServiceSettings.SiteURL, actions)
 	p.API.LogDebug("Created a new poll", "response", response.ToJson())
 	return response, nil

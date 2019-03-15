@@ -11,6 +11,7 @@ import (
 	"golang.org/x/text/language"
 )
 
+// initBundle loads all localization files in i18n into a bundle and return this
 func initBundle() (*i18n.Bundle, error) {
 	bundle := &i18n.Bundle{DefaultLanguage: language.English}
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
@@ -36,4 +37,39 @@ func initBundle() (*i18n.Bundle, error) {
 	}
 
 	return bundle, nil
+}
+
+// getUserLocalizer returns a localizer that localizes in the users locale
+func (p *MatterpollPlugin) getUserLocalizer(userID string) (*i18n.Localizer, error) {
+	user, err := p.API.GetUser(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return i18n.NewLocalizer(p.bundle, user.Locale), nil
+}
+
+// getServerLocalizer returns a localizer that localizes in the server default locale
+func (p *MatterpollPlugin) getServerLocalizer() *i18n.Localizer {
+	return i18n.NewLocalizer(p.bundle, *p.ServerConfig.LocalizationSettings.DefaultServerLocale)
+}
+
+// LocalizeDefaultMessage localizer the provided message
+func (p *MatterpollPlugin) LocalizeDefaultMessage(l *i18n.Localizer, m *i18n.Message) string {
+	s, err := l.Localize(&i18n.LocalizeConfig{DefaultMessage: m})
+	if err != nil {
+		p.API.LogWarn("Failed to localize message", "message ID", m.ID)
+		return ""
+	}
+	return s
+}
+
+// LocalizeWithConfig localizer the provided localize config
+func (p *MatterpollPlugin) LocalizeWithConfig(l *i18n.Localizer, lc *i18n.LocalizeConfig) string {
+	s, err := l.Localize(lc)
+	if err != nil {
+		p.API.LogWarn("Failed to localize with config")
+		return ""
+	}
+	return s
 }
