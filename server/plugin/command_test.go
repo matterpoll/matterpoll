@@ -18,6 +18,12 @@ import (
 
 func TestPluginExecuteCommand(t *testing.T) {
 	trigger := "poll"
+	helpText := "To create a poll with the answer options \"Yes\" and \"No\" type `/%[1]s \"Question\"`.\n" +
+		"You can customise the options by typing `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
+		"Poll Settings provider further customisation, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
+		"- `--anonymous`: Don't show who voted for what at the end\n" +
+		"- `--progress`: During the poll, show how many votes each answer option got\n" +
+		"- `--public-add-option`: Allow all users to add additional options"
 
 	for name, test := range map[string]struct {
 		SetupAPI             func(*plugintest.API) *plugintest.API
@@ -33,7 +39,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:              fmt.Sprintf("/%s", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
+			ExpectedText:         helpText,
 			ExpectedAttachments:  nil,
 		},
 		"Help text": {
@@ -41,7 +47,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			SetupStore:           func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:              fmt.Sprintf("/%s help", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         fmt.Sprintf(commandHelpTextFormat, trigger),
+			ExpectedText:         helpText,
 			ExpectedAttachments:  nil,
 		},
 		"Two arguments": {
@@ -63,7 +69,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			Command:              fmt.Sprintf("/%s \"Question\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
-			ExpectedAttachments:  testutils.GetPollTwoOptions().ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
+			ExpectedAttachments:  testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe"),
 		},
 		"With 4 arguments": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -78,7 +84,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
-			ExpectedAttachments:  testutils.GetPoll().ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
+			ExpectedAttachments:  testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe"),
 		},
 		"With 4 arguments and settting progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -93,7 +99,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
-			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true}).ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
+			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe"),
 		},
 		"With 4 arguments and settting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -109,7 +115,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --anonymous --progress", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_IN_CHANNEL,
 			ExpectedText:         "",
-			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"),
+			ExpectedAttachments:  testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe"),
 		},
 		"Store.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -122,7 +128,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         commandGenericError,
+			ExpectedText:         commandErrorGeneric.Other,
 			ExpectedAttachments:  nil,
 		},
 		"GetUser fails": {
@@ -137,7 +143,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command:              fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			ExpectedResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			ExpectedText:         commandGenericError,
+			ExpectedText:         commandErrorGeneric.Other,
 			ExpectedAttachments:  nil,
 		},
 		"Invalid setting": {

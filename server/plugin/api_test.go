@@ -17,6 +17,7 @@ import (
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -144,12 +145,14 @@ func TestServeFile(t *testing.T) {
 }
 
 func TestHandleVote(t *testing.T) {
+	localizer := i18n.NewLocalizer(&i18n.Bundle{})
+
 	poll1In := testutils.GetPoll()
 	poll1Out := poll1In.Copy()
 	err := poll1Out.UpdateVote("userID1", 0)
 	require.Nil(t, err)
 	expectedPost1 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"))
+	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(localizer, testutils.GetSiteURL(), PluginId, "John Doe"))
 
 	poll2In := testutils.GetPoll()
 	err = poll2In.UpdateVote("userID1", 0)
@@ -158,7 +161,7 @@ func TestHandleVote(t *testing.T) {
 	err = poll2Out.UpdateVote("userID1", 1)
 	require.Nil(t, err)
 	expectedPost2 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"))
+	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(localizer, testutils.GetSiteURL(), PluginId, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -181,7 +184,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: voteCounted, Update: expectedPost1},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: responseVoteCounted.Other, Update: expectedPost1},
 		},
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -196,7 +199,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: voteUpdated, Update: expectedPost2},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: responseVoteUpdated.Other, Update: expectedPost2},
 		},
 		"Valid request, PollStore.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
@@ -207,7 +210,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Valid request, PollStore.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -227,7 +230,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Invalid index": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -241,7 +244,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          3,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Invalid request": {
 			SetupAPI:           func(api *plugintest.API) *plugintest.API { return api },
@@ -263,7 +266,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -309,7 +312,7 @@ func TestHandleAddOption(t *testing.T) {
 	responsePost := &model.Post{
 		ChannelId: channelID,
 		UserId:    userID,
-		Message:   addOptionSuccess,
+		Message:   responseAddOptionSuccess.Other,
 		Props: map[string]interface{}{
 			"from_webhook":      "true",
 			"override_icon_url": fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), PluginId),
@@ -322,7 +325,7 @@ func TestHandleAddOption(t *testing.T) {
 	err := poll1Out.AddAnswerOption("New Option")
 	require.Nil(t, err)
 	expectedPost1 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetSiteURL(), PluginId, "John Doe"))
+	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -448,7 +451,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 				TriggerId: triggerID,
 			},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -495,7 +498,7 @@ func TestHandleEndPoll(t *testing.T) {
 			return "", &model.AppError{}
 		}
 	}
-	expectedPost, err := testutils.GetPollWithVotes().ToEndPollPost("John Doe", converter)
+	expectedPost, err := testutils.GetPollWithVotes().ToEndPollPost(testutils.GetLocalizer(), "John Doe", converter)
 	require.Nil(t, err)
 
 	for name, test := range map[string]struct {
@@ -556,7 +559,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -569,7 +572,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Valid request, Invalid permission": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -582,7 +585,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: endPollInvalidPermission},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: responseEndPollInvalidPermission.Other},
 		},
 		"Valid request, PollStore.Delete fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -599,7 +602,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Valid request, GetUser fails for poll creator": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -612,7 +615,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Valid request, GetUser fails for voter": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -626,7 +629,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Invalid request": {
 			SetupAPI:           func(api *plugintest.API) *plugintest.API { return api },
@@ -684,8 +687,15 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 					UserId:    "userID1",
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Message:   fmt.Sprintf(endPollSuccessfullyFormat, "Question", "https://example.org/team1/pl/postID1"),
-					Type:      model.POST_DEFAULT,
+					Message: testutils.GetLocalizer().MustLocalize(
+						&i18n.LocalizeConfig{
+							DefaultMessage: responseEndPollSuccessfully,
+							TemplateData: map[string]interface{}{
+								"Question": "Question",
+								"Link":     "https://example.org/team1/pl/postID1",
+							}}),
+
+					Type: model.POST_DEFAULT,
 					Props: model.StringInterface{
 						"override_username": responseUsername,
 						"override_icon_url": fmt.Sprintf(responseIconURL, "https://example.org", PluginId),
@@ -750,7 +760,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollSuccess},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: responseDeletePollSuccess.Other},
 		},
 		"Valid request with no votes, issuer is system admin": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -768,7 +778,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollSuccess},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: responseDeletePollSuccess.Other},
 		},
 		"Valid request, Store.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
@@ -778,7 +788,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -791,7 +801,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Valid request, Invalid permission": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -804,7 +814,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: deletePollInvalidPermission},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: responseDeletePollInvalidPermission.Other},
 		},
 		"Valid request, DeletePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -817,7 +827,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Valid request, KVDelete fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -831,7 +841,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandGenericError},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
 		},
 		"Invalid request": {
 			SetupAPI:           func(api *plugintest.API) *plugintest.API { return api },
