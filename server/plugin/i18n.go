@@ -40,13 +40,14 @@ func initBundle() (*i18n.Bundle, error) {
 }
 
 // getUserLocalizer returns a localizer that localizes in the users locale
-func (p *MatterpollPlugin) getUserLocalizer(userID string) (*i18n.Localizer, error) {
+func (p *MatterpollPlugin) getUserLocalizer(userID string) *i18n.Localizer {
 	user, err := p.API.GetUser(userID)
 	if err != nil {
-		return nil, err
+		p.API.LogWarn("Failed get user's locale", "error", err.Error())
+		return p.getServerLocalizer()
 	}
 
-	return i18n.NewLocalizer(p.bundle, user.Locale), nil
+	return i18n.NewLocalizer(p.bundle, user.Locale)
 }
 
 // getServerLocalizer returns a localizer that localizes in the server default locale

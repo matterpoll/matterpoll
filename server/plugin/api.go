@@ -99,7 +99,13 @@ func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
-	iconPath := utils.GetPluginRootPath() + "/" + iconFilename
+	root := utils.GetPluginRootPath()
+	if root == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	iconPath := root + "/" + iconFilename
 	w.Header().Set("Cache-Control", "public, max-age=604800")
 	http.ServeFile(w, r, iconPath)
 }
@@ -116,14 +122,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userID := request.UserId
-
-	userLocalizer, err := p.getUserLocalizer(userID)
-	if err != nil {
-		p.API.LogError("failed to fetch user", "error", err.Error())
-		response.EphemeralText = commandErrorGeneric.Other
-		writePostActionIntegrationResponse(w, response)
-		return
-	}
+	userLocalizer := p.getUserLocalizer(userID)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
@@ -175,14 +174,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	userLocalizer, err := p.getUserLocalizer(request.UserId)
-	if err != nil {
-		p.API.LogError("failed to fetch user", "error", err.Error())
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandErrorGeneric.Other)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
+	userLocalizer := p.getUserLocalizer(request.UserId)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
@@ -255,14 +247,7 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	userLocalizer, err := p.getUserLocalizer(request.UserId)
-	if err != nil {
-		p.API.LogError("failed to fetch user", "error", err)
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandErrorGeneric.Other)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
+	userLocalizer := p.getUserLocalizer(request.UserId)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
@@ -323,13 +308,7 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	userLocalizer, err := p.getUserLocalizer(request.UserId)
-	if err != nil {
-		p.API.LogError("failed to fetch user", "error", err)
-		response.EphemeralText = commandErrorGeneric.Other
-		writePostActionIntegrationResponse(w, response)
-		return
-	}
+	userLocalizer := p.getUserLocalizer(request.UserId)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
@@ -427,14 +406,7 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	userLocalizer, err := p.getUserLocalizer(request.UserId)
-	if err != nil {
-		p.API.LogError("failed to fetch user", "error", err)
-		response.EphemeralText = commandErrorGeneric.Other
-		writePostActionIntegrationResponse(w, response)
-		return
-	}
+	userLocalizer := p.getUserLocalizer(request.UserId)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {

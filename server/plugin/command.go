@@ -72,10 +72,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	configuration := p.getConfiguration()
 
-	userLocalizer, err := p.getUserLocalizer(creatorID)
-	if err != nil {
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, commandErrorGeneric.Other, siteURL, nil), nil
-	}
+	userLocalizer := p.getUserLocalizer(creatorID)
 	publicLocalizer := p.getServerLocalizer()
 
 	defaultYes := p.LocalizeDefaultMessage(publicLocalizer, commandDefaultYes)
@@ -110,6 +107,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 	}
 
 	var newPoll *poll.Poll
+	var err error
 	if len(o) == 0 {
 		newPoll, err = poll.NewPoll(creatorID, q, []string{defaultYes, defaultNo}, s)
 	} else {
@@ -134,7 +132,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
-		p.API.LogError("failed to ConvertCreatorIDToDisplayName", "err", appErr)
+		p.API.LogError("failed to ConvertCreatorIDToDisplayName", "err", appErr.Error())
 		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), siteURL, nil), nil
 	}
 
