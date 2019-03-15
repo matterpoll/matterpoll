@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-// GetPluginRootPath ToDo
+// GetPluginRootPath returns the bundle path
 func GetPluginRootPath() string {
 	ex, err := os.Executable()
 	if err != nil {
