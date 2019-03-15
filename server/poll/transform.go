@@ -141,7 +141,7 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 					return nil, err
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollMessageTotalVotes}) + " "
+					voter += " " + localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
 				} else if i != 0 {
 					voter += ", "
 				}
