@@ -145,7 +145,7 @@ func TestServeFile(t *testing.T) {
 }
 
 func TestHandleVote(t *testing.T) {
-	localizer := i18n.NewLocalizer(&i18n.Bundle{})
+	localizer := testutils.GetLocalizer()
 
 	poll1In := testutils.GetPoll()
 	poll1Out := poll1In.Copy()

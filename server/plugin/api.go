@@ -152,8 +152,8 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post := &model.Post{}
-	pollLocalizer := i18n.NewLocalizer(p.bundle, *p.ServerConfig.LocalizationSettings.DefaultServerLocale)
-	model.ParseSlackAttachment(post, poll.ToPostActions(pollLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	publicLocalizer := p.getServerLocalizer()
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
 	response.Update = post
 
 	if hasVoted {
