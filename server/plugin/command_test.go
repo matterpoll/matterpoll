@@ -18,8 +18,8 @@ import (
 func TestPluginExecuteCommand(t *testing.T) {
 	trigger := "poll"
 	helpText := "To create a poll with the answer options \"Yes\" and \"No\" type `/poll \"Question\"`.\n" +
-		"You can customise the options by typing `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
-		"Poll Settings provider further customisation, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
+		"You can customize the options by typing `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
+		"Poll Settings provider further customization, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
 		"- `--anonymous`: Don't show who voted for what\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options"

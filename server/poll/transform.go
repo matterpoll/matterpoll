@@ -28,7 +28,7 @@ var (
 	}
 	pollMessageTotalVotes = &i18n.Message{
 		ID:    "poll.message.totalVotes",
-		Other: "**Total Votes**: {{.TotalVotes}}",
+		Other: "**Total votes**: {{.TotalVotes}}",
 	}
 
 	pollEndPostText = &i18n.Message{
