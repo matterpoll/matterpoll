@@ -1,4 +1,4 @@
-# ![Matterpoll Logo](assets/logo.svg)
+# ![Matterpoll Logo](images/logo.svg)
 
 [![Build Status](https://img.shields.io/travis/com/matterpoll/matterpoll/master.svg)](https://travis-ci.com/matterpoll/matterpoll)
 [![Code Coverage](https://img.shields.io/codecov/c/github/matterpoll/matterpoll/master.svg)](https://codecov.io/gh/matterpoll/matterpoll/branch/master)

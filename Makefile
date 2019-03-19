@@ -4,6 +4,9 @@ NPM ?= $(shell command -v npm 2> /dev/null)
 CURL ?= $(shell command -v curl 2> /dev/null)
 MANIFEST_FILE ?= plugin.json
 
+# You can include assets this directory into the bundle. This can be e.g. used to include profile pictures.
+ASSETS_DIR ?= assets
+
 # Verify environment, and define PLUGIN_ID, PLUGIN_VERSION, HAS_SERVER and HAS_WEBAPP as needed.
 include build/setup.mk
 
@@ -51,7 +54,9 @@ endif
 govet:
 ifneq ($(HAS_SERVER),)
 	@echo Running govet
-	@$(GO) vet $$(go list ./server/...) || exit 1
+	$(GO) get golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+	$(GO) vet $$(go list ./server/...)
+	$(GO) vet -vettool=$(GOPATH)/bin/shadow $$(go list ./server/...)
 	@echo Govet success
 endif
 
@@ -67,9 +72,9 @@ endif
 server: server/.depensure
 ifneq ($(HAS_SERVER),)
 	mkdir -p server/dist;
-	cd server && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -o dist/plugin-linux-amd64;
-	cd server && env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build -o dist/plugin-darwin-amd64;
-	cd server && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GO) build -o dist/plugin-windows-amd64.exe;
+	cd server && env GOOS=linux GOARCH=amd64 $(GO) build -o dist/plugin-linux-amd64;
+	cd server && env GOOS=darwin GOARCH=amd64 $(GO) build -o dist/plugin-darwin-amd64;
+	cd server && env GOOS=windows GOARCH=amd64 $(GO) build -o dist/plugin-windows-amd64.exe;
 endif
 
 ## Ensures NPM dependencies are installed without having to run this all the time.
@@ -92,7 +97,9 @@ bundle:
 	rm -rf dist/
 	mkdir -p dist/$(PLUGIN_ID)
 	cp $(MANIFEST_FILE) dist/$(PLUGIN_ID)/
-	cp assets/logo_dark.png dist/$(PLUGIN_ID)/
+ifneq ($(wildcard $(ASSETS_DIR)/.),)
+	cp -r $(ASSETS_DIR) dist/$(PLUGIN_ID)/
+endif
 ifneq ($(HAS_SERVER),)
 	mkdir -p dist/$(PLUGIN_ID)/server/dist;
 	cp -r server/dist/* dist/$(PLUGIN_ID)/server/dist/;
@@ -132,10 +139,18 @@ endif
 .PHONY: test
 test: server/.depensure webapp/.npminstall
 ifneq ($(HAS_SERVER),)
-	cd server && $(GO) test -race -gcflags=-l -coverprofile=coverage.txt ./...
+	cd server && $(GO) test -race -gcflags=-l ./...
 endif
 ifneq ($(HAS_WEBAPP),)
 	cd webapp && $(NPM) run fix;
+endif
+
+## Creates a coverage report for the server code.
+.PHONY: coverage
+coverage: server/.depensure webapp/.npminstall
+ifneq ($(HAS_SERVER),)
+	cd server && $(GO) test -race -gcflags=-l -coverprofile=coverage.txt ./...
+	@cd server && $(GO) tool cover -html=coverage.txt
 endif
 
 ## Clean removes all build artifacts.
