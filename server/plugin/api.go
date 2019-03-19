@@ -116,7 +116,7 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post := &model.Post{}
-	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName, p.ConvertUserIDToDisplayName))
 	response.Update = post
 
 	if hasVoted {
@@ -180,7 +180,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName, p.ConvertUserIDToDisplayName))
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
 		p.API.LogError("failed to update post", "err", appErr.Error())
 		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)

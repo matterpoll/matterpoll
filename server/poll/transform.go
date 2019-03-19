@@ -8,12 +8,26 @@ import (
 )
 
 // ToPostActions returns the poll as a message
-func (p *Poll) ToPostActions(siteURL, pluginID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(siteURL, pluginID, authorName string, convert func(string) (string, *model.AppError)) []*model.SlackAttachment {
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
-
+	result := []string{}
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
+		var voter string
+		for i := 0; i < len(o.Voter); i++ {
+			displayName, _ := convert(o.Voter[i])
+			// if err != nil {
+			// 	return nil, err
+			// }
+			fmt.Println(displayName)
+			if i+1 == len(o.Voter) && len(o.Voter) > 1 {
+				voter += " and "
+			} else if i != 0 {
+				voter += ", "
+			}
+			voter += displayName
+		}
 		answer := o.Answer
 		if p.Settings.Progress {
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
@@ -25,6 +39,7 @@ func (p *Poll) ToPostActions(siteURL, pluginID, authorName string) []*model.Slac
 				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/vote/%v", siteURL, pluginID, p.ID, i),
 			},
 		})
+		result = append(result, fmt.Sprintf("%s: %s", answer, voter))
 	}
 
 	actions = append(actions, &model.PostAction{
@@ -54,14 +69,14 @@ func (p *Poll) ToPostActions(siteURL, pluginID, authorName string) []*model.Slac
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       p.makeAdditionalText(numberOfVotes),
+		Text:       p.makeAdditionalText(numberOfVotes, result),
 		Actions:    actions,
 	}}
 }
 
 // makeAdditionalText make descriptions about poll
 // This method returns markdown text, because it is used for SlackAttachment.Text field.
-func (p *Poll) makeAdditionalText(numberOfVotes int) string {
+func (p *Poll) makeAdditionalText(numberOfVotes int, result []string) string {
 	var settingsText []string
 	if p.Settings.Anonymous {
 		settingsText = append(settingsText, "anonymous")
@@ -78,6 +93,9 @@ func (p *Poll) makeAdditionalText(numberOfVotes int) string {
 		lines = append(lines, fmt.Sprintf("**Poll Settings**: %s", strings.Join(settingsText, ", ")))
 	}
 	lines = append(lines, fmt.Sprintf("**Total votes**: %d", numberOfVotes))
+	if len(result) > 0 {
+		lines = append(lines, strings.Join(result, "\n"))
+	}
 	return strings.Join(lines, "\n")
 }
 
