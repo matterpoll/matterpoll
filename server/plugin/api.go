@@ -166,7 +166,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := poll.AddAnswerOption(answerOption); err != nil {
+	if err = poll.AddAnswerOption(answerOption); err != nil {
 		response := &model.SubmitDialogResponse{
 			Errors: map[string]string{
 				addOptionKey: err.Error(),
