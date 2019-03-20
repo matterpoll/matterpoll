@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 
@@ -61,18 +60,15 @@ func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
-	// com.github.matterpoll.matterpoll/server/dist/plugin-*
-	ex, err := os.Executable()
+	bundlePath, err := p.API.GetBundlePath()
 	if err != nil {
+		p.API.LogWarn("failed to get bundle path", "error", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// com.github.matterpoll.matterpoll/server/dist/
-	exPath := filepath.Dir(ex)
-	// com.github.matterpoll.matterpoll/logo_dark.png
-	iconPath := filepath.Dir(filepath.Dir(exPath)) + "/" + iconFilename
+
 	w.Header().Set("Cache-Control", "public, max-age=604800")
-	http.ServeFile(w, r, iconPath)
+	http.ServeFile(w, r, filepath.Join(bundlePath, "assets", iconFilename))
 }
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
@@ -170,7 +166,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := poll.AddAnswerOption(answerOption); err != nil {
+	if err = poll.AddAnswerOption(answerOption); err != nil {
 		response := &model.SubmitDialogResponse{
 			Errors: map[string]string{
 				addOptionKey: err.Error(),

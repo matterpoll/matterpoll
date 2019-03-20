@@ -7,12 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 
-	"github.com/bouk/monkey"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
@@ -70,43 +67,25 @@ func TestServeHTTP(t *testing.T) {
 
 func TestServeFile(t *testing.T) {
 	for name, test := range map[string]struct {
-		Setup              func()
-		Teardown           func()
+		SetupAPI           func(*plugintest.API) *plugintest.API
 		ExpectedStatusCode int
 		ShouldError        bool
 	}{
 		"all fine": {
-			Setup: func() {
-				ex, err := os.Executable()
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
-				exPath := filepath.Dir(ex)
-				iconPath := filepath.Dir(filepath.Dir(exPath)) + "/" + iconFilename
-
-				cpCmd := exec.Command("cp", "../../assets/"+iconFilename, iconPath)
-				err = cpCmd.Run()
-				require.Nil(t, err)
-			},
-			Teardown: func() {
-				ex, err := os.Executable()
-				require.Nil(t, err)
-				exPath := filepath.Dir(ex)
-				iconPath := filepath.Dir(filepath.Dir(exPath)) + "/" + iconFilename
-
-				rmCmd := exec.Command("rm", "-r", iconPath)
-				err = rmCmd.Run()
-				require.Nil(t, err)
+				api.On("GetBundlePath").Return(path, nil)
+				return api
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ShouldError:        false,
 		},
 		"failed to get executable": {
-			Setup: func() {
-				monkey.Patch(os.Executable, func() (string, error) {
-					return "", errors.New("failed to get executable")
-				})
-			},
-			Teardown: func() {
-				monkey.Patch(os.Executable, func() (string, error) { return "", errors.New("failed to get executable") }).Unpatch()
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetBundlePath").Return("", errors.New(""))
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+				return api
 			},
 			ExpectedStatusCode: http.StatusInternalServerError,
 			ShouldError:        true,
@@ -114,12 +93,10 @@ func TestServeFile(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			api := &plugintest.API{}
+			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
-			test.Setup()
-			defer test.Teardown()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", fmt.Sprintf("/%s", iconFilename), nil)
