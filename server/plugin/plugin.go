@@ -32,9 +32,9 @@ type MatterpollPlugin struct {
 	bundle *i18n.Bundle
 }
 
-const minimumServerVersion = "5.6.0"
+const minimumServerVersion = "5.6.0" // TODO: Update to 5.10.0 once it's available
 
-// OnActivate ensures a configuration is set and initialises the API
+// OnActivate ensures a configuration is set and initializes the API
 func (p *MatterpollPlugin) OnActivate() error {
 	if err := p.checkServerVersion(); err != nil {
 		return err

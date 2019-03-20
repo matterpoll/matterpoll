@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
-	"github.com/matterpoll/matterpoll/server/utils"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
@@ -99,15 +99,15 @@ func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
-	root := utils.GetPluginRootPath()
-	if root == "" {
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		p.API.LogWarn("failed to get bundle path", "error", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	iconPath := root + "/" + iconFilename
 	w.Header().Set("Cache-Control", "public, max-age=604800")
-	http.ServeFile(w, r, iconPath)
+	http.ServeFile(w, r, filepath.Join(bundlePath, "assets", iconFilename))
 }
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
@@ -208,7 +208,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := poll.AddAnswerOption(answerOption); err != nil {
+	if err = poll.AddAnswerOption(answerOption); err != nil {
 		response := &model.SubmitDialogResponse{
 			Errors: map[string]string{
 				addOptionKey: err.Error(),
