@@ -102,6 +102,9 @@ func (p *MatterpollPlugin) HasPermission(poll *poll.Poll, issuerID string) (bool
 	if appErr != nil {
 		return false, appErr
 	}
+	if issuerID != poll.Creator {
+		return false, nil
+	}
 	if user.IsInRole(model.SYSTEM_ADMIN_ROLE_ID) {
 		return true, nil
 	}

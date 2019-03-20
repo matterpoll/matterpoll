@@ -44,6 +44,10 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 			return nil, err
 		}
 	}
+	if len(settings) == 0 {
+		p.Settings.Progress = true
+		return &p, nil
+	}
 	for _, s := range settings {
 		switch s {
 		case "anonymous":
