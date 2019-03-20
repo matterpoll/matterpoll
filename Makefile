@@ -97,7 +97,6 @@ bundle:
 	rm -rf dist/
 	mkdir -p dist/$(PLUGIN_ID)
 	cp $(MANIFEST_FILE) dist/$(PLUGIN_ID)/
-	cp -r i18n/ dist/$(PLUGIN_ID)/i18n
 ifneq ($(wildcard $(ASSETS_DIR)/.),)
 	cp -r $(ASSETS_DIR) dist/$(PLUGIN_ID)/
 endif

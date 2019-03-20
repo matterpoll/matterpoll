@@ -48,7 +48,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 
 	p.router = p.InitAPI()
 
-	bundle, err := initBundle()
+	bundle, err := p.initBundle()
 	if err != nil {
 		return errors.Wrap(err, "failed to init localisation bundle")
 	}
