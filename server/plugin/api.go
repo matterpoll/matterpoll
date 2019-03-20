@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 const (
@@ -17,20 +18,58 @@ const (
 
 	iconFilename = "logo_dark.png"
 
-	voteCounted = "Your vote has been counted."
-	voteUpdated = "Your vote has been updated."
+	addOptionKey = "answerOption"
+)
 
-	// Parameter: Question, Permalink
-	endPollSuccessfullyFormat    = "The poll **%s** has ended and the original post have been updated. You can jump to it by pressing [here](%s)."
-	endPollAnnouncementPostError = "Failed to post the end poll announcement."
-	endPollInvalidPermission     = "Only the creator of a poll and System Admins are allowed to end it."
+var (
+	responseVoteCounted = &i18n.Message{
+		ID:    "response.vote.counted",
+		Other: "Your vote has been counted.",
+	}
+	responseVoteUpdated = &i18n.Message{
+		ID:    "response.vote.updated",
+		Other: "Your vote has been updated.",
+	}
 
-	deletePollInvalidPermission = "Only the creator of a poll and System Admins are allowed to delete it."
-	deletePollSuccess           = "Succefully deleted the poll."
+	responseAddOptionSuccess = &i18n.Message{
+		ID:    "response.addOption.success",
+		Other: "Successfully added the option.",
+	}
+	responseAddOptionInvalidPermission = &i18n.Message{
+		ID:    "response.addOption.invalidPermission",
+		Other: "Only the creator of a poll and System Admins are allowed to add options.",
+	}
 
-	addOptionInvalidPermission = "Only the creator of a poll and System Admins are allowed to add options."
-	addOptionSuccess           = "Succefully added an option."
-	addOptionKey               = "answerOption"
+	dialogAddOptionTitle = &i18n.Message{
+		ID:    "dialog.addOption.title",
+		Other: "Add Option",
+	}
+	dialogAddOptionSubmitLabel = &i18n.Message{
+		ID:    "dialog.addOption.submitLabel",
+		Other: "Add",
+	}
+	dialogAddOptionElementDisplayName = &i18n.Message{
+		ID:    "dialog.addOption.element.displayName",
+		Other: "Option",
+	}
+
+	responseEndPollSuccessfully = &i18n.Message{
+		ID:    "response.endPoll.successfully",
+		Other: "The poll **{{.Question}}** has ended and the original post have been updated. You can jump to it by pressing [here]({{.Link}}).",
+	}
+	responseEndPollInvalidPermission = &i18n.Message{
+		ID:    "response.endPoll.invalidPermission",
+		Other: "Only the creator of a poll and System Admins are allowed to end it.",
+	}
+
+	responseDeletePollSuccess = &i18n.Message{
+		ID:    "response.deletePoll.success",
+		Other: "Successfully deleted the poll.",
+	}
+	responseDeletePollInvalidPermission = &i18n.Message{
+		ID:    "response.deletePoll.invalidPermission",
+		Other: "Only the creator of a poll and System Admins are allowed to delete it.",
+	}
 )
 
 // InitAPI initializes the REST API
@@ -83,42 +122,44 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userID := request.UserId
+	userLocalizer := p.getUserLocalizer(userID)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	hasVoted := poll.HasVoted(userID)
 	if err = poll.UpdateVote(userID, optionNumber); err != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	if err = p.Store.Poll().Save(poll); err != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	post := &model.Post{}
-	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	publicLocalizer := p.getServerLocalizer()
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
 	response.Update = post
 
 	if hasVoted {
-		response.EphemeralText = voteUpdated
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, responseVoteUpdated)
 	} else {
-		response.EphemeralText = voteCounted
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, responseVoteCounted)
 	}
 	writePostActionIntegrationResponse(w, response)
 }
@@ -129,15 +170,16 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 	request := model.SubmitDialogRequestFromJson(r.Body)
 	if request == nil {
 		p.API.LogError("failed to decode request")
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		p.SendEphemeralPost(request.ChannelId, request.UserId, commandErrorGeneric.Other)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	userLocalizer := p.getUserLocalizer(request.UserId)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
 		p.API.LogError("failed to get poll", "err", err.Error())
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -145,7 +187,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
 		p.API.LogError("failed to get display name for creator", "err", appErr.Error())
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -153,7 +195,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 	post, appErr := p.API.GetPost(request.CallbackId)
 	if appErr != nil {
 		p.API.LogError("failed to get post", "err", appErr.Error())
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -161,7 +203,7 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 	answerOption, ok := request.Submission[addOptionKey].(string)
 	if !ok {
 		p.API.LogError("failed to parse request")
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -176,22 +218,23 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	model.ParseSlackAttachment(post, poll.ToPostActions(*p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	publicLocalizer := p.getServerLocalizer()
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
 		p.API.LogError("failed to update post", "err", appErr.Error())
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	if err = p.Store.Poll().Save(poll); err != nil {
 		p.API.LogError("failed to get save poll", "err", err.Error())
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandGenericError)
+		p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	p.SendEphemeralPost(request.ChannelId, request.UserId, addOptionSuccess)
+	p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, responseAddOptionSuccess))
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -204,10 +247,11 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	userLocalizer := p.getUserLocalizer(request.UserId)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
@@ -215,12 +259,12 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r
 	if !poll.Settings.PublicAddOption {
 		hasPermission, appErr := p.HasPermission(poll, request.UserId)
 		if appErr != nil {
-			response.EphemeralText = commandGenericError
+			response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 			writePostActionIntegrationResponse(w, response)
 			return
 		}
 		if !hasPermission {
-			response.EphemeralText = addOptionInvalidPermission
+			response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, responseAddOptionInvalidPermission)
 			writePostActionIntegrationResponse(w, response)
 			return
 		}
@@ -231,12 +275,12 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r
 		TriggerId: request.TriggerId,
 		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", siteURL, PluginId, pollID),
 		Dialog: model.Dialog{
-			Title:       "Add Option",
+			Title:       p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionTitle),
 			IconURL:     fmt.Sprintf(responseIconURL, siteURL, PluginId),
 			CallbackId:  request.PostId,
-			SubmitLabel: "Add",
+			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionSubmitLabel),
 			Elements: []model.DialogElement{{
-				DisplayName: "Option",
+				DisplayName: p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionElementDisplayName),
 				Name:        addOptionKey,
 				Type:        "text",
 				SubType:     "text",
@@ -247,7 +291,7 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(w http.ResponseWriter, r
 
 	if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
 		p.API.LogError("failed to open add option dialog ", "err", appErr.Error())
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
@@ -264,41 +308,44 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	userLocalizer := p.getUserLocalizer(request.UserId)
+
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	hasPermission, appErr := p.HasPermission(poll, request.UserId)
 	if appErr != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 	if !hasPermission {
-		response.EphemeralText = endPollInvalidPermission
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, responseEndPollInvalidPermission)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
-	response.Update, appErr = poll.ToEndPollPost(displayName, p.ConvertUserIDToDisplayName)
+	publicLocalizer := p.getServerLocalizer()
+	response.Update, appErr = poll.ToEndPollPost(publicLocalizer, displayName, p.ConvertUserIDToDisplayName)
 	if appErr != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	if err := p.Store.Poll().Delete(poll); err != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
@@ -309,12 +356,14 @@ func (p *MatterpollPlugin) handleEndPoll(w http.ResponseWriter, r *http.Request)
 }
 
 func (p *MatterpollPlugin) postEndPollAnnouncement(request *model.PostActionIntegrationRequest, question string) {
+	endPollAnnouncementPostError := "Failed to post the end poll announcement."
+
 	team, err := p.API.GetTeam(request.TeamId)
 	if err != nil {
 		p.API.LogError(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to GetTeam with TeamId: %s", request.TeamId))
 		return
 	}
-	permalink := fmt.Sprintf("%s/%s/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, team.Name, request.PostId)
+	link := fmt.Sprintf("%s/%s/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, team.Name, request.PostId)
 
 	pollPost, err := p.API.GetPost(request.PostId)
 	if err != nil {
@@ -323,12 +372,19 @@ func (p *MatterpollPlugin) postEndPollAnnouncement(request *model.PostActionInte
 	}
 	channelID := pollPost.ChannelId
 
+	publicLocalizer := p.getServerLocalizer()
+
 	endPost := &model.Post{
 		UserId:    request.UserId,
 		ChannelId: channelID,
 		RootId:    request.PostId,
-		Message:   fmt.Sprintf(endPollSuccessfullyFormat, question, permalink),
-		Type:      model.POST_DEFAULT,
+		Message: p.LocalizeWithConfig(publicLocalizer, &i18n.LocalizeConfig{
+			DefaultMessage: responseEndPollSuccessfully,
+			TemplateData: map[string]interface{}{
+				"Question": question,
+				"Link":     link,
+			}}),
+		Type: model.POST_DEFAULT,
 		Props: model.StringInterface{
 			"override_username": responseUsername,
 			"override_icon_url": fmt.Sprintf(responseIconURL, *p.ServerConfig.ServiceSettings.SiteURL, PluginId),
@@ -350,39 +406,40 @@ func (p *MatterpollPlugin) handleDeletePoll(w http.ResponseWriter, r *http.Reque
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	userLocalizer := p.getUserLocalizer(request.UserId)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	hasPermission, appErr := p.HasPermission(poll, request.UserId)
 	if appErr != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 	if !hasPermission {
-		response.EphemeralText = deletePollInvalidPermission
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, responseDeletePollInvalidPermission)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	appErr = p.API.DeletePost(request.PostId)
 	if appErr != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
 
 	if err := p.Store.Poll().Delete(poll); err != nil {
-		response.EphemeralText = commandGenericError
+		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		writePostActionIntegrationResponse(w, response)
 		return
 	}
-	response.EphemeralText = deletePollSuccess
+	response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, responseDeletePollSuccess)
 
 	writePostActionIntegrationResponse(w, response)
 }
