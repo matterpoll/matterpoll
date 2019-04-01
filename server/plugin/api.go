@@ -20,6 +20,7 @@ const (
 
 	voteCounted = "Your vote has been counted."
 	voteUpdated = "Your vote has been updated."
+	unVote      = "Your vote has been remove."
 
 	// Parameter: Question, Permalink
 	endPollSuccessfullyFormat    = "The poll **%s** has ended and the original post have been updated. You can jump to it by pressing [here](%s)."
@@ -103,10 +104,28 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hasVoted := poll.HasVoted(userID)
+	isUnvote := poll.DuplicatedVote(userID, optionNumber)
+
 	if err = poll.UpdateVote(userID, optionNumber); err != nil {
 		response.EphemeralText = commandGenericError
 		writePostActionIntegrationResponse(w, response)
 		return
+	}
+
+	if hasVoted {
+		if isUnvote {
+			if err = poll.Unvote(userID, optionNumber); err != nil {
+				response.EphemeralText = commandGenericError
+				writePostActionIntegrationResponse(w, response)
+				return
+			}
+		} else {
+			if err = poll.UpdateVote(userID, optionNumber); err != nil {
+				response.EphemeralText = commandGenericError
+				writePostActionIntegrationResponse(w, response)
+				return
+			}
+		}
 	}
 
 	if err = p.Store.Poll().Save(poll); err != nil {
@@ -121,6 +140,8 @@ func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {
 
 	if hasVoted {
 		response.EphemeralText = voteUpdated
+	} else if isUnvote {
+		response.EphemeralText = unVote
 	} else {
 		response.EphemeralText = voteCounted
 	}

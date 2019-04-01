@@ -96,6 +96,24 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	return nil
 }
 
+// Unvote allow user to unvote
+func (p *Poll) Unvote(userID string, index int) error {
+	if len(p.AnswerOptions) <= index || index < 0 {
+		return fmt.Errorf("invalid index")
+	}
+	if userID == "" {
+		return fmt.Errorf("invalid userID")
+	}
+	selectedOption := p.AnswerOptions[index]
+	for i := 0; i < len(selectedOption.Voter); i++ {
+		if userID == selectedOption.Voter[i] {
+			selectedOption.Voter = append(selectedOption.Voter[:i], selectedOption.Voter[i+1:]...)
+		}
+	}
+	// p.AnswerOptions[index].Voter = append(p.AnswerOptions[index].Voter, userID)
+	return nil
+}
+
 // HasVoted return true if a given user has voted in this poll
 func (p *Poll) HasVoted(userID string) bool {
 	for _, o := range p.AnswerOptions {
@@ -103,6 +121,17 @@ func (p *Poll) HasVoted(userID string) bool {
 			if userID == o.Voter[i] {
 				return true
 			}
+		}
+	}
+	return false
+}
+
+// DuplicatedVote return true if user has already voted and click in current vote again
+func (p *Poll) DuplicatedVote(userID string, index int) bool {
+	selectedOption := p.AnswerOptions[index]
+	for i := 0; i < len(selectedOption.Voter); i++ {
+		if userID == selectedOption.Voter[i] {
+			return true
 		}
 	}
 	return false
