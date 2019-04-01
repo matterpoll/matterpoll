@@ -17,7 +17,6 @@ func (p *Poll) ToPostActions(siteURL, pluginID, authorName string, convert func(
 		var voter string
 		for i := 0; i < len(o.Voter); i++ {
 			displayName, _ := convert(o.Voter[i])
-			
 			fmt.Println(displayName)
 			if i+1 == len(o.Voter) && len(o.Voter) > 1 {
 				voter += " and "
