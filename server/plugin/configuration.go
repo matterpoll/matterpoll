@@ -32,9 +32,10 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 	if err := p.API.RegisterCommand(getCommand(configuration.Trigger)); err != nil {
 		return errors.Wrap(err, "failed to register new command")
 	}
+	p.setConfiguration(configuration)
 
 	p.ServerConfig = p.API.GetConfig()
-	p.setConfiguration(configuration)
+
 	return nil
 }
 

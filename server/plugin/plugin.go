@@ -40,6 +40,10 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return err
 	}
 
+	if p.ServerConfig.ServiceSettings.SiteURL == nil {
+		return errors.New("siteURL is not set. Please set a siteURL and restart the plugin")
+	}
+
 	store, err := kvstore.NewStore(p.API, PluginVersion)
 	if err != nil {
 		return err
