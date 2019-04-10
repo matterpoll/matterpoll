@@ -1,0 +1,123 @@
+{
+  "command.default.no": {
+    "hash": "sha1-816c52fd2bdd94a63cd0944823a6c0aa9384c103",
+    "other": "Non"
+  },
+  "command.default.yes": {
+    "hash": "sha1-5397e0583f14f6c88de06b1ef28f460a1fb5b0ae",
+    "other": "Oui"
+  },
+  "command.error.generic": {
+    "hash": "sha1-73c841bf1e817ec2ab09b17eb0b43ec61bf1eda9",
+    "other": "Quelque chose s’est mal passé. Veuillez réessayer plus tard."
+  },
+  "command.error.invalidInput": {
+    "hash": "sha1-6ef073c836a398485967d7c10a085b611d272ddc",
+    "other": "Entrée invalide : {{.Error}}"
+  },
+  "command.error.invalidNumberOfOptions": {
+    "hash": "sha1-31287872531872ed11e9ae69975afc1cd2ee09ae",
+    "other": "Vous devez fournir soit zéro, soit plus de deux réponses."
+  },
+  "command.help.text.options": {
+    "hash": "sha1-9576f41168dfc7418562fad8a5e82f309014c344",
+    "other": "Vous pouvez personnaliser les options en tapant `/{{.Trigger}} \\\"Question\\\" \\\"Réponse 1\\\" \\\"Réponse 2\\\" \\\"Réponse 3\\\"`"
+  },
+  "command.help.text.pollSetting.anonymous": {
+    "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
+    "other": "Ne pas montrer qui a voté quoi"
+  },
+  "command.help.text.pollSetting.introduction": {
+    "hash": "sha1-2484e1a47494f152cf4e3d96bd173da1a779ac30",
+    "other": "Les paramètres du sondage permettent une personnalisation plus poussée, e.g. `/{{.Trigger}} \\\"Question\\\" \\\"Réponse 1\\\" \\\"Réponse 2\\\" \\\"Réponse 3\\\" --progress --anonymous`. Les éléments de configuration disponibles sont :"
+  },
+  "command.help.text.pollSetting.progress": {
+    "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
+    "other": "Pendant le sondage, montrer combien de votes a chaque réponse"
+  },
+  "command.help.text.pollSetting.public-add-option": {
+    "hash": "sha1-97f6e52cd7135ca4c73b79790a946ead7513cd33",
+    "other": "Autoriser tous les utilisateurs à ajouter des options supplémentaires"
+  },
+  "command.help.text.simple": {
+    "hash": "sha1-3e9e692901434c94972562861477a71bf6dda12e",
+    "other": "Pour créer un sondage avec les réponses \\\"{{.Yes}}\\\" et \\\"{{.No}}\\\" tapez `/{{.Trigger}} \\\"Question\\\"`."
+  },
+  "dialog.addOption.element.displayName": {
+    "hash": "sha1-e31d972229de381b461860014dd710856361917a",
+    "other": "Possibilité de réponse"
+  },
+  "dialog.addOption.submitLabel": {
+    "hash": "sha1-61cc55aa0453184734c3fa0b621eda6fa874bd83",
+    "other": "Ajouter"
+  },
+  "dialog.addOption.title": {
+    "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
+    "other": "Ajouter une possibilité de réponse"
+  },
+  "poll.button.addOption": {
+    "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
+    "other": "Ajouter une possibilité de réponse"
+  },
+  "poll.button.deletePoll": {
+    "hash": "sha1-390ff4fdd0cfef6ef35fbf067a605aa3ea87ecca",
+    "other": "Supprimer le sondage"
+  },
+  "poll.button.endPoll": {
+    "hash": "sha1-60ddde386bd7190fa3da2ba13f97e3caa625d3e6",
+    "other": "Terminer le sondage"
+  },
+  "poll.endPost.answer.heading": {
+    "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
+    "one": "{{.Answer}} ({{.Count}} vote)",
+    "other": "{{.Answer}} ({{.Count}} votes)"
+  },
+  "poll.endPost.seperator": {
+    "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
+    "other": "et"
+  },
+  "poll.endPost.text": {
+    "hash": "sha1-61a7f4e4c5ffd36b1302f820a994f24317cef74f",
+    "other": "Le sondage est terminé. Les résultats sont :"
+  },
+  "poll.message.pollSettings": {
+    "hash": "sha1-b31a3d90a09c220db0f1bc97bd0ae79eeca4edf1",
+    "other": "**Paramètres du sondage**: {{.Settings}}"
+  },
+  "poll.message.totalVotes": {
+    "hash": "sha1-ea094ab4bcf8b514e19bd2ba1daa56f23016c777",
+    "other": "**Total des votes**: {{.TotalVotes}}"
+  },
+  "response.addOption.invalidPermission": {
+    "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
+    "other": "Seule la créatrice ou le créateur du sondage et les administrateurs systèmes peuvent ajouter des options."
+  },
+  "response.addOption.success": {
+    "hash": "sha1-274a82da87d06380a636d43c8aa480f207c7928b",
+    "other": "Option ajoutée avec succès."
+  },
+  "response.deletePoll.invalidPermission": {
+    "hash": "sha1-97d4d7bd45a958bc6eea2bd33401a3bc5056cc1d",
+    "other": "Seule la créatrice ou le créateur du sondage et les administrateurs systèmes peuvent le supprimer."
+  },
+  "response.deletePoll.success": {
+    "hash": "sha1-cb754e0331888691ff5e4179b22155fc6df1ac1d",
+    "other": "Sondage supprimé avec succès."
+  },
+  "response.endPoll.invalidPermission": {
+    "hash": "sha1-6fec2172c9fbcf6944812318684b19ebda485a82",
+    "other": "Seule la créatrice ou le créateur du sondage et les administrateurs systèmes peuvent le clore."
+  },
+  "response.endPoll.successfully": {
+    "hash": "sha1-255d4b342aeb7c9f2113c3764fb3b7a8d30da27a",
+    "other": "Le sondage **{{.Question}}** est clos et le message originel a été mis à jour. Vous pouvez y accéder en cliquant [ici]({{.Link}})."
+  },
+  "response.vote.counted": {
+    "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
+    "other": "Votre vote a été pris en compte."
+  },
+  "response.vote.updated": {
+    "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
+    "other": "Votre vote a été mis à jour."
+  }
+}
