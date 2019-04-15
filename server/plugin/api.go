@@ -170,7 +170,6 @@ func (p *MatterpollPlugin) handleAddOption(w http.ResponseWriter, r *http.Reques
 	request := model.SubmitDialogRequestFromJson(r.Body)
 	if request == nil {
 		p.API.LogError("failed to decode request")
-		p.SendEphemeralPost(request.ChannelId, request.UserId, commandErrorGeneric.Other)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
