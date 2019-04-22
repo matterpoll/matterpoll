@@ -1,0 +1,122 @@
+{
+  "command.default.no": {
+    "hash": "sha1-816c52fd2bdd94a63cd0944823a6c0aa9384c103",
+    "other": "いいえ"
+  },
+  "command.default.yes": {
+    "hash": "sha1-5397e0583f14f6c88de06b1ef28f460a1fb5b0ae",
+    "other": "はい"
+  },
+  "command.error.generic": {
+    "hash": "sha1-73c841bf1e817ec2ab09b17eb0b43ec61bf1eda9",
+    "other": "問題が発生しました。再度ためしてみてください。"
+  },
+  "command.error.invalidInput": {
+    "hash": "sha1-6ef073c836a398485967d7c10a085b611d272ddc",
+    "other": "無効な入力: {{.Error}}"
+  },
+  "command.error.invalidNumberOfOptions": {
+    "hash": "sha1-31287872531872ed11e9ae69975afc1cd2ee09ae",
+    "other": "一つも回答を入力しないか、もしくは二つ以上の回答を入力してください。"
+  },
+  "command.help.text.options": {
+    "hash": "sha1-9576f41168dfc7418562fad8a5e82f309014c344",
+    "other": "`/{{.Trigger}} \\\"Question\\\" \\\"Answer 1\\\" \\\"Answer 2\\\" \\\"Answer 3\\\"`のように入力することで、回答をカスタマイズすることができます。"
+  },
+  "command.help.text.pollSetting.anonymous": {
+    "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
+    "other": "誰がどこに回答したのか表示しない"
+  },
+  "command.help.text.pollSetting.introduction": {
+    "hash": "sha1-2484e1a47494f152cf4e3d96bd173da1a779ac30",
+    "other": "投票に関する設定を行うことができます。例: `/{{.Trigger}} \\\"Question\\\" \\\"Answer 1\\\" \\\"Answer 2\\\" \\\"Answer 3\\\" --progress --anonymous`. 利用可能な設定:"
+  },
+  "command.help.text.pollSetting.progress": {
+    "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
+    "other": "投票期間中、それぞれの回答に集まった投票を表示する"
+  },
+  "command.help.text.pollSetting.public-add-option": {
+    "hash": "sha1-97f6e52cd7135ca4c73b79790a946ead7513cd33",
+    "other": "全てのユーザーが回答を追加できるようにする"
+  },
+  "command.help.text.simple": {
+    "hash": "sha1-3e9e692901434c94972562861477a71bf6dda12e",
+    "other": "\\\"{{.Yes}}\\\" と \\\"{{.No}}\\\" を回答とする投票を作成するには `/{{.Trigger}} \\\"Question\\\"` と入力してください。"
+  },
+  "dialog.addOption.element.displayName": {
+    "hash": "sha1-e31d972229de381b461860014dd710856361917a",
+    "other": "回答"
+  },
+  "dialog.addOption.submitLabel": {
+    "hash": "sha1-61cc55aa0453184734c3fa0b621eda6fa874bd83",
+    "other": "追加"
+  },
+  "dialog.addOption.title": {
+    "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
+    "other": "回答を追加する"
+  },
+  "poll.button.addOption": {
+    "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
+    "other": "回答を追加する"
+  },
+  "poll.button.deletePoll": {
+    "hash": "sha1-390ff4fdd0cfef6ef35fbf067a605aa3ea87ecca",
+    "other": "回答を削除する"
+  },
+  "poll.button.endPoll": {
+    "hash": "sha1-60ddde386bd7190fa3da2ba13f97e3caa625d3e6",
+    "other": "投票を終了する"
+  },
+  "poll.endPost.answer.heading": {
+    "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
+    "other": "{{.Answer}} (投票数 {{.Count}})"
+  },
+  "poll.endPost.seperator": {
+    "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
+    "other": "と"
+  },
+  "poll.endPost.text": {
+    "hash": "sha1-61a7f4e4c5ffd36b1302f820a994f24317cef74f",
+    "other": "この投票は終了しました。結果:"
+  },
+  "poll.message.pollSettings": {
+    "hash": "sha1-b31a3d90a09c220db0f1bc97bd0ae79eeca4edf1",
+    "other": "**投票の設定**: {{.Settings}}"
+  },
+  "poll.message.totalVotes": {
+    "hash": "sha1-ea094ab4bcf8b514e19bd2ba1daa56f23016c777",
+    "other": "**総投票数**: {{.TotalVotes}}"
+  },
+  "response.addOption.invalidPermission": {
+    "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
+    "other": "投票の作成者とシステム管理者のみが回答を追加できます。"
+  },
+  "response.addOption.success": {
+    "hash": "sha1-274a82da87d06380a636d43c8aa480f207c7928b",
+    "other": "回答を追加しました。"
+  },
+  "response.deletePoll.invalidPermission": {
+    "hash": "sha1-97d4d7bd45a958bc6eea2bd33401a3bc5056cc1d",
+    "other": "投票の作成者とシステム管理者のみが削除できます。"
+  },
+  "response.deletePoll.success": {
+    "hash": "sha1-cb754e0331888691ff5e4179b22155fc6df1ac1d",
+    "other": "投票が削除されました。"
+  },
+  "response.endPoll.invalidPermission": {
+    "hash": "sha1-6fec2172c9fbcf6944812318684b19ebda485a82",
+    "other": "投票の作成者とシステム管理者のみが投票を終了できます。"
+  },
+  "response.endPoll.successfully": {
+    "hash": "sha1-255d4b342aeb7c9f2113c3764fb3b7a8d30da27a",
+    "other": "投票 **{{.Question}}** が終了し、投稿が更新されました。[ここをクリックし]({{.Link}})、結果を確認してください。"
+  },
+  "response.vote.counted": {
+    "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
+    "other": "投票が完了しました。"
+  },
+  "response.vote.updated": {
+    "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
+    "other": "投票が更新されました。"
+  }
+}
