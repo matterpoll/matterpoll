@@ -42,12 +42,12 @@
   version = "v1.4.7"
 
 [[projects]]
-  digest = "1:b5df43d8cd265a39f9d375d76ad00b53d6ec8ff8074f598eb173e4939a196a3c"
+  digest = "1:702ddda24a3de16923785938f7a618d75d526d970d617c63b73e09155f258617"
   name = "github.com/go-ldap/ldap"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "729c20c2694d870bcd631f0dadaecd088bd7ccbc"
-  version = "v3.0.2"
+  revision = "9f0d712775a0973b7824a1585a86a4ea1d5263d9"
+  version = "v3.0.3"
 
 [[projects]]
   digest = "1:2d0636a8c490d2272dd725db26f74a537111b99b9dbdda0d8b98febe63702aa4"
@@ -118,8 +118,7 @@
   revision = "2f1d1f20f75d5404f53b9edf6b53ed5505508675"
 
 [[projects]]
-  branch = "master"
-  digest = "1:c3fbeb6d02eb24aa43590c46a475451bfbfe241793e56bd4861dce0e775bddbb"
+  digest = "1:77c91150dbdad987cb9a3cce01cee3ebcfb05ab346f2e450009f4d2d6a53bf36"
   name = "github.com/mattermost/mattermost-server"
   packages = [
     "mlog",
@@ -133,7 +132,8 @@
     "utils/markdown",
   ]
   pruneopts = "NUT"
-  revision = "e67f6b07ad0f9309e0827fa0623db66d91983eac"
+  revision = "dc70ab42034da17eaf23be5a86abae81b3f1cd21"
+  version = "v5.10.0"
 
 [[projects]]
   digest = "1:18b773b92ac82a451c1276bd2776c1e55ce057ee202691ab33c8d6690efcc048"
@@ -176,12 +176,12 @@
   version = "v1.2"
 
 [[projects]]
-  digest = "1:51ea800cff51752ff68e12e04106f5887b4daec6f9356721238c28019f0b42db"
+  digest = "1:f0ef3f67e144a3c491fd687cc3a82850a23ae62736ff6a2602c861afd9233ada"
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
-  version = "v1.2.0"
+  revision = "63909f0a90ab0f36909e8e044e46ace10cf13ba2"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -259,11 +259,11 @@
     "blowfish",
   ]
   pruneopts = "NUT"
-  revision = "a1f597ede03a7bef967a422b5b3a5bd08805a01e"
+  revision = "df01cb2cc480549d72034218dd98bf97671450ac"
 
 [[projects]]
   branch = "master"
-  digest = "1:dd951f8e05b73e40d566521c76156e09e2a73ddf5e78fe1a603506369f58ef60"
+  digest = "1:2a63b049888f44f57e9f13214db70f03b59558eb5f5bcb8257d910ba57a14f6a"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -277,15 +277,15 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "1272bf9dcd53ea65c09668fb4c76e65deb740072"
+  revision = "afa5a82059c6356159f699d81beff22a81842231"
 
 [[projects]]
   branch = "master"
-  digest = "1:6260d0428542d10be46b886b817b570552a6c788d2076ff47024683d656ad1e2"
+  digest = "1:f632c225ef300cb47bb7363bc1006ca57601af35f03b8fe41d03ed67b581c4fc"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "6c81ef8f67ca3f42fc9cd71dfbd5f35b0c4b5771"
+  revision = "e8e3143a4f4a00f1fafef0dd82ba78223281b01b"
 
 [[projects]]
   digest = "1:e7071ed636b5422cc51c0e3a6cebc229d6c9fffc528814b519a980641422d619"
@@ -316,10 +316,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "NUT"
-  revision = "5fe7a883aa19554f42890211544aa549836af7b7"
+  revision = "e7d98fc518a78c9f8b5ee77be7b0b317475d89e1"
 
 [[projects]]
-  digest = "1:8274473795baa9e1fc3b36fae1d8af131a03a7ae2456a8e87a6fda86af019f70"
+  digest = "1:6afefb3e487fbe8a9db2a4bb81cedd7670423bbfea6f82b67b44e9ea3131f502"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -338,6 +338,7 @@
     "health/grpc_health_v1",
     "internal",
     "internal/backoff",
+    "internal/balancerload",
     "internal/binarylog",
     "internal/channelz",
     "internal/envconfig",
@@ -357,8 +358,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "2fdaae294f38ed9a121193c51ec99fecd3b13eb7"
-  version = "v1.19.0"
+  revision = "25c4f928eaa6d96443009bd842389fb4fa48664e"
+  version = "v1.20.1"
 
 [[projects]]
   digest = "1:797db40073a8a1d30cc43864b6190372f2fca7af38b1cf1532e4e92a8283e075"
