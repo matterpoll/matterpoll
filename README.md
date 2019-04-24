@@ -8,16 +8,19 @@
 
 Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows users to create poll by using a slash command.
 
+
 ## Installation
 
 1. Go to the [releases page of this GitHub repository](https://github.com/matterpoll/matterpoll/releases/latest) and download the latest release for your Mattermost server.
 2. Upload this file in the Mattermost **System Console > Plugins > Management** page to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
 3. You should set **Enable integrations to override usernames** and **Enable integrations to override profile picture icons** in **System Console > Custom Integrations** to `true`.
 
+
 ## Settings
 You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
 * **Trigger**: Change trigger word for poll command. (default `/poll`)
+
 
 ## Usage
 
@@ -30,6 +33,17 @@ If you want to define all answer options by yourself, type `/poll "Is Matterpoll
 Poll Settings provider further customisation, e.g. `/poll "Is Matterpoll great?" "Of course" "In any case" "Definitely" --progress --anonymous`. The available Poll Settings are:
 - `--anonymous`: Don't show who voted for what at the end
 - `--progress`: During the poll, show how many votes each answer option got
+- `--public-add-option`: Allow all users to add additional options
+
+
+## Localization
+
+Matterpoll supports localization of user specify messages. The currently supported languages are:
+- English
+- France
+- German
+- Japanese
+
 
 ## Troubleshooting
 
@@ -37,6 +51,7 @@ Poll Settings provider further customisation, e.g. `/poll "Is Matterpoll great?"
 
 Make sure to set your [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url) properly.
 For example, this error happens in case you set SiteURL starting with `http://`, in spite of running Mattermost server through https.
+
 
 ## Contributing
 
