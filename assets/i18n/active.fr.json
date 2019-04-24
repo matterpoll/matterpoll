@@ -85,7 +85,7 @@
     "other": "**Paramètres du sondage**: {{.Settings}}"
   },
   "poll.message.totalVotes": {
-    "hash": "sha1-ea094ab4bcf8b514e19bd2ba1daa56f23016c777",
+    "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**Total des votes**: {{.TotalVotes}}"
   },
   "response.addOption.invalidPermission": {
