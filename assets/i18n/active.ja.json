@@ -21,7 +21,7 @@
   },
   "command.help.text.options": {
     "hash": "sha1-9576f41168dfc7418562fad8a5e82f309014c344",
-    "other": "`/{{.Trigger}} \\\"Question\\\" \\\"Answer 1\\\" \\\"Answer 2\\\" \\\"Answer 3\\\"`のように入力することで、回答をカスタマイズすることができます。"
+    "other": "`/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`のように入力することで、回答をカスタマイズすることができます。"
   },
   "command.help.text.pollSetting.anonymous": {
     "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
@@ -29,7 +29,7 @@
   },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-2484e1a47494f152cf4e3d96bd173da1a779ac30",
-    "other": "投票に関する設定を行うことができます。例: `/{{.Trigger}} \\\"Question\\\" \\\"Answer 1\\\" \\\"Answer 2\\\" \\\"Answer 3\\\" --progress --anonymous`. 利用可能な設定:"
+    "other": "投票に関する設定を行うことができます。例: `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. 利用可能な設定:"
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -41,7 +41,7 @@
   },
   "command.help.text.simple": {
     "hash": "sha1-3e9e692901434c94972562861477a71bf6dda12e",
-    "other": "\\\"{{.Yes}}\\\" と \\\"{{.No}}\\\" を回答とする投票を作成するには `/{{.Trigger}} \\\"Question\\\"` と入力してください。"
+    "other": "\"{{.Yes}}\" と \"{{.No}}\" を回答とする投票を作成するには `/{{.Trigger}} \"Question\"` と入力してください。"
   },
   "dialog.addOption.element.displayName": {
     "hash": "sha1-e31d972229de381b461860014dd710856361917a",
@@ -84,7 +84,7 @@
     "other": "**投票の設定**: {{.Settings}}"
   },
   "poll.message.totalVotes": {
-    "hash": "sha1-ea094ab4bcf8b514e19bd2ba1daa56f23016c777",
+    "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**総投票数**: {{.TotalVotes}}"
   },
   "response.addOption.invalidPermission": {

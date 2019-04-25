@@ -23,7 +23,7 @@
   "poll.endPost.seperator": "and",
   "poll.endPost.text": "This poll has ended. The results are:",
   "poll.message.pollSettings": "**Poll Settings**: {{.Settings}}",
-  "poll.message.totalVotes": "**Total Votes**: {{.TotalVotes}}",
+  "poll.message.totalVotes": "**Total votes**: {{.TotalVotes}}",
   "response.addOption.invalidPermission": "Only the creator of a poll and System Admins are allowed to add options.",
   "response.addOption.success": "Successfully added the option.",
   "response.deletePoll.invalidPermission": "Only the creator of a poll and System Admins are allowed to delete it.",
