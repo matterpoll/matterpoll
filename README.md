@@ -38,7 +38,9 @@ Poll Settings provider further customisation, e.g. `/poll "Is Matterpoll great?"
 
 ## Localization
 
-Matterpoll supports localization of user specify messages. The currently supported languages are:
+Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > General > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in  **Account Settings > Display > Language**.
+
+The currently supported languages are:
 - English
 - France
 - German
