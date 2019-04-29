@@ -13,6 +13,12 @@ import (
 )
 
 func TestOnConfigurationChange(t *testing.T) {
+	command := &model.Command{
+		Trigger:          "poll",
+		AutoComplete:     true,
+		AutoCompleteDesc: "Create a poll",
+		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+	}
 	for name, test := range map[string]struct {
 		SetupAPI              func(*plugintest.API) *plugintest.API
 		Configuration         *configuration
@@ -21,13 +27,13 @@ func TestOnConfigurationChange(t *testing.T) {
 	}{
 		"Load and save succesfull, with old configuration": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
 				})
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
-				api.On("RegisterCommand", getCommand("poll")).Return(nil)
-				api.On("GetConfig").Return(&model.Config{})
+				api.On("RegisterCommand", command).Return(nil)
 				return api
 			},
 			Configuration:         &configuration{Trigger: "oldTrigger"},
@@ -36,12 +42,12 @@ func TestOnConfigurationChange(t *testing.T) {
 		},
 		"Load and save succesfull, without old configuration": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
 				})
-				api.On("RegisterCommand", getCommand("poll")).Return(nil)
-				api.On("GetConfig").Return(&model.Config{})
+				api.On("RegisterCommand", command).Return(nil)
 				return api
 			},
 			Configuration:         nil,
@@ -50,6 +56,7 @@ func TestOnConfigurationChange(t *testing.T) {
 		},
 		"LoadPluginConfiguration fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(errors.New("LoadPluginConfiguration failed"))
 				return api
 			},
@@ -59,6 +66,7 @@ func TestOnConfigurationChange(t *testing.T) {
 		},
 		"Load empty trigger": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = ""
@@ -71,6 +79,7 @@ func TestOnConfigurationChange(t *testing.T) {
 		},
 		"UnregisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
@@ -84,12 +93,13 @@ func TestOnConfigurationChange(t *testing.T) {
 		},
 		"RegisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
 				})
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
-				api.On("RegisterCommand", getCommand("poll")).Return(errors.New("RegisterCommand failed"))
+				api.On("RegisterCommand", command).Return(errors.New("RegisterCommand failed"))
 				return api
 			},
 			Configuration:         &configuration{Trigger: "oldTrigger"},
@@ -102,7 +112,7 @@ func TestOnConfigurationChange(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
-			p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, &mockstore.Store{})
 			p.setConfiguration(test.Configuration)
 
 			err := p.OnConfigurationChange()

@@ -20,17 +20,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, siteURL string) *MatterpollPlugin {
-	defaultServerLocale := "en"
+func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin {
 	p := &MatterpollPlugin{
-		ServerConfig: &model.Config{
-			ServiceSettings: model.ServiceSettings{
-				SiteURL: &siteURL,
-			},
-			LocalizationSettings: model.LocalizationSettings{
-				DefaultServerLocale: &defaultServerLocale,
-			},
-		},
+		ServerConfig: testutils.GetServerConfig(),
 	}
 	p.setConfiguration(&configuration{
 		Trigger: "poll",
@@ -40,6 +32,7 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, 
 	p.Store = store
 	p.router = p.InitAPI()
 	p.bundle = &i18n.Bundle{}
+	p.activated = true
 
 	return p
 }
@@ -212,7 +205,7 @@ func TestPluginOnActivate(t *testing.T) {
 func TestPluginOnDeactivate(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{})
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(nil)
 		defer api.AssertExpectations(t)
 
@@ -222,7 +215,7 @@ func TestPluginOnDeactivate(t *testing.T) {
 
 	t.Run("UnregisterCommand fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{})
 		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(&model.AppError{})
 		defer api.AssertExpectations(t)
 

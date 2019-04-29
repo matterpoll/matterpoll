@@ -1,6 +1,7 @@
 package testutils
 
 import (
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/matterpoll/matterpoll/server/poll"
 )
 
@@ -12,6 +13,20 @@ func GetPollID() string {
 // GetSiteURL returns a static Site URL.
 func GetSiteURL() string {
 	return "https://example.org"
+}
+
+// GetServerConfig return a static server config.
+func GetServerConfig() *model.Config {
+	siteURL := GetSiteURL()
+	defaultServerLocale := "en"
+	return &model.Config{
+		ServiceSettings: model.ServiceSettings{
+			SiteURL: &siteURL,
+		},
+		LocalizationSettings: model.LocalizationSettings{
+			DefaultServerLocale: &defaultServerLocale,
+		},
+	}
 }
 
 // GetPoll returns a Poll with three Options, no votes and no Poll Settings.
