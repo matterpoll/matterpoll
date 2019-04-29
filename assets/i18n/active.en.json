@@ -1,4 +1,6 @@
 {
+  "command.autoComplete.desc": "Create a poll",
+  "command.autoComplete.hint": "\"[Question]\" \"[Answer 1]\" \"[Answer 2]\"...",
   "command.default.no": "No",
   "command.default.yes": "Yes",
   "command.error.generic": "Something went wrong. Please try again later.",

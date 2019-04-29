@@ -30,6 +30,9 @@ type MatterpollPlugin struct {
 	ServerConfig  *model.Config
 
 	bundle *i18n.Bundle
+
+	// activated is used to track whether or not OnActivate has initialized the plugin state.
+	activated bool
 }
 
 const minimumServerVersion = "5.10.0"
@@ -58,6 +61,8 @@ func (p *MatterpollPlugin) OnActivate() error {
 	}
 	p.bundle = bundle
 
+	p.setActivated(true)
+
 	return nil
 }
 
@@ -68,6 +73,14 @@ func (p *MatterpollPlugin) OnDeactivate() error {
 		return errors.Wrap(err, "failed to dectivate command")
 	}
 	return nil
+}
+
+func (p *MatterpollPlugin) setActivated(activated bool) {
+	p.activated = activated
+}
+
+func (p *MatterpollPlugin) isActivated() bool {
+	return p.activated
 }
 
 // checkServerVersion checks Mattermost Server has at least the required version

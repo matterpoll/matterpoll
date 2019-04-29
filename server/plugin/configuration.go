@@ -15,6 +15,7 @@ type configuration struct {
 func (p *MatterpollPlugin) OnConfigurationChange() error {
 	configuration := new(configuration)
 	oldConfiguration := p.getConfiguration()
+	p.ServerConfig = p.API.GetConfig()
 
 	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
@@ -24,17 +25,18 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 		return errors.New("Empty trigger not allowed")
 	}
 
-	if oldConfiguration.Trigger != "" {
-		if err := p.API.UnregisterCommand("", oldConfiguration.Trigger); err != nil {
-			return errors.Wrap(err, "failed to unregister old command")
+	// Don't try to register a command if the plugin isn't activated
+	if p.isActivated() {
+		if oldConfiguration.Trigger != "" {
+			if err := p.API.UnregisterCommand("", oldConfiguration.Trigger); err != nil {
+				return errors.Wrap(err, "failed to unregister old command")
+			}
+		}
+		if err := p.API.RegisterCommand(p.getCommand(configuration.Trigger)); err != nil {
+			return errors.Wrap(err, "failed to register new command")
 		}
 	}
-	if err := p.API.RegisterCommand(getCommand(configuration.Trigger)); err != nil {
-		return errors.Wrap(err, "failed to register new command")
-	}
 	p.setConfiguration(configuration)
-
-	p.ServerConfig = p.API.GetConfig()
 
 	return nil
 }
