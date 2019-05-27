@@ -13,7 +13,7 @@ import (
 
 // initBundle loads all localization files in i18n into a bundle and return this
 func (p *MatterpollPlugin) initBundle() (*i18n.Bundle, error) {
-	bundle := &i18n.Bundle{DefaultLanguage: language.English}
+	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	bundlePath, err := p.API.GetBundlePath()
@@ -62,7 +62,7 @@ func (p *MatterpollPlugin) getServerLocalizer() *i18n.Localizer {
 
 // LocalizeDefaultMessage localizer the provided message
 func (p *MatterpollPlugin) LocalizeDefaultMessage(l *i18n.Localizer, m *i18n.Message) string {
-	s, err := l.Localize(&i18n.LocalizeConfig{DefaultMessage: m})
+	s, err := l.LocalizeMessage(m)
 	if err != nil {
 		p.API.LogWarn("Failed to localize message", "message ID", m.ID)
 		return ""
