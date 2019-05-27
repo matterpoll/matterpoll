@@ -1,4 +1,5 @@
 {
+  "bot.description": "Poll Bot",
   "command.default.no": "No",
   "command.default.yes": "Yes",
   "command.error.generic": "Something went wrong. Please try again later.",

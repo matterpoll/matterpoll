@@ -15,6 +15,7 @@ type configuration struct {
 func (p *MatterpollPlugin) OnConfigurationChange() error {
 	configuration := new(configuration)
 	oldConfiguration := p.getConfiguration()
+	p.ServerConfig = p.API.GetConfig()
 
 	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
@@ -32,9 +33,16 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 	if err := p.API.RegisterCommand(getCommand(configuration.Trigger)); err != nil {
 		return errors.Wrap(err, "failed to register new command")
 	}
-	p.setConfiguration(configuration)
 
-	p.ServerConfig = p.API.GetConfig()
+	// This require a loaded i18n bundle
+	if p.isActivated() {
+		// Update bot description
+		if err := p.patchBotDescription(); err != nil {
+			return errors.Wrap(err, "failed to patch bot description")
+		}
+	}
+
+	p.setConfiguration(configuration)
 
 	return nil
 }
