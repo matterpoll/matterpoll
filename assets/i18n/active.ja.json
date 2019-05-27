@@ -20,7 +20,7 @@
     "other": "一つも回答を入力しないか、もしくは二つ以上の回答を入力してください。"
   },
   "command.help.text.options": {
-    "hash": "sha1-9576f41168dfc7418562fad8a5e82f309014c344",
+    "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
     "other": "`/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`のように入力することで、回答をカスタマイズすることができます。"
   },
   "command.help.text.pollSetting.anonymous": {
@@ -28,7 +28,7 @@
     "other": "誰がどこに回答したのか表示しない"
   },
   "command.help.text.pollSetting.introduction": {
-    "hash": "sha1-2484e1a47494f152cf4e3d96bd173da1a779ac30",
+    "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "投票に関する設定を行うことができます。例: `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. 利用可能な設定:"
   },
   "command.help.text.pollSetting.progress": {
@@ -40,7 +40,7 @@
     "other": "全てのユーザーが回答を追加できるようにする"
   },
   "command.help.text.simple": {
-    "hash": "sha1-3e9e692901434c94972562861477a71bf6dda12e",
+    "hash": "sha1-783c9e50cbbd9a11685f41524265201b2e97d369",
     "other": "\"{{.Yes}}\" と \"{{.No}}\" を回答とする投票を作成するには `/{{.Trigger}} \"Question\"` と入力してください。"
   },
   "dialog.addOption.element.displayName": {
