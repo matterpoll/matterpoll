@@ -101,6 +101,9 @@ func (p *MatterpollPlugin) OnDeactivate() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to dectivate command")
 	}
+
+	p.setActivated(false)
+
 	return nil
 }
 
