@@ -2,6 +2,8 @@ package plugin
 
 import (
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 	"sync"
 
 	"github.com/blang/semver"
@@ -18,8 +20,13 @@ import (
 // MatterpollPlugin is the object to run the plugin
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
-	router *mux.Router
-	Store  store.Store
+	botUserID string
+	bundle    *i18n.Bundle
+	router    *mux.Router
+	Store     store.Store
+
+	// activated is used to track whether or not OnActivate has initialized the plugin state.
+	activated bool
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -28,15 +35,24 @@ type MatterpollPlugin struct {
 	// setConfiguration for usage.
 	configuration *configuration
 	ServerConfig  *model.Config
-
-	bundle *i18n.Bundle
 }
 
-const minimumServerVersion = "5.10.0"
+var botDescription = &i18n.Message{
+	ID:    "bot.description",
+	Other: "Poll Bot",
+}
+
+const (
+	minimumServerVersion = "5.10.0"
+
+	botUserName    = "matterpoll"
+	botDisplayName = "Matterpoll"
+)
 
 // OnActivate ensures a configuration is set and initializes the API
 func (p *MatterpollPlugin) OnActivate() error {
-	if err := p.checkServerVersion(); err != nil {
+	var err error
+	if err = p.checkServerVersion(); err != nil {
 		return err
 	}
 
@@ -44,19 +60,37 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return errors.New("siteURL is not set. Please set a siteURL and restart the plugin")
 	}
 
-	store, err := kvstore.NewStore(p.API, PluginVersion)
+	p.Store, err = kvstore.NewStore(p.API, PluginVersion)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create store")
 	}
-	p.Store = store
 
-	p.router = p.InitAPI()
-
-	bundle, err := p.initBundle()
+	p.bundle, err = p.initBundle()
 	if err != nil {
 		return errors.Wrap(err, "failed to init localisation bundle")
 	}
-	p.bundle = bundle
+
+	bot := &model.Bot{
+		Username:    botUserName,
+		DisplayName: botDisplayName,
+	}
+	botUserID, appErr := p.Helpers.EnsureBot(bot)
+	if appErr != nil {
+		return errors.Wrap(appErr, "failed to ensure bot user")
+	}
+	p.botUserID = botUserID
+
+	if err = p.patchBotDescription(); err != nil {
+		return errors.Wrap(err, "failed to patch bot description")
+	}
+
+	if err = p.setProfileImage(); err != nil {
+		return errors.Wrap(err, "failed to set profile image")
+	}
+
+	p.router = p.InitAPI()
+
+	p.setActivated(true)
 
 	return nil
 }
@@ -67,7 +101,18 @@ func (p *MatterpollPlugin) OnDeactivate() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to dectivate command")
 	}
+
+	p.setActivated(false)
+
 	return nil
+}
+
+func (p *MatterpollPlugin) setActivated(activated bool) {
+	p.activated = activated
+}
+
+func (p *MatterpollPlugin) isActivated() bool {
+	return p.activated
 }
 
 // checkServerVersion checks Mattermost Server has at least the required version
@@ -82,6 +127,39 @@ func (p *MatterpollPlugin) checkServerVersion() error {
 		return fmt.Errorf("this plugin requires Mattermost v%s or later", minimumServerVersion)
 	}
 
+	return nil
+}
+
+// patchBotDescription updates the bot description based on the servers local
+func (p *MatterpollPlugin) patchBotDescription() error {
+	publicLocalizer := p.getServerLocalizer()
+	description := p.LocalizeDefaultMessage(publicLocalizer, botDescription)
+
+	// Update description with server local
+	botPatch := &model.BotPatch{
+		Description: &description,
+	}
+	if _, appErr := p.API.PatchBot(p.botUserID, botPatch); appErr != nil {
+		return errors.Wrap(appErr, "failed to patch bot")
+	}
+
+	return nil
+}
+
+// setProfileImage set the profile image of the bot account
+func (p *MatterpollPlugin) setProfileImage() error {
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		return errors.Wrap(err, "failed to get bundle path")
+	}
+
+	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "logo_dark.png"))
+	if err != nil {
+		return errors.Wrap(err, "failed to read profile image")
+	}
+	if appErr := p.API.SetProfileImage(p.botUserID, profileImage); appErr != nil {
+		return errors.Wrap(appErr, "failed to set profile image")
+	}
 	return nil
 }
 
@@ -122,14 +200,12 @@ func (p *MatterpollPlugin) HasPermission(poll *poll.Poll, issuerID string) (bool
 	return false, nil
 }
 
+// SendEphemeralPost sends an ephemeral post to a user as the bot account
 func (p *MatterpollPlugin) SendEphemeralPost(channelID, userID, message string) {
-	// This is mostly taken from https://github.com/mattermost/mattermost-server/blob/master/app/command.go#L304
-	ephemeralPost := &model.Post{}
-	ephemeralPost.ChannelId = channelID
-	ephemeralPost.UserId = userID
-	ephemeralPost.Message = message
-	ephemeralPost.AddProp("override_username", responseUsername)
-	ephemeralPost.AddProp("override_icon_url", fmt.Sprintf(responseIconURL, *p.ServerConfig.ServiceSettings.SiteURL, PluginId))
-	ephemeralPost.AddProp("from_webhook", "true")
+	ephemeralPost := &model.Post{
+		ChannelId: channelID,
+		UserId:    p.botUserID,
+		Message:   message,
+	}
 	_ = p.API.SendEphemeralPost(userID, ephemeralPost)
 }

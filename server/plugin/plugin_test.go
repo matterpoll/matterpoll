@@ -38,17 +38,24 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, 
 	})
 
 	p.SetAPI(api)
+	p.botUserID = testutils.GetBotUserID()
+	p.bundle = i18n.NewBundle(language.English)
 	p.Store = store
 	p.router = p.InitAPI()
-	p.bundle = i18n.NewBundle(language.English)
+	p.setActivated(true)
 
 	return p
 }
 
 func TestPluginOnActivate(t *testing.T) {
+	bot := &model.Bot{
+		Username:    botUserName,
+		DisplayName: botDisplayName,
+	}
 	for name, test := range map[string]struct {
-		SetupAPI    func(*plugintest.API) *plugintest.API
-		ShouldError bool
+		SetupAPI     func(*plugintest.API) *plugintest.API
+		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
+		ShouldError  bool
 	}{
 		// server version tests
 		"greater minor version than minimumServerVersion": {
@@ -60,7 +67,13 @@ func TestPluginOnActivate(t *testing.T) {
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
+				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
+				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				return helpers
 			},
 			ShouldError: false,
 		},
@@ -71,7 +84,13 @@ func TestPluginOnActivate(t *testing.T) {
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
+				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
+				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				return helpers
 			},
 			ShouldError: false,
 		},
@@ -115,20 +134,65 @@ func TestPluginOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		/*
-			"GetBundlePath fails": {
-				SetupAPI: func(api *plugintest.API) *plugintest.API {
-					api.On("GetServerVersion").Return(minimumServerVersion)
-					api.On("GetBundlePath").Return("", errors.New(""))
-					return api
-				},
-				ShouldError: true,
+		// Bot tests
+		"EnsureBot fails ": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+
+				path, err := filepath.Abs("../..")
+				require.Nil(t, err)
+				api.On("GetBundlePath").Return(path, nil)
+				return api
 			},
-		*/
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("EnsureBot", bot).Return("", &model.AppError{})
+				return helpers
+			},
+			ShouldError: true,
+		},
+		"patch bot description fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+
+				path, err := filepath.Abs("../..")
+				require.Nil(t, err)
+				api.On("GetBundlePath").Return(path, nil)
+				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, &model.AppError{})
+				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				return helpers
+			},
+			ShouldError: true,
+		},
+		"SetProfileImage fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+
+				path, err := filepath.Abs("../..")
+				require.Nil(t, err)
+				api.On("GetBundlePath").Return(path, nil)
+				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
+				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(&model.AppError{})
+				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				return helpers
+			},
+			ShouldError: true,
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
+
+			helpers := &plugintest.Helpers{}
+			if test.SetupHelpers != nil {
+				helpers = test.SetupHelpers(helpers)
+				defer helpers.AssertExpectations(t)
+			}
 
 			patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 				return &mockstore.Store{}, nil
@@ -136,8 +200,12 @@ func TestPluginOnActivate(t *testing.T) {
 			defer patch.Unpatch()
 
 			siteURL := testutils.GetSiteURL()
+			defaultServerLocale := "en"
 			p := &MatterpollPlugin{
 				ServerConfig: &model.Config{
+					LocalizationSettings: model.LocalizationSettings{
+						DefaultServerLocale: &defaultServerLocale,
+					},
 					ServiceSettings: model.ServiceSettings{
 						SiteURL: &siteURL,
 					},
@@ -147,6 +215,7 @@ func TestPluginOnActivate(t *testing.T) {
 				Trigger: "poll",
 			})
 			p.SetAPI(api)
+			p.SetHelpers(helpers)
 			err := p.OnActivate()
 
 			if test.ShouldError {

@@ -1,4 +1,8 @@
 {
+  "bot.description": {
+    "hash": "sha1-a007d7390f1601bbdc83a397f619335ed591699f",
+    "other": "Umfragen Bot"
+  },
   "command.default.no": {
     "hash": "sha1-816c52fd2bdd94a63cd0944823a6c0aa9384c103",
     "other": "Nein"
