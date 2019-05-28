@@ -19,13 +19,18 @@ func TestOnConfigurationChange(t *testing.T) {
 		AutoCompleteDesc: "Create a poll",
 		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
 	}
+
+	botPatch := &model.BotPatch{
+		Description: &botDescription.Other,
+	}
+
 	for name, test := range map[string]struct {
 		SetupAPI              func(*plugintest.API) *plugintest.API
 		Configuration         *configuration
 		ExpectedConfiguration *configuration
 		ShouldError           bool
 	}{
-		"Load and save succesfull, with old configuration": {
+		"Load and save successful, with old configuration": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
@@ -34,13 +39,14 @@ func TestOnConfigurationChange(t *testing.T) {
 				})
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
 				api.On("RegisterCommand", command).Return(nil)
+				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, nil)
 				return api
 			},
 			Configuration:         &configuration{Trigger: "oldTrigger"},
 			ExpectedConfiguration: &configuration{Trigger: "poll"},
 			ShouldError:           false,
 		},
-		"Load and save succesfull, without old configuration": {
+		"Load and save successful, without old configuration": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
@@ -48,6 +54,7 @@ func TestOnConfigurationChange(t *testing.T) {
 					arg.Trigger = "poll"
 				})
 				api.On("RegisterCommand", command).Return(nil)
+				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, nil)
 				return api
 			},
 			Configuration:         nil,
@@ -100,6 +107,22 @@ func TestOnConfigurationChange(t *testing.T) {
 				})
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
 				api.On("RegisterCommand", command).Return(errors.New("RegisterCommand failed"))
+				return api
+			},
+			Configuration:         &configuration{Trigger: "oldTrigger"},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			ShouldError:           true,
+		},
+		"patchBotDescription fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetConfig").Return(testutils.GetServerConfig())
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
+					arg := args.Get(0).(*configuration)
+					arg.Trigger = "poll"
+				})
+				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
+				api.On("RegisterCommand", command).Return(nil)
+				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, &model.AppError{})
 				return api
 			},
 			Configuration:         &configuration{Trigger: "oldTrigger"},

@@ -292,13 +292,8 @@ func TestHandleAddOption(t *testing.T) {
 
 	responsePost := &model.Post{
 		ChannelId: channelID,
-		UserId:    userID,
+		UserId:    testutils.GetBotUserID(),
 		Message:   responseAddOptionSuccess.Other,
-		Props: map[string]interface{}{
-			"from_webhook":      "true",
-			"override_icon_url": fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), PluginId),
-			"override_username": responseUsername,
-		},
 	}
 
 	poll1In := testutils.GetPollWithVotes()
@@ -671,7 +666,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
 				api.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channelID1"}, nil)
 				api.On("CreatePost", &model.Post{
-					UserId:    "userID1",
+					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
 					Message: testutils.GetLocalizer().MustLocalize(
@@ -683,11 +678,6 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 							}}),
 
 					Type: model.POST_DEFAULT,
-					Props: model.StringInterface{
-						"override_username": responseUsername,
-						"override_icon_url": fmt.Sprintf(responseIconURL, "https://example.org", PluginId),
-						"from_webhook":      "true",
-					},
 				}).Return(nil, nil)
 				return api
 			},

@@ -1,7 +1,6 @@
 package plugin
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/mattermost/mattermost-server/model"
@@ -38,7 +37,7 @@ var (
 
 	commandHelpTextSimple = &i18n.Message{
 		ID:    "command.help.text.simple",
-		Other: "To create a poll with the answer options \"{{.Yes}}\" and \"{{.No}}\" type `/{{.Trigger}} \"Question\"`.",
+		Other: "To create a poll with the answer options \"{{.Yes}}\" and \"{{.No}}\" type `/{{.Trigger}} \"Question\"`",
 	}
 	commandHelpTextOptions = &i18n.Message{
 		ID:    "command.help.text.options",
@@ -77,8 +76,15 @@ var (
 
 // ExecuteCommand parses a given input and creates a poll if the input is correct
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	msg, appErr := p.executeCommand(args)
+	if msg != "" {
+		p.SendEphemeralPost(args.ChannelId, args.UserId, msg)
+	}
+	return &model.CommandResponse{}, appErr
+}
+
+func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *model.AppError) {
 	creatorID := args.UserId
-	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	configuration := p.getConfiguration()
 
 	userLocalizer := p.getUserLocalizer(creatorID)
@@ -105,10 +111,10 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		msg += "- `--progress`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
 		msg += "- `--public-add-option`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption)
 
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, msg, siteURL, nil), nil
+		return msg, nil
 	}
 	if len(o) == 1 {
-		return nil, &model.AppError{
+		return "", &model.AppError{
 			Id:         p.LocalizeDefaultMessage(userLocalizer, commandErrorinvalidNumberOfOptions),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
@@ -123,7 +129,7 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 		newPoll, err = poll.NewPoll(creatorID, q, o, s)
 	}
 	if err != nil {
-		return nil, &model.AppError{
+		appErr := &model.AppError{
 			Id: p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
 				TemplateData: map[string]interface{}{
@@ -132,34 +138,36 @@ func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.Command
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
 		}
+		return "", appErr
 	}
 
 	if err := p.Store.Poll().Save(newPoll); err != nil {
 		p.API.LogError("failed to save poll", "err", err.Error())
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), siteURL, nil), nil
+		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
 		p.API.LogError("failed to ConvertCreatorIDToDisplayName", "err", appErr.Error())
-		return getCommandResponse(model.COMMAND_RESPONSE_TYPE_EPHEMERAL, p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), siteURL, nil), nil
+		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
 	actions := newPoll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName)
-	response := getCommandResponse(model.COMMAND_RESPONSE_TYPE_IN_CHANNEL, "", *p.ServerConfig.ServiceSettings.SiteURL, actions)
-	p.API.LogDebug("Created a new poll", "response", response.ToJson())
-	return response, nil
-}
-
-func getCommandResponse(responseType, text, siteURL string, attachments []*model.SlackAttachment) *model.CommandResponse {
-	return &model.CommandResponse{
-		ResponseType: responseType,
-		Text:         text,
-		Username:     responseUsername,
-		IconURL:      fmt.Sprintf(responseIconURL, siteURL, PluginId),
-		Type:         model.POST_DEFAULT,
-		Attachments:  attachments,
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: args.ChannelId,
+		RootId:    args.RootId,
+		Type:      model.POST_DEFAULT,
 	}
+	model.ParseSlackAttachment(post, actions)
+
+	if _, appErr = p.API.CreatePost(post); appErr != nil {
+		p.API.LogError("failed to post poll post", "error", appErr.Error())
+		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+	}
+
+	p.API.LogDebug("Created a new poll", "post", post.ToJson())
+	return "", nil
 }
 
 func (p *MatterpollPlugin) getCommand(trigger string) *model.Command {

@@ -15,13 +15,9 @@ type Store struct {
 // NewStore returns a fresh store and upgrades the db from the given schema version.
 func NewStore(api plugin.API, pluginVersion string) (store.Store, error) {
 	store := Store{
-		api: api,
-		pollStore: PollStore{
-			api: api,
-		},
-		systemStore: SystemStore{
-			api: api,
-		},
+		api:         api,
+		pollStore:   PollStore{api: api},
+		systemStore: SystemStore{api: api},
 	}
 	err := store.UpdateDatabase(pluginVersion)
 	if err != nil {

@@ -25,8 +25,9 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 		return errors.New("Empty trigger not allowed")
 	}
 
-	// Don't try to register a command if the plugin isn't activated
+	// This require a loaded i18n bundle
 	if p.isActivated() {
+		// Update slash command help text
 		if oldConfiguration.Trigger != "" {
 			if err := p.API.UnregisterCommand("", oldConfiguration.Trigger); err != nil {
 				return errors.Wrap(err, "failed to unregister old command")
@@ -35,7 +36,12 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 		if err := p.API.RegisterCommand(p.getCommand(configuration.Trigger)); err != nil {
 			return errors.Wrap(err, "failed to register new command")
 		}
+		// Update bot description
+		if err := p.patchBotDescription(); err != nil {
+			return errors.Wrap(err, "failed to patch bot description")
+		}
 	}
+
 	p.setConfiguration(configuration)
 
 	return nil

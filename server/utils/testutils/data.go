@@ -15,6 +15,11 @@ func GetSiteURL() string {
 	return "https://example.org"
 }
 
+// GetBotUserID returns a static bot user ID.
+func GetBotUserID() string {
+	return "aegooso5na9desa0QuieV1ohfa"
+}
+
 // GetServerConfig return a static server config.
 func GetServerConfig() *model.Config {
 	siteURL := GetSiteURL()
