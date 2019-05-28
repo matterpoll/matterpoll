@@ -46,7 +46,7 @@ func TestServeHTTP(t *testing.T) {
 			api := &plugintest.API{}
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 			defer api.AssertExpectations(t)
-			p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, &mockstore.Store{})
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", test.RequestURL, nil)
@@ -97,7 +97,7 @@ func TestServeFile(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 			defer api.AssertExpectations(t)
-			p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, &mockstore.Store{})
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", fmt.Sprintf("/%s", iconFilename), nil)
@@ -258,7 +258,7 @@ func TestHandleVote(t *testing.T) {
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
-			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex), bytes.NewReader(test.Request.ToJson()))
@@ -343,7 +343,7 @@ func TestHandleAddOption(t *testing.T) {
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
-			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
@@ -439,7 +439,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
-			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
@@ -629,7 +629,7 @@ func TestHandleEndPoll(t *testing.T) {
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
-			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
@@ -712,7 +712,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			p := setupTestPlugin(t, test.SetupAPI(&plugintest.API{}), &mockstore.Store{}, testutils.GetSiteURL())
+			p := setupTestPlugin(t, test.SetupAPI(&plugintest.API{}), &mockstore.Store{})
 			p.postEndPollAnnouncement(test.Request, "Question")
 		})
 	}
@@ -843,7 +843,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
-			p := setupTestPlugin(t, api, store, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))

@@ -17,6 +17,15 @@ const (
 )
 
 var (
+	commandAutoCompleteDesc = &i18n.Message{
+		ID:    "command.autoComplete.desc",
+		Other: "Create a poll",
+	}
+	commandAutoCompleteHint = &i18n.Message{
+		ID:    "command.autoComplete.hint",
+		Other: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+	}
+
 	commandDefaultYes = &i18n.Message{
 		ID:    "command.default.yes",
 		Other: "Yes",
@@ -161,13 +170,13 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	return "", nil
 }
 
-func getCommand(trigger string) *model.Command {
+func (p *MatterpollPlugin) getCommand(trigger string) *model.Command {
+	localizer := p.getServerLocalizer()
+
 	return &model.Command{
 		Trigger:          trigger,
-		DisplayName:      "Matterpoll",
-		Description:      "Polling feature by https://github.com/matterpoll/matterpoll",
 		AutoComplete:     true,
-		AutoCompleteDesc: "Create a poll",
-		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		AutoCompleteDesc: p.LocalizeDefaultMessage(localizer, commandAutoCompleteDesc),
+		AutoCompleteHint: p.LocalizeDefaultMessage(localizer, commandAutoCompleteHint),
 	}
 }

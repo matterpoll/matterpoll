@@ -18,8 +18,6 @@ func TestOnConfigurationChange(t *testing.T) {
 		AutoComplete:     true,
 		AutoCompleteDesc: "Create a poll",
 		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
-		DisplayName:      "Matterpoll",
-		Description:      "Polling feature by https://github.com/matterpoll/matterpoll",
 	}
 
 	botPatch := &model.BotPatch{
@@ -137,7 +135,7 @@ func TestOnConfigurationChange(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
-			p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+			p := setupTestPlugin(t, api, &mockstore.Store{})
 			p.setConfiguration(test.Configuration)
 
 			err := p.OnConfigurationChange()

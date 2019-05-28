@@ -8,14 +8,13 @@ import (
 
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func TestLocalizeDefaultMessage(t *testing.T) {
 	t.Run("fine", func(t *testing.T) {
 		api := &plugintest.API{}
 
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{})
 		l := p.getServerLocalizer()
 		m := &i18n.Message{
 			Other: "test message",
@@ -28,7 +27,7 @@ func TestLocalizeDefaultMessage(t *testing.T) {
 		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
 
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{})
 		l := p.getServerLocalizer()
 		m := &i18n.Message{}
 
@@ -40,7 +39,7 @@ func TestLocalizeWithConfig(t *testing.T) {
 	t.Run("fine", func(t *testing.T) {
 		api := &plugintest.API{}
 
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{})
 		l := p.getServerLocalizer()
 		lc := &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -55,7 +54,7 @@ func TestLocalizeWithConfig(t *testing.T) {
 		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
 
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{})
 		l := p.getServerLocalizer()
 		lc := &i18n.LocalizeConfig{}
 
@@ -66,7 +65,7 @@ func TestLocalizeWithConfig(t *testing.T) {
 		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
 
-		p := setupTestPlugin(t, api, &mockstore.Store{}, testutils.GetSiteURL())
+		p := setupTestPlugin(t, api, &mockstore.Store{})
 		l := p.getServerLocalizer()
 		lc := &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{},

@@ -3,6 +3,14 @@
     "hash": "sha1-a007d7390f1601bbdc83a397f619335ed591699f",
     "other": "Umfragen Bot"
   },
+  "command.autoComplete.desc": {
+    "hash": "sha1-1cd8e96070c8a1464138423657b6ffef691fab49",
+    "other": "Erstelle eine Umfrage"
+  },
+  "command.autoComplete.hint": {
+    "hash": "sha1-7355a4eaa6ce5feb9d4b4c0ed10f3af30101bf41",
+    "other": "\"[Frage]\" \"[Antwort 1]\" \"[Antwort 2]\"..."
+  },
   "command.default.no": {
     "hash": "sha1-816c52fd2bdd94a63cd0944823a6c0aa9384c103",
     "other": "Nein"
