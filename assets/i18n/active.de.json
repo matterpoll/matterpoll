@@ -24,15 +24,15 @@
     "other": "Du musst entweder keine Antwortmöglichkeit oder mindestens zwei angeben."
   },
   "command.help.text.options": {
-    "hash": "sha1-9576f41168dfc7418562fad8a5e82f309014c344",
-    "other": "Du kannst Antwortmöglichkeit festlegen, indem du `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\"` eingibst."
+    "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
+    "other": "Du kannst Antwortmöglichkeit festlegen, indem du `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\"` eingibst"
   },
   "command.help.text.pollSetting.anonymous": {
     "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
     "other": "Verberge, wer für was gestimmt hat"
   },
   "command.help.text.pollSetting.introduction": {
-    "hash": "sha1-2484e1a47494f152cf4e3d96bd173da1a779ac30",
+    "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "Umfrageeinstellungen ermöglichen weitere Anpassungen , z.B. `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\" --progress --anonymous`. Die möglichen Umfrageeinstellungen sind:"
   },
   "command.help.text.pollSetting.progress": {
@@ -44,8 +44,8 @@
     "other": "Erlaube Benutzenden weitere Antwortoptionen hinzuzufügen"
   },
   "command.help.text.simple": {
-    "hash": "sha1-3e9e692901434c94972562861477a71bf6dda12e",
-    "other": "Um eine Umfrage mit den Antwortmöglichkeiten \"{{.Yes}}\" und \"{{.No}}\" zu erstellen, gibt `/{{.Trigger}} \"Frage\"` ein."
+    "hash": "sha1-783c9e50cbbd9a11685f41524265201b2e97d369",
+    "other": "Um eine Umfrage mit den Antwortmöglichkeiten \"{{.Yes}}\" und \"{{.No}}\" zu erstellen, gibt `/{{.Trigger}} \"Frage\"` ein"
   },
   "dialog.addOption.element.displayName": {
     "hash": "sha1-e31d972229de381b461860014dd710856361917a",

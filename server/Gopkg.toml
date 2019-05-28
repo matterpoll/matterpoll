@@ -17,7 +17,7 @@
 
 [[constraint]]
   name = "github.com/gorilla/mux"
-  version = "~1.6.0"
+  version = "~1.7.0"
 
 [[constraint]]
   name = "github.com/pkg/errors"
@@ -25,8 +25,12 @@
 
 [[constraint]]
   name = "github.com/blang/semver"
-  version = "~3.5.0"
+  version = "~3.6.0"
 
 [[constraint]]
   name = "github.com/nicksnyder/go-i18n"
-  version = "2.0.0-beta.6"
+  version = "~2.0.0"
+
+[[constraint]]
+  name = "golang.org/x/text"
+  version = "~0.3.2"

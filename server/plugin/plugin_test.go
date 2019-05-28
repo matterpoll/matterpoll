@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/text/language"
 )
 
 func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, siteURL string) *MatterpollPlugin {
@@ -37,11 +38,11 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store, 
 	})
 
 	p.SetAPI(api)
-	p.bundle = &i18n.Bundle{}
 	p.botUserID = testutils.GetBotUserID()
-	p.router = p.InitAPI()
+	p.bundle = i18n.NewBundle(language.English)
 	p.Store = store
-	p.activated = true
+	p.router = p.InitAPI()
+	p.setActivated(true)
 
 	return p
 }
@@ -60,8 +61,7 @@ func TestPluginOnActivate(t *testing.T) {
 		"greater minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				m := semver.MustParse(minimumServerVersion)
-				m.Minor++
-				m.Patch = 0
+				m.IncrementMinor()
 				api.On("GetServerVersion").Return(m.String())
 
 				path, err := filepath.Abs("../..")

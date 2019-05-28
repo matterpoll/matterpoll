@@ -28,7 +28,7 @@ var (
 
 	commandHelpTextSimple = &i18n.Message{
 		ID:    "command.help.text.simple",
-		Other: "To create a poll with the answer options \"{{.Yes}}\" and \"{{.No}}\" type `/{{.Trigger}} \"Question\"`.",
+		Other: "To create a poll with the answer options \"{{.Yes}}\" and \"{{.No}}\" type `/{{.Trigger}} \"Question\"`",
 	}
 	commandHelpTextOptions = &i18n.Message{
 		ID:    "command.help.text.options",
