@@ -1,6 +1,7 @@
 package poll_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/bouk/monkey"
@@ -75,6 +76,12 @@ func TestAddAnswerOption(t *testing.T) {
 		p := testutils.GetPollWithVotes()
 
 		err := p.AddAnswerOption(p.AnswerOptions[0].Answer)
+		assert.NotNil(err)
+	})
+	t.Run("dublicant options with spaces", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.AddAnswerOption(fmt.Sprintf(" %s ", p.AnswerOptions[0].Answer))
 		assert.NotNil(err)
 	})
 	t.Run("empty options", func(t *testing.T) {

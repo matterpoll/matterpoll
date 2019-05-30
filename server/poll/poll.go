@@ -3,6 +3,7 @@ package poll
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/pkg/errors"
@@ -65,7 +66,7 @@ func (p *Poll) AddAnswerOption(newAnswerOption string) error {
 		return errors.New("empty option not allowed")
 	}
 	for _, answerOption := range p.AnswerOptions {
-		if answerOption.Answer == newAnswerOption {
+		if strings.Trim(answerOption.Answer, " ") == strings.Trim(newAnswerOption, " ") {
 			return fmt.Errorf("duplicate options: %s", newAnswerOption)
 		}
 	}
