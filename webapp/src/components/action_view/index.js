@@ -13,7 +13,6 @@ function mapStateToProps(state) {
     const config = getConfig(state);
     return {
         siteUrl: config.SiteURL,
-        currentUserId: getCurrentUserId(state),
         votedAnswers: votedAnswers(state),
     };
 }

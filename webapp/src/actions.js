@@ -20,7 +20,7 @@ export const websocketHasVoted = (data) => async (dispatch) => {
     });
 };
 
-export const fetchVotedAnswers = (siteUrl, pollId, userId) => async (dispatch) => {
+export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
     if (typeof pollId === 'undefined' || pollId === '') {
         return;
     }
@@ -29,7 +29,7 @@ export const fetchVotedAnswers = (siteUrl, pollId, userId) => async (dispatch) =
     if (!url.endsWith('/')) {
         url += '/';
     }
-    url = `${url}/plugins/${Manifest.PluginId}/api/v1/polls/${pollId}/users/${userId}/voted`
+    url = `${url}/plugins/${Manifest.PluginId}/api/v1/polls/${pollId}/voted`
 
     fetch(url).then((r) => r.json()).then((r) => {
         dispatch({

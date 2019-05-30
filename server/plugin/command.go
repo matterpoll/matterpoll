@@ -158,6 +158,9 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
 		Type:      MatterpollPostType,
+		Props: model.StringInterface{
+			"poll_id": newPoll.ID,
+		},
 	}
 	model.ParseSlackAttachment(post, actions)
 

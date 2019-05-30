@@ -7,7 +7,6 @@ export default class ActionView extends React.PureComponent {
     static propTypes = {
         post: PropTypes.object.isRequired,
         attachment: PropTypes.object.isRequired,
-        currentUserId: PropTypes.string.isRequired,
         votedAnswers: PropTypes.object.isRequired,
         siteUrl: PropTypes.string.isRequired,
 
@@ -17,7 +16,7 @@ export default class ActionView extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.props.actions.fetchVotedAnswers(this.props.siteUrl, this.props.post.props.poll_id, this.props.currentUserId);
+        this.props.actions.fetchVotedAnswers(this.props.siteUrl, this.props.post.props.poll_id);
     }
 
     render() {
