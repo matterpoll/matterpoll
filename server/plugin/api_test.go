@@ -237,7 +237,6 @@ func TestHandleVote(t *testing.T) {
 		"Valid request, GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -255,6 +254,7 @@ func TestHandleVote(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
@@ -414,7 +414,6 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 		"Valid request, OpenInteractiveDialog fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("OpenInteractiveDialog", dialogRequest).Return(&model.AppError{})
-				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -435,6 +434,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
@@ -588,7 +588,6 @@ func TestHandleEndPoll(t *testing.T) {
 		"Valid request, GetUser fails for poll creator": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -626,6 +625,7 @@ func TestHandleEndPoll(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
@@ -676,7 +676,6 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 								"Question": "Question",
 								"Link":     "https://example.org/team1/pl/postID1",
 							}}),
-
 					Type: model.POST_DEFAULT,
 				}).Return(nil, nil)
 				return api
@@ -840,6 +839,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
