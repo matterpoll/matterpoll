@@ -53,7 +53,8 @@ func TestPluginOnActivate(t *testing.T) {
 		"greater minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				m := semver.MustParse(minimumServerVersion)
-				m.IncrementMinor()
+				err := m.IncrementMinor()
+				require.NoError(t, err)
 				api.On("GetServerVersion").Return(m.String())
 
 				path, err := filepath.Abs("../..")
