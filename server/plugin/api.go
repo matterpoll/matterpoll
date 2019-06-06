@@ -140,10 +140,10 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
 		if _, err = w.Write(response.ToJson()); err != nil {
 			p.API.LogWarn("failed to write PostActionIntegrationResponse", "error", err.Error())
 		}
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -166,11 +166,13 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 			p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, msg))
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		if _, err = w.Write(response.ToJson()); err != nil {
-			p.API.LogWarn("failed to write PostActionIntegrationResponse", "error", err.Error())
+		if response != nil {
+			w.Header().Set("Content-Type", "application/json")
+			if _, err = w.Write(response.ToJson()); err != nil {
+				p.API.LogWarn("failed to write SubmitDialogRequest", "error", err.Error())
+			}
 		}
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
