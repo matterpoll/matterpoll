@@ -331,6 +331,7 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(vars map[string]string, 
 	return nil, nil, nil
 }
 
+// TODO: will confirm this func finally
 func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	pollID := vars["id"]
@@ -345,7 +346,9 @@ func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Reques
 		response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write(response.ToJson())
+		if _, err := w.Write(response.ToJson()); err != nil {
+			p.API.LogWarn("failed to write response", "error", err.Error())
+		}
 		return
 	}
 
@@ -364,7 +367,9 @@ func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(b)
+	if _, err := w.Write(b); err != nil {
+		p.API.LogWarn("failed to write response", "error", err.Error())
+	}
 }
 
 func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
