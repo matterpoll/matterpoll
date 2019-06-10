@@ -3,6 +3,7 @@ package poll
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/pkg/errors"
@@ -59,8 +60,9 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 	return &p, nil
 }
 
-// AddAnswerOption adds a new aAnswerOption to a poll
+// AddAnswerOption adds a new AnswerOption to a poll
 func (p *Poll) AddAnswerOption(newAnswerOption string) error {
+	newAnswerOption = strings.TrimSpace(newAnswerOption)
 	if newAnswerOption == "" {
 		return errors.New("empty option not allowed")
 	}
