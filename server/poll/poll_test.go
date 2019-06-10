@@ -90,6 +90,12 @@ func TestAddAnswerOption(t *testing.T) {
 		err := p.AddAnswerOption("")
 		assert.NotNil(err)
 	})
+	t.Run("empty optinos with spaces", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.AddAnswerOption("  ")
+		assert.NotNil(err)
+	})
 }
 
 func TestEncodeDecode(t *testing.T) {

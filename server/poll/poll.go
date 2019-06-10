@@ -60,13 +60,14 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 	return &p, nil
 }
 
-// AddAnswerOption adds a new aAnswerOption to a poll
+// AddAnswerOption adds a new AnswerOption to a poll
 func (p *Poll) AddAnswerOption(newAnswerOption string) error {
+	newAnswerOption = strings.TrimSpace(newAnswerOption)
 	if newAnswerOption == "" {
 		return errors.New("empty option not allowed")
 	}
 	for _, answerOption := range p.AnswerOptions {
-		if strings.Trim(answerOption.Answer, " ") == strings.Trim(newAnswerOption, " ") {
+		if answerOption.Answer == newAnswerOption {
 			return fmt.Errorf("duplicate options: %s", newAnswerOption)
 		}
 	}
