@@ -12,8 +12,7 @@ import (
 
 const (
 	// Parameter: SiteURL, PluginId
-	responseIconURL  = "%s/plugins/%s/logo_dark.png"
-	responseUsername = "Matterpoll"
+	responseIconURL = "%s/plugins/%s/logo_dark.png"
 )
 
 var (
