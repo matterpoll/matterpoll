@@ -82,6 +82,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	r.HandleFunc("/"+iconFilename, p.handleLogo).Methods("GET")
 
 	apiV1 := r.PathPrefix("/api/v1").Subrouter()
+	apiV1.HandleFunc("/settings", p.handlePluginSettings).Methods("GET")
 
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
 	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handleVote).Methods("POST")
@@ -112,6 +113,22 @@ func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "public, max-age=604800")
 	http.ServeFile(w, r, filepath.Join(bundlePath, "assets", iconFilename))
+}
+
+func (p *MatterpollPlugin) handlePluginSettings(w http.ResponseWriter, r *http.Request) {
+	configuration := p.getConfiguration()
+	b, err := json.Marshal(configuration)
+	if err != nil {
+		p.API.LogWarn("failed to decode configuration object.", "error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if _, err = w.Write(b); err != nil {
+		p.API.LogWarn("failed to write response.", "error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (p *MatterpollPlugin) handleVote(w http.ResponseWriter, r *http.Request) {

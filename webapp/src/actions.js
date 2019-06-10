@@ -1,6 +1,7 @@
 import {doPostAction} from 'mattermost-redux/actions/posts';
 
 import Manifest from './manifest';
+import Client from './client';
 
 export const VOTE_ANSWER = Manifest.PluginId + '_vote_answer';
 export const FETCH_VOTED_ANSWERS = Manifest.PluginId + '_fetch_voted_answers';
@@ -39,3 +40,15 @@ export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
 
     });
 };
+
+export const fetchPluginSettings = () => {
+    return async () => {
+        let data;
+        try {
+            data = await Client.getPluginSettings();
+        } catch (error) {
+            return error;
+        }
+        return data;
+    }
+}

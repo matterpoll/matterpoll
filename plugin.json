@@ -15,13 +15,22 @@
     "bundle_path": "webapp/dist/main.js"
   },
   "settings_schema": {
-    "settings": [{
-     "key": "Trigger",
-     "display_name": "Trigger Word",
-     "type": "text",
-     "help_text": "Trigger Word must be unique, and cannot begin with a slash or contain any spaces.",
-     "default": "poll"
-     }],
-     "footer": "* To report an issue, make a suggestion or a contribution, [check the repository](https://github.com/matterpoll/matterpoll)."
+    "settings": [
+      {
+        "key": "Trigger",
+        "display_name": "Trigger Word",
+        "type": "text",
+        "help_text": "Trigger Word must be unique, and cannot begin with a slash or contain any spaces.",
+        "default": "poll"
+      },
+      {
+        "key": "ExperimentalUI",
+        "display_name": "Experimental UI",
+        "type": "bool",
+        "help_text": "When true, Matterpoll will render poll posts with rich UI.",
+        "default": false
+      }
+    ],
+    "footer": "* To report an issue, make a suggestion or a contribution, [check the repository](https://github.com/matterpoll/matterpoll)."
   }
 }
