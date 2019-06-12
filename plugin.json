@@ -27,7 +27,7 @@
         "key": "ExperimentalUI",
         "display_name": "Experimental UI",
         "type": "bool",
-        "help_text": "When true, Matterpoll will render poll posts with rich UI.",
+        "help_text": "When true, Matterpoll will render poll posts with rich UI. (Experimental UI is not available on mobile app)",
         "default": false
       }
     ],

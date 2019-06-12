@@ -88,7 +88,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	r.HandleFunc("/"+iconFilename, p.handleLogo).Methods("GET")
 
 	apiV1 := r.PathPrefix("/api/v1").Subrouter()
-	apiV1.HandleFunc("/settings", p.handlePluginSettings).Methods("GET")
+	apiV1.HandleFunc("/configuration", p.handlePluginConfiguration).Methods("GET")
 
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
 	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods("POST")
@@ -122,7 +122,7 @@ func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join(bundlePath, "assets", iconFilename))
 }
 
-func (p *MatterpollPlugin) handlePluginSettings(w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, r *http.Request) {
 	configuration := p.getConfiguration()
 	b, err := json.Marshal(configuration)
 	if err != nil {

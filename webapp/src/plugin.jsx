@@ -1,15 +1,21 @@
 import Manifest from './manifest';
 
-import PostType from './components/post_type';
 import reducer from './reducer';
-import {websocketHasVoted, fetchPluginSettings} from './actions';
+import {configurationChange, websocketHasVoted, fetchPluginConfiguration} from './actions';
 
 export default class MatterPollPlugin {
     async initialize(registry, store) {
-        const data = await fetchPluginSettings()()
+        const data = await fetchPluginConfiguration()()
         if (data && data.experimentalui) {
-            registry.registerPostTypeComponent('custom_matterpoll', PostType);
+            await store.dispatch(configurationChange(registry, store, data))
         }
+
+        registry.registerWebSocketEventHandler(
+            'custom_' + Manifest.PluginId + '_configuration_change',
+            (message) => {
+                store.dispatch(configurationChange(registry, store, message.data))
+            }
+        )
         registry.registerWebSocketEventHandler(
             'custom_' + Manifest.PluginId + '_has_voted',
             (message) => {

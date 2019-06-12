@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/pkg/errors"
 )
 
@@ -44,6 +45,11 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 	}
 
 	p.setConfiguration(configuration)
+
+	// Emit to client
+	p.API.PublishWebSocketEvent("configuration_change", map[string]interface{}{
+		"experimentalui": configuration.ExperimentalUI,
+	}, &model.WebsocketBroadcast{})
 
 	return nil
 }

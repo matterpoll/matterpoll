@@ -1,7 +1,7 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import ActionButton from 'components/action_view/action_button/action_button';
+import ActionButton from 'components/post_type/action_view/action_button/action_button';
 
 describe('components/action_button/ActionButton', () => {
     const baseProps = {

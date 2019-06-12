@@ -13,6 +13,7 @@ export default class PostType extends React.PureComponent {
         theme: PropTypes.object.isRequired,
 
         options: PropTypes.object,
+        postTypeComponentId: PropTypes.string,
 
         actions: PropTypes.shape({
             doPostAction: PropTypes.func.isRequired,

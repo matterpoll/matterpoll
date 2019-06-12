@@ -7,8 +7,8 @@ export default class Client {
         this.url = `/plugins/${Manifest.PluginId}/api/v1`;
     }
 
-    getPluginSettings = async () => {
-        return this.doGet(`${this.url}/settings`);
+    getPluginConfiguration = async () => {
+        return this.doGet(`${this.url}/configuration`);
     }
 
     doGet = async (url, body, headers = {}) => {
