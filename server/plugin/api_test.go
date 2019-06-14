@@ -49,7 +49,7 @@ func TestServeHTTP(t *testing.T) {
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", test.RequestURL, nil)
+			r := httptest.NewRequest(http.MethodGet, test.RequestURL, nil)
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -100,7 +100,7 @@ func TestServeFile(t *testing.T) {
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", fmt.Sprintf("/%s", iconFilename), nil)
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s", iconFilename), nil)
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -400,6 +400,21 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 	userID := testutils.GetPollWithVotes().Creator
 	triggerID := model.NewId()
 	postID := model.NewId()
+
+	t.Run("not-authorized", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		request := &model.PostActionIntegrationRequest{UserId: userID, PostId: postID, TriggerId: triggerID}
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		p.ServeHTTP(nil, w, r)
+		result := w.Result()
+
+		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	})
 
 	dialogRequest := model.OpenDialogRequest{
 		TriggerId: triggerID,

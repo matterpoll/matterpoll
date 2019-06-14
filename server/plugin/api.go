@@ -81,8 +81,8 @@ var (
 // InitAPI initializes the REST API
 func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/", p.handleInfo).Methods("GET")
-	r.HandleFunc("/"+iconFilename, p.handleLogo).Methods("GET")
+	r.HandleFunc("/", p.handleInfo).Methods(http.MethodGet)
+	r.HandleFunc("/"+iconFilename, p.handleLogo).Methods(http.MethodGet)
 
 	apiV1 := r.PathPrefix("/api/v1").Subrouter()
 	apiV1.Use(checkAuthenticity)
