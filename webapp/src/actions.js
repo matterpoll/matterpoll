@@ -3,7 +3,7 @@ import {doPostAction} from 'mattermost-redux/actions/posts';
 import PostType from './components/post_type';
 import Manifest from './manifest';
 import Client from './client';
-import { postTypeComponent } from './selector';
+import {postTypeComponent} from './selector';
 
 export const VOTE_ANSWER = Manifest.PluginId + '_vote_answer';
 export const FETCH_VOTED_ANSWERS = Manifest.PluginId + '_fetch_voted_answers';
@@ -25,8 +25,8 @@ export const configurationChange = (registry, store, data) => async (dispatch) =
     return dispatch({
         type: REGIST_POST_TYPE_COMPONENT_ID,
         data: {postTypeComponentId: registeredComponentId},
-    })
-}
+    });
+};
 
 export const websocketHasVoted = (data) => async (dispatch) => {
     return dispatch({
@@ -48,14 +48,13 @@ export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
     if (!url.endsWith('/')) {
         url += '/';
     }
-    url = `${url}/plugins/${Manifest.PluginId}/api/v1/polls/${pollId}/voted`
+    url = `${url}/plugins/${Manifest.PluginId}/api/v1/polls/${pollId}/voted`;
 
     fetch(url).then((r) => r.json()).then((r) => {
         dispatch({
             type: FETCH_VOTED_ANSWERS,
             data: r,
         });
-
     });
 };
 
@@ -68,5 +67,5 @@ export const fetchPluginConfiguration = () => {
             return error;
         }
         return data;
-    }
-}
+    };
+};

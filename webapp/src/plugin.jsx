@@ -5,17 +5,17 @@ import {configurationChange, websocketHasVoted, fetchPluginConfiguration} from '
 
 export default class MatterPollPlugin {
     async initialize(registry, store) {
-        const data = await fetchPluginConfiguration()()
+        const data = await fetchPluginConfiguration()();
         if (data && data.experimentalui) {
-            await store.dispatch(configurationChange(registry, store, data))
+            await store.dispatch(configurationChange(registry, store, data));
         }
 
         registry.registerWebSocketEventHandler(
             'custom_' + Manifest.PluginId + '_configuration_change',
             (message) => {
-                store.dispatch(configurationChange(registry, store, message.data))
+                store.dispatch(configurationChange(registry, store, message.data));
             }
-        )
+        );
         registry.registerWebSocketEventHandler(
             'custom_' + Manifest.PluginId + '_has_voted',
             (message) => {

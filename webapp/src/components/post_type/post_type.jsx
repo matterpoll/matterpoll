@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import LinkOnlyRenderer from 'utils/link_only_renderer';
+
 import ActionView from './action_view';
 import FieldsTable from './fields/fields_table';
-import LinkOnlyRenderer from 'utils/link_only_renderer';
 
 const {formatText, messageHtmlToComponent} = window.PostUtils;
 
@@ -102,8 +103,8 @@ export default class PostType extends React.PureComponent {
                     mentionHighlight: false,
                     renderer: new LinkOnlyRenderer(),
                     autoLinkedUrlSchemes: [],
-                })
-                const attachmentTitle = messageHtmlToComponent(htmlFormattedText, false, {emoji: true})
+                });
+                const attachmentTitle = messageHtmlToComponent(htmlFormattedText, false, {emoji: true});
                 title = (
                     <h1 className='attachment__title'>
                         {attachmentTitle}
@@ -136,7 +137,8 @@ export default class PostType extends React.PureComponent {
                         {title}
                         <div>
                             <div
-                                className={'attachment__body attachment__body--no_thumb'}                            >
+                                className={'attachment__body attachment__body--no_thumb'}
+                            >
                                 {attachmentText}
                                 <FieldsTable
                                     attachment={attachment}

@@ -10,14 +10,14 @@ const postTypeComponent = (state = {}, action) => {
             if (!action.data.postTypeComponentId) {
                 return state;
             }
-            nextState['id'] = action.data.postTypeComponentId;
+            nextState.id = action.data.postTypeComponentId;
             return nextState;
         }
         return state;
     default:
         return state;
     }
-}
+};
 
 const votedAnswers = (state = {}, action) => {
     switch (action.type) {

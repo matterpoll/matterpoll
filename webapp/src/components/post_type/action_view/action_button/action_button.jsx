@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 const PostUtils = window.PostUtils;
-const { Button, ButtonToolbar } = window.ReactBootstrap;
+const {Button, ButtonToolbar} = window.ReactBootstrap;
 
 export default class ActionButton extends React.PureComponent {
     static propTypes = {
@@ -32,10 +32,10 @@ export default class ActionButton extends React.PureComponent {
             mentionHighlight: false,
             markdown: false,
             autoLinkedUrlSchemes: [],
-        })
-        const message = PostUtils.messageHtmlToComponent(htmlFormattedText, false, {emoji: true})
+        });
 
-        const bsStyle = this.props.hasVoted ? "primary" : "default";
+        const message = PostUtils.messageHtmlToComponent(htmlFormattedText, false, {emoji: true});
+        const bsStyle = this.props.hasVoted ? 'primary' : 'default';
 
         return (
             <ButtonToolbar>

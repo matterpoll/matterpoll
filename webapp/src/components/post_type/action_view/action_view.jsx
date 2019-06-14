@@ -24,7 +24,7 @@ export default class ActionView extends React.PureComponent {
         if (!actions || !actions.length) {
             return '';
         }
-        
+
         const content = [];
         const votedAnswers = this.props.votedAnswers || {};
         const answers = votedAnswers[this.props.post.props.poll_id] || {};
