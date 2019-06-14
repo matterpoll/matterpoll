@@ -49,7 +49,7 @@ func TestServeHTTP(t *testing.T) {
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", test.RequestURL, nil)
+			r := httptest.NewRequest(http.MethodGet, test.RequestURL, nil)
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -100,7 +100,7 @@ func TestServeFile(t *testing.T) {
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", fmt.Sprintf("/%s", iconFilename), nil)
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s", iconFilename), nil)
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -122,6 +122,21 @@ func TestServeFile(t *testing.T) {
 }
 
 func TestHandleVote(t *testing.T) {
+	t.Run("not-authorized", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/vote/0", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		p.ServeHTTP(nil, w, r)
+		result := w.Result()
+
+		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	})
+
 	localizer := testutils.GetLocalizer()
 
 	poll1In := testutils.GetPoll()
@@ -261,7 +276,8 @@ func TestHandleVote(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex), bytes.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex), bytes.NewReader(test.Request.ToJson()))
+			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -286,6 +302,21 @@ func TestHandleVote(t *testing.T) {
 }
 
 func TestHandleAddOption(t *testing.T) {
+	t.Run("not-authorized", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		p.ServeHTTP(nil, w, r)
+		result := w.Result()
+
+		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	})
+
 	userID := testutils.GetPollWithVotes().Creator
 	channelID := model.NewId()
 	postID := model.NewId()
@@ -346,7 +377,8 @@ func TestHandleAddOption(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -368,6 +400,21 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 	userID := testutils.GetPollWithVotes().Creator
 	triggerID := model.NewId()
 	postID := model.NewId()
+
+	t.Run("not-authorized", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		request := &model.PostActionIntegrationRequest{UserId: userID, PostId: postID, TriggerId: triggerID}
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		p.ServeHTTP(nil, w, r)
+		result := w.Result()
+
+		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	})
 
 	dialogRequest := model.OpenDialogRequest{
 		TriggerId: triggerID,
@@ -442,7 +489,8 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -461,6 +509,21 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 }
 
 func TestHandleEndPoll(t *testing.T) {
+	t.Run("not-authorized", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		p.ServeHTTP(nil, w, r)
+		result := w.Result()
+
+		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	})
+
 	converter := func(userID string) (string, *model.AppError) {
 		switch userID {
 		case "userID1":
@@ -632,7 +695,8 @@ func TestHandleEndPoll(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -717,6 +781,21 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 	}
 }
 func TestHandleDeletePoll(t *testing.T) {
+	t.Run("not-authorized", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		p.ServeHTTP(nil, w, r)
+		result := w.Result()
+
+		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	})
+
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
@@ -846,7 +925,8 @@ func TestHandleDeletePoll(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
