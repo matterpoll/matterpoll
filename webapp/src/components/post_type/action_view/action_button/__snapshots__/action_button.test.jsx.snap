@@ -1,27 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`components/action_button/ActionButton should match snapshot 1`] = `
-<button
-  data-action-id="action_id1"
-  key="action_id1"
-  onClick={[Function]}
-  style={
-    Object {
-      "background-color": "red",
-    }
-  }
+<ButtonToolbar
+  bsClass="btn-toolbar"
 >
-  action_name
-</button>
+  <Button
+    active={false}
+    block={false}
+    bsClass="btn"
+    bsStyle="default"
+    data-action-id="action_id1"
+    disabled={false}
+    key="action_id1"
+    onClick={[Function]}
+  />
+</ButtonToolbar>
 `;
 
-exports[`components/action_button/ActionButton should match snapshot without voted 1`] = `
-<button
-  data-action-id="action_id1"
-  key="action_id1"
-  onClick={[Function]}
-  style={Object {}}
+exports[`components/action_button/ActionButton should match snapshot with hasVoted 1`] = `
+<ButtonToolbar
+  bsClass="btn-toolbar"
 >
-  action_name
-</button>
+  <Button
+    active={false}
+    block={false}
+    bsClass="btn"
+    bsStyle="primary"
+    data-action-id="action_id1"
+    disabled={false}
+    key="action_id1"
+    onClick={[Function]}
+  />
+</ButtonToolbar>
 `;

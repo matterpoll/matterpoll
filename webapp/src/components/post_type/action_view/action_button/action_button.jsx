@@ -33,7 +33,6 @@ export default class ActionButton extends React.PureComponent {
             markdown: false,
             autoLinkedUrlSchemes: [],
         });
-
         const message = PostUtils.messageHtmlToComponent(htmlFormattedText, false, {emoji: true});
         const bsStyle = this.props.hasVoted ? 'primary' : 'default';
 
