@@ -84,20 +84,20 @@ var (
 // InitAPI initializes the REST API
 func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/", p.handleInfo).Methods("GET")
-	r.HandleFunc("/"+iconFilename, p.handleLogo).Methods("GET")
+	r.HandleFunc("/", p.handleInfo).Methods(http.MethodGet)
+	r.HandleFunc("/"+iconFilename, p.handleLogo).Methods(http.MethodGet)
 
 	apiV1 := r.PathPrefix("/api/v1").Subrouter()
-	apiV1.HandleFunc("/configuration", p.handlePluginConfiguration).Methods("GET")
+	apiV1.Use(checkAuthenticity)
+	apiV1.HandleFunc("/configuration", p.handlePluginConfiguration).Methods(http.MethodGet)
 
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
-	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods("POST")
-	pollRouter.HandleFunc("/option/add", p.handleSubmitDialogRequest(p.handleAddOption)).Methods("POST")
-	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOptionDialogRequest)).Methods("POST")
-	pollRouter.HandleFunc("/end", p.handlePostActionIntegrationRequest(p.handleEndPoll)).Methods("POST")
-	pollRouter.HandleFunc("/delete", p.handlePostActionIntegrationRequest(p.handleDeletePoll)).Methods("POST")
-
-	pollRouter.HandleFunc("/voted", p.handleUserVoted).Methods("GET")
+	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/option/add", p.handleSubmitDialogRequest(p.handleAddOption)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOptionDialogRequest)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/end", p.handlePostActionIntegrationRequest(p.handleEndPoll)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/delete", p.handlePostActionIntegrationRequest(p.handleDeletePoll)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/voted", p.handleUserVoted).Methods(http.MethodGet)
 	return r
 }
 
@@ -138,7 +138,18 @@ func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, r *h
 	}
 }
 
-func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postActionHandler) func(http.ResponseWriter, *http.Request) {
+func checkAuthenticity(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Mattermost-User-ID") == "" {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postActionHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		request := model.PostActionIntegrationRequestFromJson(r.Body)
 		if request == nil {
@@ -169,7 +180,7 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 	}
 }
 
-func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler) func(http.ResponseWriter, *http.Request) {
+func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		request := model.SubmitDialogRequestFromJson(r.Body)
 		if request == nil {

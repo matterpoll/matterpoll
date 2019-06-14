@@ -272,25 +272,10 @@ func TestPluginOnActivate(t *testing.T) {
 }
 
 func TestPluginOnDeactivate(t *testing.T) {
-	t.Run("all fine", func(t *testing.T) {
-		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, &mockstore.Store{})
-		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(nil)
-		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, &plugintest.API{}, &mockstore.Store{})
 
 		err := p.OnDeactivate()
 		assert.Nil(t, err)
-	})
-
-	t.Run("UnregisterCommand fails", func(t *testing.T) {
-		api := &plugintest.API{}
-		p := setupTestPlugin(t, api, &mockstore.Store{})
-		api.On("UnregisterCommand", "", p.getConfiguration().Trigger).Return(&model.AppError{})
-		defer api.AssertExpectations(t)
-
-		err := p.OnDeactivate()
-		assert.NotNil(t, err)
-	})
 }
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {
