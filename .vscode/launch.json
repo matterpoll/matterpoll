@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Jest Tests",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}/webapp",
+            "program": "${workspaceRoot}/webapp/node_modules/.bin/jest",
+            "protocol": "inspector",
+            "args": ["--runInBand"],
+            "windows": {
+                "program": "${workspaceRoot}/nwebapp/ode_modules/jest/bin/jest.js"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        }
+    ]
+}
