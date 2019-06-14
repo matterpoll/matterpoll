@@ -95,7 +95,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 	return nil
 }
 
-// OnDeactivate marks the plugin as eactivated
+// OnDeactivate marks the plugin as deactivated
 func (p *MatterpollPlugin) OnDeactivate() error {
 	p.setActivated(false)
 
