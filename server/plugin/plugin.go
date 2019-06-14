@@ -95,13 +95,8 @@ func (p *MatterpollPlugin) OnActivate() error {
 	return nil
 }
 
-// OnDeactivate unregisters the command
+// OnDeactivate marks the plugin as eactivated
 func (p *MatterpollPlugin) OnDeactivate() error {
-	err := p.API.UnregisterCommand("", p.getConfiguration().Trigger)
-	if err != nil {
-		return errors.Wrap(err, "failed to dectivate command")
-	}
-
 	p.setActivated(false)
 
 	return nil
