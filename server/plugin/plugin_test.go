@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/blang/semver"
-	"github.com/bouk/monkey"
+	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
