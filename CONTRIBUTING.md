@@ -1,6 +1,6 @@
 # Contributing to Matterpoll
 
-Thank you for your interest in contributing! Join the join the [**Matterpoll channel**](https://community.mattermost.com/core/channels/matterpoll) on the Mattermost community server for discussion about this plugin.
+Thank you for your interest in contributing! Join the [**Matterpoll channel**](https://community.mattermost.com/core/channels/matterpoll) on the Mattermost community server for discussion about this plugin.
 
 
 ## Reporting Issues
