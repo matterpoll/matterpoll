@@ -62,6 +62,6 @@ Translate all messages in `asserts/i18n/translate.de.json` and rename it to `act
 
 ## Submitting Patches
 
-If you contributing a feature, [please open a feature request](https://github.com/matterpoll/matterpoll/issues/new?template=feature_request.md) first. This way the feature can be discussed and fully specified before you start working on this. Small code changes can be submitted without opening an issue first.
+If you are contributing a feature, [please open a feature request](https://github.com/matterpoll/matterpoll/issues/new?template=feature_request.md) first. This enables the feature to be discussed and fully specified before you start working on this. Small code changes can be submitted without opening an issue first.
 
 You can find all issue that we seek help with [here](https://github.com/matterpoll/matterpoll/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Help+Wanted%22).
