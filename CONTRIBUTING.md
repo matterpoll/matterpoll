@@ -41,7 +41,7 @@ The localization process is defined below:
 
 `goi18n merge -format json -outdir assets/i18n/ assets/i18n/active.*.json assets/i18n/translate.*.json`
 
-Commit **only the language files you touched** and [submit a PR](https://github.com/matterpoll/matterpoll/compare).
+5. Commit **only the language files you touched** and [submit a PR](https://github.com/matterpoll/matterpoll/compare).
 
 ### Translation Process for New Languages
 
