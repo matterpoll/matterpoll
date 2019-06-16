@@ -12,7 +12,7 @@ If you think you found a bug, [please use the GitHub issue tracker](https://gith
 
 Matterpoll supports localization to various languages. We as maintainers rely on contributors to help with the translations.
 
-The translations process is:
+The localization process is defined below:
 - While developing, new translation messages may be added or existing ones changed.
 - When a new version will releases soon, a maintainer will open an issue informing about this.
 - The maintainer will ping all translation maintainer to inform them about this.
