@@ -43,7 +43,7 @@ Merge the translated messages into the active message files:
 
 Commit **only the language files you touched** and [submit a PR](https://github.com/matterpoll/matterpoll/compare).
 
-### Translating a new language
+### Translation Process for New Languages
 
 Let's say you want to translate the local `de`. Replace  `de` in the following commands with the local you want to translate. See [here](https://github.com/mattermost/mattermost-server/tree/master/i18n) for the list of possible locals.
 
