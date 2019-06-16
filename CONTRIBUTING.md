@@ -10,7 +10,7 @@ If you think you found a bug, [please use the GitHub issue tracker](https://gith
 
 ## Helping with translations
 
-Matterpoll supports localization in various languages. Because we as the maintainer only speak a small amount of language, we rely on contributors to help us with the translations.
+Matterpoll supports localization to various languages. We as maintainers rely on contributors to help with the translations.
 
 The translations process is:
 - While developing, new translation messages may be added or existing ones changed.
