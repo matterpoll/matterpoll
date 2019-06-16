@@ -17,7 +17,7 @@ The localization process is defined below:
 - When a new version will releases soon, a maintainer will open an issue informing about this.
 - The maintainer will ping all translation maintainer to inform them about this.
 - Translation maintainers submit PRs with new translations, which may get reviewed by other translators.
-- After all translation PR's are merged, the new version is released.
+- After all translation PRs are merged, the new version is released.
 
 ### Translation Maintainer
 
