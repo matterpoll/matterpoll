@@ -5,7 +5,7 @@ Thank you for your interest in contributing! Join the [**Matterpoll channel**](h
 
 ## Reporting Issues
 
-If you think you found a bug in Hugo, [please use the GitHub issue tracker](https://github.com/matterpoll/matterpoll/issues/new?template=bug_report.md) to open an issue. When opening an issue, please provide the required information in the issue template.
+If you think you found a bug, [please use the GitHub issue tracker](https://github.com/matterpoll/matterpoll/issues/new?template=bug_report.md) to open an issue. When opening an issue, please provide the required information in the issue template.
 
 
 ## Helping with translations
