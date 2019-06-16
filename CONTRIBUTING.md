@@ -35,7 +35,7 @@ The localization process is defined below:
 
 `goi18n merge -format json -outdir assets/i18n/ assets/i18n/active.*.json`
 
-Translate all messages in `asserts/i18n/translate.*.json` for the languages you are comfortable with.
+3. Translate all messages in `asserts/i18n/translate.*.json` for the languages you are comfortable with.
 
 Merge the translated messages into the active message files:
 
