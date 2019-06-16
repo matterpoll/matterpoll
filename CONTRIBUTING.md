@@ -31,7 +31,7 @@ The localization process is defined below:
 
 `goi18n extract -format json -outdir assets/i18n/ server/`
 
-Then update your translation files:
+2. Update your translation files:
 
 `goi18n merge -format json -outdir assets/i18n/ assets/i18n/active.*.json`
 
