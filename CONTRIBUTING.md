@@ -14,12 +14,11 @@ Matterpoll supports localization to various languages. We as maintainers rely on
 
 The localization process is defined below:
 - During development, new translation strings may be added or existing ones updated.
-- When a new version is planned to release soon, a maintainer opens an issue informing about this.
-- The maintainer will ping all translation maintainer to inform them about this.
+- When a new version is planned to release soon, a maintainer opens an issue informing about this. The maintainer will ping all translation maintainer to inform them about this.
 - Translation maintainers submit PRs with new translations, which may get reviewed by other translators.
 - After all translation PRs are merged, the new version is released.
 
-### Translation Maintainer
+### Translation Maintainers
 
 - France: [@ldidry](https://github.com/ldidry)
 - German: [@hanzei](https://github.com/hanzei)
@@ -47,17 +46,17 @@ The localization process is defined below:
 
 Let's say you want to translate the local `de`. Replace  `de` in the following commands with the local you want to translate. See [here](https://github.com/mattermost/mattermost-server/tree/master/i18n) for the list of possible locals.
 
-Create a translation file:
+1. Create a translation file:
 
 `touch asserts/i18n/translate.de.json`
 
-Merge all current messages into your translation file:
+2. Merge all current messages into your translation file:
 
 `goi18n merge -format json -outdir assets/i18n/ assets/i18n/active.en.json assets/i18n/translate.de.json`
 
-Translate all messages in `asserts/i18n/translate.de.json` and rename it to `active.de.json`.
+3. Translate all messages in `asserts/i18n/translate.de.json` and rename it to `active.de.json`.
 
-[Submit a PR](https://github.com/matterpoll/matterpoll/compare) with this file and add you to the list of [Translation Maintainer](#translation-maintainer)
+4. [Submit a PR](https://github.com/matterpoll/matterpoll/compare) with this file and add you to the list of [Translation Maintainer](#translation-maintainer)
 
 
 ## Submitting Patches
