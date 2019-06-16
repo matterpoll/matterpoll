@@ -27,7 +27,7 @@ The localization process is defined below:
 
 ### Translation Process for Existing Languages
 
-To translate new or changed translation messages, you need to first ensure all translation messages are correctly extracted:
+1. Ensure all translation messages are correctly extracted:
 
 `goi18n extract -format json -outdir assets/i18n/ server/`
 
