@@ -64,7 +64,7 @@ workflows:
               ignore: /.*/
           requires:
             - lint
-            - test
+            - coverage
           
       - plugin-ci/deploy-release-github:
           filters:
