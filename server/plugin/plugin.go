@@ -3,8 +3,10 @@ package plugin
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/blang/semver"
 	"github.com/gorilla/mux"
@@ -90,6 +92,14 @@ func (p *MatterpollPlugin) OnActivate() error {
 
 	p.router = p.InitAPI()
 
+	go func(p *MatterpollPlugin) {
+		// Wait a bit to let the server mark the plugin as running
+		time.Sleep(100 * time.Millisecond)
+		if err = p.checkHTTPConnection(); err != nil {
+			p.API.LogError("Your server is misconfigured. Please check if your siteURL is set and you TLS certificate is valid", "error", err.Error())
+		}
+	}(p)
+
 	p.setActivated(true)
 
 	return nil
@@ -155,6 +165,21 @@ func (p *MatterpollPlugin) setProfileImage() error {
 	if appErr := p.API.SetProfileImage(p.botUserID, profileImage); appErr != nil {
 		return errors.Wrap(appErr, "failed to set profile image")
 	}
+	return nil
+}
+
+// checkHTTPConnection checks if a http request to
+func (p *MatterpollPlugin) checkHTTPConnection() error {
+	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
+	url := siteURL + "/plugins/" + PluginId + "/"
+	resp, err := http.Get(url)
+	if err != nil {
+		return errors.Wrapf(err, "failed to make http request to root plugin URL %v", url)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.Errorf("http request to root plugin URL returned status code %v", resp.StatusCode)
+	}
+
 	return nil
 }
 
