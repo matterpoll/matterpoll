@@ -1,0 +1,76 @@
+version: 2.1
+executors:
+  default:
+    docker:
+      - image: circleci/golang:1.12
+
+orbs:
+  codecov: codecov/codecov@1.0.5
+  plugin-ci: mattermost/plugin-ci@0.0.4
+
+jobs:
+  lint:
+    working_directory: /go/src/github.com/matterpoll/matterpoll
+    executor:
+      name: default
+    steps:
+      - checkout
+      - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      - run: make check-style
+
+  test:
+    working_directory: /go/src/github.com/matterpoll/matterpoll
+    executor:
+      name: default
+    steps:
+      - checkout
+      - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      - run: make coverage
+      - codecov/upload:
+        file:  server/coverage.txt
+
+  build:
+    working_directory: /go/src/github.com/matterpoll/matterpoll
+    executor:
+      name: default
+    steps:
+      - checkout
+      - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      - run: make dist
+      - persist_to_workspace:
+          root: dist
+          paths:
+            - "*.tar.gz"
+      - store_artifacts:
+          path: dist
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - lint:
+        filters:
+          tags:
+            only: /^v.*/
+      - test:
+        filters:
+          tags:
+            only: /^v.*/
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - lint
+            - test
+          
+      - plugin-ci/deploy-release-github:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - build
