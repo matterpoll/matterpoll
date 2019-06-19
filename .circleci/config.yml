@@ -18,7 +18,7 @@ jobs:
       - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run: make check-style
 
-  test:
+  coverage:
     working_directory: /go/src/github.com/matterpoll/matterpoll
     executor:
       name: default
@@ -52,7 +52,7 @@ workflows:
         filters:
           tags:
             only: /^v.*/
-      - test:
+      - coverage:
         filters:
           tags:
             only: /^v.*/
