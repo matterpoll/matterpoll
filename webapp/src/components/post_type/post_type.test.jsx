@@ -43,7 +43,7 @@ describe('components/post_type/PostType', () => {
         newProps.post.props.attachments.push({
             author_name: 'sample_name',
             title: 'sample_title',
-            text: 'sample_text',       
+            text: 'sample_text',
         });
 
         const wrapper = shallow(<PostType {...newProps}/>);
