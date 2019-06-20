@@ -3,7 +3,7 @@ import {shallow} from 'enzyme';
 
 import ActionView from 'components/post_type/action_view/action_view';
 
-describe('component/action_view/ActionView', () => {
+describe('components/post_type/action_view/ActionView', () => {
     const samplePollId = 'samplepollid1';
     const baseProps = {
         post: {

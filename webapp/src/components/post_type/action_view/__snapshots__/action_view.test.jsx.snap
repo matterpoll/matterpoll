@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`component/action_view/ActionView should match snapshot 1`] = `
+exports[`components/post_type/action_view/ActionView should match snapshot 1`] = `
 <div
   className="attachment-actions"
 >
@@ -40,7 +40,7 @@ exports[`component/action_view/ActionView should match snapshot 1`] = `
 </div>
 `;
 
-exports[`component/action_view/ActionView should match snapshot with only select actions 1`] = `
+exports[`components/post_type/action_view/ActionView should match snapshot with only select actions 1`] = `
 <div
   className="attachment-actions"
 >
@@ -58,4 +58,4 @@ exports[`component/action_view/ActionView should match snapshot with only select
 </div>
 `;
 
-exports[`component/action_view/ActionView should match snapshot without any actions 1`] = `""`;
+exports[`components/post_type/action_view/ActionView should match snapshot without any actions 1`] = `""`;

@@ -1,13 +1,7 @@
-import {doPostAction} from 'mattermost-redux/actions/posts';
-
 import ActionTypes from 'action_types';
 import PostType from 'components/post_type';
 import Client from 'client';
 import {postTypeComponent} from 'selector';
-
-export const voteAnswer = (postId, actionId) => async (dispatch) => {
-    return dispatch(doPostAction(postId, actionId));
-};
 
 export const configurationChange = (registry, store, data) => async (dispatch) => {
     let registeredComponentId = postTypeComponent(store.getState()) ? postTypeComponent(store.getState()).id : '';
