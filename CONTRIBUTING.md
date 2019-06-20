@@ -18,7 +18,7 @@ The localization process is defined below:
 - During development, new translation strings may be added or existing ones updated.
 - When a new version is planned to release soon, a repository maintainer opens an issue informing about this. The maintainer will ping all translation maintainer to inform them about this.
 - Translation maintainers submit PRs with new translations, which may get reviewed by other translators.
-- After all translation PRs are merged, the new version is released.
+- After all translation PRs are merged, the new version is released. If a translation PR is not submitted within in week, the release will be cut anyway.
 
 ### Translation Maintainers
 
@@ -46,7 +46,7 @@ The localization process is defined below:
 
 ### Translation Process for New Languages
 
-Let's say you want to translate the local `de`. Replace  `de` in the following commands with the local you want to translate. See [here](https://github.com/mattermost/mattermost-server/tree/master/i18n) for the list of possible locals.
+Let's say you want to translate the local `de`. Replace `de` in the following commands with the local you want to translate. See [here](https://github.com/mattermost/mattermost-server/tree/master/i18n) for the list of possible locals.
 
 1. Create a translation file:
 
