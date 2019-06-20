@@ -1,7 +1,7 @@
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import {voteAnswer} from 'actions';
+import {voteAnswer} from 'actions/vote';
 
 import ActionButton from './action_button';
 

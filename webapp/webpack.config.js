@@ -21,8 +21,8 @@ module.exports = {
                     options: {
                         presets: ['@babel/preset-env', '@babel/preset-react'],
                         plugins: [
-                            'transform-class-properties',
-                            'transform-object-rest-spread',
+                            '@babel/plugin-proposal-class-properties',
+                            '@babel/plugin-syntax-dynamic-import',
                         ],
                     },
                 },

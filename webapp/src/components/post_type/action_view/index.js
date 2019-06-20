@@ -3,7 +3,7 @@ import {bindActionCreators} from 'redux';
 
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
-import {fetchVotedAnswers} from 'actions';
+import {fetchVotedAnswers} from 'actions/vote';
 import {votedAnswers} from 'selector';
 
 import ActionView from './action_view';

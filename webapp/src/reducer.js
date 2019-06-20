@@ -1,10 +1,10 @@
 import {combineReducers} from 'redux';
 
-import {FETCH_VOTED_ANSWERS, REGIST_POST_TYPE_COMPONENT_ID} from './actions';
+import ActionTypes from 'action_types';
 
 const postTypeComponent = (state = {}, action) => {
     switch (action.type) {
-    case REGIST_POST_TYPE_COMPONENT_ID:
+    case ActionTypes.REGIST_POST_TYPE_COMPONENT_ID:
         if (action.data) {
             const nextState = {...state};
             if (!action.data.postTypeComponentId) {
@@ -21,7 +21,7 @@ const postTypeComponent = (state = {}, action) => {
 
 const votedAnswers = (state = {}, action) => {
     switch (action.type) {
-    case FETCH_VOTED_ANSWERS:
+    case ActionTypes.FETCH_VOTED_ANSWERS:
         if (action.data) {
             const nextState = {...state};
             if (!action.data.poll_id) {

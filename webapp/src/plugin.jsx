@@ -1,7 +1,8 @@
-import Manifest from './manifest';
+import {configurationChange, fetchPluginConfiguration} from 'actions/config';
+import {websocketHasVoted} from 'actions/vote';
 
+import Manifest from './manifest';
 import reducer from './reducer';
-import {configurationChange, websocketHasVoted, fetchPluginConfiguration} from './actions';
 
 export default class MatterPollPlugin {
     async initialize(registry, store) {

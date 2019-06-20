@@ -1,0 +1,38 @@
+import {doPostAction} from 'mattermost-redux/actions/posts';
+
+import Manifest from 'manifest';
+import ActionTypes from 'action_types';
+
+export const voteAnswer = (postId, actionId) => async (dispatch) => {
+    return dispatch(doPostAction(postId, actionId));
+};
+
+export const websocketHasVoted = (data) => async (dispatch) => {
+    return dispatch({
+        type: ActionTypes.FETCH_VOTED_ANSWERS,
+        data: {
+            user_id: data.user_id,
+            poll_id: data.poll_id,
+            voted_answers: data.voted_answers,
+        },
+    });
+};
+
+export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
+    if (typeof pollId === 'undefined' || pollId === '') {
+        return;
+    }
+
+    let url = siteUrl;
+    if (!url.endsWith('/')) {
+        url += '/';
+    }
+    url = `${url}/plugins/${Manifest.PluginId}/api/v1/polls/${pollId}/voted`;
+
+    fetch(url).then((r) => r.json()).then((r) => {
+        dispatch({
+            type: ActionTypes.FETCH_VOTED_ANSWERS,
+            data: r,
+        });
+    });
+};
