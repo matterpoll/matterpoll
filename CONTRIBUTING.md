@@ -66,3 +66,5 @@ Let's say you want to translate the local `de`. Replace `de` in the following co
 If you are contributing a feature, [please open a feature request](https://github.com/matterpoll/matterpoll/issues/new?template=feature_request.md) first. This enables the feature to be discussed and fully specified before you start working on this. Small code changes can be submitted without opening an issue first.
 
 You can find all issue that we seek help with [here](https://github.com/matterpoll/matterpoll/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Help+Wanted%22).
+
+Note that this project uses [Go modules](https://github.com/golang/go/wiki/Modules). Be sure to locate the project outside of `$GOPATH`, or allow the use of Go modules within your `$GOPATH` with an `export GO111MODULE=on`.
