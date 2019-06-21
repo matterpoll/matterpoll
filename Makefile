@@ -138,7 +138,7 @@ endif
 .PHONY: test
 test: webapp/.npminstall
 ifneq ($(HAS_SERVER),)
-	$(GO) test -race -v -gcflags=-l ./server/...
+	$(GO) test -race -gcflags=-l ./server/...
 endif
 ifneq ($(HAS_WEBAPP),)
 	cd webapp && $(NPM) run fix;
