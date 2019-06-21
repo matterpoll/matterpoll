@@ -9,46 +9,20 @@ orbs:
   plugin-ci: mattermost/plugin-ci@0.0.4
 
 jobs:
-  lint:
-    working_directory: /go/src/github.com/matterpoll/matterpoll
-    executor:
-      name: default
-    steps:
-      - checkout
-      - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-      - run: make check-style
-
   coverage:
-    working_directory: /go/src/github.com/matterpoll/matterpoll
     executor:
       name: default
     steps:
       - checkout
-      - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - run: make coverage
       - codecov/upload:
         file:  server/coverage.txt
-
-  build:
-    working_directory: /go/src/github.com/matterpoll/matterpoll
-    executor:
-      name: default
-    steps:
-      - checkout
-      - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-      - run: make dist
-      - persist_to_workspace:
-          root: dist
-          paths:
-            - "*.tar.gz"
-      - store_artifacts:
-          path: dist
 
 workflows:
   version: 2
   main:
     jobs:
-      - lint:
+      - plugin-ci/lint:
         filters:
           tags:
             only: /^v.*/
@@ -56,16 +30,15 @@ workflows:
         filters:
           tags:
             only: /^v.*/
-      - build:
+      - plugin-ci/build:
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
           requires:
-            - lint
+            - plugin-ci/lint
             - coverage
-          
       - plugin-ci/deploy-release-github:
           filters:
             tags:
@@ -73,4 +46,4 @@ workflows:
             branches:
               ignore: /.*/
           requires:
-            - build
+            - plugin-ci/build
