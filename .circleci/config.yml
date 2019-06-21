@@ -1,22 +1,8 @@
 version: 2.1
-executors:
-  default:
-    docker:
-      - image: circleci/golang:1.12
 
 orbs:
   codecov: codecov/codecov@1.0.5
-  plugin-ci: mattermost/plugin-ci@0.0.4
-
-jobs:
-  coverage:
-    executor:
-      name: default
-    steps:
-      - checkout
-      - run: make coverage
-      - codecov/upload:
-        file:  server/coverage.txt
+  plugin-ci: mattermost/plugin-ci@0.0.5
 
 workflows:
   version: 2
@@ -26,7 +12,7 @@ workflows:
         filters:
           tags:
             only: /^v.*/
-      - coverage:
+      - plugin-ci/coverage:
         filters:
           tags:
             only: /^v.*/
@@ -38,7 +24,7 @@ workflows:
               ignore: /.*/
           requires:
             - plugin-ci/lint
-            - coverage
+            - plugin-ci/coverage
       - plugin-ci/deploy-release-github:
           filters:
             tags:
