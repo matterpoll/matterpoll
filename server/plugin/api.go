@@ -16,8 +16,6 @@ import (
 )
 
 const (
-	infoMessage = "Thanks for using Matterpoll v" + PluginVersion + "\n"
-
 	iconFilename = "logo_dark.png"
 
 	addOptionKey = "answerOption"
@@ -31,6 +29,8 @@ type (
 )
 
 var (
+	infoMessage = "Thanks for using Matterpoll v" + manifest.Id + "\n"
+
 	responseVoteCounted = &i18n.Message{
 		ID:    "response.vote.counted",
 		Other: "Your vote has been counted.",
@@ -245,8 +245,9 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
+
 	if hasVoted {
 		return responseVoteUpdated, post, nil
 	}
@@ -286,7 +287,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	}
 
 	publicLocalizer := p.getServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.Id, displayName))
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
 	}
@@ -321,10 +322,10 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(vars map[string]string, 
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", siteURL, PluginId, pollID),
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", siteURL, manifest.Id, pollID),
 		Dialog: model.Dialog{
 			Title:       p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionTitle),
-			IconURL:     fmt.Sprintf(responseIconURL, siteURL, PluginId),
+			IconURL:     fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
 			CallbackId:  request.PostId,
 			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionSubmitLabel),
 			Elements: []model.DialogElement{{
