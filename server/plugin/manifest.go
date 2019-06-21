@@ -1,4 +1,9 @@
 package plugin
 
-const PluginId = "com.github.matterpoll.matterpoll"
-const PluginVersion = "1.1.0"
+var manifest = struct {
+	Id      string
+	Version string
+}{
+	Id:      "com.github.matterpoll.matterpoll",
+	Version: "1.1.0",
+}
