@@ -10,16 +10,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-const PluginIdGoFileTemplate = `package plugin
+const pluginIdGoFileTemplate = `package plugin
 
-const PluginId = "%s"
-const PluginVersion = "%s"
+var manifest = struct {
+	Id      string
+	Version string
+}{
+	Id:      "%s",
+	Version: "%s",
+}
 `
 
-const PluginIdJsFileTemplate = `export default {
-    PluginId: '%s',
-    PluginVersion: '%s',
-};
+const pluginIdJsFileTemplate = `export const id = '%s';
+export const version = '%s';
 `
 
 func main() {
@@ -98,7 +101,7 @@ func applyManifest(manifest *model.Manifest) error {
 	if manifest.HasServer() {
 		if err := ioutil.WriteFile(
 			"server/plugin/manifest.go",
-			[]byte(fmt.Sprintf(PluginIdGoFileTemplate, manifest.Id, manifest.Version)),
+			[]byte(fmt.Sprintf(pluginIdGoFileTemplate, manifest.Id, manifest.Version)),
 			0644,
 		); err != nil {
 			return errors.Wrap(err, "failed to write server/manifest.go")
@@ -108,7 +111,7 @@ func applyManifest(manifest *model.Manifest) error {
 	if manifest.HasWebapp() {
 		if err := ioutil.WriteFile(
 			"webapp/src/manifest.js",
-			[]byte(fmt.Sprintf(PluginIdJsFileTemplate, manifest.Id, manifest.Version)),
+			[]byte(fmt.Sprintf(pluginIdJsFileTemplate, manifest.Id, manifest.Version)),
 			0644,
 		); err != nil {
 			return errors.Wrap(err, "failed to open webapp/src/manifest.js")

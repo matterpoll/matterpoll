@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/bouk/monkey"
+	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -59,7 +59,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					RootId:    "postID1",
 					Type:      model.POST_DEFAULT,
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -80,7 +80,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					RootId:    "postID1",
 					Type:      model.POST_DEFAULT,
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(nil, &model.AppError{})
 				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return()
@@ -104,7 +104,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					RootId:    "postID1",
 					Type:      model.POST_DEFAULT,
 				}
-				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe")
+				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -126,7 +126,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					RootId:    "postID1",
 					Type:      model.POST_DEFAULT,
 				}
-				actions := testutils.GetPollWithSettings(poll.PollSettings{Progress: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe")
+				actions := testutils.GetPollWithSettings(poll.PollSettings{Progress: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -149,7 +149,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					RootId:    "postID1",
 					Type:      model.POST_DEFAULT,
 				}
-				actions := testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), PluginId, "John Doe")
+				actions := testutils.GetPollWithSettings(poll.PollSettings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api

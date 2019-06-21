@@ -25,20 +25,14 @@ HAS_SERVER ?= $(shell build/bin/manifest has_server)
 # Determine if a webapp is defined in the manifest.
 HAS_WEBAPP ?= $(shell build/bin/manifest has_webapp)
 
-# Try looking for dep in $(GOPATH) in case $(GOPATH)/bin isn't in $(PATH).
-GOPATH ?= $(shell $(GO) env GOPATH)
-ifeq ($(DEP),)
-ifneq ($(wildcard $(GOPATH)/bin/dep),)
-    DEP = $(GOPATH)/bin/dep
-endif
-endif
+# Determine if a /public folder is in use
+HAS_PUBLIC ?= $(wildcard public/.)
 
-# Ensure that dep is installed.
-ifneq ($(HAS_SERVER),)
-ifeq ($(DEP),)
-    $(error "dep is not available: see https://golang.github.io/dep/docs/installation.html")
-endif
-endif
+# Determine if the mattermost-utilities repo is present
+HAS_MM_UTILITIES ?= $(wildcard $(MM_UTILITIES_DIR)/.)
+
+# Store the current path for later use
+PWD ?= $(shell pwd)
 
 # Ensure that npm (and thus node) is installed.
 ifneq ($(HAS_WEBAPP),)

@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	// Parameter: SiteURL, PluginId
+	// Parameter: SiteURL, manifest.Id
 	responseIconURL = "%s/plugins/%s/logo_dark.png"
 )
 
@@ -151,7 +151,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
-	actions := newPoll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, PluginId, displayName)
+	actions := newPoll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.Id, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: args.ChannelId,

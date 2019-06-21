@@ -60,7 +60,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return errors.New("siteURL is not set. Please set a siteURL and restart the plugin")
 	}
 
-	p.Store, err = kvstore.NewStore(p.API, PluginVersion)
+	p.Store, err = kvstore.NewStore(p.API, manifest.Version)
 	if err != nil {
 		return errors.Wrap(err, "failed to create store")
 	}

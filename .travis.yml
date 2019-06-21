@@ -4,6 +4,8 @@ notifications:
 language: go
 go:
   - "1.12.x"
+env:
+  - GO111MODULE=on
 
 install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
