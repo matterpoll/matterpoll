@@ -38,7 +38,7 @@ Poll Settings provider further customisation, e.g. `/poll "Is Matterpoll great?"
 
 ## Localization
 
-Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > General > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in  **Account Settings > Display > Language**.
+Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > General > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Account Settings > Display > Language**.
 
 The currently supported languages are:
 - English
@@ -57,4 +57,6 @@ For example, this error happens in case you set SiteURL starting with `http://`,
 
 ## Contributing
 
-We welcome contributions of any bug reports, issues, feature requests, feature implementations and pull requests. Feel free to [**file a new issue**](https://github.com/matterpoll/matterpoll/issues/new/choose) to join the [**Matterpoll channel**](https://pre-release.mattermost.com/core/channels/matterpoll) on the Mattermost community server.
+We welcome contributions for bug reports, issues, feature requests, feature implementations and pull requests. Feel free to [**file a new issue**](https://github.com/matterpoll/matterpoll/issues/new/choose) or join the [**Matterpoll channel**](https://community.mattermost.com/core/channels/matterpoll) on the Mattermost community server.
+
+For a complete guide on contributing to Matterpoll, see the [Contribution Guideline](CONTRIBUTING.md).
