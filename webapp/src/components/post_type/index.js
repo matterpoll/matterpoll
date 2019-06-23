@@ -6,7 +6,7 @@ import PostType from './post_type';
 
 function mapStateToProps(state) {
     return {
-        postTypeComponentId: postTypeComponent(state).id,
+        postTypeComponentId: postTypeComponent(state) ? postTypeComponent(state).id : '',
     };
 }
 

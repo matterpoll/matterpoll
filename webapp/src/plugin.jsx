@@ -1,7 +1,7 @@
 import {configurationChange, fetchPluginConfiguration} from 'actions/config';
 import {websocketHasVoted} from 'actions/vote';
 
-import Manifest from './manifest';
+import {id as pluginId} from './manifest';
 import reducer from './reducers';
 
 export default class MatterPollPlugin {
@@ -12,13 +12,13 @@ export default class MatterPollPlugin {
         }
 
         registry.registerWebSocketEventHandler(
-            'custom_' + Manifest.PluginId + '_configuration_change',
+            'custom_' + pluginId + '_configuration_change',
             (message) => {
                 store.dispatch(configurationChange(registry, store, message.data));
             }
         );
         registry.registerWebSocketEventHandler(
-            'custom_' + Manifest.PluginId + '_has_voted',
+            'custom_' + pluginId + '_has_voted',
             (message) => {
                 store.dispatch(websocketHasVoted(message.data));
             }
@@ -28,6 +28,6 @@ export default class MatterPollPlugin {
 
     uninitialize() {
         //eslint-disable-next-line no-console
-        console.log(Manifest.PluginId + '::uninitialize()');
+        console.log(pluginId + '::uninitialize()');
     }
 }

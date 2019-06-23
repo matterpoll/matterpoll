@@ -1,4 +1,4 @@
 import MatterPollPlugin from './plugin';
-import Manifest from './manifest';
+import {id as pluginId} from './manifest';
 
-window.registerPlugin(Manifest.PluginId, new MatterPollPlugin());
+window.registerPlugin(pluginId, new MatterPollPlugin());

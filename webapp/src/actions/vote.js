@@ -1,6 +1,6 @@
 import {doPostAction} from 'mattermost-redux/actions/posts';
 
-import Manifest from 'manifest';
+import {id as pluginId} from 'manifest';
 import ActionTypes from 'action_types';
 
 export const voteAnswer = (postId, actionId) => async (dispatch) => {
@@ -27,7 +27,7 @@ export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
     if (!url.endsWith('/')) {
         url += '/';
     }
-    url = `${url}/plugins/${Manifest.PluginId}/api/v1/polls/${pollId}/voted`;
+    url = `${url}/plugins/${pluginId}/api/v1/polls/${pollId}/voted`;
 
     fetch(url).then((r) => r.json()).then((r) => {
         dispatch({

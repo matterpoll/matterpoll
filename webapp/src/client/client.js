@@ -1,10 +1,10 @@
 import request from 'superagent';
 
-import Manifest from '../manifest';
+import {id as pluginId} from '../manifest';
 
 export default class Client {
     constructor() {
-        this.url = `/plugins/${Manifest.PluginId}/api/v1`;
+        this.url = `/plugins/${pluginId}/api/v1`;
     }
 
     getPluginConfiguration = async () => {

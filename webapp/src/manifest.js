@@ -1,4 +1,2 @@
-export default {
-    PluginId: 'com.github.matterpoll.matterpoll',
-    PluginVersion: '1.1.0',
-};
+export const id = 'com.github.matterpoll.matterpoll';
+export const version = '1.1.0';
