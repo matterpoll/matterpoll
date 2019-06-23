@@ -19,8 +19,6 @@ const (
 	iconFilename = "logo_dark.png"
 
 	addOptionKey = "answerOption"
-
-	headerMattermostUserId = "Mattermost-User-Id"
 )
 
 type (
@@ -343,12 +341,10 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(vars map[string]string, 
 	return nil, nil, nil
 }
 
-// TODO: will confirm this func finally
 func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	pollID := vars["id"]
-
-	userID := r.Header.Get(headerMattermostUserId)
+	userID := r.Header.Get("Mattermost-User-Id")
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
