@@ -104,7 +104,7 @@ func (p *Poll) GetVotedAnswer(userID string) (*VotedAnswerResponse, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("invalid userID")
 	}
-	var votedAnswer []string
+	votedAnswer := []string{}
 	for _, o := range p.AnswerOptions {
 		for _, v := range o.Voter {
 			if userID == v {
