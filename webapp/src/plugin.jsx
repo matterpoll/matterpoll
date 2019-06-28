@@ -8,7 +8,7 @@ export default class MatterPollPlugin {
     async initialize(registry, store) {
         const data = await fetchPluginConfiguration()();
         if (data && data.experimentalui) {
-            await store.dispatch(configurationChange(registry, store, data));
+            store.dispatch(configurationChange(registry, store, data));
         }
 
         registry.registerWebSocketEventHandler(

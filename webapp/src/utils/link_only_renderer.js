@@ -17,7 +17,7 @@ export default class LinkOnlyRenderer extends RemoveMarkdown {
         let output = `<a class="theme markdown__link" href="${outHref}" target="_blank"`;
 
         if (title) {
-            output += ' title="' + title + '"';
+            output += ` title="${title}"`;
         }
 
         output += `>${text}</a>`;

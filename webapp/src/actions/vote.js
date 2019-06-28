@@ -23,10 +23,7 @@ export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
         return;
     }
 
-    let url = siteUrl;
-    if (!url.endsWith('/')) {
-        url += '/';
-    }
+    let url = siteUrl.replace(/\/?$/, '/');
     url = `${url}/plugins/${pluginId}/api/v1/polls/${pollId}/voted`;
 
     fetch(url).then((r) => r.json()).then((r) => {

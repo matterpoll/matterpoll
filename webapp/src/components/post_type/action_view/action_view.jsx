@@ -40,7 +40,7 @@ export default class ActionView extends React.PureComponent {
                         key={action.id}
                         action={action}
                         postId={this.props.post.id}
-                        hasVoted={answers.voted_answers && answers.voted_answers.includes(action.name)}
+                        hasVoted={answers.voted_answers && (answers.voted_answers.indexOf(action.name) >= 0)}
                     />
                 );
                 break;
