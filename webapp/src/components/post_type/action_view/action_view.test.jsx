@@ -40,13 +40,28 @@ describe('components/post_type/action_view/ActionView', () => {
         const wrapper = shallow(<ActionView {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
-    test('should match snapshot with only select actions', () => {
+    test('should match snapshot with only button actions', () => {
         const newProps = {
             ...baseProps,
             attachment: {
                 actions: [
                     {id: 'action_id1', name: 'answer1', type: 'button'},
                     {id: 'action_id2', name: 'answer2', type: 'select'},
+                ],
+            },
+        };
+        const wrapper = shallow(<ActionView {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+    test('should match snapshot with only non-empty aciton id and name', () => {
+        const newProps = {
+            ...baseProps,
+            attachment: {
+                actions: [
+                    {id: 'action_id1', name: 'answer1', type: 'button'},
+                    {id: 'action_id2', name: '', type: 'button'},
+                    {id: '', name: 'answer3', type: 'button'},
+                    {id: 'action_id4', name: 'answer4', type: 'button'},
                 ],
             },
         };

@@ -29,25 +29,24 @@ export default class ActionView extends React.PureComponent {
         const votedAnswers = this.props.votedAnswers || {};
         const answers = votedAnswers[this.props.post.props.poll_id] || {};
 
-        actions.forEach((action) => {
-            if (!action.id || !action.name) {
-                return;
-            }
-            switch (action.type) {
-            case 'button':
-                content.push(
-                    <ActionButton
-                        key={action.id}
-                        action={action}
-                        postId={this.props.post.id}
-                        hasVoted={answers.voted_answers && (answers.voted_answers.indexOf(action.name) >= 0)}
-                    />
-                );
-                break;
-            default:
-                break;
-            }
-        });
+        actions.
+            filter((action) => action.id && action.name).
+            forEach((action) => {
+                switch (action.type) {
+                case 'button':
+                    content.push(
+                        <ActionButton
+                            key={action.id}
+                            action={action}
+                            postId={this.props.post.id}
+                            hasVoted={answers.voted_answers && (answers.voted_answers.indexOf(action.name) >= 0)}
+                        />
+                    );
+                    break;
+                default:
+                    break;
+                }
+            });
 
         return (
             <div

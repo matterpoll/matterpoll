@@ -15,6 +15,13 @@ describe('post_type reducers', () => {
                 {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: undefined}), // eslint-disable-line no-undefined
         ).toEqual({id: 'component_id'});
     });
+    test('action type without postTypeComponentId', () => {
+        expect(
+            postTypeComponent(
+                {id: 'component_id'},
+                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: {dummy: 'id'}}),
+        ).toEqual({id: 'component_id'});
+    });
     test('action with component_id', () => {
         expect(
             postTypeComponent(

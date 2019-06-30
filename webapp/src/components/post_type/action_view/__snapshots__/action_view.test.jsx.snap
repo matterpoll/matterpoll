@@ -40,7 +40,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot 1`] =
 </div>
 `;
 
-exports[`components/post_type/action_view/ActionView should match snapshot with only select actions 1`] = `
+exports[`components/post_type/action_view/ActionView should match snapshot with only button actions 1`] = `
 <div
   className="attachment-actions"
 >
@@ -53,6 +53,35 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
       }
     }
     key="action_id1"
+    postId="post_id"
+  />
+</div>
+`;
+
+exports[`components/post_type/action_view/ActionView should match snapshot with only non-empty aciton id and name 1`] = `
+<div
+  className="attachment-actions"
+>
+  <Connect(ActionButton)
+    action={
+      Object {
+        "id": "action_id1",
+        "name": "answer1",
+        "type": "button",
+      }
+    }
+    key="action_id1"
+    postId="post_id"
+  />
+  <Connect(ActionButton)
+    action={
+      Object {
+        "id": "action_id4",
+        "name": "answer4",
+        "type": "button",
+      }
+    }
+    key="action_id4"
     postId="post_id"
   />
 </div>

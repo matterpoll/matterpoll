@@ -19,7 +19,7 @@ export const websocketHasVoted = (data) => async (dispatch) => {
 };
 
 export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
-    if (typeof pollId === 'undefined' || pollId === '') {
+    if (!pollId) {
         return;
     }
 
