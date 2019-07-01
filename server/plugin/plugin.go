@@ -171,16 +171,22 @@ func (p *MatterpollPlugin) setProfileImage() error {
 // checkHTTPConnection checks if a http request to
 func (p *MatterpollPlugin) checkHTTPConnection() error {
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
-	url := siteURL + "/plugins/" + PluginId + "/"
-	resp, err := http.Get(url)
-	if err != nil {
-		return errors.Wrapf(err, "failed to make http request to root plugin URL %v", url)
-	}
-	if resp.StatusCode != http.StatusOK {
-		return errors.Errorf("http request to root plugin URL returned status code %v", resp.StatusCode)
+	url := siteURL + "/plugins/" + manifest.Id + "/"
+
+	for i := 0; i < 3; i++ {
+		resp, err := http.Get(url)
+		if err != nil {
+			p.API.LogDebug("failed to make http request to root plugin URL", "URL", url, "error", err.Error())
+			time.Sleep(1 * time.Second)
+		} else {
+			if resp.StatusCode != http.StatusOK {
+				return errors.Errorf("http request to root plugin URL returned status code %v", resp.StatusCode)
+			}
+			return nil
+		}
 	}
 
-	return nil
+	return errors.New("failed to make successful http request to root plugin URL")
 }
 
 // ConvertUserIDToDisplayName returns the display name to a given user ID
