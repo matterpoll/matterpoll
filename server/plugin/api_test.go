@@ -121,7 +121,7 @@ func TestServeFile(t *testing.T) {
 	}
 }
 
-func TestHandlePluginConfiguratoin(t *testing.T) {
+func TestHandlePluginConfiguration(t *testing.T) {
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		ExpectedStatusCode int

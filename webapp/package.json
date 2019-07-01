@@ -1,7 +1,6 @@
 {
   "name": "matterpoll",
   "version": "1.1.0",
-  "description": "This plugin is webapp for matterpoll plugin.",
   "main": "src/index.js",
   "scripts": {
     "build": "webpack --mode=production",
@@ -64,7 +63,6 @@
     "react-bootstrap": "github:mattermost/react-bootstrap#dcbd68da4d32c1c4b86e8f2942bc69bc2ebed550",
     "react-dom": "^16.8.6",
     "redux-mock-store": "^1.5.3",
-    "redux-thunk": "^2.3.0",
     "webpack": "^4.34.0",
     "webpack-cli": "^3.3.4"
   },

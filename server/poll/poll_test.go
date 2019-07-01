@@ -304,11 +304,10 @@ func TestGetVotedAnswer(t *testing.T) {
 			answers, err := test.Poll.GetVotedAnswer(test.UserID)
 			if test.Error {
 				assert.NotNil(err)
-				return
+			} else {
+				assert.Nil(err)
+				assert.Equal(test.Expected, answers)
 			}
-
-			assert.Nil(err)
-			assert.Equal(test.Expected, answers)
 		})
 	}
 }
