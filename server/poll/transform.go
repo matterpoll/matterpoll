@@ -22,7 +22,7 @@ var (
 		Other: "End Poll",
 	}
 
-	pollMessagePollSettings = &i18n.Message{
+	pollMessageSettings = &i18n.Message{
 		ID:    "poll.message.pollSettings",
 		Other: "**Poll Settings**: {{.Settings}}",
 	}
@@ -115,7 +115,7 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {
 		lines = append(lines, localizer.MustLocalize(&i18n.LocalizeConfig{
-			DefaultMessage: pollMessagePollSettings,
+			DefaultMessage: pollMessageSettings,
 			TemplateData:   map[string]interface{}{"Settings": strings.Join(settingsText, ", ")},
 		}))
 	}

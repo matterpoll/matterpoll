@@ -34,7 +34,7 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
-		assert.Equal(poll.PollSettings{Anonymous: true, Progress: true, PublicAddOption: true}, p.Settings)
+		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true}, p.Settings)
 	})
 	t.Run("error, unknown setting", func(t *testing.T) {
 		assert := assert.New(t)
