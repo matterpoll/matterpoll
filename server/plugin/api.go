@@ -243,7 +243,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.Id, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.ID, displayName))
 	post.AddProp("poll_id", poll.ID)
 
 	if hasVoted {

@@ -32,6 +32,7 @@ type Settings struct {
 	PublicAddOption bool
 }
 
+// VotedAnswerResponse stores answers that is created by a user
 type VotedAnswerResponse struct {
 	PollID       string   `json:"poll_id"`
 	UserID       string   `json:"user_id"`
@@ -100,6 +101,7 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	return nil
 }
 
+// GetVotedAnswer collect voted answers by a user and returns it as VotedAnswerResponse
 func (p *Poll) GetVotedAnswer(userID string) (*VotedAnswerResponse, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("invalid userID")
