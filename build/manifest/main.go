@@ -10,18 +10,18 @@ import (
 	"github.com/pkg/errors"
 )
 
-const pluginIdGoFileTemplate = `package plugin
+const pluginIDGoFileTemplate = `package plugin
 
 var manifest = struct {
-	Id      string
+	ID      string
 	Version string
 }{
-	Id:      "%s",
+	ID:      "%s",
 	Version: "%s",
 }
 `
 
-const pluginIdJsFileTemplate = `export const id = '%s';
+const pluginIDJSFileTemplate = `export const id = '%s';
 export const version = '%s';
 `
 
@@ -38,7 +38,7 @@ func main() {
 	cmd := os.Args[1]
 	switch cmd {
 	case "id":
-		dumpPluginId(manifest)
+		dumpPluginID(manifest)
 
 	case "version":
 		dumpPluginVersion(manifest)
@@ -87,7 +87,7 @@ func findManifest() (*model.Manifest, error) {
 }
 
 // dumpPluginId writes the plugin id from the given manifest to standard out
-func dumpPluginId(manifest *model.Manifest) {
+func dumpPluginID(manifest *model.Manifest) {
 	fmt.Printf("%s", manifest.Id)
 }
 
@@ -101,7 +101,7 @@ func applyManifest(manifest *model.Manifest) error {
 	if manifest.HasServer() {
 		if err := ioutil.WriteFile(
 			"server/plugin/manifest.go",
-			[]byte(fmt.Sprintf(pluginIdGoFileTemplate, manifest.Id, manifest.Version)),
+			[]byte(fmt.Sprintf(pluginIDGoFileTemplate, manifest.Id, manifest.Version)),
 			0644,
 		); err != nil {
 			return errors.Wrap(err, "failed to write server/manifest.go")
@@ -111,7 +111,7 @@ func applyManifest(manifest *model.Manifest) error {
 	if manifest.HasWebapp() {
 		if err := ioutil.WriteFile(
 			"webapp/src/manifest.js",
-			[]byte(fmt.Sprintf(pluginIdJsFileTemplate, manifest.Id, manifest.Version)),
+			[]byte(fmt.Sprintf(pluginIDJSFileTemplate, manifest.Id, manifest.Version)),
 			0644,
 		); err != nil {
 			return errors.Wrap(err, "failed to open webapp/src/manifest.js")
