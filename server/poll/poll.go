@@ -16,7 +16,7 @@ type Poll struct {
 	Creator       string
 	Question      string
 	AnswerOptions []*AnswerOption
-	Settings      PollSettings
+	Settings      Settings
 }
 
 // AnswerOption stores a possible answer and a list of user who voted for this
@@ -25,8 +25,8 @@ type AnswerOption struct {
 	Voter  []string
 }
 
-// PollSettings stores possible settings for a poll
-type PollSettings struct {
+// Settings stores possible settings for a poll
+type Settings struct {
 	Anonymous       bool
 	Progress        bool
 	PublicAddOption bool

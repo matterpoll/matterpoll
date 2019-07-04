@@ -27,7 +27,7 @@ type (
 )
 
 var (
-	infoMessage = "Thanks for using Matterpoll v" + manifest.Id + "\n"
+	infoMessage = "Thanks for using Matterpoll v" + manifest.ID + "\n"
 
 	responseVoteCounted = &i18n.Message{
 		ID:    "response.vote.counted",
@@ -285,7 +285,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	}
 
 	publicLocalizer := p.getServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.Id, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.ID, displayName))
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
 	}
@@ -320,10 +320,10 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(vars map[string]string, 
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", siteURL, manifest.Id, pollID),
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", siteURL, manifest.ID, pollID),
 		Dialog: model.Dialog{
 			Title:       p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionTitle),
-			IconURL:     fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
+			IconURL:     fmt.Sprintf(responseIconURL, siteURL, manifest.ID),
 			CallbackId:  request.PostId,
 			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionSubmitLabel),
 			Elements: []model.DialogElement{{

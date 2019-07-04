@@ -50,7 +50,7 @@ func GetPoll() *poll.Poll {
 }
 
 // GetPollWithSettings returns a Poll with three Options, no votes and given Poll Settings.
-func GetPollWithSettings(settings poll.PollSettings) *poll.Poll {
+func GetPollWithSettings(settings poll.Settings) *poll.Poll {
 	poll := GetPoll()
 	poll.Settings = settings
 	return poll
@@ -74,7 +74,7 @@ func GetPollWithVotes() *poll.Poll {
 }
 
 // GetPollWithVotesAndSettings returns a Poll with three Options, some votes and given Poll Settings.
-func GetPollWithVotesAndSettings(settings poll.PollSettings) *poll.Poll {
+func GetPollWithVotesAndSettings(settings poll.Settings) *poll.Poll {
 	poll := GetPollWithVotes()
 	poll.Settings = settings
 	return poll
