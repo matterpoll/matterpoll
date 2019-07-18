@@ -80,9 +80,7 @@
         "other": "Zakończ sondę"
     },
     "poll.endPost.answer.heading": {
-        "few": "{{.Answer}} ({{.Count}} głosów)",
         "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
-        "many": "{{.Answer}} ({{.Count}} głosów)",
         "one": "{{.Answer}} ({{.Count}} głos)",
         "other": "{{.Answer}} ({{.Count}} głosów)"
     },
