@@ -67,6 +67,14 @@
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "Antwortoption hinzufügen"
   },
+  "poll.addAnswerOption.duplicate": {
+    "hash": "sha1-f2e20be1db21bba56adc08d288db5275a7c193d0",
+    "other": "Doppelte Antwortoption: {{.Option}}"
+  },
+  "poll.addAnswerOption.empty": {
+    "hash": "sha1-12db9817b0feafe98b4b809dceefdde8399f4147",
+    "other": "Die Antwortoptionen darf nicht leer sein"
+  },
   "poll.button.addOption": {
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "Antwortoption hinzufügen"
@@ -99,6 +107,10 @@
   "poll.message.totalVotes": {
     "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**Anzahl der abgegeben Stimmen**: {{.TotalVotes}}"
+  },
+  "poll.newPoll.unrecognizedSetting": {
+    "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
+    "other": "Unbekannte Umfrageeinstellung: {{.Setting}}"
   },
   "response.addOption.invalidPermission": {
     "hash": "sha1-eb74073a478570ac636c47871075938350adec37",

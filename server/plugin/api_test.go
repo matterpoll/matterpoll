@@ -492,7 +492,7 @@ func TestHandleAddOption(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse: &model.SubmitDialogResponse{
 				Errors: map[string]string{
-					"answerOption": "duplicate options: Answer 1",
+					"answerOption": "Duplicate option: Answer 1",
 				},
 			},
 			ExpectedMsg: "",
