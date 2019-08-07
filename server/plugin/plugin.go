@@ -171,19 +171,28 @@ func (p *MatterpollPlugin) setProfileImage() error {
 // checkHTTPConnection checks if a http request to
 func (p *MatterpollPlugin) checkHTTPConnection() error {
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
-	url := siteURL + "/plugins/" + manifest.Id + "/"
+	url := siteURL + "/plugins/" + manifest.ID + "/"
 
 	for i := 0; i < 3; i++ {
+		backOfTime := time.Duration(i) * 1 * time.Second
+		time.Sleep(backOfTime)
+
 		resp, err := http.Get(url)
 		if err != nil {
 			p.API.LogDebug("failed to make http request to root plugin URL", "URL", url, "error", err.Error())
-			time.Sleep(1 * time.Second)
-		} else {
-			if resp.StatusCode != http.StatusOK {
-				return errors.Errorf("http request to root plugin URL returned status code %v", resp.StatusCode)
-			}
-			return nil
+			continue
 		}
+
+		// The plugins hasn't started jet. Retry.
+		if resp.StatusCode == http.StatusNotFound {
+			continue
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			return errors.Errorf("http request to root plugin URL returned status code %v", resp.StatusCode)
+		}
+
+		return nil
 	}
 
 	return errors.New("failed to make successful http request to root plugin URL")
