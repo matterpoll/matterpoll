@@ -9,6 +9,16 @@ import (
 func ParseInput(input string, trigger string) (string, []string, []string) {
 	settings := []string{}
 
+	// Transform curly quotes to straight quotes
+	input = strings.Map(func(in rune) rune {
+		switch in {
+		case '“', '”':
+			return '"'
+		}
+
+		return in
+	}, input)
+
 	// Remove Trigger prefix and spaces
 	in := strings.TrimSpace(strings.TrimPrefix(input, fmt.Sprintf("/%s", trigger)))
 	// Remove first "
