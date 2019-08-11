@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/blang/semver"
 	"bou.ke/monkey"
+	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
@@ -111,7 +111,7 @@ func TestPluginOnActivate(t *testing.T) {
 			ShouldError: true,
 		},
 		// i18n bundle tests
-		"GetBundlePath fails": {
+		"GetBundlePath fails for i18n": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("GetBundlePath").Return("", errors.New(""))
@@ -168,6 +168,23 @@ func TestPluginOnActivate(t *testing.T) {
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
 				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(&model.AppError{})
+				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				return helpers
+			},
+			ShouldError: true,
+		},
+		"GetBundlePath fails for bots": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+
+				path, err := filepath.Abs("../..")
+				require.Nil(t, err)
+				api.On("GetBundlePath").Return(path, nil).Once()
+				api.On("GetBundlePath").Return("", errors.New(""))
+				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
@@ -272,10 +289,10 @@ func TestPluginOnActivate(t *testing.T) {
 }
 
 func TestPluginOnDeactivate(t *testing.T) {
-		p := setupTestPlugin(t, &plugintest.API{}, &mockstore.Store{})
+	p := setupTestPlugin(t, &plugintest.API{}, &mockstore.Store{})
 
-		err := p.OnDeactivate()
-		assert.Nil(t, err)
+	err := p.OnDeactivate()
+	assert.Nil(t, err)
 }
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {
