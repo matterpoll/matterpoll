@@ -321,12 +321,6 @@ func TestHandleAddOption(t *testing.T) {
 	channelID := model.NewId()
 	postID := model.NewId()
 
-	responsePost := &model.Post{
-		ChannelId: channelID,
-		UserId:    testutils.GetBotUserID(),
-		Message:   responseAddOptionSuccess.Other,
-	}
-
 	poll1In := testutils.GetPollWithVotes()
 	poll1Out := poll1In.Copy()
 	err := poll1Out.AddAnswerOption("New Option")
@@ -339,6 +333,7 @@ func TestHandleAddOption(t *testing.T) {
 		SetupStore         func(*mockstore.Store) *mockstore.Store
 		Request            *model.SubmitDialogRequest
 		ExpectedStatusCode int
+		ExpectedMsg        string
 		ExpectedResponse   *model.SubmitDialogResponse
 	}{
 		"Valid request": {
@@ -346,7 +341,6 @@ func TestHandleAddOption(t *testing.T) {
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetPost", postID).Return(&model.Post{}, nil)
 				api.On("UpdatePost", expectedPost1).Return(expectedPost1, nil)
-				api.On("SendEphemeralPost", userID, responsePost).Return(nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -364,6 +358,174 @@ func TestHandleAddOption(t *testing.T) {
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   nil,
+			ExpectedMsg:        "Successfully added the option.",
+		},
+		"Valid request, PollStore.Get fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, errors.New(""))
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					addOptionKey: "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, GetUser fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					addOptionKey: "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, GetPost fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetPost", postID).Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					addOptionKey: "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Invalid request with integer": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetPost", postID).Return(&model.Post{}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					"answerOption": 1,
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, duplicate new answeroption": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetPost", postID).Return(&model.Post{}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					"answerOption": poll1In.AnswerOptions[0].Answer,
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse: &model.SubmitDialogResponse{
+				Errors: map[string]string{
+					addOptionKey: "duplicate options: Answer 1",
+				},
+			},
+			ExpectedMsg: "",
+		},
+		"Valid request, UpdatePost fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetPost", postID).Return(&model.Post{}, nil)
+				api.On("UpdatePost", expectedPost1).Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					addOptionKey: "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, PollStore.Save fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetPost", postID).Return(&model.Post{}, nil)
+				api.On("UpdatePost", expectedPost1).Return(expectedPost1, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				store.PollStore.On("Save", poll1Out).Return(errors.New(""))
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					addOptionKey: "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Empty request": {
+			SetupAPI:           func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:         func(store *mockstore.Store) *mockstore.Store { return store },
+			Request:            nil,
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -371,6 +533,15 @@ func TestHandleAddOption(t *testing.T) {
 
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			if test.ExpectedMsg != "" {
+				ephemeralPost := &model.Post{
+					ChannelId: test.Request.ChannelId,
+					UserId:    testutils.GetBotUserID(),
+					Message:   test.ExpectedMsg,
+				}
+				api.On("SendEphemeralPost", test.Request.UserId, ephemeralPost).Return(nil)
+			}
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
@@ -443,6 +614,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 	}{
 		"Valid request": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("OpenInteractiveDialog", dialogRequest).Return(nil)
 				return api
 			},
@@ -458,8 +630,81 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 		},
+		"Valid request, issuer is system admin": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID2").Return(&model.User{
+					Username: "user2",
+					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
+				}, nil)
+				api.On("OpenInteractiveDialog", dialogRequest).Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				PostId:    postID,
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
+		},
+		"Valid request, Invalid permission": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID2").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				PostId:    postID,
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: "Only the creator of a poll and System Admins are allowed to add options."},
+		},
+		"Valid request, GetUser fails for issuer": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				PostId:    postID,
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: "Something went wrong. Please try again later."},
+		},
+		"Valid request, PollStore.Get fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, errors.New(""))
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    userID,
+				PostId:    postID,
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: "Something went wrong. Please try again later."},
+		},
 		"Valid request, OpenInteractiveDialog fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("OpenInteractiveDialog", dialogRequest).Return(&model.AppError{})
 				return api
 			},
@@ -473,7 +718,14 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 				TriggerId: triggerID,
 			},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: commandErrorGeneric.Other},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{EphemeralText: "Something went wrong. Please try again later."},
+		},
+		"Empty request": {
+			SetupAPI:           func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:         func(store *mockstore.Store) *mockstore.Store { return store },
+			Request:            nil,
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedResponse:   nil,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -482,7 +734,6 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
-			api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
