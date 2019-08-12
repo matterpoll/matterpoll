@@ -544,9 +544,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
-				require.NotNil(t, response)
-				assert.Equal("", response.EphemeralText)
-				assert.Nil(response.Update)
+				assert.Equal(response, &model.PostActionIntegrationResponse{})
 			} else {
 				assert.Nil(response)
 			}
@@ -595,8 +593,8 @@ func TestHandleEndPoll(t *testing.T) {
 		SetupStore         func(*mockstore.Store) *mockstore.Store
 		Request            *model.PostActionIntegrationRequest
 		ExpectedStatusCode int
+		ExpectedResponse   *model.PostActionIntegrationResponse
 		ExpectedMsg        string
-		ExpectedPostUpdate *model.Post
 	}{
 		"Valid request with votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -616,8 +614,8 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost},
 			ExpectedMsg:        "",
-			ExpectedPostUpdate: expectedPost,
 		},
 		"Valid request with votes, issuer is system admin": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -640,8 +638,8 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost},
 			ExpectedMsg:        "",
-			ExpectedPostUpdate: expectedPost,
 		},
 		"Valid request, PollStore.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -654,6 +652,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, GetUser fails for issuer": {
@@ -668,6 +667,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, Invalid permission": {
@@ -681,6 +681,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Only the creator of a poll and System Admins are allowed to end it.",
 		},
 		"Valid request, PollStore.Delete fails": {
@@ -698,6 +699,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, GetUser fails for poll creator": {
@@ -711,6 +713,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, GetUser fails for voter": {
@@ -725,6 +728,7 @@ func TestHandleEndPoll(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Invalid request": {
@@ -732,6 +736,7 @@ func TestHandleEndPoll(t *testing.T) {
 			SetupStore:         func(store *mockstore.Store) *mockstore.Store { return store },
 			Request:            nil,
 			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedResponse:   nil,
 			ExpectedMsg:        "",
 		},
 	} {
@@ -772,12 +777,12 @@ func TestHandleEndPoll(t *testing.T) {
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
 				require.NotNil(t, response)
-				assert.Equal("", response.EphemeralText)
-				if test.ExpectedPostUpdate != nil {
-					assert.Equal(test.ExpectedPostUpdate.Attachments(), response.Update.Attachments())
+				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
+				if test.ExpectedResponse.Update != nil {
+					assert.Equal(test.ExpectedResponse.Update.Attachments(), response.Update.Attachments())
 				}
 			} else {
-				assert.Nil(response)
+				assert.Equal(test.ExpectedResponse, response)
 			}
 		})
 	}
@@ -868,7 +873,6 @@ func TestHandleDeletePoll(t *testing.T) {
 		Request            *model.PostActionIntegrationRequest
 		ExpectedStatusCode int
 		ExpectedMsg        string
-		ExpectedPostUpdate *model.Post
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1016,11 +1020,7 @@ func TestHandleDeletePoll(t *testing.T) {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
-				require.NotNil(t, response)
-				assert.Equal("", response.EphemeralText)
-				if test.ExpectedPostUpdate != nil {
-					assert.Equal(test.ExpectedPostUpdate.Attachments(), response.Update.Attachments())
-				}
+				assert.Equal(response, &model.PostActionIntegrationResponse{})
 			} else {
 				assert.Nil(response)
 			}
