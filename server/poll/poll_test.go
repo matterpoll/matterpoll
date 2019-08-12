@@ -16,7 +16,7 @@ func TestNewPoll(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		assert := assert.New(t)
 		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-		patch2 := monkey.Patch(model.NewId, func() string { return testutils.GetPollID() })
+		patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
 		defer patch1.Unpatch()
 		defer patch2.Unpatch()
 

@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/blang/semver"
 	"bou.ke/monkey"
+	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
@@ -272,10 +272,10 @@ func TestPluginOnActivate(t *testing.T) {
 }
 
 func TestPluginOnDeactivate(t *testing.T) {
-		p := setupTestPlugin(t, &plugintest.API{}, &mockstore.Store{})
+	p := setupTestPlugin(t, &plugintest.API{}, &mockstore.Store{})
 
-		err := p.OnDeactivate()
-		assert.Nil(t, err)
+	err := p.OnDeactivate()
+	assert.Nil(t, err)
 }
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {

@@ -4,13 +4,14 @@ import (
 	"testing"
 
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 )
 
 const latestVersion = "1.1.0"
 
-func setupTestStore(api *plugintest.API) *Store {
+func setupTestStore(api plugin.API) *Store {
 	store := Store{
 		api: api,
 		pollStore: PollStore{
