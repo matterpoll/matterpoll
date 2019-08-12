@@ -64,7 +64,7 @@ func TestOnConfigurationChange(t *testing.T) {
 		"LoadPluginConfiguration fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetConfig").Return(testutils.GetServerConfig())
-				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(errors.New("LoadPluginConfiguration failed"))
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(errors.New(""))
 				return api
 			},
 			Configuration:         &configuration{Trigger: "oldTrigger"},
@@ -91,7 +91,7 @@ func TestOnConfigurationChange(t *testing.T) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
 				})
-				api.On("UnregisterCommand", "", "oldTrigger").Return(errors.New("UnregisterCommand failed"))
+				api.On("UnregisterCommand", "", "oldTrigger").Return(errors.New(""))
 				return api
 			},
 			Configuration:         &configuration{Trigger: "oldTrigger"},
@@ -106,7 +106,7 @@ func TestOnConfigurationChange(t *testing.T) {
 					arg.Trigger = "poll"
 				})
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
-				api.On("RegisterCommand", command).Return(errors.New("RegisterCommand failed"))
+				api.On("RegisterCommand", command).Return(errors.New(""))
 				return api
 			},
 			Configuration:         &configuration{Trigger: "oldTrigger"},

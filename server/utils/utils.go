@@ -6,7 +6,7 @@ import (
 )
 
 // ParseInput pares a given input and tries to extract the poll question and poll options
-func ParseInput(input string, trigger string) (string, []string, []string) {
+func ParseInput(input, trigger string) (string, []string, []string) {
 	settings := []string{}
 
 	// Transform curly quotes to straight quotes
@@ -42,10 +42,10 @@ func ParseInput(input string, trigger string) (string, []string, []string) {
 	}
 
 	// Unescape " in question and options
-	question := strings.Replace(split[0], `\"`, `"`, -1)
+	question := strings.ReplaceAll(split[0], `\"`, `"`)
 	options := split[1:]
 	for i := 0; i < len(options); i++ {
-		options[i] = strings.Replace(options[i], `\"`, `"`, -1)
+		options[i] = strings.ReplaceAll(options[i], `\"`, `"`)
 	}
 	return question, options, settings
 }

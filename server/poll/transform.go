@@ -66,29 +66,26 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, siteURL, pluginID, autho
 		})
 	}
 
-	actions = append(actions, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add/request", siteURL, pluginID, p.ID),
-		},
-	})
-
-	actions = append(actions, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeltePoll}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, pluginID, p.ID),
-		},
-	})
-
-	actions = append(actions, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, pluginID, p.ID),
-		},
-	})
+	actions = append(actions,
+		&model.PostAction{
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
+			Type: model.POST_ACTION_TYPE_BUTTON,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add/request", siteURL, pluginID, p.ID),
+			},
+		}, &model.PostAction{
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeltePoll}),
+			Type: model.POST_ACTION_TYPE_BUTTON,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, pluginID, p.ID),
+			},
+		}, &model.PostAction{
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
+			Type: model.POST_ACTION_TYPE_BUTTON,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, pluginID, p.ID),
+			},
+		})
 
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
