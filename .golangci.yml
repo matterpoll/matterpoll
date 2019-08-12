@@ -1,0 +1,24 @@
+linters-settings:
+  gocyclo:
+    min-complexity: 20
+  gofmt:
+    simplify: true
+  golint:
+    # minimal confidence for issues, default is 0.8
+    min-confidence: 0
+  govet:
+    check-shadowing: true
+  misspell:
+    locale: US
+  
+linters:
+  enable:
+    - bodyclose
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gosec
+    - misspell
+    - unconvert
+
