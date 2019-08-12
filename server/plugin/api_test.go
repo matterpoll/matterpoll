@@ -333,8 +333,8 @@ func TestHandleAddOption(t *testing.T) {
 		SetupStore         func(*mockstore.Store) *mockstore.Store
 		Request            *model.SubmitDialogRequest
 		ExpectedStatusCode int
-		ExpectedMsg        string
 		ExpectedResponse   *model.SubmitDialogResponse
+		ExpectedMsg        string
 	}{
 		"Valid request": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -353,7 +353,7 @@ func TestHandleAddOption(t *testing.T) {
 				CallbackId: postID,
 				ChannelId:  channelID,
 				Submission: map[string]interface{}{
-					addOptionKey: "New Option",
+					"answerOption": "New Option",
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -374,7 +374,7 @@ func TestHandleAddOption(t *testing.T) {
 				CallbackId: postID,
 				ChannelId:  channelID,
 				Submission: map[string]interface{}{
-					addOptionKey: "New Option",
+					"answerOption": "New Option",
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -395,7 +395,7 @@ func TestHandleAddOption(t *testing.T) {
 				CallbackId: postID,
 				ChannelId:  channelID,
 				Submission: map[string]interface{}{
-					addOptionKey: "New Option",
+					"answerOption": "New Option",
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -417,7 +417,7 @@ func TestHandleAddOption(t *testing.T) {
 				CallbackId: postID,
 				ChannelId:  channelID,
 				Submission: map[string]interface{}{
-					addOptionKey: "New Option",
+					"answerOption": "New Option",
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -467,7 +467,7 @@ func TestHandleAddOption(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse: &model.SubmitDialogResponse{
 				Errors: map[string]string{
-					addOptionKey: "duplicate options: Answer 1",
+					"answerOption": "duplicate options: Answer 1",
 				},
 			},
 			ExpectedMsg: "",
@@ -488,7 +488,7 @@ func TestHandleAddOption(t *testing.T) {
 				CallbackId: postID,
 				ChannelId:  channelID,
 				Submission: map[string]interface{}{
-					addOptionKey: "New Option",
+					"answerOption": "New Option",
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -512,7 +512,7 @@ func TestHandleAddOption(t *testing.T) {
 				CallbackId: postID,
 				ChannelId:  channelID,
 				Submission: map[string]interface{}{
-					addOptionKey: "New Option",
+					"answerOption": "New Option",
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -597,7 +597,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 			SubmitLabel: "Add",
 			Elements: []model.DialogElement{{
 				DisplayName: "Option",
-				Name:        addOptionKey,
+				Name:        "answerOption",
 				Type:        "text",
 				SubType:     "text",
 			},
