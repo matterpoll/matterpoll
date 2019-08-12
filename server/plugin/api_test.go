@@ -161,8 +161,8 @@ func TestHandleVote(t *testing.T) {
 		Request            *model.PostActionIntegrationRequest
 		VoteIndex          int
 		ExpectedStatusCode int
+		ExpectedResponse   *model.PostActionIntegrationResponse
 		ExpectedMsg        string
-		ExpectedPostUpdate *model.Post
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -177,8 +177,8 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
 			ExpectedMsg:        "Your vote has been counted.",
-			ExpectedPostUpdate: expectedPost1,
 		},
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -193,8 +193,8 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost2},
 			ExpectedMsg:        "Your vote has been updated.",
-			ExpectedPostUpdate: expectedPost2,
 		},
 		"Valid request, PollStore.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -208,6 +208,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, PollStore.Save fails": {
@@ -228,6 +229,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Invalid index": {
@@ -242,6 +244,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			VoteIndex:          3,
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, GetUser fails": {
@@ -256,6 +259,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Invalid request": {
@@ -264,6 +268,7 @@ func TestHandleVote(t *testing.T) {
 			Request:            nil,
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedResponse:   nil,
 			ExpectedMsg:        "",
 		},
 	} {
@@ -303,12 +308,12 @@ func TestHandleVote(t *testing.T) {
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
 				require.NotNil(t, response)
-				assert.Equal("", response.EphemeralText)
-				if test.ExpectedPostUpdate != nil {
-					assert.Equal(test.ExpectedPostUpdate.Attachments(), response.Update.Attachments())
+				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
+				if test.ExpectedResponse.Update != nil {
+					assert.Equal(test.ExpectedResponse.Update.Attachments(), response.Update.Attachments())
 				}
 			} else {
-				assert.Nil(response)
+				assert.Equal(test.ExpectedResponse, response)
 			}
 		})
 	}
