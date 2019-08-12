@@ -54,6 +54,7 @@ func TestServeHTTP(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
+			defer result.Body.Close()
 
 			bodyBytes, err := ioutil.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -105,6 +106,7 @@ func TestServeFile(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
+			defer result.Body.Close()
 
 			bodyBytes, err := ioutil.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -132,7 +134,10 @@ func TestHandleVote(t *testing.T) {
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/vote/0", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
 		p.ServeHTTP(nil, w, r)
+
 		result := w.Result()
+		require.NotNil(t, result)
+		defer result.Body.Close()
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -300,6 +305,7 @@ func TestHandleVote(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
+			defer result.Body.Close()
 			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
@@ -331,6 +337,7 @@ func TestHandleAddOption(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
+		defer result.Body.Close()
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -401,6 +408,7 @@ func TestHandleAddOption(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
+			defer result.Body.Close()
 			response := model.SubmitDialogResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
@@ -429,7 +437,10 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
 		p.ServeHTTP(nil, w, r)
+
 		result := w.Result()
+		require.NotNil(t, result)
+		defer result.Body.Close()
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -525,6 +536,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
+			defer result.Body.Close()
 			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
@@ -553,7 +565,10 @@ func TestHandleEndPoll(t *testing.T) {
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
 		p.ServeHTTP(nil, w, r)
+
 		result := w.Result()
+		require.NotNil(t, result)
+		defer result.Body.Close()
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -748,6 +763,7 @@ func TestHandleEndPoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
+			defer result.Body.Close()
 			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
@@ -838,7 +854,10 @@ func TestHandleDeletePoll(t *testing.T) {
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
 		p.ServeHTTP(nil, w, r)
+
 		result := w.Result()
+		require.NotNil(t, result)
+		defer result.Body.Close()
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -989,6 +1008,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
+			defer result.Body.Close()
 			response := model.PostActionIntegrationResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)

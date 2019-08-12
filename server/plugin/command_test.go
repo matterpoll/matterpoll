@@ -115,7 +115,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 		},
-		"With 4 arguments and settting progress": {
+		"With 4 arguments and setting progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
@@ -138,7 +138,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
 		},
-		"With 4 arguments and settting anonymous and progress": {
+		"With 4 arguments and setting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
@@ -214,7 +214,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			p.configuration.Trigger = trigger
 
 			patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-			patch2 := monkey.Patch(model.NewId, func() string { return testutils.GetPollID() })
+			patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
 			defer patch1.Unpatch()
 			defer patch2.Unpatch()
 
