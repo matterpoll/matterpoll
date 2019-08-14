@@ -143,10 +143,11 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 			p.API.LogWarn("failed to handle PostActionIntegrationRequest", "error", err.Error())
 		}
 
-		response := &model.PostActionIntegrationResponse{}
 		if msg != nil {
-			response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, msg)
+			p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, msg))
 		}
+
+		response := &model.PostActionIntegrationResponse{}
 		if update != nil {
 			response.Update = update
 		}
