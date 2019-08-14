@@ -19,29 +19,23 @@ func getUpgrades() []*upgrade {
 
 // UpdateDatabase upgrades the database schema from a given version to the newest version.
 func (s *Store) UpdateDatabase(pluginVersion string) error {
-	v, err := s.System().GetVersion()
+	currentVersion, err := s.System().GetVersion()
 	if err != nil {
 		return err
 	}
 
 	// If no version is set, set to to the newest version
-	if v == "" {
-		newestSchema := semver.MustParse(pluginVersion)
+	if currentVersion == "" {
+		newestVersion := semver.MustParse(pluginVersion)
 		// Don't store patch versions
-		newestSchema.Patch = 0
+		newestVersion.Patch = 0
 
-		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", newestSchema.String()))
-		return s.System().SaveVersion(newestSchema.String())
+		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", newestVersion.String()))
+		return s.System().SaveVersion(newestVersion.String())
 	}
 
 	for _, upgrade := range s.upgrades {
-		v, err := s.System().GetVersion()
-		if err != nil {
-			return err
-		}
-
-		currentSchemaVersion := semver.MustParse(v)
-		if s.shouldPerformUpgrade(currentSchemaVersion, semver.MustParse(upgrade.toVersion)) {
+		if s.shouldPerformUpgrade(semver.MustParse(currentVersion), semver.MustParse(upgrade.toVersion)) {
 			if upgrade.upgradeFunc != nil {
 				err = upgrade.upgradeFunc(s)
 				if err != nil {
@@ -52,6 +46,7 @@ func (s *Store) UpdateDatabase(pluginVersion string) error {
 				return err
 			}
 			s.api.LogWarn(fmt.Sprintf("Update to version %v complete", upgrade.toVersion))
+			currentVersion = upgrade.toVersion
 		}
 	}
 	return nil

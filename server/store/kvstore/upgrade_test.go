@@ -125,19 +125,6 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		err := store.UpdateDatabase("1.0.0")
 		assert.NotNil(t, err)
 	})
-	t.Run("Old install with empty upgrade, System.GetVersion fails", func(t *testing.T) {
-		api := &plugintest.API{}
-		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil).Once()
-		api.On("KVGet", versionKey).Return([]byte("1.0.0"), &model.AppError{})
-		defer api.AssertExpectations(t)
-		store := setupTestStore(api)
-		store.upgrades = []*upgrade{
-			{toVersion: "1.1.0", upgradeFunc: nil},
-		}
-
-		err := store.UpdateDatabase("1.0.0")
-		assert.NotNil(t, err)
-	})
 	t.Run("Old install with empty upgrade, System.SaveVersion fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
