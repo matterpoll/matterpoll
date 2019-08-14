@@ -243,7 +243,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 
 	answerOption, ok := request.Submission[addOptionKey].(string)
 	if !ok {
-		return commandErrorGeneric, nil, errors.Wrapf(appErr, "failed to get submission key %s", addOptionKey)
+		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", addOptionKey)
 	}
 
 	if err = poll.AddAnswerOption(answerOption); err != nil {
@@ -262,7 +262,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	}
 
 	if err = p.Store.Poll().Save(poll); err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get save poll")
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get save poll")
 
 	}
 
