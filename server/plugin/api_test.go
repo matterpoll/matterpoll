@@ -14,7 +14,6 @@ import (
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -1236,13 +1235,8 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Message: testutils.GetLocalizer().MustLocalize(
-						&i18n.LocalizeConfig{
-							DefaultMessage: responseEndPollSuccessfully,
-							TemplateData: map[string]interface{}{
-								"Question": "Question",
-								"Link":     "https://example.org/team1/pl/postID1",
-							}}),
+					Message: "The poll **Question** has ended and the original post have been updated. " +
+						"You can jump to it by pressing [here](https://example.org/team1/pl/postID1).",
 					Type: model.POST_DEFAULT,
 				}).Return(nil, nil)
 				return api
@@ -1251,7 +1245,6 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		"Valid request, GetTeam fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetTeam", "teamID1").Return(nil, &model.AppError{})
-				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
 				return api
 			},
 		},
@@ -1259,7 +1252,6 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
 				api.On("GetPost", "postID1").Return(nil, &model.AppError{})
-				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
 				return api
 			},
 		},
@@ -1268,13 +1260,15 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
 				api.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channelID1"}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
-				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return(nil)
 				return api
 			},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			p := setupTestPlugin(t, test.SetupAPI(&plugintest.API{}), &mockstore.Store{})
+			api := test.SetupAPI(&plugintest.API{})
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+
+			p := setupTestPlugin(t, api, &mockstore.Store{})
 			p.postEndPollAnnouncement("teamID1", "postID1", "Question")
 		})
 	}

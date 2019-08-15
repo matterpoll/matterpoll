@@ -387,14 +387,14 @@ func (p *MatterpollPlugin) postEndPollAnnouncement(teamID, postID, question stri
 
 	team, err := p.API.GetTeam(teamID)
 	if err != nil {
-		p.API.LogError(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to get team with TeamID: %s", teamID))
+		p.API.LogWarn(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to get team with TeamID: %s", teamID))
 		return
 	}
 	link := fmt.Sprintf("%s/%s/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, team.Name, postID)
 
 	pollPost, err := p.API.GetPost(postID)
 	if err != nil {
-		p.API.LogError(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to get post with PostID: %s", postID))
+		p.API.LogWarn(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to get post with PostID: %s", postID))
 		return
 	}
 	channelID := pollPost.ChannelId
@@ -415,7 +415,7 @@ func (p *MatterpollPlugin) postEndPollAnnouncement(teamID, postID, question stri
 	}
 
 	if _, err = p.API.CreatePost(endPost); err != nil {
-		p.API.LogError(endPollAnnouncementPostError, "details", "failed to CreatePost")
+		p.API.LogWarn(endPollAnnouncementPostError, "details", "failed to CreatePost")
 	}
 }
 
