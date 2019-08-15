@@ -132,7 +132,9 @@ func TestHandleVote(t *testing.T) {
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/vote/0", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		url := fmt.Sprintf("/api/v1/polls/%s/vote/0", testutils.GetPollID())
+		body := bytes.NewReader(request.ToJson())
+		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
 		result := w.Result()
@@ -299,7 +301,9 @@ func TestHandleVote(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex), bytes.NewReader(test.Request.ToJson()))
+			url := fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex)
+			body := bytes.NewReader(test.Request.ToJson())
+			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
@@ -334,7 +338,9 @@ func TestHandleAddOption(t *testing.T) {
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		url := fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID())
+		body := bytes.NewReader(request.ToJson())
+		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
 		defer result.Body.Close()
@@ -573,7 +579,9 @@ func TestHandleAddOption(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			url := fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID())
+			body := bytes.NewReader(test.Request.ToJson())
+			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
@@ -606,7 +614,9 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 		request := &model.PostActionIntegrationRequest{UserId: userID, PostId: postID, TriggerId: triggerID}
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		url := fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID())
+		body := bytes.NewReader(request.ToJson())
+		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
 		result := w.Result()
@@ -781,7 +791,217 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			url := fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID())
+			body := bytes.NewReader(test.Request.ToJson())
+			r := httptest.NewRequest(http.MethodPost, url, body)
+			r.Header.Add("Mattermost-User-ID", model.NewId())
+			p.ServeHTTP(nil, w, r)
+
+			result := w.Result()
+			require.NotNil(t, result)
+			defer result.Body.Close()
+			response := model.PostActionIntegrationResponseFromJson(result.Body)
+
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+			if result.StatusCode == http.StatusOK {
+				assert.Equal(http.Header{
+					"Content-Type": []string{"application/json"},
+				}, result.Header)
+				assert.Equal(response, &model.PostActionIntegrationResponse{})
+			} else {
+				assert.Nil(response)
+			}
+		})
+	}
+}
+
+func TestHandleEndPollReqest(t *testing.T) {
+	t.Run("not-authorized", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		request := &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"}
+
+		w := httptest.NewRecorder()
+		url := fmt.Sprintf("/api/v1/polls/%s/end/request", testutils.GetPollID())
+		body := bytes.NewReader(request.ToJson())
+		r := httptest.NewRequest(http.MethodPost, url, body)
+		p.ServeHTTP(nil, w, r)
+
+		result := w.Result()
+		require.NotNil(t, result)
+		defer result.Body.Close()
+
+		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	})
+
+	triggerID := model.NewId()
+	dialog := model.OpenDialogRequest{
+		TriggerId: triggerID,
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
+		Dialog: model.Dialog{
+			Title:       "Confirm Poll End",
+			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
+			CallbackId:  "postID1",
+			SubmitLabel: "End",
+		},
+	}
+
+	for name, test := range map[string]struct {
+		SetupAPI           func(*plugintest.API) *plugintest.API
+		SetupStore         func(*mockstore.Store) *mockstore.Store
+		Request            *model.PostActionIntegrationRequest
+		ExpectedStatusCode int
+		ExpectedMsg        string
+	}{
+		"Valid request with no votes": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				api.On("OpenInteractiveDialog", dialog).Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID1",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedMsg:        "",
+		},
+		"Valid request with no votes, issuer is system admin": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID2").Return(&model.User{
+					Username: "user2",
+					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
+				}, nil)
+				api.On("OpenInteractiveDialog", dialog).Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedMsg:        "",
+		},
+		"Valid request, Store.Get fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID1",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, GetUser fails for issuer": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, Invalid permission": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedMsg:        "Only the creator of a poll and System Admins are allowed to end it.",
+		},
+		"Valid request, OpenInteractiveDialog fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				api.On("OpenInteractiveDialog", dialog).Return(&model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID1",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Invalid request": {
+			SetupAPI:           func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:         func(store *mockstore.Store) *mockstore.Store { return store },
+			Request:            nil,
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedMsg:        "",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			api := test.SetupAPI(&plugintest.API{})
+			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			if test.ExpectedMsg != "" {
+				ephemeralPost := &model.Post{
+					ChannelId: test.Request.ChannelId,
+					UserId:    testutils.GetBotUserID(),
+					Message:   test.ExpectedMsg,
+				}
+				api.On("SendEphemeralPost", test.Request.UserId, ephemeralPost).Return(nil)
+			}
+			defer api.AssertExpectations(t)
+
+			store := test.SetupStore(&mockstore.Store{})
+			defer store.AssertExpectations(t)
+
+			p := setupTestPlugin(t, api, store)
+
+			w := httptest.NewRecorder()
+			url := fmt.Sprintf("/api/v1/polls/%s/end/request", testutils.GetPollID())
+			body := bytes.NewReader(test.Request.ToJson())
+			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
@@ -809,10 +1029,12 @@ func TestHandleEndPoll(t *testing.T) {
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
-		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
+		request := &model.SubmitDialogRequest{}
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		url := fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID())
+		body := bytes.NewReader(request.ToJson())
+		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
 		result := w.Result()
@@ -838,13 +1060,14 @@ func TestHandleEndPoll(t *testing.T) {
 	}
 	expectedPost, err := testutils.GetPollWithVotes().ToEndPollPost(testutils.GetLocalizer(), "John Doe", converter)
 	require.Nil(t, err)
+	expectedPost.Id = "postID1"
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
-		Request            *model.PostActionIntegrationRequest
+		Request            *model.SubmitDialogRequest
 		ExpectedStatusCode int
-		ExpectedResponse   *model.PostActionIntegrationResponse
+		ExpectedResponse   *model.SubmitDialogResponse
 		ExpectedMsg        string
 	}{
 		"Valid request with votes": {
@@ -855,6 +1078,7 @@ func TestHandleEndPoll(t *testing.T) {
 				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
 				api.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channel_id"}, nil)
 				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
+				api.On("UpdatePost", expectedPost).Return(nil, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
 				return api
 			},
@@ -863,33 +1087,9 @@ func TestHandleEndPoll(t *testing.T) {
 				store.PollStore.On("Delete", testutils.GetPollWithVotes()).Return(nil)
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", PostId: "postID1", TeamId: "teamID1"},
+			Request:            &model.SubmitDialogRequest{UserId: "userID1", CallbackId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost},
-			ExpectedMsg:        "",
-		},
-		"Valid request with votes, issuer is system admin": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
-				api.On("GetUser", "userID2").Return(&model.User{
-					Username: "user2",
-					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
-				}, nil)
-				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
-				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
-				api.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channel_id"}, nil)
-				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
-				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
-				return api
-			},
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
-				store.PollStore.On("Delete", testutils.GetPollWithVotes()).Return(nil)
-				return store
-			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1", TeamId: "teamID1"},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost},
+			ExpectedResponse:   nil,
 			ExpectedMsg:        "",
 		},
 		"Valid request, PollStore.Get fails": {
@@ -901,56 +1101,8 @@ func TestHandleEndPoll(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			Request:            &model.SubmitDialogRequest{UserId: "userID1", CallbackId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
-			ExpectedMsg:        "Something went wrong. Please try again later.",
-		},
-		"Valid request, GetUser fails for issuer": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
-				return api
-			},
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
-				return store
-			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
-			ExpectedMsg:        "Something went wrong. Please try again later.",
-		},
-		"Valid request, Invalid permission": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
-				return api
-			},
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
-				return store
-			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
-			ExpectedMsg:        "Only the creator of a poll and System Admins are allowed to end it.",
-		},
-		"Valid request, PollStore.Delete fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
-				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
-				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
-				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
-				return api
-			},
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
-				store.PollStore.On("Delete", testutils.GetPollWithVotes()).Return(&model.AppError{})
-				return store
-			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, GetUser fails for poll creator": {
@@ -962,9 +1114,9 @@ func TestHandleEndPoll(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			Request:            &model.SubmitDialogRequest{UserId: "userID1", CallbackId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
+			ExpectedResponse:   nil,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, GetUser fails for voter": {
@@ -977,9 +1129,46 @@ func TestHandleEndPoll(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			Request:            &model.SubmitDialogRequest{UserId: "userID2", CallbackId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, UpdatePost fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
+				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
+				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
+				api.On("UpdatePost", expectedPost).Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request:            &model.SubmitDialogRequest{UserId: "userID2", CallbackId: "postID1", TeamId: "teamID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, PollStore.Delete fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
+				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
+				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
+				api.On("UpdatePost", expectedPost).Return(nil, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				store.PollStore.On("Delete", testutils.GetPollWithVotes()).Return(&model.AppError{})
+				return store
+			},
+			Request:            &model.SubmitDialogRequest{UserId: "userID2", CallbackId: "postID1", TeamId: "teamID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Invalid request": {
@@ -1013,27 +1202,23 @@ func TestHandleEndPoll(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			url := fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID())
+			body := bytes.NewReader(test.Request.ToJson())
+			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.PostActionIntegrationResponseFromJson(result.Body)
+			response := model.SubmitDialogResponseFromJson(result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
-			if result.StatusCode == http.StatusOK {
+			assert.Equal(test.ExpectedResponse, response)
+			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
-				require.NotNil(t, response)
-				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
-				if test.ExpectedResponse.Update != nil {
-					assert.Equal(test.ExpectedResponse.Update.Attachments(), response.Update.Attachments())
-				}
-			} else {
-				assert.Equal(test.ExpectedResponse, response)
 			}
 		})
 	}
@@ -1094,16 +1279,18 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		})
 	}
 }
-func TestHandleDeletePoll(t *testing.T) {
+func TestHandleDeletePollReqest(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
-		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
+		request := &model.PostActionIntegrationRequest{}
 
 		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), bytes.NewReader(request.ToJson()))
+		url := fmt.Sprintf("/api/v1/polls/%s/delete/request", testutils.GetPollID())
+		body := bytes.NewReader(request.ToJson())
+		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
 		result := w.Result()
@@ -1112,6 +1299,18 @@ func TestHandleDeletePoll(t *testing.T) {
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
+
+	triggerID := model.NewId()
+	dialog := model.OpenDialogRequest{
+		TriggerId: triggerID,
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
+		Dialog: model.Dialog{
+			Title:       "Confirm Poll Delete",
+			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
+			CallbackId:  "postID1",
+			SubmitLabel: "Delete",
+		},
+	}
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -1123,17 +1322,21 @@ func TestHandleDeletePoll(t *testing.T) {
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
-				api.On("DeletePost", "postID1").Return(nil)
+				api.On("OpenInteractiveDialog", dialog).Return(nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
-				store.PollStore.On("Delete", testutils.GetPoll()).Return(nil)
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID1",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedMsg:        "Successfully deleted the poll.",
+			ExpectedMsg:        "",
 		},
 		"Valid request with no votes, issuer is system admin": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1141,17 +1344,21 @@ func TestHandleDeletePoll(t *testing.T) {
 					Username: "user2",
 					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
 				}, nil)
-				api.On("DeletePost", "postID1").Return(nil)
+				api.On("OpenInteractiveDialog", dialog).Return(nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
-				store.PollStore.On("Delete", testutils.GetPoll()).Return(nil)
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", PostId: "postID1", TeamId: "teamID1"},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedMsg:        "Successfully deleted the poll.",
+			ExpectedMsg:        "",
 		},
 		"Valid request, Store.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1162,21 +1369,30 @@ func TestHandleDeletePoll(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID1",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
@@ -1189,36 +1405,31 @@ func TestHandleDeletePoll(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID2",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedMsg:        "Only the creator of a poll and System Admins are allowed to delete it.",
 		},
-		"Valid request, DeletePost fails": {
+		"Valid request, OpenInteractiveDialog fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
-				api.On("DeletePost", "postID1").Return(&model.AppError{})
+				api.On("OpenInteractiveDialog", dialog).Return(&model.AppError{})
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
 				return store
 			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedMsg:        "Something went wrong. Please try again later.",
-		},
-		"Valid request, KVDelete fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
-				api.On("DeletePost", "postID1").Return(nil)
-				return api
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID1",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
 			},
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
-				store.PollStore.On("Delete", testutils.GetPoll()).Return(&model.AppError{})
-				return store
-			},
-			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
@@ -1252,7 +1463,9 @@ func TestHandleDeletePoll(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID()), bytes.NewReader(test.Request.ToJson()))
+			url := fmt.Sprintf("/api/v1/polls/%s/delete/request", testutils.GetPollID())
+			body := bytes.NewReader(test.Request.ToJson())
+			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
 			p.ServeHTTP(nil, w, r)
 
@@ -1269,6 +1482,165 @@ func TestHandleDeletePoll(t *testing.T) {
 				assert.Equal(response, &model.PostActionIntegrationResponse{})
 			} else {
 				assert.Nil(response)
+			}
+		})
+	}
+}
+
+func TestHandleDeletePoll(t *testing.T) {
+	t.Run("not-authorized", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		defer api.AssertExpectations(t)
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		request := &model.SubmitDialogRequest{}
+
+		w := httptest.NewRecorder()
+		url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
+		body := bytes.NewReader(request.ToJson())
+		r := httptest.NewRequest(http.MethodPost, url, body)
+		p.ServeHTTP(nil, w, r)
+		result := w.Result()
+		defer result.Body.Close()
+
+		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	})
+
+	for name, test := range map[string]struct {
+		SetupAPI           func(*plugintest.API) *plugintest.API
+		SetupStore         func(*mockstore.Store) *mockstore.Store
+		Request            *model.SubmitDialogRequest
+		ExpectedStatusCode int
+		ExpectedResponse   *model.SubmitDialogResponse
+		ExpectedMsg        string
+	}{
+		"Valid request": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				api.On("DeletePost", "postID1").Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				store.PollStore.On("Delete", testutils.GetPoll()).Return(nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID1",
+				CallbackId: "postID1",
+				ChannelId:  "channelID1",
+				Submission: map[string]interface{}{},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Successfully deleted the poll.",
+		},
+		"Valid request, PollStore.Get fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, errors.New(""))
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID1",
+				CallbackId: "postID1",
+				ChannelId:  "channelID1",
+				Submission: map[string]interface{}{},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, DeletePost fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
+				api.On("DeletePost", "postID1").Return(&model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID1",
+				CallbackId: "postID1",
+				ChannelId:  "channelID1",
+				Submission: map[string]interface{}{},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request, PollStore.Delete fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				api.On("DeletePost", "postID1").Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				store.PollStore.On("Delete", testutils.GetPoll()).Return(&model.AppError{})
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID1",
+				CallbackId: "postID1",
+				ChannelId:  "channelID1",
+				Submission: map[string]interface{}{},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Empty request": {
+			SetupAPI:           func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:         func(store *mockstore.Store) *mockstore.Store { return store },
+			Request:            nil,
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			api := test.SetupAPI(&plugintest.API{})
+			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			if test.ExpectedMsg != "" {
+				ephemeralPost := &model.Post{
+					ChannelId: test.Request.ChannelId,
+					UserId:    testutils.GetBotUserID(),
+					Message:   test.ExpectedMsg,
+				}
+				api.On("SendEphemeralPost", test.Request.UserId, ephemeralPost).Return(nil)
+			}
+			defer api.AssertExpectations(t)
+			store := test.SetupStore(&mockstore.Store{})
+			defer store.AssertExpectations(t)
+			p := setupTestPlugin(t, api, store)
+
+			w := httptest.NewRecorder()
+			url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
+			body := bytes.NewReader(test.Request.ToJson())
+			r := httptest.NewRequest(http.MethodPost, url, body)
+			r.Header.Add("Mattermost-User-ID", model.NewId())
+			p.ServeHTTP(nil, w, r)
+
+			result := w.Result()
+			require.NotNil(t, result)
+			defer result.Body.Close()
+			response := model.SubmitDialogResponseFromJson(result.Body)
+
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+			assert.Equal(test.ExpectedResponse, response)
+			if test.ExpectedResponse != nil {
+				assert.Equal(http.Header{
+					"Content-Type": []string{"application/json"},
+				}, result.Header)
 			}
 		})
 	}
