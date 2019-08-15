@@ -43,7 +43,7 @@ var botDescription = &i18n.Message{
 }
 
 const (
-	minimumServerVersion = "5.10.0"
+	minimumServerVersion = "5.14.0"
 
 	botUserName    = "matterpoll"
 	botDisplayName = "Matterpoll"
