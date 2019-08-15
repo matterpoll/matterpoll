@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -48,7 +49,7 @@ var (
 	}
 	commandHelpTextPollSettingAnonymous = &i18n.Message{
 		ID:    "command.help.text.pollSetting.anonymous",
-		Other: "Don't show who voted for what",
+		Other: "Don't show who voted for what when the poll ends",
 	}
 	commandHelpTextPollSettingProgress = &i18n.Message{
 		ID:    "command.help.text.pollSetting.progress",
@@ -93,7 +94,21 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	defaultNo := p.LocalizeDefaultMessage(publicLocalizer, commandDefaultNo)
 
 	q, o, s := utils.ParseInput(args.Command, configuration.Trigger)
-	if q == "" || q == "help" {
+	if q == "" {
+		siteURL := *p.ServerConfig.ServiceSettings.SiteURL
+		dialog := model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.ID),
+			Dialog:    p.getCreatePollDialog(siteURL, args.RootId, userLocalizer),
+		}
+
+		if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
+			p.API.LogWarn("failed to open add option dialog", "err", appErr.Error())
+			return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+		}
+		return "", nil
+	}
+	if q == "help" {
 		msg := p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextSimple,
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger, "Yes": defaultYes, "No": defaultNo},
@@ -181,4 +196,59 @@ func (p *MatterpollPlugin) getCommand(trigger string) *model.Command {
 		AutoCompleteDesc: p.LocalizeDefaultMessage(localizer, commandAutoCompleteDesc),
 		AutoCompleteHint: p.LocalizeDefaultMessage(localizer, commandAutoCompleteHint),
 	}
+}
+
+func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer) model.Dialog {
+	elements := []model.DialogElement{{
+		DisplayName: "Question",
+		Name:        questionKey,
+		Type:        "text",
+		SubType:     "text",
+	}}
+	for i := 1; i < 4; i++ {
+		elements = append(elements, model.DialogElement{
+			DisplayName: fmt.Sprintf("Option %v", i),
+			Name:        fmt.Sprintf("option%v", i),
+			Type:        "text",
+			SubType:     "text",
+			Optional:    i > 2,
+		})
+	}
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Anonymous",
+		Name:        "setting-anonymous",
+		Type:        "bool",
+		Placeholder: p.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymous),
+		Optional:    true,
+	})
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Progress",
+		Name:        "setting-progress",
+		Type:        "bool",
+		Placeholder: p.LocalizeDefaultMessage(l, commandHelpTextPollSettingProgress),
+		Optional:    true,
+	})
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Public Add Option",
+		Name:        "setting-public-add-option",
+		Type:        "bool",
+		Placeholder: p.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
+		Optional:    true,
+	})
+
+	dialog := model.Dialog{
+		CallbackId: rootID,
+		Title: p.LocalizeDefaultMessage(l, &i18n.Message{
+			ID:    "dialog.create.title",
+			Other: "Create Poll",
+		}),
+		IconURL: fmt.Sprintf(responseIconURL, siteURL, manifest.ID),
+		SubmitLabel: p.LocalizeDefaultMessage(l, &i18n.Message{
+			ID:    "dialog.create.submitLabel",
+			Other: "Create",
+		}),
+		Elements: elements,
+	}
+
+	return dialog
 }

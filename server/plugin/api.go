@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 )
@@ -19,6 +21,7 @@ const (
 	iconFilename = "logo_dark.png"
 
 	addOptionKey = "answerOption"
+	questionKey  = "question"
 )
 
 type (
@@ -76,6 +79,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	apiV1.Use(checkAuthenticity)
 	apiV1.HandleFunc("/configuration", p.handlePluginConfiguration).Methods(http.MethodGet)
 
+	apiV1.HandleFunc("/polls/create", p.handleSubmitDialogRequest(p.handleCreatePoll)).Methods(http.MethodPost)
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
 	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOption)).Methods(http.MethodPost)
@@ -193,6 +197,77 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 			}
 		}
 	}
+}
+
+func (p *MatterpollPlugin) handleCreatePoll(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+	publicLocalizer := p.getServerLocalizer()
+	creatorID := request.UserId
+
+	question, ok := request.Submission[questionKey].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", questionKey)
+	}
+
+	var answerOptions []string
+	o1, ok := request.Submission["option1"].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", questionKey)
+	}
+	answerOptions = append(answerOptions, o1)
+
+	o2, ok := request.Submission["option2"].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", questionKey)
+	}
+	answerOptions = append(answerOptions, o2)
+
+	o3, ok := request.Submission["option3"].(string)
+	if ok {
+		answerOptions = append(answerOptions, o3)
+	}
+
+	var settings []string
+	for k, v := range request.Submission {
+		if strings.HasPrefix(k, "setting-") {
+			b, ok := v.(bool)
+			if b && ok {
+				settings = append(settings, strings.TrimPrefix(k, "setting-"))
+			}
+		}
+	}
+
+	userLocalizer := p.getUserLocalizer(creatorID)
+	poll, errMsg := poll.NewPoll(creatorID, question, answerOptions, settings)
+	if errMsg != nil {
+		response := &model.SubmitDialogResponse{
+			Error: p.LocalizeErrorMessage(userLocalizer, errMsg),
+		}
+		return nil, response, nil
+	}
+
+	if err := p.Store.Poll().Save(poll); err != nil {
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
+	}
+
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
+	if appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
+	}
+
+	actions := poll.ToPostActions(publicLocalizer, manifest.ID, displayName)
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: request.ChannelId,
+		RootId:    request.CallbackId,
+		Type:      model.POST_DEFAULT,
+	}
+	model.ParseSlackAttachment(post, actions)
+
+	if _, appErr = p.API.CreatePost(post); appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to create poll post")
+	}
+
+	return nil, nil, nil
 }
 
 func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
