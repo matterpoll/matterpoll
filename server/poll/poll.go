@@ -161,3 +161,9 @@ func (p *Poll) Copy() *Poll {
 	}
 	return p2
 }
+
+// EncodeToByte returns a VotedAnswerResponse as a byte array
+func (v *VotedAnswerResponse) EncodeToByte() []byte {
+	b, _ := json.Marshal(v)
+	return b
+}

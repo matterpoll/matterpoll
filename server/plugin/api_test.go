@@ -12,6 +12,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -861,8 +862,10 @@ func TestHandleUserVoted(t *testing.T) {
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
+		UserID             string
 		ShouldError        bool
 		ExpectedStatusCode int
+		ExpectedBodyBytes  []byte
 	}{
 		"Valid request with votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
@@ -870,8 +873,29 @@ func TestHandleUserVoted(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
 				return store
 			},
+			UserID:             "userID1",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
+				PollID:       testutils.GetPollID(),
+				UserID:       "userID1",
+				VotedAnswers: []string{"Answer 1"},
+			}).EncodeToByte(),
+		},
+		"Valid request without votes": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			UserID:             "userID5",
+			ShouldError:        false,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
+				PollID:       testutils.GetPollID(),
+				UserID:       "userID5",
+				VotedAnswers: []string{},
+			}).EncodeToByte(),
 		},
 		"Valid request, PollStore.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
@@ -879,6 +903,7 @@ func TestHandleUserVoted(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
 				return store
 			},
+			UserID:             "userID1",
 			ShouldError:        true,
 			ExpectedStatusCode: http.StatusInternalServerError,
 		},
@@ -896,7 +921,7 @@ func TestHandleUserVoted(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/polls/%s/voted", testutils.GetPollID()), nil)
-			r.Header.Add("Mattermost-User-ID", "userID1")
+			r.Header.Add("Mattermost-User-ID", test.UserID)
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -911,7 +936,7 @@ func TestHandleUserVoted(t *testing.T) {
 				assert.Equal([]byte{}, bodyBytes)
 				assert.Equal(http.Header{}, result.Header)
 			} else {
-				assert.NotNil(bodyBytes)
+				assert.Equal(test.ExpectedBodyBytes, bodyBytes)
 				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
 			}
 		})

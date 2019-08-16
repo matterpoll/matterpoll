@@ -361,13 +361,7 @@ func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	b, err := json.Marshal(v)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		p.API.LogError("Failed to marshal voted answers", "error", err.Error())
-		return
-	}
-
+	b := v.EncodeToByte()
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(b); err != nil {
 		p.API.LogWarn("failed to write response", "error", err.Error())
