@@ -162,10 +162,11 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 			p.API.LogWarn("failed to handle PostActionIntegrationRequest", "error", err.Error())
 		}
 
-		response := &model.PostActionIntegrationResponse{}
 		if msg != nil {
-			response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, msg)
+			p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, msg))
 		}
+
+		response := &model.PostActionIntegrationResponse{}
 		if update != nil {
 			response.Update = update
 		}
@@ -272,7 +273,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 
 	answerOption, ok := request.Submission[addOptionKey].(string)
 	if !ok {
-		return commandErrorGeneric, nil, errors.Wrapf(appErr, "failed to get submission key %s", addOptionKey)
+		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", addOptionKey)
 	}
 
 	if err = poll.AddAnswerOption(answerOption); err != nil {
@@ -291,7 +292,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	}
 
 	if err = p.Store.Poll().Save(poll); err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get save poll")
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get save poll")
 
 	}
 

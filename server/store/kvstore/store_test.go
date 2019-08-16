@@ -4,11 +4,14 @@ import (
 	"testing"
 
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/plugin"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 )
 
-func setupTestStore(api *plugintest.API) *Store {
+const latestVersion = "1.1.0"
+
+func setupTestStore(api plugin.API) *Store {
 	store := Store{
 		api: api,
 		pollStore: PollStore{
@@ -17,6 +20,7 @@ func setupTestStore(api *plugintest.API) *Store {
 		systemStore: SystemStore{
 			api: api,
 		},
+		upgrades: nil,
 	}
 	return &store
 }
@@ -24,10 +28,10 @@ func setupTestStore(api *plugintest.API) *Store {
 func TestNewStore(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
+		api.On("KVGet", versionKey).Return([]byte(latestVersion), nil)
 		defer api.AssertExpectations(t)
 
-		store, err := NewStore(api, "1.0.0")
+		store, err := NewStore(api, latestVersion)
 		assert.Nil(t, err)
 		assert.NotNil(t, store)
 	})
@@ -36,7 +40,7 @@ func TestNewStore(t *testing.T) {
 		api.On("KVGet", versionKey).Return([]byte{}, &model.AppError{})
 		defer api.AssertExpectations(t)
 
-		store, err := NewStore(api, "1.0.0")
+		store, err := NewStore(api, latestVersion)
 		assert.NotNil(t, err)
 		assert.Nil(t, store)
 	})
