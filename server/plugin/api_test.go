@@ -901,6 +901,7 @@ func TestHandleUserVoted(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
+			defer result.Body.Close()
 
 			bodyBytes, err := ioutil.ReadAll(result.Body)
 			require.Nil(t, err)
