@@ -157,7 +157,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
 		Type:      MatterpollPostType,
-		Props: model.StringInterface{
+		Props: map[string]interface{}{
 			"poll_id": newPoll.ID,
 		},
 	}

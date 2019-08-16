@@ -357,14 +357,14 @@ func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Reques
 	v, err := poll.GetVotedAnswer(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		p.API.LogError("Failed to get voted answers", "userID", userID)
+		p.API.LogError("Failed to get voted answers", "userID", userID, "error", err.Error())
 		return
 	}
 
 	b, err := json.Marshal(v)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		p.API.LogError("Failed to marshal voted answers")
+		p.API.LogError("Failed to marshal voted answers", "error", err.Error())
 		return
 	}
 
