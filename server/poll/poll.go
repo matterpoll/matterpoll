@@ -33,7 +33,7 @@ type Settings struct {
 }
 
 // ErrorMessage contains error messsage for a user that can be localized.
-// It should not be wrapped and instead allways returned.
+// It should not be wrapped and instead always returned.
 type ErrorMessage struct {
 	Message *i18n.Message
 	Data    map[string]interface{}
