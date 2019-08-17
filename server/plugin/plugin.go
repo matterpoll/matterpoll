@@ -96,7 +96,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 		// Wait a bit to let the server mark the plugin as running
 		time.Sleep(100 * time.Millisecond)
 		if err = p.checkHTTPConnection(); err != nil {
-			p.API.LogError("Your server is misconfigured. Please check if your siteURL is set and you TLS certificate is valid", "error", err.Error())
+			p.API.LogError("Your server is misconfigured. Please check if your siteURL is set and your TLS certificate is valid", "error", err.Error())
 		}
 	}(p)
 
