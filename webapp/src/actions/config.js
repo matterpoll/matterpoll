@@ -1,3 +1,5 @@
+import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
+
 import ActionTypes from 'action_types';
 import PostType from 'components/post_type';
 import Client from 'client';
@@ -18,14 +20,12 @@ export const configurationChange = (registry, store, data) => async (dispatch) =
     });
 };
 
-export const fetchPluginConfiguration = () => {
+export const fetchPluginConfiguration = (state) => {
     return async () => {
-        let data;
-        try {
-            data = await Client.getPluginConfiguration();
-        } catch (error) {
-            return error;
+        const currentUserId = getCurrentUserId(state);
+        if (currentUserId) {
+            return Client.getPluginConfiguration();
         }
-        return data;
+        return null;
     };
 };

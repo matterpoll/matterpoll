@@ -6,10 +6,7 @@ import reducer from './reducers';
 
 export default class MatterPollPlugin {
     async initialize(registry, store) {
-        const data = await fetchPluginConfiguration()();
-        if (data && data.experimentalui) {
-            store.dispatch(configurationChange(registry, store, data));
-        }
+        await this.readPluginConfiguration(registry, store);
 
         registry.registerWebSocketEventHandler(
             'custom_' + pluginId + '_configuration_change',
@@ -23,7 +20,19 @@ export default class MatterPollPlugin {
                 store.dispatch(websocketHasVoted(message.data));
             }
         );
+        // When logging in, read plugin configuration from server.
+        registry.registerWebSocketEventHandler('hello', async () => {
+            await this.readPluginConfiguration(registry, store);
+        });
+
         registry.registerReducer(reducer);
+    }
+
+    readPluginConfiguration = async (registry, store) => {
+        const data = await fetchPluginConfiguration(store.getState())();
+        if (data && data.experimentalui) {
+            store.dispatch(configurationChange(registry, store, data));
+        }
     }
 
     uninitialize() {
