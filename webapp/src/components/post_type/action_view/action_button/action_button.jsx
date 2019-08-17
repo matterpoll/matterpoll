@@ -37,7 +37,9 @@ export default class ActionButton extends React.PureComponent {
         const bsStyle = this.props.hasVoted ? 'primary' : 'default';
 
         return (
-            <ButtonToolbar>
+            <ButtonToolbar
+                style={style.buttonToolbar}
+            >
                 <Button
                     data-action-id={action.id}
                     key={action.id}
@@ -50,3 +52,7 @@ export default class ActionButton extends React.PureComponent {
         );
     }
 }
+
+const style = {
+    buttonToolbar: {'margin-left': 0},
+};

@@ -3,6 +3,11 @@
 exports[`components/action_button/ActionButton should match snapshot 1`] = `
 <ButtonToolbar
   bsClass="btn-toolbar"
+  style={
+    Object {
+      "margin-left": 0,
+    }
+  }
 >
   <Button
     active={false}
@@ -20,6 +25,11 @@ exports[`components/action_button/ActionButton should match snapshot 1`] = `
 exports[`components/action_button/ActionButton should match snapshot with hasVoted 1`] = `
 <ButtonToolbar
   bsClass="btn-toolbar"
+  style={
+    Object {
+      "margin-left": 0,
+    }
+  }
 >
   <Button
     active={false}
