@@ -60,7 +60,7 @@
     "eslint-plugin-import": "^2.18.0",
     "eslint-plugin-react": "^7.14.2",
     "jest": "24.8.0",
-    "react-bootstrap": "github:mattermost/react-bootstrap#dcbd68da4d32c1c4b86e8f2942bc69bc2ebed550",
+    "react-bootstrap": "github:mattermost/react-bootstrap#c6957962364e0818a51bbfd13e89919903b422d6",
     "react-dom": "^16.8.6",
     "redux-mock-store": "^1.5.3",
     "webpack": "^4.35.0",
@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "core-js": "2.6.5",
-    "marked": "github:mattermost/marked#e57e07f419f85178354a3bbbd60de5302483c436",
+    "marked": "github:mattermost/marked#3a9d0a5bd6d735df1a716ab50f73d58a1d865bdb",
     "mattermost-redux": "5.11.0",
     "react": "16.8.6",
     "react-redux": "5.1.1",
