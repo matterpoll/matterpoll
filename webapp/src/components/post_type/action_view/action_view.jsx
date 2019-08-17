@@ -7,7 +7,7 @@ export default class ActionView extends React.PureComponent {
     static propTypes = {
         post: PropTypes.object.isRequired,
         attachment: PropTypes.object.isRequired,
-        votedAnswers: PropTypes.object.isRequired,
+        votedAnswers: PropTypes.object,
         siteUrl: PropTypes.string.isRequired,
 
         actions: PropTypes.shape({

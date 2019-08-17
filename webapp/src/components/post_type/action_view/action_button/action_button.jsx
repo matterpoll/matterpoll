@@ -8,7 +8,7 @@ export default class ActionButton extends React.PureComponent {
     static propTypes = {
         action: PropTypes.object.isRequired,
         postId: PropTypes.string.isRequired,
-        hasVoted: PropTypes.bool.isRequired,
+        hasVoted: PropTypes.bool,
 
         actions: PropTypes.shape({
             voteAnswer: PropTypes.func.isRequired,
