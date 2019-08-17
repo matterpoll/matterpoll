@@ -20,6 +20,7 @@ export default class MatterPollPlugin {
                 store.dispatch(websocketHasVoted(message.data));
             }
         );
+
         // When logging in, read plugin configuration from server.
         registry.registerWebSocketEventHandler('hello', async () => {
             await this.readPluginConfiguration(registry, store);
