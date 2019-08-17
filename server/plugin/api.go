@@ -251,10 +251,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	if errMsg := poll.AddAnswerOption(answerOption); errMsg != nil {
 		response := &model.SubmitDialogResponse{
 			Errors: map[string]string{
-				addOptionKey: p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
-					DefaultMessage: errMsg.Message,
-					TemplateData:   errMsg.Data,
-				}),
+				addOptionKey: p.LocalizeErrorMessage(userLocalizer, errMsg),
 			},
 		}
 		return nil, response, nil
