@@ -54,5 +54,5 @@ export default class ActionButton extends React.PureComponent {
 }
 
 const style = {
-    buttonToolbar: {'margin-left': 0},
+    buttonToolbar: {marginLeft: 0},
 };
