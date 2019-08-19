@@ -32,6 +32,13 @@ type Settings struct {
 	PublicAddOption bool
 }
 
+// VotedAnswerResponse stores answers that is created by a user
+type VotedAnswerResponse struct {
+	PollID       string   `json:"poll_id"`
+	UserID       string   `json:"user_id"`
+	VotedAnswers []string `json:"voted_answers"`
+}
+
 // NewPoll creates a new poll with the given paramatern
 func NewPoll(creator, question string, answerOptions, settings []string) (*Poll, error) {
 	p := Poll{
@@ -94,6 +101,26 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	return nil
 }
 
+// GetVotedAnswer collect voted answers by a user and returns it as VotedAnswerResponse
+func (p *Poll) GetVotedAnswer(userID string) (*VotedAnswerResponse, error) {
+	if userID == "" {
+		return nil, fmt.Errorf("invalid userID")
+	}
+	votedAnswer := []string{}
+	for _, o := range p.AnswerOptions {
+		for _, v := range o.Voter {
+			if userID == v {
+				votedAnswer = append(votedAnswer, o.Answer)
+			}
+		}
+	}
+	return &VotedAnswerResponse{
+		PollID:       p.ID,
+		UserID:       userID,
+		VotedAnswers: votedAnswer,
+	}, nil
+}
+
 // HasVoted return true if a given user has voted in this poll
 func (p *Poll) HasVoted(userID string) bool {
 	for _, o := range p.AnswerOptions {
@@ -133,4 +160,10 @@ func (p *Poll) Copy() *Poll {
 		p2.AnswerOptions[i].Voter = o.Voter
 	}
 	return p2
+}
+
+// EncodeToByte returns a VotedAnswerResponse as a byte array
+func (v *VotedAnswerResponse) EncodeToByte() []byte {
+	b, _ := json.Marshal(v)
+	return b
 }

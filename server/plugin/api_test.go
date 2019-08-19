@@ -12,6 +12,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -123,6 +124,50 @@ func TestServeFile(t *testing.T) {
 	}
 }
 
+func TestHandlePluginConfiguration(t *testing.T) {
+	for name, test := range map[string]struct {
+		SetupAPI           func(*plugintest.API) *plugintest.API
+		ExpectedStatusCode int
+		ShouldError        bool
+	}{
+		"all fine": {
+			SetupAPI:           func(api *plugintest.API) *plugintest.API { return api },
+			ExpectedStatusCode: http.StatusOK,
+			ShouldError:        false,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+			api := test.SetupAPI(&plugintest.API{})
+			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			defer api.AssertExpectations(t)
+			p := setupTestPlugin(t, api, &mockstore.Store{})
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, "/api/v1/configuration", nil)
+			r.Header.Add("Mattermost-User-ID", model.NewId())
+			p.ServeHTTP(nil, w, r)
+
+			result := w.Result()
+			require.NotNil(t, result)
+			defer result.Body.Close()
+
+			bodyBytes, err := ioutil.ReadAll(result.Body)
+			require.Nil(t, err)
+
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+			if test.ShouldError {
+				assert.Equal([]byte{}, bodyBytes)
+				assert.Equal(http.Header{}, result.Header)
+			} else {
+				assert.NotNil(bodyBytes)
+				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
+			}
+		})
+	}
+
+}
+
 func TestHandleVote(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
@@ -172,6 +217,11 @@ func TestHandleVote(t *testing.T) {
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"poll_id":       testutils.GetPollID(),
+					"user_id":       "userID1",
+					"voted_answers": []string{"Answer 1"},
+				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -188,6 +238,11 @@ func TestHandleVote(t *testing.T) {
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"poll_id":       testutils.GetPollID(),
+					"user_id":       "userID1",
+					"voted_answers": []string{"Answer 2"},
+				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -798,6 +853,91 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 				assert.Equal(response, &model.PostActionIntegrationResponse{})
 			} else {
 				assert.Nil(response)
+			}
+		})
+	}
+}
+
+func TestHandleUserVoted(t *testing.T) {
+	for name, test := range map[string]struct {
+		SetupAPI           func(*plugintest.API) *plugintest.API
+		SetupStore         func(*mockstore.Store) *mockstore.Store
+		UserID             string
+		ShouldError        bool
+		ExpectedStatusCode int
+		ExpectedBodyBytes  []byte
+	}{
+		"Valid request with votes": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			UserID:             "userID1",
+			ShouldError:        false,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
+				PollID:       testutils.GetPollID(),
+				UserID:       "userID1",
+				VotedAnswers: []string{"Answer 1"},
+			}).EncodeToByte(),
+		},
+		"Valid request without votes": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			UserID:             "userID5",
+			ShouldError:        false,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
+				PollID:       testutils.GetPollID(),
+				UserID:       "userID5",
+				VotedAnswers: []string{},
+			}).EncodeToByte(),
+		},
+		"Valid request, PollStore.Get fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
+				return store
+			},
+			UserID:             "userID1",
+			ShouldError:        true,
+			ExpectedStatusCode: http.StatusInternalServerError,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			api := test.SetupAPI(&plugintest.API{})
+			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			defer api.AssertExpectations(t)
+			store := test.SetupStore(&mockstore.Store{})
+			defer store.AssertExpectations(t)
+			p := setupTestPlugin(t, api, store)
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/polls/%s/voted", testutils.GetPollID()), nil)
+			r.Header.Add("Mattermost-User-ID", test.UserID)
+			p.ServeHTTP(nil, w, r)
+
+			result := w.Result()
+			require.NotNil(t, result)
+			defer result.Body.Close()
+
+			bodyBytes, err := ioutil.ReadAll(result.Body)
+			require.Nil(t, err)
+
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+			if test.ShouldError {
+				assert.Equal([]byte{}, bodyBytes)
+				assert.Equal(http.Header{}, result.Header)
+			} else {
+				assert.Equal(test.ExpectedBodyBytes, bodyBytes)
+				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
 			}
 		})
 	}

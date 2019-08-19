@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -86,6 +87,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 
 	apiV1 := r.PathPrefix("/api/v1").Subrouter()
 	apiV1.Use(checkAuthenticity)
+	apiV1.HandleFunc("/configuration", p.handlePluginConfiguration).Methods(http.MethodGet)
 
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
 	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods(http.MethodPost)
@@ -93,6 +95,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOptionDialogRequest)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/end", p.handlePostActionIntegrationRequest(p.handleEndPoll)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/delete", p.handlePostActionIntegrationRequest(p.handleDeletePoll)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/voted", p.handleUserVoted).Methods(http.MethodGet)
 	return r
 }
 
@@ -115,6 +118,22 @@ func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "public, max-age=604800")
 	http.ServeFile(w, r, filepath.Join(bundlePath, "assets", iconFilename))
+}
+
+func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, r *http.Request) {
+	configuration := p.getConfiguration()
+	b, err := json.Marshal(configuration)
+	if err != nil {
+		p.API.LogWarn("failed to decode configuration object.", "error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if _, err = w.Write(b); err != nil {
+		p.API.LogWarn("failed to write response.", "error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func checkAuthenticity(next http.Handler) http.Handler {
@@ -213,9 +232,20 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
+	v, err := poll.GetVotedAnswer(userID)
+	if err != nil {
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get voted answers")
+	}
+	p.API.PublishWebSocketEvent("has_voted", map[string]interface{}{
+		"user_id":       v.UserID,
+		"poll_id":       v.PollID,
+		"voted_answers": v.VotedAnswers,
+	}, &model.WebsocketBroadcast{UserId: userID})
+
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
 	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.ID, displayName))
+	post.AddProp("poll_id", poll.ID)
 
 	if hasVoted {
 		return responseVoteUpdated, post, nil
@@ -310,6 +340,32 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(vars map[string]string, 
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to open add option dialog")
 	}
 	return nil, nil, nil
+}
+
+func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pollID := vars["id"]
+	userID := r.Header.Get("Mattermost-User-Id")
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		p.API.LogWarn("failed to get poll", "error", err.Error())
+		return
+	}
+
+	v, err := poll.GetVotedAnswer(userID)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		p.API.LogError("Failed to get voted answers", "userID", userID, "error", err.Error())
+		return
+	}
+
+	b := v.EncodeToByte()
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(b); err != nil {
+		p.API.LogWarn("failed to write response", "error", err.Error())
+	}
 }
 
 func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {

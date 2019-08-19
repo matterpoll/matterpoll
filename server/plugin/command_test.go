@@ -57,7 +57,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
 				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
@@ -78,7 +81,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
 				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
@@ -102,7 +108,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
 				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
@@ -124,7 +133,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
 				actions := testutils.GetPollWithSettings(poll.Settings{Progress: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
@@ -147,7 +159,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
 				actions := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
