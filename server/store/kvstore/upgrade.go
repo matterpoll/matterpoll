@@ -14,6 +14,7 @@ type upgrade struct {
 func getUpgrades() []*upgrade {
 	return []*upgrade{
 		{toVersion: "1.1.0", upgradeFunc: nil},
+		{toVersion: "1.2.0", upgradeFunc: nil},
 	}
 }
 
