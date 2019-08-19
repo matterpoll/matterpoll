@@ -43,6 +43,13 @@ func TestParseInput(t *testing.T) {
 			ExpectedOptions:  []string{"B", "C"},
 			ExpectedSettings: []string{},
 		},
+		"Replace curlyquotes": {
+			Input:            `/poll “A“ ”BBB” “CCC”`,
+			Trigger:          "poll",
+			ExpectedQuestion: `A`,
+			ExpectedOptions:  []string{"BBB", "CCC"},
+			ExpectedSettings: []string{},
+		},
 		"No options": {
 			Input:            `/poll  `,
 			Trigger:          "poll",

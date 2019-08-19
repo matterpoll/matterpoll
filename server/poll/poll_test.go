@@ -16,7 +16,7 @@ func TestNewPoll(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		assert := assert.New(t)
 		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-		patch2 := monkey.Patch(model.NewId, func() string { return testutils.GetPollID() })
+		patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
 		defer patch1.Unpatch()
 		defer patch2.Unpatch()
 
@@ -235,6 +235,80 @@ func TestUpdateVote(t *testing.T) {
 				assert.Nil(err)
 			}
 			assert.Equal(test.ExpectedPoll, test.Poll)
+		})
+	}
+}
+
+func TestGetVotedAnswer(t *testing.T) {
+	for name, test := range map[string]struct {
+		Poll             poll.Poll
+		UserID           string
+		ShouldError      bool
+		ExpectedResponse *poll.VotedAnswerResponse
+	}{
+		"Voted an Answer": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"b"}},
+					{Answer: "Answer 3", Voter: []string{"b"}},
+				},
+			},
+			UserID:           "a",
+			ShouldError:      false,
+			ExpectedResponse: &poll.VotedAnswerResponse{PollID: testutils.GetPollID(), UserID: "a", VotedAnswers: []string{"Answer 1"}},
+		},
+		"Voted two Answers": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"b"}},
+					{Answer: "Answer 3", Voter: []string{"b"}},
+				},
+			},
+			UserID:           "b",
+			ShouldError:      false,
+			ExpectedResponse: &poll.VotedAnswerResponse{PollID: testutils.GetPollID(), UserID: "b", VotedAnswers: []string{"Answer 2", "Answer 3"}},
+		},
+		"Voted no Answers": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"b"}},
+					{Answer: "Answer 3", Voter: []string{"b"}},
+				},
+			},
+			UserID:           "c",
+			ShouldError:      false,
+			ExpectedResponse: &poll.VotedAnswerResponse{PollID: testutils.GetPollID(), UserID: "c", VotedAnswers: []string{}},
+		},
+		"Invalid userID": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"b"}},
+					{Answer: "Answer 3", Voter: []string{"b"}},
+				},
+			},
+			UserID:      "",
+			ShouldError: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			answers, err := test.Poll.GetVotedAnswer(test.UserID)
+			if test.ShouldError {
+				assert.NotNil(err)
+				assert.Nil(answers)
+			} else {
+				assert.Nil(err)
+				assert.Equal(test.ExpectedResponse, answers)
+			}
 		})
 	}
 }

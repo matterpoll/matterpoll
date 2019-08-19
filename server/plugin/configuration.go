@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/pkg/errors"
 )
 
@@ -8,7 +9,8 @@ import (
 // configuration, as well as values computed from the configuration. Any public fields will be
 // deserialized from the Mattermost server configuration in OnConfigurationChange.
 type configuration struct {
-	Trigger string
+	Trigger        string `json:"trigger"`
+	ExperimentalUI bool   `json:"experimentalui"`
 }
 
 // OnConfigurationChange loads the plugin configuration, validates it and saves it.
@@ -43,6 +45,13 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 	}
 
 	p.setConfiguration(configuration)
+
+	// Emit experimental settings to client if changed
+	if oldConfiguration.ExperimentalUI != configuration.ExperimentalUI {
+		p.API.PublishWebSocketEvent("configuration_change", map[string]interface{}{
+			"experimentalui": configuration.ExperimentalUI,
+		}, &model.WebsocketBroadcast{})
+	}
 
 	return nil
 }

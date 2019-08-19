@@ -6,30 +6,50 @@ import (
 	"github.com/blang/semver"
 )
 
+type upgrade struct {
+	toVersion   string
+	upgradeFunc func(*Store) error
+}
+
+func getUpgrades() []*upgrade {
+	return []*upgrade{
+		{toVersion: "1.1.0", upgradeFunc: nil},
+		{toVersion: "1.2.0", upgradeFunc: nil},
+	}
+}
+
 // UpdateDatabase upgrades the database schema from a given version to the newest version.
 func (s *Store) UpdateDatabase(pluginVersion string) error {
-	v, err := s.System().GetVersion()
+	currentVersion, err := s.System().GetVersion()
 	if err != nil {
 		return err
 	}
-	// If no version is set, set to to the newest version
-	if v == "" {
-		newestSchema := semver.MustParse(pluginVersion)
-		// Don't store patch versions
-		newestSchema.Patch = 0
 
-		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", newestSchema.String()))
-		return s.System().SaveVersion(newestSchema.String())
+	// If no version is set, set to to the newest version
+	if currentVersion == "" {
+		newestVersion := semver.MustParse(pluginVersion)
+		// Don't store patch versions
+		newestVersion.Patch = 0
+
+		s.api.LogWarn(fmt.Sprintf("This looks to be a fresh install. Setting database schema version to %v.", newestVersion.String()))
+		return s.System().SaveVersion(newestVersion.String())
 	}
 
-	// TODO: Uncomment following condition when version 1.1.0 is released
-	/*
-		currentSchemaVersion := semver.MustParse(v)
-		if err := s.UpgradeDatabaseToVersion11(currentSchemaVersion); err != nil {
-			return err
+	for _, upgrade := range s.upgrades {
+		if s.shouldPerformUpgrade(semver.MustParse(currentVersion), semver.MustParse(upgrade.toVersion)) {
+			if upgrade.upgradeFunc != nil {
+				err = upgrade.upgradeFunc(s)
+				if err != nil {
+					return err
+				}
+			}
+			if err := s.System().SaveVersion(upgrade.toVersion); err != nil {
+				return err
+			}
+			s.api.LogWarn(fmt.Sprintf("Update to version %v complete", upgrade.toVersion))
+			currentVersion = upgrade.toVersion
 		}
-	*/
-
+	}
 	return nil
 }
 
@@ -41,16 +61,3 @@ func (s *Store) shouldPerformUpgrade(currentSchemaVersion semver.Version, expect
 	}
 	return false
 }
-
-/*
-func (s *Store) UpgradeDatabaseToVersion11(currentSchemaVersion semver.Version) error {
-	if s.shouldPerformUpgrade(currentSchemaVersion, semver.MustParse("1.1.0")) {
-		// Do migration
-    s.api.LogWarn("Update complete")
-		if err := s.System().SaveVersion("1.1.0"); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-*/
