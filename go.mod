@@ -9,7 +9,7 @@ require (
 	github.com/mattermost/mattermost-server v5.12.0+incompatible
 	github.com/nicksnyder/go-i18n/v2 v2.0.2
 	github.com/pkg/errors v0.8.1
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.4.0
 	golang.org/x/text v0.3.2
 )
 
