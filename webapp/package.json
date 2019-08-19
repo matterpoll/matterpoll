@@ -1,6 +1,7 @@
 {
   "name": "matterpoll",
-  "version": "1.1.0",
+  "version": "0.0.1",
+  "private": true,
   "main": "src/index.js",
   "scripts": {
     "build": "webpack --mode=production",
@@ -39,7 +40,6 @@
       "<rootDir>/tests/setup.js"
     ]
   },
-  "author": "",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.4.5",
