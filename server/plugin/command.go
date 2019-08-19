@@ -151,12 +151,15 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
-	actions := newPoll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.ID, displayName)
+	actions := newPoll.ToPostActions(publicLocalizer, manifest.ID, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
-		Type:      model.POST_DEFAULT,
+		Type:      MatterpollPostType,
+		Props: map[string]interface{}{
+			"poll_id": newPoll.ID,
+		},
 	}
 	model.ParseSlackAttachment(post, actions)
 

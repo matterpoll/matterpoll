@@ -25,6 +25,7 @@ The localization process is defined below:
 - France: [@ldidry](https://github.com/ldidry)
 - German: [@hanzei](https://github.com/hanzei)
 - Japanese: [@kaakaa](https://github.com/kaakaa)
+- Polish: [@burasuk](https://github.com/burasuk)
 
 ### Translation Process for Existing Languages
 
