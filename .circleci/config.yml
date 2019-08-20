@@ -9,13 +9,13 @@ workflows:
   main:
     jobs:
       - plugin-ci/lint:
-        filters:
-          tags:
-            only: /^v.*/
+          filters:
+            tags:
+              only: /^v.*/
       - plugin-ci/coverage:
-        filters:
-          tags:
-            only: /^v.*/
+          filters:
+            tags:
+              only: /^v.*/
       - plugin-ci/build:
           filters:
             tags:
