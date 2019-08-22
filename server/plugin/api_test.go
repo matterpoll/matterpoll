@@ -1131,8 +1131,6 @@ func TestHandleEndPollConfirm(t *testing.T) {
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
 				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
-				api.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channel_id"}, nil)
-				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
 				api.On("UpdatePost", expectedPost).Return(nil, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
 				return api
@@ -1286,47 +1284,30 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 	}{
 		"Valid request": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
-				api.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channelID1"}, nil)
 				api.On("CreatePost", &model.Post{
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
 					Message: "The poll **Question** has ended and the original post have been updated. " +
-						"You can jump to it by pressing [here](https://example.org/team1/pl/postID1).",
+						"You can jump to it by pressing [here](https://example.org/_redirect/pl/postID1).",
 					Type: model.POST_DEFAULT,
 				}).Return(nil, nil)
 				return api
 			},
 		},
-		"Valid request, GetTeam fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetTeam", "teamID1").Return(nil, &model.AppError{})
-				return api
-			},
-		},
-		"Valid request, GetPost fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
-				api.On("GetPost", "postID1").Return(nil, &model.AppError{})
-				return api
-			},
-		},
 		"Valid request, CreatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetTeam", "teamID1").Return(&model.Team{Name: "team1"}, nil)
-				api.On("GetPost", "postID1").Return(&model.Post{ChannelId: "channelID1"}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
+				api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return()
 				return api
 			},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 
 			p := setupTestPlugin(t, api, &mockstore.Store{})
-			p.postEndPollAnnouncement("teamID1", "postID1", "Question")
+			p.postEndPollAnnouncement("channelID1", "postID1", "Question")
 		})
 	}
 }
