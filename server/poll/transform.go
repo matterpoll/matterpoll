@@ -8,6 +8,9 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+// IDToDisplayNameConverter converts a given userID to a human readable name.
+type IDToNameConverter func(userID string) (string, *model.AppError)
+
 var (
 	pollButtonAddOption = &i18n.Message{
 		ID:    "poll.button.addOption",
@@ -125,7 +128,7 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 }
 
 // ToEndPollPost returns the poll end message
-func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {
+func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, convert IDToNameConverter) (*model.Post, *model.AppError) {
 	post := &model.Post{}
 	fields := []*model.SlackAttachmentField{}
 
