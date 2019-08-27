@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/action_button/ActionButton should match snapshot 1`] = `
+<ButtonToolbar
+  bsClass="btn-toolbar"
+  style={
+    Object {
+      "marginLeft": 0,
+    }
+  }
+>
+  <Button
+    active={false}
+    block={false}
+    bsClass="btn"
+    bsStyle="default"
+    data-action-id="action_id1"
+    disabled={false}
+    key="action_id1"
+    onClick={[Function]}
+  />
+</ButtonToolbar>
+`;
+
+exports[`components/action_button/ActionButton should match snapshot with hasVoted 1`] = `
+<ButtonToolbar
+  bsClass="btn-toolbar"
+  style={
+    Object {
+      "marginLeft": 0,
+    }
+  }
+>
+  <Button
+    active={false}
+    block={false}
+    bsClass="btn"
+    bsStyle="primary"
+    data-action-id="action_id1"
+    disabled={false}
+    key="action_id1"
+    onClick={[Function]}
+  />
+</ButtonToolbar>
+`;

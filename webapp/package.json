@@ -1,0 +1,78 @@
+{
+  "name": "matterpoll",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "lint": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx . --quiet",
+    "fix": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx . --quiet --fix",
+    "test": "jest --forceExit --detectOpenHandles --verbose",
+    "updatesnapshot": "jest -u"
+  },
+  "jest": {
+    "snapshotSerializers": [
+      "<rootDir>/node_modules/enzyme-to-json/serializer"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "collectCoverageFrom": [
+      "components/**/*.{js,jsx}"
+    ],
+    "coverageReporters": [
+      "lcov",
+      "test-summary"
+    ],
+    "moduleNameMapper": {
+      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "identity-obj-proxy",
+      "^.+\\.(css|less|scss)$": "identity-obj-proxy",
+      "^bundle-loader\\?lazy\\!(.*)$": "$1"
+    },
+    "moduleDirectories": [
+      "",
+      "node_modules"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ]
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "7.4.4",
+    "@babel/plugin-syntax-dynamic-import": "7.2.0",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/runtime": "^7.4.5",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "24.8.0",
+    "babel-loader": "8.0.6",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
+    "enzyme-to-json": "^3.3.5",
+    "eslint": "^6.0.1",
+    "eslint-import-resolver-webpack": "^0.11.1",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-react": "^7.14.2",
+    "jest": "24.8.0",
+    "react-bootstrap": "github:mattermost/react-bootstrap#c6957962364e0818a51bbfd13e89919903b422d6",
+    "react-dom": "^16.8.6",
+    "redux-mock-store": "^1.5.3",
+    "webpack": "^4.35.0",
+    "webpack-cli": "^3.3.4"
+  },
+  "dependencies": {
+    "core-js": "2.6.5",
+    "marked": "github:mattermost/marked#3a9d0a5bd6d735df1a716ab50f73d58a1d865bdb",
+    "mattermost-redux": "5.11.0",
+    "react": "16.8.6",
+    "react-redux": "5.1.1",
+    "redux": "4.0.1",
+    "superagent": "5.0.8",
+    "xregexp": "4.2.4"
+  }
+}

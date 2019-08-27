@@ -26,7 +26,8 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store) 
 		ServerConfig: testutils.GetServerConfig(),
 	}
 	p.setConfiguration(&configuration{
-		Trigger: "poll",
+		Trigger:        "poll",
+		ExperimentalUI: true,
 	})
 
 	p.SetAPI(api)

@@ -57,9 +57,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -78,9 +81,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(nil, &model.AppError{})
 				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return()
@@ -102,9 +108,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
-				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
+				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -124,9 +133,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
-				actions := testutils.GetPollWithSettings(poll.Settings{Progress: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
+				actions := testutils.GetPollWithSettings(poll.Settings{Progress: true}).ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -147,9 +159,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Type:      model.POST_DEFAULT,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
 				}
-				actions := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetLocalizer(), testutils.GetSiteURL(), manifest.ID, "John Doe")
+				actions := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -190,7 +205,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"Invalid setting": {
 			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
-			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unkownOption", trigger),
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unknownOption", trigger),
 			ShouldError: true,
 		},
 	} {

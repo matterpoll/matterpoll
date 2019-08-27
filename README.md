@@ -19,8 +19,8 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 ## Settings
 You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
-* **Trigger**: Change trigger word for poll command. (default `/poll`)
-
+* **Trigger Word**: Change trigger word for poll command. (default `/poll`)
+* **Experimental UI**: Enable new experimental UI for a poll post. 
 
 ## Usage
 
@@ -45,6 +45,7 @@ The currently supported languages are:
 - France
 - German
 - Japanese
+- Polish
 
 
 ## Troubleshooting
