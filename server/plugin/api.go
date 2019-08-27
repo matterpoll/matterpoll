@@ -355,7 +355,7 @@ func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Reques
 	v, err := poll.GetVotedAnswer(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		p.API.LogError("Failed to get voted answers", "userID", userID, "error", err.Error())
+		p.API.LogWarn("Failed to get voted answers", "userID", userID, "error", err.Error())
 		return
 	}
 

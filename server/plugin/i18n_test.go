@@ -24,7 +24,7 @@ func TestLocalizeDefaultMessage(t *testing.T) {
 	})
 	t.Run("empty message", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+		api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return()
 		defer api.AssertExpectations(t)
 
 		p := setupTestPlugin(t, api, &mockstore.Store{})

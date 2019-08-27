@@ -141,13 +141,13 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	}
 
 	if err := p.Store.Poll().Save(newPoll); err != nil {
-		p.API.LogError("failed to save poll", "err", err.Error())
+		p.API.LogWarn("failed to save poll", "error", err.Error())
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
-		p.API.LogError("failed to ConvertCreatorIDToDisplayName", "err", appErr.Error())
+		p.API.LogWarn("failed to ConvertCreatorIDToDisplayName", "error", appErr.Error())
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
@@ -164,7 +164,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	model.ParseSlackAttachment(post, actions)
 
 	if _, appErr = p.API.CreatePost(post); appErr != nil {
-		p.API.LogError("failed to post poll post", "error", appErr.Error())
+		p.API.LogWarn("failed to post poll post", "error", appErr.Error())
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
