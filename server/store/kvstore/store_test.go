@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const latestVersion = "1.2.0"
+
 func setupTestStore(api plugin.API) *Store {
 	store := Store{
 		api: api,
@@ -18,6 +20,7 @@ func setupTestStore(api plugin.API) *Store {
 		systemStore: SystemStore{
 			api: api,
 		},
+		upgrades: nil,
 	}
 	return &store
 }
@@ -25,10 +28,10 @@ func setupTestStore(api plugin.API) *Store {
 func TestNewStore(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
+		api.On("KVGet", versionKey).Return([]byte(latestVersion), nil)
 		defer api.AssertExpectations(t)
 
-		store, err := NewStore(api, "1.0.0")
+		store, err := NewStore(api, latestVersion)
 		assert.Nil(t, err)
 		assert.NotNil(t, store)
 	})
@@ -37,7 +40,7 @@ func TestNewStore(t *testing.T) {
 		api.On("KVGet", versionKey).Return([]byte{}, &model.AppError{})
 		defer api.AssertExpectations(t)
 
-		store, err := NewStore(api, "1.0.0")
+		store, err := NewStore(api, latestVersion)
 		assert.NotNil(t, err)
 		assert.Nil(t, store)
 	})

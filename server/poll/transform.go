@@ -13,7 +13,7 @@ var (
 		ID:    "poll.button.addOption",
 		Other: "Add Option",
 	}
-	pollButtonDeltePoll = &i18n.Message{
+	pollButtonDeletePoll = &i18n.Message{
 		ID:    "poll.button.deletePoll",
 		Other: "Delete Poll",
 	}
@@ -47,7 +47,7 @@ var (
 )
 
 // ToPostActions returns the poll as a message
-func (p *Poll) ToPostActions(localizer *i18n.Localizer, siteURL, pluginID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName string) []*model.SlackAttachment {
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
 
@@ -61,7 +61,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, siteURL, pluginID, autho
 			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/vote/%v", siteURL, pluginID, p.ID, i),
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/vote/%v", pluginID, p.ID, i),
 			},
 		})
 	}
@@ -71,19 +71,19 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, siteURL, pluginID, autho
 			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add/request", siteURL, pluginID, p.ID),
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
 			},
 		}, &model.PostAction{
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeltePoll}),
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, pluginID, p.ID),
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
 			},
 		}, &model.PostAction{
 			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, pluginID, p.ID),
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
 			},
 		})
 

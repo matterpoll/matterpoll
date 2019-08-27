@@ -1,0 +1,181 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/post_type/PostType should match snapshot 1`] = `
+<div
+  className="attachment"
+>
+  <div
+    className="attachment__content"
+  >
+    <div
+      className="clearfix attachment__container"
+    >
+      <span
+        className="attachment__author-name"
+        key="attachment__author-name"
+      >
+        sample_name
+      </span>
+      <h1
+        className="attachment__title"
+      />
+      <div>
+        <div
+          className="attachment__body attachment__body--no_thumb"
+        >
+          <FieldsTable
+            attachment={
+              Object {
+                "author_name": "sample_name",
+                "text": "sample_text",
+                "title": "sample_title",
+              }
+            }
+            options={Object {}}
+          />
+          <Connect(ActionView)
+            attachment={
+              Object {
+                "author_name": "sample_name",
+                "text": "sample_text",
+                "title": "sample_title",
+              }
+            }
+            post={
+              Object {
+                "props": Object {
+                  "attachments": Array [
+                    Object {
+                      "author_name": "sample_name",
+                      "text": "sample_text",
+                      "title": "sample_title",
+                    },
+                  ],
+                },
+              }
+            }
+          />
+        </div>
+        <div
+          style={
+            Object {
+              "clear": "both",
+            }
+          }
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`components/post_type/PostType should match snapshot with two attachments 1`] = `
+<div
+  className="attachment"
+>
+  <div
+    className="attachment__content"
+  >
+    <div
+      className="clearfix attachment__container"
+    >
+      <span
+        className="attachment__author-name"
+        key="attachment__author-name"
+      >
+        sample_name
+      </span>
+      <h1
+        className="attachment__title"
+      />
+      <div>
+        <div
+          className="attachment__body attachment__body--no_thumb"
+        >
+          <FieldsTable
+            attachment={
+              Object {
+                "author_name": "sample_name",
+                "text": "sample_text",
+                "title": "sample_title",
+              }
+            }
+            options={Object {}}
+          />
+          <Connect(ActionView)
+            attachment={
+              Object {
+                "author_name": "sample_name",
+                "text": "sample_text",
+                "title": "sample_title",
+              }
+            }
+            post={
+              Object {
+                "props": Object {
+                  "attachments": Array [
+                    Object {
+                      "author_name": "sample_name",
+                      "text": "sample_text",
+                      "title": "sample_title",
+                    },
+                  ],
+                },
+              }
+            }
+          />
+        </div>
+        <div
+          style={
+            Object {
+              "clear": "both",
+            }
+          }
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`components/post_type/PostType should match snapshot without any attachments 1`] = `
+<div
+  className="attachment"
+>
+  <div
+    className="attachment__content"
+  >
+    <div
+      className="clearfix attachment__container"
+    >
+      <div>
+        <div
+          className="attachment__body attachment__body--no_thumb"
+        >
+          <FieldsTable
+            attachment={Object {}}
+            options={Object {}}
+          />
+          <Connect(ActionView)
+            attachment={Object {}}
+            post={
+              Object {
+                "props": Object {
+                  "attachments": Array [],
+                },
+              }
+            }
+          />
+        </div>
+        <div
+          style={
+            Object {
+              "clear": "both",
+            }
+          }
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
