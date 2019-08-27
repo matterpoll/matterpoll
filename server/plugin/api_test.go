@@ -383,7 +383,7 @@ func TestHandleVote(t *testing.T) {
 	}
 }
 
-func TestHandleAddOptionDialogRequest(t *testing.T) {
+func TestHandleAddOption(t *testing.T) {
 	userID := testutils.GetPollWithVotes().Creator
 	triggerID := model.NewId()
 	postID := model.NewId()
@@ -597,7 +597,7 @@ func TestHandleAddOptionDialogRequest(t *testing.T) {
 	}
 }
 
-func TestHandleAddOption(t *testing.T) {
+func TestHandleAddOptionConfirm(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
@@ -869,7 +869,7 @@ func TestHandleAddOption(t *testing.T) {
 	}
 }
 
-func TestHandleEndPollReqest(t *testing.T) {
+func TestHandleEndPoll(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
@@ -878,7 +878,7 @@ func TestHandleEndPollReqest(t *testing.T) {
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"}
 
 		w := httptest.NewRecorder()
-		url := fmt.Sprintf("/api/v1/polls/%s/end/request", testutils.GetPollID())
+		url := fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID())
 		body := bytes.NewReader(request.ToJson())
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
@@ -893,7 +893,7 @@ func TestHandleEndPollReqest(t *testing.T) {
 	triggerID := model.NewId()
 	dialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end/confirm", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
 		Dialog: model.Dialog{
 			Title:       "Confirm Poll End",
 			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
@@ -1053,7 +1053,7 @@ func TestHandleEndPollReqest(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			url := fmt.Sprintf("/api/v1/polls/%s/end/request", testutils.GetPollID())
+			url := fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID())
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
@@ -1077,92 +1077,7 @@ func TestHandleEndPollReqest(t *testing.T) {
 	}
 }
 
-func TestHandleUserVoted(t *testing.T) {
-	for name, test := range map[string]struct {
-		SetupAPI           func(*plugintest.API) *plugintest.API
-		SetupStore         func(*mockstore.Store) *mockstore.Store
-		UserID             string
-		ShouldError        bool
-		ExpectedStatusCode int
-		ExpectedBodyBytes  []byte
-	}{
-		"Valid request with votes": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
-				return store
-			},
-			UserID:             "userID1",
-			ShouldError:        false,
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
-				PollID:       testutils.GetPollID(),
-				UserID:       "userID1",
-				VotedAnswers: []string{"Answer 1"},
-			}).EncodeToByte(),
-		},
-		"Valid request without votes": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
-				return store
-			},
-			UserID:             "userID5",
-			ShouldError:        false,
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
-				PollID:       testutils.GetPollID(),
-				UserID:       "userID5",
-				VotedAnswers: []string{},
-			}).EncodeToByte(),
-		},
-		"Valid request, PollStore.Get fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
-				return store
-			},
-			UserID:             "userID1",
-			ShouldError:        true,
-			ExpectedStatusCode: http.StatusInternalServerError,
-		},
-	} {
-		t.Run(name, func(t *testing.T) {
-			assert := assert.New(t)
-
-			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
-			defer api.AssertExpectations(t)
-			store := test.SetupStore(&mockstore.Store{})
-			defer store.AssertExpectations(t)
-			p := setupTestPlugin(t, api, store)
-
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/polls/%s/voted", testutils.GetPollID()), nil)
-			r.Header.Add("Mattermost-User-ID", test.UserID)
-			p.ServeHTTP(nil, w, r)
-
-			result := w.Result()
-			require.NotNil(t, result)
-			defer result.Body.Close()
-
-			bodyBytes, err := ioutil.ReadAll(result.Body)
-			require.Nil(t, err)
-
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
-			if test.ShouldError {
-				assert.Equal([]byte{}, bodyBytes)
-				assert.Equal(http.Header{}, result.Header)
-			} else {
-				assert.Equal(test.ExpectedBodyBytes, bodyBytes)
-				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
-			}
-		})
-	}
-}
-
-func TestHandleEndPoll(t *testing.T) {
+func TestHandleEndPollConfirm(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
@@ -1171,7 +1086,7 @@ func TestHandleEndPoll(t *testing.T) {
 		request := &model.SubmitDialogRequest{}
 
 		w := httptest.NewRecorder()
-		url := fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID())
+		url := fmt.Sprintf("/api/v1/polls/%s/end/confirm", testutils.GetPollID())
 		body := bytes.NewReader(request.ToJson())
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
@@ -1341,7 +1256,7 @@ func TestHandleEndPoll(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			url := fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID())
+			url := fmt.Sprintf("/api/v1/polls/%s/end/confirm", testutils.GetPollID())
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
@@ -1413,7 +1328,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		})
 	}
 }
-func TestHandleDeletePollReqest(t *testing.T) {
+func TestHandleDeletePoll(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
@@ -1422,7 +1337,7 @@ func TestHandleDeletePollReqest(t *testing.T) {
 		request := &model.PostActionIntegrationRequest{}
 
 		w := httptest.NewRecorder()
-		url := fmt.Sprintf("/api/v1/polls/%s/delete/request", testutils.GetPollID())
+		url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
 		body := bytes.NewReader(request.ToJson())
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
@@ -1437,7 +1352,7 @@ func TestHandleDeletePollReqest(t *testing.T) {
 	triggerID := model.NewId()
 	dialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete/confirm", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
 		Dialog: model.Dialog{
 			Title:       "Confirm Poll Delete",
 			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
@@ -1597,7 +1512,7 @@ func TestHandleDeletePollReqest(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			url := fmt.Sprintf("/api/v1/polls/%s/delete/request", testutils.GetPollID())
+			url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
@@ -1621,7 +1536,7 @@ func TestHandleDeletePollReqest(t *testing.T) {
 	}
 }
 
-func TestHandleDeletePoll(t *testing.T) {
+func TestHandleDeletePollConfirm(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
@@ -1630,7 +1545,7 @@ func TestHandleDeletePoll(t *testing.T) {
 		request := &model.SubmitDialogRequest{}
 
 		w := httptest.NewRecorder()
-		url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
+		url := fmt.Sprintf("/api/v1/polls/%s/delete/confirm", testutils.GetPollID())
 		body := bytes.NewReader(request.ToJson())
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
@@ -1758,7 +1673,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
+			url := fmt.Sprintf("/api/v1/polls/%s/delete/confirm", testutils.GetPollID())
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			r.Header.Add("Mattermost-User-ID", model.NewId())
@@ -1775,6 +1690,91 @@ func TestHandleDeletePoll(t *testing.T) {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
 				}, result.Header)
+			}
+		})
+	}
+}
+
+func TestHandleUserVoted(t *testing.T) {
+	for name, test := range map[string]struct {
+		SetupAPI           func(*plugintest.API) *plugintest.API
+		SetupStore         func(*mockstore.Store) *mockstore.Store
+		UserID             string
+		ShouldError        bool
+		ExpectedStatusCode int
+		ExpectedBodyBytes  []byte
+	}{
+		"Valid request with votes": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			UserID:             "userID1",
+			ShouldError:        false,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
+				PollID:       testutils.GetPollID(),
+				UserID:       "userID1",
+				VotedAnswers: []string{"Answer 1"},
+			}).EncodeToByte(),
+		},
+		"Valid request without votes": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			UserID:             "userID5",
+			ShouldError:        false,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
+				PollID:       testutils.GetPollID(),
+				UserID:       "userID5",
+				VotedAnswers: []string{},
+			}).EncodeToByte(),
+		},
+		"Valid request, PollStore.Get fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
+				return store
+			},
+			UserID:             "userID1",
+			ShouldError:        true,
+			ExpectedStatusCode: http.StatusInternalServerError,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			api := test.SetupAPI(&plugintest.API{})
+			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			defer api.AssertExpectations(t)
+			store := test.SetupStore(&mockstore.Store{})
+			defer store.AssertExpectations(t)
+			p := setupTestPlugin(t, api, store)
+
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/polls/%s/voted", testutils.GetPollID()), nil)
+			r.Header.Add("Mattermost-User-ID", test.UserID)
+			p.ServeHTTP(nil, w, r)
+
+			result := w.Result()
+			require.NotNil(t, result)
+			defer result.Body.Close()
+
+			bodyBytes, err := ioutil.ReadAll(result.Body)
+			require.Nil(t, err)
+
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+			if test.ShouldError {
+				assert.Equal([]byte{}, bodyBytes)
+				assert.Equal(http.Header{}, result.Header)
+			} else {
+				assert.Equal(test.ExpectedBodyBytes, bodyBytes)
+				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
 			}
 		})
 	}

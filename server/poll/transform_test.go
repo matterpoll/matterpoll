@@ -135,13 +135,13 @@ func TestPollToPostActions(t *testing.T) {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
 					}},
 				},
 			}},
@@ -180,13 +180,13 @@ func TestPollToPostActions(t *testing.T) {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				},
 				},
@@ -226,13 +226,13 @@ func TestPollToPostActions(t *testing.T) {
 					Name: "Delete Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Name: "End Poll",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				},
 				},

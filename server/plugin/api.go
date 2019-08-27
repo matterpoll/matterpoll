@@ -78,13 +78,13 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
 	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods(http.MethodPost)
-	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOptionDialogRequest)).Methods(http.MethodPost)
-	pollRouter.HandleFunc("/option/add", p.handleSubmitDialogRequest(p.handleAddOption)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOption)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/option/add", p.handleSubmitDialogRequest(p.handleAddOptionConfirm)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/end", p.handlePostActionIntegrationRequest(p.handleEndPoll)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/end/confirm", p.handleSubmitDialogRequest(p.handleEndPollConfirm)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/delete", p.handlePostActionIntegrationRequest(p.handleDeletePoll)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/delete/confirm", p.handleSubmitDialogRequest(p.handleDeletePollConfirm)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/voted", p.handleUserVoted).Methods(http.MethodGet)
-	pollRouter.HandleFunc("/end/request", p.handlePostActionIntegrationRequest(p.handleEndPollDialogRequest)).Methods("POST")
-	pollRouter.HandleFunc("/end", p.handleSubmitDialogRequest(p.handleEndPoll)).Methods(http.MethodPost)
-	pollRouter.HandleFunc("/delete/request", p.handlePostActionIntegrationRequest(p.handleDeletePollRequest)).Methods(http.MethodPost)
-	pollRouter.HandleFunc("/delete", p.handleSubmitDialogRequest(p.handleDeletePoll)).Methods(http.MethodPost)
 	return r
 }
 
@@ -242,7 +242,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	return responseVoteCounted, post, nil
 }
 
-func (p *MatterpollPlugin) handleAddOptionDialogRequest(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
+func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
 	pollID := vars["id"]
 	userLocalizer := p.getUserLocalizer(request.UserId)
 
@@ -294,7 +294,7 @@ func (p *MatterpollPlugin) handleAddOptionDialogRequest(vars map[string]string, 
 	return nil, nil, nil
 }
 
-func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
 	pollID := vars["id"]
 
 	poll, err := p.Store.Poll().Get(pollID)
@@ -340,33 +340,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	return responseAddOptionSuccess, nil, nil
 }
 
-func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	pollID := vars["id"]
-	userID := r.Header.Get("Mattermost-User-Id")
-
-	poll, err := p.Store.Poll().Get(pollID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		p.API.LogWarn("failed to get poll", "error", err.Error())
-		return
-	}
-
-	v, err := poll.GetVotedAnswer(userID)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		p.API.LogWarn("Failed to get voted answers", "userID", userID, "error", err.Error())
-		return
-	}
-
-	b := v.EncodeToByte()
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(b); err != nil {
-		p.API.LogWarn("failed to write response", "error", err.Error())
-	}
-}
-
-func (p *MatterpollPlugin) handleEndPollDialogRequest(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
+func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
 	pollID := vars["id"]
 	userLocalizer := p.getUserLocalizer(request.UserId)
 
@@ -386,7 +360,7 @@ func (p *MatterpollPlugin) handleEndPollDialogRequest(vars map[string]string, re
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, manifest.ID, pollID),
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end/confirm", siteURL, manifest.ID, pollID),
 		Dialog: model.Dialog{
 			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.end.title",
@@ -407,7 +381,7 @@ func (p *MatterpollPlugin) handleEndPollDialogRequest(vars map[string]string, re
 	return nil, nil, nil
 }
 
-func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+func (p *MatterpollPlugin) handleEndPollConfirm(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
 	pollID := vars["id"]
 
 	poll, err := p.Store.Poll().Get(pollID)
@@ -475,7 +449,7 @@ func (p *MatterpollPlugin) postEndPollAnnouncement(teamID, postID, question stri
 	}
 }
 
-func (p *MatterpollPlugin) handleDeletePollRequest(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
+func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
 	pollID := vars["id"]
 	userLocalizer := p.getUserLocalizer(request.UserId)
 
@@ -495,7 +469,7 @@ func (p *MatterpollPlugin) handleDeletePollRequest(vars map[string]string, reque
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, manifest.ID, pollID),
+		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete/confirm", siteURL, manifest.ID, pollID),
 		Dialog: model.Dialog{
 			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.delete.title",
@@ -517,7 +491,7 @@ func (p *MatterpollPlugin) handleDeletePollRequest(vars map[string]string, reque
 	return nil, nil, nil
 }
 
-func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+func (p *MatterpollPlugin) handleDeletePollConfirm(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
 	pollID := vars["id"]
 
 	poll, err := p.Store.Poll().Get(pollID)
@@ -534,4 +508,30 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 	}
 
 	return responseDeletePollSuccess, nil, nil
+}
+
+func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pollID := vars["id"]
+	userID := r.Header.Get("Mattermost-User-Id")
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		p.API.LogWarn("failed to get poll", "error", err.Error())
+		return
+	}
+
+	v, err := poll.GetVotedAnswer(userID)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		p.API.LogWarn("Failed to get voted answers", "userID", userID, "error", err.Error())
+		return
+	}
+
+	b := v.EncodeToByte()
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(b); err != nil {
+		p.API.LogWarn("failed to write response", "error", err.Error())
+	}
 }
