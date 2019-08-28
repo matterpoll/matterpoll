@@ -61,7 +61,7 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 		case "public-add-option":
 			p.Settings.PublicAddOption = true
 		default:
-			return nil, fmt.Errorf("Unrecognised poll setting %s", s)
+			return nil, fmt.Errorf("unrecognized poll setting %s", s)
 		}
 	}
 	return &p, nil

@@ -24,7 +24,7 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 	}
 
 	if configuration.Trigger == "" {
-		return errors.New("Empty trigger not allowed")
+		return errors.New("empty trigger not allowed")
 	}
 
 	// This require a loaded i18n bundle
