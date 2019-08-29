@@ -27,7 +27,7 @@ type (
 )
 
 var (
-	infoMessage = "Thanks for using Matterpoll v" + manifest.ID + "\n"
+	infoMessage = "Thanks for using Matterpoll v" + manifest.Version + "\n"
 
 	responseVoteCounted = &i18n.Message{
 		ID:    "response.vote.counted",
