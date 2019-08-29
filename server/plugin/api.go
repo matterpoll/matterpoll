@@ -27,7 +27,7 @@ type (
 )
 
 var (
-	infoMessage = "Thanks for using Matterpoll v" + manifest.ID + "\n"
+	infoMessage = "Thanks for using Matterpoll v" + manifest.Version + "\n"
 
 	responseVoteCounted = &i18n.Message{
 		ID:    "response.vote.counted",
@@ -376,7 +376,7 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 	}
 
 	if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to open add option dialog")
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to open end poll dialog")
 	}
 	return nil, nil, nil
 }
@@ -485,7 +485,7 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 	}
 
 	if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to open add option dialog")
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to open delete poll dialog")
 	}
 
 	return nil, nil, nil

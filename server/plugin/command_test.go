@@ -15,8 +15,8 @@ import (
 )
 
 func TestPluginExecuteCommand(t *testing.T) {
-	trigger := "poll"
-	helpText := "To create a poll with the answer options \"Yes\" and \"No\" type `/poll \"Question\"`\n" +
+	const trigger = "poll"
+	const helpText = "To create a poll with the answer options \"Yes\" and \"No\" type `/poll \"Question\"`\n" +
 		"You can customize the options by typing `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
 		"Poll Settings provider further customization, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
 		"- `--anonymous`: Don't show who voted for what\n" +
@@ -138,7 +138,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPollWithSettings(poll.Settings{Progress: true}).ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true})
+				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -164,7 +165,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true}).ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true})
+				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
