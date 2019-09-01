@@ -410,7 +410,7 @@ func TestHandleAddOption(t *testing.T) {
 
 	dialogRequest := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", manifest.ID, testutils.GetPollID()),
 		Dialog: model.Dialog{
 			Title:       "Add Option",
 			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
@@ -467,6 +467,7 @@ func TestHandleAddOption(t *testing.T) {
 			},
 			Request: &model.PostActionIntegrationRequest{
 				UserId:    "userID2",
+				ChannelId: "channelID1",
 				PostId:    postID,
 				TriggerId: triggerID,
 			},
@@ -893,7 +894,7 @@ func TestHandleEndPoll(t *testing.T) {
 	triggerID := model.NewId()
 	dialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end/confirm", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", manifest.ID, testutils.GetPollID()),
 		Dialog: model.Dialog{
 			Title:       "Confirm Poll End",
 			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
@@ -1157,6 +1158,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 			},
 			Request:            &model.SubmitDialogRequest{UserId: "userID1", CallbackId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, GetUser fails for poll creator": {
@@ -1352,7 +1354,7 @@ func TestHandleDeletePoll(t *testing.T) {
 	triggerID := model.NewId()
 	dialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete/confirm", testutils.GetSiteURL(), manifest.ID, testutils.GetPollID()),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", manifest.ID, testutils.GetPollID()),
 		Dialog: model.Dialog{
 			Title:       "Confirm Poll Delete",
 			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),

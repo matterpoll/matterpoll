@@ -264,7 +264,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", siteURL, manifest.ID, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", manifest.ID, pollID),
 		Dialog: model.Dialog{
 			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.addOption.title",
@@ -360,7 +360,7 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end/confirm", siteURL, manifest.ID, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", manifest.ID, pollID),
 		Dialog: model.Dialog{
 			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.end.title",
@@ -469,7 +469,7 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete/confirm", siteURL, manifest.ID, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", manifest.ID, pollID),
 		Dialog: model.Dialog{
 			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.delete.title",
