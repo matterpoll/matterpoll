@@ -1,6 +1,4 @@
 linters-settings:
-  dupl:
-    threshold: 100
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -21,7 +19,6 @@ linters-settings:
 linters:
   enable:
     - bodyclose
-    - dupl
     - goconst
     - gocyclo
     - gofmt
