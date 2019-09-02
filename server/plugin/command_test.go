@@ -89,7 +89,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(nil, &model.AppError{})
-				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -180,7 +180,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Store.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -194,7 +194,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
-				api.On("LogError", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
