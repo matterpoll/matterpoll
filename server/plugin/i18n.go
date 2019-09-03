@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 	"golang.org/x/text/language"
@@ -78,4 +79,12 @@ func (p *MatterpollPlugin) LocalizeWithConfig(l *i18n.Localizer, lc *i18n.Locali
 		return ""
 	}
 	return s
+}
+
+// LocalizeErrorMessage localizer the provided error message
+func (p *MatterpollPlugin) LocalizeErrorMessage(l *i18n.Localizer, m *poll.ErrorMessage) string {
+	return p.LocalizeWithConfig(l, &i18n.LocalizeConfig{
+		DefaultMessage: m.Message,
+		TemplateData:   m.Data,
+	})
 }

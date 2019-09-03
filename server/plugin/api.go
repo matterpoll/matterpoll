@@ -317,10 +317,12 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", addOptionKey)
 	}
 
-	if err = poll.AddAnswerOption(answerOption); err != nil {
+	userLocalizer := p.getUserLocalizer(poll.Creator)
+
+	if errMsg := poll.AddAnswerOption(answerOption); errMsg != nil {
 		response := &model.SubmitDialogResponse{
 			Errors: map[string]string{
-				addOptionKey: err.Error(),
+				addOptionKey: p.LocalizeErrorMessage(userLocalizer, errMsg),
 			},
 		}
 		return nil, response, nil

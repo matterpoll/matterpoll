@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/mattermost/mattermost-server/model"
-	"github.com/pkg/errors"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 // Poll stores all needed information for a poll
@@ -39,8 +39,15 @@ type VotedAnswerResponse struct {
 	VotedAnswers []string `json:"voted_answers"`
 }
 
-// NewPoll creates a new poll with the given paramatern
-func NewPoll(creator, question string, answerOptions, settings []string) (*Poll, error) {
+// ErrorMessage contains error messsage for a user that can be localized.
+// It should not be wrapped and instead always returned.
+type ErrorMessage struct {
+	Message *i18n.Message
+	Data    map[string]interface{}
+}
+
+// NewPoll creates a new poll with the given paramatern.
+func NewPoll(creator, question string, answerOptions, settings []string) (*Poll, *ErrorMessage) {
 	p := Poll{
 		ID:        model.NewId(),
 		CreatedAt: model.GetMillis(),
@@ -48,8 +55,8 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 		Question:  question,
 	}
 	for _, answerOption := range answerOptions {
-		if err := p.AddAnswerOption(answerOption); err != nil {
-			return nil, err
+		if errMsg := p.AddAnswerOption(answerOption); errMsg != nil {
+			return nil, errMsg
 		}
 	}
 	for _, s := range settings {
@@ -61,21 +68,42 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 		case "public-add-option":
 			p.Settings.PublicAddOption = true
 		default:
-			return nil, fmt.Errorf("unrecognized poll setting %s", s)
+			return nil, &ErrorMessage{
+				Message: &i18n.Message{
+					ID:    "poll.newPoll.unrecognizedSetting",
+					Other: "Unrecognized poll setting: {{.Setting}}",
+				},
+				Data: map[string]interface{}{
+					"Setting": s,
+				},
+			}
 		}
 	}
 	return &p, nil
 }
 
 // AddAnswerOption adds a new AnswerOption to a poll
-func (p *Poll) AddAnswerOption(newAnswerOption string) error {
+func (p *Poll) AddAnswerOption(newAnswerOption string) *ErrorMessage {
 	newAnswerOption = strings.TrimSpace(newAnswerOption)
 	if newAnswerOption == "" {
-		return errors.New("empty option not allowed")
+		return &ErrorMessage{
+			Message: &i18n.Message{
+				ID:    "poll.addAnswerOption.empty",
+				Other: "Empty option not allowed",
+			},
+		}
 	}
 	for _, answerOption := range p.AnswerOptions {
 		if answerOption.Answer == newAnswerOption {
-			return fmt.Errorf("duplicate options: %s", newAnswerOption)
+			return &ErrorMessage{
+				Message: &i18n.Message{
+					ID:    "poll.addAnswerOption.duplicate",
+					Other: "Duplicate option: {{.Option}}",
+				},
+				Data: map[string]interface{}{
+					"Option": newAnswerOption,
+				},
+			}
 		}
 	}
 	p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: newAnswerOption})
