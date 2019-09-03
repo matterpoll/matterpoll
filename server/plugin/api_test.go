@@ -1292,8 +1292,8 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Message: "The poll **Question** has ended and the original post have been updated. " +
-						"You can jump to it by pressing [here](https://example.org/team1/pl/postID1).",
+					Message: "The poll **Question** has ended and the original post has been updated. " +
+						"You can jump to it by clicking [here](https://example.org/team1/pl/postID1).",
 					Type: model.POST_DEFAULT,
 				}).Return(nil, nil)
 				return api

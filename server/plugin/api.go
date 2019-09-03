@@ -49,7 +49,7 @@ var (
 
 	responseEndPollSuccessfully = &i18n.Message{
 		ID:    "response.endPoll.successfully",
-		Other: "The poll **{{.Question}}** has ended and the original post have been updated. You can jump to it by pressing [here]({{.Link}}).",
+		Other: "The poll **{{.Question}}** has ended and the original post has been updated. You can jump to it by clicking [here]({{.Link}}).",
 	}
 	responseEndPollInvalidPermission = &i18n.Message{
 		ID:    "response.endPoll.invalidPermission",
