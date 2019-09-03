@@ -65,7 +65,7 @@ func (p *MatterpollPlugin) getServerLocalizer() *i18n.Localizer {
 func (p *MatterpollPlugin) LocalizeDefaultMessage(l *i18n.Localizer, m *i18n.Message) string {
 	s, err := l.LocalizeMessage(m)
 	if err != nil {
-		p.API.LogWarn("Failed to localize message", "message ID", m.ID)
+		p.API.LogWarn("Failed to localize message", "message ID", m.ID, "error", err.Error())
 		return ""
 	}
 	return s
