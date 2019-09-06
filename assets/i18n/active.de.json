@@ -67,6 +67,22 @@
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "Antwortoption hinzufügen"
   },
+  "dialog.delete.submitLabel": {
+    "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
+    "other": "Löschen"
+  },
+  "dialog.delete.title": {
+    "hash": "sha1-ce46cb787a610361503ef26f2b542a1872919716",
+    "other": "Bestätige Löschung von Umfrage"
+  },
+  "dialog.end.submitLabel": {
+    "hash": "sha1-a2bb9d34b8a1a79665858d354585cf147e0dee4e",
+    "other": "Beenden"
+  },
+  "dialog.end.title": {
+    "hash": "sha1-e54c9d4f934f84ae6bfb7abf59fae282f68d810c",
+    "other": "Bestätige Beendigung von Umfrage"
+  },
   "poll.addAnswerOption.duplicate": {
     "hash": "sha1-f2e20be1db21bba56adc08d288db5275a7c193d0",
     "other": "Doppelte Antwortoption: {{.Option}}"
@@ -133,7 +149,7 @@
     "other": "Nur der Ersteller einer Umfrage und System Administration dürfen diese beenden."
   },
   "response.endPoll.successfully": {
-    "hash": "sha1-255d4b342aeb7c9f2113c3764fb3b7a8d30da27a",
+    "hash": "sha1-a4fba46ee42d558010f595fec2e1e451cf3d4d73",
     "other": "Die Umfrage **{{.Question}}** wurde beendet and die ursprüngliche Nachricht aktualisiert. Klicke [here]({{.Link}}) um direkt dort hin zu springen."
   },
   "response.vote.counted": {

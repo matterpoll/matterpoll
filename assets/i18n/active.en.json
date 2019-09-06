@@ -16,6 +16,10 @@
   "dialog.addOption.element.displayName": "Option",
   "dialog.addOption.submitLabel": "Add",
   "dialog.addOption.title": "Add Option",
+  "dialog.delete.submitLabel": "Delete",
+  "dialog.delete.title": "Confirm Poll Delete",
+  "dialog.end.submitLabel": "End",
+  "dialog.end.title": "Confirm Poll End",
   "poll.addAnswerOption.duplicate": "Duplicate option: {{.Option}}",
   "poll.addAnswerOption.empty": "Empty option not allowed",
   "poll.button.addOption": "Add Option",
@@ -35,7 +39,7 @@
   "response.deletePoll.invalidPermission": "Only the creator of a poll and System Admins are allowed to delete it.",
   "response.deletePoll.success": "Successfully deleted the poll.",
   "response.endPoll.invalidPermission": "Only the creator of a poll and System Admins are allowed to end it.",
-  "response.endPoll.successfully": "The poll **{{.Question}}** has ended and the original post have been updated. You can jump to it by pressing [here]({{.Link}}).",
+  "response.endPoll.successfully": "The poll **{{.Question}}** has ended and the original post has been updated. You can jump to it by pressing [here]({{.Link}}).",
   "response.vote.counted": "Your vote has been counted.",
   "response.vote.updated": "Your vote has been updated."
 }
