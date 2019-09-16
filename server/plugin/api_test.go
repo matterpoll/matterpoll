@@ -767,7 +767,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse: &model.SubmitDialogResponse{
 				Errors: map[string]string{
-					"answerOption": "duplicate options: Answer 1",
+					"answerOption": "Duplicate option: Answer 1",
 				},
 			},
 			ExpectedMsg: "",
@@ -1288,7 +1288,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
 					RootId:    "postID1",
-					Message: "The poll **Question** has ended and the original post have been updated. " +
+					Message: "The poll **Question** has ended and the original post has been updated. " +
 						"You can jump to it by pressing [here](https://example.org/_redirect/pl/postID1).",
 					Type: model.POST_DEFAULT,
 				}).Return(nil, nil)
