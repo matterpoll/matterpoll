@@ -97,7 +97,7 @@
   },
   "poll.button.deletePoll": {
     "hash": "sha1-390ff4fdd0cfef6ef35fbf067a605aa3ea87ecca",
-    "other": "回答を削除する"
+    "other": "投票を削除する"
   },
   "poll.button.endPoll": {
     "hash": "sha1-60ddde386bd7190fa3da2ba13f97e3caa625d3e6",
