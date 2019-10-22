@@ -2,7 +2,7 @@ import configureStore from 'redux-mock-store';
 
 import ActionTypes from 'action_types';
 
-import {fetchPollMetadata} from './vote';
+import {fetchPollMetadata} from './poll_metadata';
 
 const promisifyMiddleware = () => (next) => (action) => {
     return new Promise((resolve) => resolve(next(action)));
