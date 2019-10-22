@@ -1750,7 +1750,7 @@ func TestHandlePollMetadata(t *testing.T) {
 			UserID:             "userID1",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.PollMetadata{
+			ExpectedBodyBytes: (&poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "userID1",
 				AdminPermission: true,
@@ -1769,7 +1769,7 @@ func TestHandlePollMetadata(t *testing.T) {
 			UserID:             "userID5",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.PollMetadata{
+			ExpectedBodyBytes: (&poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "userID5",
 				AdminPermission: false,
@@ -1789,7 +1789,7 @@ func TestHandlePollMetadata(t *testing.T) {
 			UserID:             "userID5",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.PollMetadata{
+			ExpectedBodyBytes: (&poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "userID5",
 				AdminPermission: false,

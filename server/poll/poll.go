@@ -32,8 +32,8 @@ type Settings struct {
 	PublicAddOption bool
 }
 
-// PollMetadata stores personaized metadata of a poll
-type PollMetadata struct {
+// Metadata stores personaized metadata of a poll
+type Metadata struct {
 	PollID          string   `json:"poll_id"`
 	UserID          string   `json:"user_id"`
 	AdminPermission bool     `json:"admin_permission"`
@@ -147,12 +147,12 @@ func (p *Poll) GetVotedAnswers(userID string) ([]string, error) {
 }
 
 // GetMetadata returns personalized metadata of a poll
-func (p *Poll) GetMetadata(userID string, permission bool) (*PollMetadata, error) {
+func (p *Poll) GetMetadata(userID string, permission bool) (*Metadata, error) {
 	answers, err := p.GetVotedAnswers(userID)
 	if err != nil {
 		return nil, err
 	}
-	return &PollMetadata{
+	return &Metadata{
 		PollID:          p.ID,
 		UserID:          userID,
 		AdminPermission: permission,
@@ -201,14 +201,14 @@ func (p *Poll) Copy() *Poll {
 	return p2
 }
 
-// EncodeToByte returns a PollMetadata as a byte array
-func (v *PollMetadata) EncodeToByte() []byte {
+// EncodeToByte returns a Metadata as a byte array
+func (v *Metadata) EncodeToByte() []byte {
 	b, _ := json.Marshal(v)
 	return b
 }
 
-// ToMap returns a PollMetadata as a map
-func (v *PollMetadata) ToMap() map[string]interface{} {
+// ToMap returns a Metadata as a map
+func (v *Metadata) ToMap() map[string]interface{} {
 	return map[string]interface{}{
 		"poll_id":          v.PollID,
 		"user_id":          v.UserID,
