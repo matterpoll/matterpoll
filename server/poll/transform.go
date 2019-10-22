@@ -8,6 +8,11 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+const (
+	// MatterpollAdminButtonType is action_type of buttons that are used for managing a poll
+	MatterpollAdminButtonType = "custom_matterpoll_admin_button"
+)
+
 // IDToNameConverter converts a given userID to a human readable name.
 type IDToNameConverter func(userID string) (string, *model.AppError)
 
@@ -78,13 +83,13 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 			},
 		}, &model.PostAction{
 			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
-			Type: model.POST_ACTION_TYPE_BUTTON,
+			Type: MatterpollAdminButtonType,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
 			},
 		}, &model.PostAction{
 			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
-			Type: model.POST_ACTION_TYPE_BUTTON,
+			Type: MatterpollAdminButtonType,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
 			},

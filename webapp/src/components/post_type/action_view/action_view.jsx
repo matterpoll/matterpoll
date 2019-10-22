@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import {ActionButtonType} from 'utils/constants';
+
 import ActionButton from './action_button';
 
 export default class ActionView extends React.PureComponent {
@@ -26,6 +28,7 @@ export default class ActionView extends React.PureComponent {
         }
 
         const content = [];
+        const adminContent = [];
         const metadataMap = this.props.pollMetadata || {};
         const metadata = metadataMap[this.props.post.props.poll_id] || {};
 
@@ -33,7 +36,7 @@ export default class ActionView extends React.PureComponent {
             filter((action) => action.id && action.name).
             forEach((action) => {
                 switch (action.type) {
-                case 'button':
+                case ActionButtonType.BUTTON:
                     content.push(
                         <ActionButton
                             key={action.id}
@@ -43,16 +46,31 @@ export default class ActionView extends React.PureComponent {
                         />
                     );
                     break;
+                case ActionButtonType.MATTERPOLL_ADMIN_BUTTON:
+                    if (metadata.admin_permission) {
+                        adminContent.push(
+                            <ActionButton
+                                key={action.id}
+                                action={action}
+                                postId={this.props.post.id}
+                                hasVoted={false}
+                            />
+                        );
+                    }
+                    break;
                 default:
                     break;
                 }
             });
 
         return (
-            <div
-                className='attachment-actions'
-            >
-                {content}
+            <div>
+                <div className='attachment-actions'>
+                    {content}
+                </div>
+                <div className='attachment-actions'>
+                    {adminContent}
+                </div>
             </div>
         );
     }
