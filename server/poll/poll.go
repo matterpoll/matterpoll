@@ -32,11 +32,12 @@ type Settings struct {
 	PublicAddOption bool
 }
 
-// VotedAnswerResponse stores answers that is created by a user
-type VotedAnswerResponse struct {
-	PollID       string   `json:"poll_id"`
-	UserID       string   `json:"user_id"`
-	VotedAnswers []string `json:"voted_answers"`
+// PollMetadata stores personaized metadata of a poll
+type PollMetadata struct {
+	PollID          string   `json:"poll_id"`
+	UserID          string   `json:"user_id"`
+	AdminPermission bool     `json:"admin_permission"`
+	VotedAnswers    []string `json:"voted_answers"`
 }
 
 // ErrorMessage contains error messsage for a user that can be localized.
@@ -129,8 +130,8 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	return nil
 }
 
-// GetVotedAnswer collect voted answers by a user and returns it as VotedAnswerResponse
-func (p *Poll) GetVotedAnswer(userID string) (*VotedAnswerResponse, error) {
+// GetVotedAnswers collect voted answers by a user and returns it as string array
+func (p *Poll) GetVotedAnswers(userID string) ([]string, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("invalid userID")
 	}
@@ -142,10 +143,20 @@ func (p *Poll) GetVotedAnswer(userID string) (*VotedAnswerResponse, error) {
 			}
 		}
 	}
-	return &VotedAnswerResponse{
-		PollID:       p.ID,
-		UserID:       userID,
-		VotedAnswers: votedAnswer,
+	return votedAnswer, nil
+}
+
+// GetMetadata returns personalized metadata of a poll
+func (p *Poll) GetMetadata(userID string, permission bool) (*PollMetadata, error) {
+	answers, err := p.GetVotedAnswers(userID)
+	if err != nil {
+		return nil, err
+	}
+	return &PollMetadata{
+		PollID:          p.ID,
+		UserID:          userID,
+		AdminPermission: permission,
+		VotedAnswers:    answers,
 	}, nil
 }
 
@@ -190,8 +201,18 @@ func (p *Poll) Copy() *Poll {
 	return p2
 }
 
-// EncodeToByte returns a VotedAnswerResponse as a byte array
-func (v *VotedAnswerResponse) EncodeToByte() []byte {
+// EncodeToByte returns a PollMetadata as a byte array
+func (v *PollMetadata) EncodeToByte() []byte {
 	b, _ := json.Marshal(v)
 	return b
+}
+
+// ToMap returns a PollMetadata as a map
+func (v *PollMetadata) ToMap() map[string]interface{} {
+	return map[string]interface{}{
+		"poll_id":          v.PollID,
+		"user_id":          v.UserID,
+		"admin_permission": v.AdminPermission,
+		"voted_answers":    v.VotedAnswers,
+	}
 }

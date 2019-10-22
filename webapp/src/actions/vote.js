@@ -24,7 +24,7 @@ export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
     }
 
     let url = siteUrl.replace(/\/?$/, '');
-    url = `${url}/plugins/${pluginId}/api/v1/polls/${pollId}/voted`;
+    url = `${url}/plugins/${pluginId}/api/v1/polls/${pollId}/metadata`;
 
     fetch(url).then((r) => r.json()).then((r) => {
         dispatch({

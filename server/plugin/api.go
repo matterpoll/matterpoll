@@ -84,7 +84,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	pollRouter.HandleFunc("/end/confirm", p.handleSubmitDialogRequest(p.handleEndPollConfirm)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/delete", p.handlePostActionIntegrationRequest(p.handleDeletePoll)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/delete/confirm", p.handleSubmitDialogRequest(p.handleDeletePollConfirm)).Methods(http.MethodPost)
-	pollRouter.HandleFunc("/voted", p.handleUserVoted).Methods(http.MethodGet)
+	pollRouter.HandleFunc("/metadata", p.handlePollMetadata).Methods(http.MethodGet)
 	return r
 }
 
@@ -221,15 +221,17 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	v, err := poll.GetVotedAnswer(userID)
+	permission, appErr := p.HasPermission(poll, userID)
+	if appErr != nil {
+		p.API.LogWarn("Failed to get poll permission", "userID", userID, "error", appErr.Error())
+		permission = false
+	}
+	metadata, err := poll.GetMetadata(userID, permission)
 	if err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get voted answers")
 	}
-	p.API.PublishWebSocketEvent("has_voted", map[string]interface{}{
-		"user_id":       v.UserID,
-		"poll_id":       v.PollID,
-		"voted_answers": v.VotedAnswers,
-	}, &model.WebsocketBroadcast{UserId: userID})
+
+	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
@@ -512,7 +514,7 @@ func (p *MatterpollPlugin) handleDeletePollConfirm(vars map[string]string, reque
 	return responseDeletePollSuccess, nil, nil
 }
 
-func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) handlePollMetadata(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	pollID := vars["id"]
 	userID := r.Header.Get("Mattermost-User-Id")
@@ -524,14 +526,19 @@ func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	v, err := poll.GetVotedAnswer(userID)
+	permission, appErr := p.HasPermission(poll, userID)
+	if appErr != nil {
+		p.API.LogWarn("Failed to get poll permission", "userID", userID, "error", appErr.Error())
+		permission = false
+	}
+	metadata, err := poll.GetMetadata(userID, permission)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		p.API.LogWarn("Failed to get voted answers", "userID", userID, "error", err.Error())
+		p.API.LogWarn("Failed to get poll metadata", "userID", userID, "error", err.Error())
 		return
 	}
 
-	b := v.EncodeToByte()
+	b := metadata.EncodeToByte()
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(b); err != nil {
 		p.API.LogWarn("failed to write response", "error", err.Error())

@@ -206,6 +206,15 @@ func TestHandleVote(t *testing.T) {
 	expectedPost2 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(localizer, manifest.ID, "John Doe"))
 
+	poll3In := testutils.GetPoll()
+	err = poll3In.UpdateVote("userID2", 0)
+	require.Nil(t, err)
+	poll3Out := poll3In.Copy()
+	err = poll3Out.UpdateVote("userID2", 1)
+	require.Nil(t, err)
+	expectedPost3 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost3, poll3Out.ToPostActions(localizer, manifest.ID, "John Doe"))
+
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
@@ -219,9 +228,10 @@ func TestHandleVote(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"poll_id":       testutils.GetPollID(),
-					"user_id":       "userID1",
-					"voted_answers": []string{"Answer 1"},
+					"poll_id":          testutils.GetPollID(),
+					"user_id":          "userID1",
+					"admin_permission": true,
+					"voted_answers":    []string{"Answer 1"},
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
@@ -240,9 +250,10 @@ func TestHandleVote(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"poll_id":       testutils.GetPollID(),
-					"user_id":       "userID1",
-					"voted_answers": []string{"Answer 2"},
+					"poll_id":          testutils.GetPollID(),
+					"user_id":          "userID1",
+					"admin_permission": true,
+					"voted_answers":    []string{"Answer 2"},
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
@@ -292,6 +303,30 @@ func TestHandleVote(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Valid request with vote, HasPermission fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
+				api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return().Maybe()
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"poll_id":          testutils.GetPollID(),
+					"user_id":          "userID2",
+					"admin_permission": false,
+					"voted_answers":    []string{"Answer 2"},
+				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll3In, nil)
+				store.PollStore.On("Save", poll3Out).Return(nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
+			VoteIndex:          1,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost3},
+			ExpectedMsg:        "Your vote has been updated.",
 		},
 		"Invalid index": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1697,7 +1732,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 	}
 }
 
-func TestHandleUserVoted(t *testing.T) {
+func TestHandlePollMetadata(t *testing.T) {
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
@@ -1715,14 +1750,18 @@ func TestHandleUserVoted(t *testing.T) {
 			UserID:             "userID1",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
-				PollID:       testutils.GetPollID(),
-				UserID:       "userID1",
-				VotedAnswers: []string{"Answer 1"},
+			ExpectedBodyBytes: (&poll.PollMetadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "userID1",
+				AdminPermission: true,
+				VotedAnswers:    []string{"Answer 1"},
 			}).EncodeToByte(),
 		},
 		"Valid request without votes": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID5").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				return api
+			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
 				return store
@@ -1730,10 +1769,31 @@ func TestHandleUserVoted(t *testing.T) {
 			UserID:             "userID5",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.VotedAnswerResponse{
-				PollID:       testutils.GetPollID(),
-				UserID:       "userID5",
-				VotedAnswers: []string{},
+			ExpectedBodyBytes: (&poll.PollMetadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "userID5",
+				AdminPermission: false,
+				VotedAnswers:    []string{},
+			}).EncodeToByte(),
+		},
+		"Valid request without votes, HasPermission fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID5").Return(nil, &model.AppError{})
+				api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return().Maybe()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			UserID:             "userID5",
+			ShouldError:        false,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedBodyBytes: (&poll.PollMetadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "userID5",
+				AdminPermission: false,
+				VotedAnswers:    []string{},
 			}).EncodeToByte(),
 		},
 		"Valid request, PollStore.Get fails": {
@@ -1759,7 +1819,7 @@ func TestHandleUserVoted(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/polls/%s/voted", testutils.GetPollID()), nil)
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/polls/%s/metadata", testutils.GetPollID()), nil)
 			r.Header.Add("Mattermost-User-ID", test.UserID)
 			p.ServeHTTP(nil, w, r)
 
