@@ -1,35 +1,38 @@
 import ActionTypes from 'action_types';
-import {votedAnswers} from 'reducers/vote';
+import {pollMetadata} from 'reducers/vote';
 
 const initialState = {
     poll_id1: {
         user_id: 'user_id1',
         poll_id: 'poll_id1',
+        admin_permission: false,
         voted_answers: ['answer1'],
     },
 };
 const additionalState = {
     user_id: 'user_id1',
     poll_id: 'poll_id2',
+    admin_permission: true,
     voted_answers: [],
 };
 
 describe('vote reducers', () => {
-    test('no action', () => expect(votedAnswers(undefined, {})).toEqual({})); // eslint-disable-line no-undefined
+    test('no action', () => expect(pollMetadata(undefined, {})).toEqual({})); // eslint-disable-line no-undefined
     test('no action with initial state', () => {
         expect(
-            votedAnswers(initialState, {})
+            pollMetadata(initialState, {})
         ).toEqual(initialState);
     });
     test('action to add new poll', () => {
         expect(
-            votedAnswers(
+            pollMetadata(
                 initialState,
                 {
-                    type: ActionTypes.FETCH_VOTED_ANSWERS,
+                    type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
                         user_id: 'user_id1',
                         poll_id: 'poll_id2',
+                        admin_permission: true,
                         voted_answers: [],
                     },
                 },
@@ -44,13 +47,14 @@ describe('vote reducers', () => {
         expected.poll_id1.voted_answers = ['answer1', 'answer2'];
 
         expect(
-            votedAnswers(
+            pollMetadata(
                 initialState,
                 {
-                    type: ActionTypes.FETCH_VOTED_ANSWERS,
+                    type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
                         user_id: 'user_id1',
                         poll_id: 'poll_id1',
+                        admin_permission: false,
                         voted_answers: ['answer1', 'answer2'],
                     },
                 },
@@ -59,13 +63,14 @@ describe('vote reducers', () => {
     });
     test('action to update poll without empty poll_id', () => {
         expect(
-            votedAnswers(
+            pollMetadata(
                 initialState,
                 {
-                    type: ActionTypes.FETCH_VOTED_ANSWERS,
+                    type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
                         user_id: 'user_id1',
                         poll_id: '',
+                        admin_permission: false,
                         voted_answers: ['answer1', 'answer2'],
                     },
                 },
@@ -74,10 +79,10 @@ describe('vote reducers', () => {
     });
     test('action with undefined', () => {
         expect(
-            votedAnswers(
+            pollMetadata(
                 initialState,
                 {
-                    type: ActionTypes.FETCH_VOTED_ANSWERS,
+                    type: ActionTypes.FETCH_POLL_METADATA,
                     data: undefined, // eslint-disable-line no-undefined
                 },
             ),

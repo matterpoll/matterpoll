@@ -12,6 +12,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot 1`] =
         "type": "button",
       }
     }
+    hasVoted={true}
     key="action_id1"
     postId="post_id"
   />
@@ -23,6 +24,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot 1`] =
         "type": "button",
       }
     }
+    hasVoted={true}
     key="action_id2"
     postId="post_id"
   />
@@ -34,6 +36,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot 1`] =
         "type": "button",
       }
     }
+    hasVoted={false}
     key="action_id3"
     postId="post_id"
   />
@@ -52,6 +55,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
         "type": "button",
       }
     }
+    hasVoted={true}
     key="action_id1"
     postId="post_id"
   />
@@ -70,6 +74,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
         "type": "button",
       }
     }
+    hasVoted={true}
     key="action_id1"
     postId="post_id"
   />
@@ -81,6 +86,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
         "type": "button",
       }
     }
+    hasVoted={false}
     key="action_id4"
     postId="post_id"
   />

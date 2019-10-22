@@ -7,16 +7,16 @@ export default class ActionView extends React.PureComponent {
     static propTypes = {
         post: PropTypes.object.isRequired,
         attachment: PropTypes.object.isRequired,
-        votedAnswers: PropTypes.object,
+        pollMetadata: PropTypes.object,
         siteUrl: PropTypes.string.isRequired,
 
         actions: PropTypes.shape({
-            fetchVotedAnswers: PropTypes.func.isRequired,
+            fetchPollMetadata: PropTypes.func.isRequired,
         }).isRequired,
     }
 
     componentDidMount() {
-        this.props.actions.fetchVotedAnswers(this.props.siteUrl, this.props.post.props.poll_id);
+        this.props.actions.fetchPollMetadata(this.props.siteUrl, this.props.post.props.poll_id);
     }
 
     render() {
@@ -26,8 +26,8 @@ export default class ActionView extends React.PureComponent {
         }
 
         const content = [];
-        const votedAnswers = this.props.votedAnswers || {};
-        const answers = votedAnswers[this.props.post.props.poll_id] || {};
+        const metadataMap = this.props.pollMetadata || {};
+        const metadata = metadataMap[this.props.post.props.poll_id] || {};
 
         actions.
             filter((action) => action.id && action.name).
@@ -39,7 +39,7 @@ export default class ActionView extends React.PureComponent {
                             key={action.id}
                             action={action}
                             postId={this.props.post.id}
-                            hasVoted={answers.voted_answers && (answers.voted_answers.indexOf(action.name) >= 0)}
+                            hasVoted={metadata.voted_answers && (metadata.voted_answers.indexOf(action.name) >= 0)}
                         />
                     );
                     break;

@@ -1,9 +1,9 @@
 import {combineReducers} from 'redux';
 
 import {postTypeComponent} from './post_type';
-import {votedAnswers} from './vote';
+import {pollMetadata} from './vote';
 
 export default combineReducers({
     postTypeComponent,
-    votedAnswers,
+    pollMetadata,
 });

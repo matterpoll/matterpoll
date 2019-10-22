@@ -9,16 +9,17 @@ export const voteAnswer = (postId, actionId) => async (dispatch) => {
 
 export const websocketHasVoted = (data) => async (dispatch) => {
     return dispatch({
-        type: ActionTypes.FETCH_VOTED_ANSWERS,
+        type: ActionTypes.FETCH_POLL_METADATA,
         data: {
             user_id: data.user_id,
             poll_id: data.poll_id,
+            admin_permission: data.admin_permission,
             voted_answers: data.voted_answers,
         },
     });
 };
 
-export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
+export const fetchPollMetadata = (siteUrl, pollId) => async (dispatch) => {
     if (!pollId) {
         return;
     }
@@ -28,7 +29,7 @@ export const fetchVotedAnswers = (siteUrl, pollId) => async (dispatch) => {
 
     fetch(url).then((r) => r.json()).then((r) => {
         dispatch({
-            type: ActionTypes.FETCH_VOTED_ANSWERS,
+            type: ActionTypes.FETCH_POLL_METADATA,
             data: r,
         });
     });

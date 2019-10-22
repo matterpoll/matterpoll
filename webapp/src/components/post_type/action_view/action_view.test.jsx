@@ -19,12 +19,17 @@ describe('components/post_type/action_view/ActionView', () => {
                 {id: 'action_id3', name: 'answer3', type: 'button'},
             ],
         },
-        votedAnswers: {
-            samplepollid1: ['answer1', 'answer2'],
+        pollMetadata: {
+            samplepollid1: {
+                poll_id: 'poll_id1',
+                user_id: 'user_id1',
+                admin_permission: false,
+                voted_answers: ['answer1', 'answer2'],
+            },
         },
         siteUrl: 'http://localhost:8065',
         actions: {
-            fetchVotedAnswers: jest.fn(),
+            fetchPollMetadata: jest.fn(),
         },
     };
 
