@@ -56,9 +56,9 @@ func (p *MatterpollPlugin) getUserLocalizer(userID string) *i18n.Localizer {
 	return i18n.NewLocalizer(p.bundle, user.Locale)
 }
 
-// getServerLocalizer returns a localizer that localizes in the server default locale
+// getServerLocalizer returns a localizer that localizes in the server default client locale
 func (p *MatterpollPlugin) getServerLocalizer() *i18n.Localizer {
-	return i18n.NewLocalizer(p.bundle, *p.ServerConfig.LocalizationSettings.DefaultServerLocale)
+	return i18n.NewLocalizer(p.bundle, *p.ServerConfig.LocalizationSettings.DefaultClientLocale)
 }
 
 // LocalizeDefaultMessage localizer the provided message
