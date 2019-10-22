@@ -164,7 +164,6 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 		if _, err = w.Write(response.ToJson()); err != nil {
 			p.API.LogWarn("failed to write PostActionIntegrationResponse", "error", err.Error())
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -193,7 +192,6 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 				p.API.LogWarn("failed to write SubmitDialogRequest", "error", err.Error())
 			}
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
