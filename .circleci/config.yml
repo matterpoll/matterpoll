@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.0.5
-  plugin-ci: mattermost/plugin-ci@0.0.5
+  plugin-ci: mattermost/plugin-ci@0.0.6
 
 workflows:
   version: 2
