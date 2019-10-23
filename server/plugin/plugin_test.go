@@ -194,11 +194,11 @@ func TestPluginOnActivate(t *testing.T) {
 			defer patch.Unpatch()
 
 			siteURL := testutils.GetSiteURL()
-			defaultServerLocale := "en"
+			defaultClientLocale := "en"
 			p := &MatterpollPlugin{
 				ServerConfig: &model.Config{
 					LocalizationSettings: model.LocalizationSettings{
-						DefaultServerLocale: &defaultServerLocale,
+						DefaultClientLocale: &defaultClientLocale,
 					},
 					ServiceSettings: model.ServiceSettings{
 						SiteURL: &siteURL,
