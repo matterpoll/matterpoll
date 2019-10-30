@@ -164,7 +164,6 @@ func TestHandlePluginConfiguration(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestHandleVote(t *testing.T) {

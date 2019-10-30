@@ -54,8 +54,8 @@ const (
 
 // OnActivate ensures a configuration is set and initializes the API
 func (p *MatterpollPlugin) OnActivate() error {
-	var err error
-	if err = p.checkServerVersion(); err != nil {
+	err := p.checkServerVersion()
+	if err != nil {
 		return err
 	}
 

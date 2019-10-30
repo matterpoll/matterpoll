@@ -21,7 +21,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin {
+func setupTestPlugin(_ *testing.T, api plugin.API, store store.Store) *MatterpollPlugin {
 	p := &MatterpollPlugin{
 		ServerConfig: testutils.GetServerConfig(),
 	}

@@ -334,7 +334,6 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 
 	if err = p.Store.Poll().Save(poll); err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get save poll")
-
 	}
 
 	return responseAddOptionSuccess, nil, nil
