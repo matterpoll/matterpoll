@@ -144,6 +144,17 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 			http.Error(w, "invalid request", http.StatusBadRequest)
 			return
 		}
+
+		if request.UserId != r.Header.Get("Mattermost-User-ID") {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PERMISSION_READ_CHANNEL) {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
 		userLocalizer := p.getUserLocalizer(request.UserId)
 
 		msg, update, err := handler(mux.Vars(r), request)
@@ -175,6 +186,11 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 		if request == nil {
 			p.API.LogWarn("failed to decode SubmitDialogRequest")
 			http.Error(w, "invalid request", http.StatusBadRequest)
+			return
+		}
+
+		if request.UserId != r.Header.Get("Mattermost-User-ID") {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
 			return
 		}
 
