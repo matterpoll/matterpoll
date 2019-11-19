@@ -304,7 +304,7 @@ func TestHandleVote(t *testing.T) {
 			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
-		"Valid request with vote, HasPermission fails": {
+		"Valid request with vote, HasAdminPermission fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
@@ -1776,7 +1776,7 @@ func TestHandlePollMetadata(t *testing.T) {
 				VotedAnswers:    []string{},
 			}).EncodeToByte(),
 		},
-		"Valid request without votes, HasPermission fails": {
+		"Valid request without votes, HasAdminPermission fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID5").Return(nil, &model.AppError{})
 				api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return().Maybe()
