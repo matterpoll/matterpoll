@@ -239,12 +239,13 @@ func TestUpdateVote(t *testing.T) {
 	}
 }
 
-func TestGetVotedAnswers(t *testing.T) {
+func TestGetMetadata(t *testing.T) {
 	for name, test := range map[string]struct {
 		Poll             poll.Poll
 		UserID           string
+		Permission       bool
 		ShouldError      bool
-		ExpectedResponse []string
+		ExpectedResponse *poll.Metadata
 	}{
 		"Voted an Answer": {
 			Poll: poll.Poll{
@@ -255,9 +256,15 @@ func TestGetVotedAnswers(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:           "a",
-			ShouldError:      false,
-			ExpectedResponse: []string{"Answer 1"},
+			UserID:      "a",
+			Permission:  true,
+			ShouldError: false,
+			ExpectedResponse: &poll.Metadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "a",
+				AdminPermission: true,
+				VotedAnswers:    []string{"Answer 1"},
+			},
 		},
 		"Voted two Answers": {
 			Poll: poll.Poll{
@@ -268,9 +275,15 @@ func TestGetVotedAnswers(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:           "b",
-			ShouldError:      false,
-			ExpectedResponse: []string{"Answer 2", "Answer 3"},
+			UserID:      "b",
+			Permission:  true,
+			ShouldError: false,
+			ExpectedResponse: &poll.Metadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "b",
+				AdminPermission: true,
+				VotedAnswers:    []string{"Answer 2", "Answer 3"},
+			},
 		},
 		"Voted no Answers": {
 			Poll: poll.Poll{
@@ -281,10 +294,15 @@ func TestGetVotedAnswers(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:           "c",
-			ShouldError:      false,
-			ExpectedResponse: []string{},
-		},
+			UserID:      "c",
+			Permission:  true,
+			ShouldError: false,
+			ExpectedResponse: &poll.Metadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "c",
+				AdminPermission: true,
+				VotedAnswers:    []string{},
+			}},
 		"Invalid userID": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),
@@ -301,13 +319,13 @@ func TestGetVotedAnswers(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			answers, err := test.Poll.GetVotedAnswers(test.UserID)
+			metadata, err := test.Poll.GetMetadata(test.UserID, test.Permission)
 			if test.ShouldError {
 				assert.NotNil(err)
-				assert.Nil(answers)
+				assert.Nil(metadata)
 			} else {
 				assert.Nil(err)
-				assert.Equal(test.ExpectedResponse, answers)
+				assert.Equal(test.ExpectedResponse, metadata)
 			}
 		})
 	}

@@ -130,8 +130,8 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	return nil
 }
 
-// GetVotedAnswers collect voted answers by a user and returns it as string array
-func (p *Poll) GetVotedAnswers(userID string) ([]string, error) {
+// getVotedAnswers collect voted answers by a user and returns it as string array
+func (p *Poll) getVotedAnswers(userID string) ([]string, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("invalid userID")
 	}
@@ -148,7 +148,7 @@ func (p *Poll) GetVotedAnswers(userID string) ([]string, error) {
 
 // GetMetadata returns personalized metadata of a poll
 func (p *Poll) GetMetadata(userID string, permission bool) (*Metadata, error) {
-	answers, err := p.GetVotedAnswers(userID)
+	answers, err := p.getVotedAnswers(userID)
 	if err != nil {
 		return nil, err
 	}
