@@ -3,7 +3,7 @@ package kvstore
 import (
 	"errors"
 
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/matterpoll/matterpoll/server/poll"
 )
 

@@ -7,9 +7,9 @@ import (
 
 	"bou.ke/monkey"
 	"github.com/blang/semver"
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
-	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
