@@ -97,7 +97,26 @@ func TestPollToEndPollPost(t *testing.T) {
 		require.Nil(t, post)
 	})
 }
+func TestPollWithProgress(t *testing.T) {
+	PluginID := "com.github.matterpoll.matterpoll"
+	authorName := "John Doe"
+	//currentAPIVersion := "v1"
 
+	for name, test := range map[string]struct {
+		Poll *poll.Poll
+	}{
+		"Test1": {
+			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true}),
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			test.Poll.UpdateVote(testutils.GetBotUserID(), 1)
+			test.Poll.UpdateVote("bar", 1)
+			test.Poll.UpdateVote("foo", 0)
+			test.Poll.ToPostActions(testutils.GetLocalizer(), PluginID, authorName)
+		})
+	}
+}
 func TestPollToPostActions(t *testing.T) {
 	PluginID := "com.github.matterpoll.matterpoll"
 	authorName := "John Doe"
@@ -146,12 +165,13 @@ func TestPollToPostActions(t *testing.T) {
 				},
 			}},
 		},
+		//XXX: Hardcoding this  might be suboptimal in the future, if the format change in any way.
 		"Multipile questions, settings: progress": {
 			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true}),
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n**Poll Settings**: progress\n**Total votes**: 0",
+				Text:       "---\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\tAnswer 1\t`  0 %`\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\tAnswer 2\t`  0 %`\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\tAnswer 3\t`  0 %`\n**Poll Settings**: progress\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
