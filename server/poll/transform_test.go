@@ -140,7 +140,7 @@ func TestPollWithProgress(t *testing.T) {
 
 			filled += strings.Count(lines[3], "█")
 
-			//This value should be close to the total length of a progress bar (32 chars), it might be a littel less due to rounding errors
+			//This value should be close to the total length of a progress bar (32 chars), it might be a little less due to rounding errors
 			require.GreaterOrEqual(t, filled, 31)
 		})
 	}
