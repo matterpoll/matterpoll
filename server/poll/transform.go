@@ -3,7 +3,6 @@ package poll
 import (
 	"fmt"
 	"math"
-	"sort"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -56,14 +55,13 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
 
-	votes := make(map[string]int)
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
 		answer := o.Answer
 		if p.Settings.Progress {
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
 		}
-		votes[o.Answer] = len(o.Voter)
+
 		actions = append(actions, &model.PostAction{
 			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
@@ -97,14 +95,14 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       p.makeAdditionalText(localizer, votes, numberOfVotes),
+		Text:       p.makeAdditionalText(localizer, numberOfVotes),
 		Actions:    actions,
 	}}
 }
 
 // makeAdditionalText make descriptions about poll
 // This method returns markdown text, because it is used for SlackAttachment.Text field.
-func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, votes map[string]int, numberOfVotes int) string {
+func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) string {
 	var settingsText []string
 	if p.Settings.Anonymous {
 		settingsText = append(settingsText, "anonymous")
@@ -119,7 +117,7 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, votes map[string]in
 	lines := []string{"---"}
 
 	if p.Settings.Progress {
-		lines = append(lines, generateProgressBars(votes, numberOfVotes)...)
+		lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVotes)...)
 	}
 
 	if len(settingsText) > 0 {
@@ -146,22 +144,14 @@ func progressBarStr(progress float64, width float64) string {
 	for i := 0.0; i < (width - wholeWidth); i++ {
 		line += "░"
 	}
-
 	return line
 }
 
-func generateProgressBars(votes map[string]int, numberOfVotes int) []string {
+func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes int) []string {
 	lines := make([]string, 0)
 
-	keys := make([]string, 0)
-	for n := range votes {
-		keys = append(keys, n)
-	}
-
-	sort.Strings(keys)
-
-	for _, n := range keys {
-		v := votes[n]
+	for _, n := range answerOptions {
+		v := len(n.Voter)
 		var progress float64
 		if numberOfVotes > 0 {
 			progress = float64(v) / float64(numberOfVotes)
@@ -169,7 +159,7 @@ func generateProgressBars(votes map[string]int, numberOfVotes int) []string {
 			progress = 0
 		}
 
-		lines = append(lines, fmt.Sprintf("%s\t%s\t`%3d %%`", progressBarStr(progress, 32), n, int(progress*100.0)))
+		lines = append(lines, fmt.Sprintf("`%s`\t%s\t`%3d %%`", progressBarStr(progress, 32), n.Answer, int(progress*100.0)))
 	}
 	return lines
 }

@@ -2,6 +2,7 @@ package poll_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -110,10 +111,37 @@ func TestPollWithProgress(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			test.Poll.UpdateVote(testutils.GetBotUserID(), 1)
-			test.Poll.UpdateVote("bar", 1)
-			test.Poll.UpdateVote("foo", 0)
-			test.Poll.ToPostActions(testutils.GetLocalizer(), PluginID, authorName)
+			err := test.Poll.UpdateVote(testutils.GetBotUserID(), 1)
+			require.Nil(t, err)
+
+			err = test.Poll.UpdateVote("bar", 1)
+			require.Nil(t, err)
+
+			err = test.Poll.UpdateVote("foo", 0)
+			require.Nil(t, err)
+
+			post := test.Poll.ToPostActions(testutils.GetLocalizer(), PluginID, authorName)
+			require.NotNil(t, post)
+
+			postText := post[0].Text
+			require.GreaterOrEqual(t, len(post), 1)
+			//check if the correct percentages are visible
+			require.Contains(t, postText, fmt.Sprintf("%3d %%", 33))
+			require.Contains(t, postText, fmt.Sprintf("%3d %%", 66))
+			require.Contains(t, postText, fmt.Sprintf("%3d %%", 0))
+
+			//check if the progressbars are correctly generated
+			lines := strings.Split(postText, "\n")
+			require.GreaterOrEqual(t, len(lines), 4)
+
+			filled := strings.Count(lines[1], "█")
+
+			filled += strings.Count(lines[2], "█")
+
+			filled += strings.Count(lines[3], "█")
+
+			//This value should be close to the total length of a progress bar (32 chars), it might be a littel less due to rounding errors
+			require.GreaterOrEqual(t, filled, 31)
 		})
 	}
 }
@@ -171,7 +199,7 @@ func TestPollToPostActions(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\tAnswer 1\t`  0 %`\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\tAnswer 2\t`  0 %`\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\tAnswer 3\t`  0 %`\n**Poll Settings**: progress\n**Total votes**: 0",
+				Text:       "---\n`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`\tAnswer 1\t`  0 %`\n`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`\tAnswer 2\t`  0 %`\n`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`\tAnswer 3\t`  0 %`\n**Poll Settings**: progress\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Name: "Answer 1 (0)",
 					Type: model.POST_ACTION_TYPE_BUTTON,
