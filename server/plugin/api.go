@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -42,6 +43,14 @@ var (
 		ID:    "response.vote.multi.updated",
 		One:   "Your vote has been counted. You have {{.Remains}} vote left.",
 		Other: "Your vote has been counted. You have {{.Remains}} votes left.",
+	}
+	responseResetVotesNoVotes = &i18n.Message{
+		ID:    "response.resetVotes.noVotes",
+		Other: "There are no votes to reset.",
+	}
+	responseResetVotes = &i18n.Message{
+		ID:    "response.resetVotes.success",
+		Other: "All votes are cleared. [{{.ClearedVotes}}]",
 	}
 
 	responseAddOptionSuccess = &i18n.Message{
@@ -84,6 +93,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
 	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/votes/reset", p.handlePostActionIntegrationRequest(p.handleResetVotes)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOption)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/option/add", p.handleSubmitDialogRequest(p.handleAddOptionConfirm)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/end", p.handlePostActionIntegrationRequest(p.handleEndPoll)).Methods(http.MethodPost)
@@ -259,6 +269,53 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		}
 		return &i18n.LocalizeConfig{DefaultMessage: responseVoteCounted}, post, nil
 	}
+}
+
+func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
+	pollID := vars["id"]
+	userID := request.UserId
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
+	}
+
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
+	if appErr != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to get display name for creator")
+	}
+
+	votes, err := poll.GetVotedAnswer(userID)
+	if err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get voted answers")
+	}
+	if len(votes.VotedAnswers) == 0 {
+		return &i18n.LocalizeConfig{DefaultMessage: responseResetVotesNoVotes}, nil, nil
+	}
+
+	if err := poll.ResetVotes(userID); err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, err
+	}
+
+	if err = p.Store.Poll().Save(poll); err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to save poll")
+	}
+
+	p.API.PublishWebSocketEvent("has_voted", map[string]interface{}{
+		"user_id":       userID,
+		"poll_id":       pollID,
+		"voted_answers": []string{},
+	}, &model.WebsocketBroadcast{UserId: userID})
+
+	post := &model.Post{}
+	publicLocalizer := p.getServerLocalizer()
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.ID, displayName))
+	post.AddProp("poll_id", poll.ID)
+
+	return &i18n.LocalizeConfig{
+		DefaultMessage: responseResetVotes,
+		TemplateData:   map[string]interface{}{"ClearedVotes": strings.Join(votes.VotedAnswers, ", ")},
+	}, post, nil
 }
 
 func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {

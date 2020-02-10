@@ -433,6 +433,114 @@ func TestUpdateVote(t *testing.T) {
 	}
 }
 
+func TestResetVotes(t *testing.T) {
+	for name, test := range map[string]struct {
+		Poll         poll.Poll
+		UserID       string
+		ExpectedPoll poll.Poll
+		Error        bool
+	}{
+		"Reset success, with votes": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3", Voter: []string{"a"}},
+				},
+				Settings: poll.Settings{MaxVotes: 3},
+			},
+			UserID: "a",
+			ExpectedPoll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{}},
+					{Answer: "Answer 2", Voter: []string{}},
+					{Answer: "Answer 3", Voter: []string{}},
+				},
+				Settings: poll.Settings{MaxVotes: 3},
+			},
+			Error: false,
+		},
+		"Reset success, with no votes": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{}},
+					{Answer: "Answer 2", Voter: []string{}},
+					{Answer: "Answer 3", Voter: []string{}},
+				},
+				Settings: poll.Settings{MaxVotes: 3},
+			},
+			UserID: "a",
+			ExpectedPoll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{}},
+					{Answer: "Answer 2", Voter: []string{}},
+					{Answer: "Answer 3", Voter: []string{}},
+				},
+				Settings: poll.Settings{MaxVotes: 3},
+			},
+			Error: false,
+		},
+		"Reset success, with votes from multi user": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a", "b"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3", Voter: []string{"1", "a", "z"}},
+				},
+				Settings: poll.Settings{MaxVotes: 3},
+			},
+			UserID: "a",
+			ExpectedPoll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"b"}},
+					{Answer: "Answer 2", Voter: []string{}},
+					{Answer: "Answer 3", Voter: []string{"1", "z"}},
+				},
+				Settings: poll.Settings{MaxVotes: 3},
+			},
+			Error: false,
+		},
+		"invalid user id": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+				},
+				Settings: poll.Settings{MaxVotes: 3},
+			},
+			UserID: "",
+			ExpectedPoll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+				},
+				Settings: poll.Settings{MaxVotes: 3},
+			},
+			Error: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			err := test.Poll.ResetVotes(test.UserID)
+			if test.Error {
+				assert.NotNil(err)
+			} else {
+				assert.Nil(err)
+			}
+			assert.Equal(test.ExpectedPoll, test.Poll)
+		})
+	}
+}
+
 func TestGetVotedAnswer(t *testing.T) {
 	for name, test := range map[string]struct {
 		Poll             poll.Poll

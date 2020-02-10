@@ -12,6 +12,10 @@ import (
 type IDToNameConverter func(userID string) (string, *model.AppError)
 
 var (
+	pollButtonResetVotes = &i18n.Message{
+		ID:    "poll.button.resetVotes",
+		Other: "Reset Votes",
+	}
 	pollButtonAddOption = &i18n.Message{
 		ID:    "poll.button.addOption",
 		Other: "Add Option",
@@ -69,27 +73,36 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 		})
 	}
 
-	actions = append(actions,
-		// TODO: Add "reset votes" option
-		&model.PostAction{
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
-			Type: model.POST_ACTION_TYPE_BUTTON,
-			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
+	if p.Settings.MaxVotes > 1 {
+		actions = append(actions,
+			&model.PostAction{
+				Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonResetVotes}),
+				Type: model.POST_ACTION_TYPE_BUTTON,
+				Integration: &model.PostActionIntegration{
+					URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
+				},
 			},
-		}, &model.PostAction{
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
-			Type: model.POST_ACTION_TYPE_BUTTON,
-			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
-			},
-		}, &model.PostAction{
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
-			Type: model.POST_ACTION_TYPE_BUTTON,
-			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
-			},
-		})
+		)
+	}
+	actions = append(actions, &model.PostAction{
+		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
+		Type: model.POST_ACTION_TYPE_BUTTON,
+		Integration: &model.PostActionIntegration{
+			URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
+		},
+	}, &model.PostAction{
+		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
+		Type: model.POST_ACTION_TYPE_BUTTON,
+		Integration: &model.PostActionIntegration{
+			URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
+		},
+	}, &model.PostAction{
+		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
+		Type: model.POST_ACTION_TYPE_BUTTON,
+		Integration: &model.PostActionIntegration{
+			URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
+		},
+	})
 
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
