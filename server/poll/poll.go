@@ -167,8 +167,6 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 		}
 		for _, answers := range votedAnswers.VotedAnswers {
 			if answers == p.AnswerOptions[index].Answer {
-				// FIXME: to translated message: "Your already voted for this option."
-				// Or ask an user to reset this option
 				return &i18n.Message{
 					ID:    "poll.updateVote.alreadyVoted",
 					Other: "You've already voted for this option.",
@@ -177,8 +175,6 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 		}
 
 		if p.Settings.MaxVotes <= len(votedAnswers.VotedAnswers) {
-			// FIXME: to translated message: "You can't vote, because you don't have any votes left. Use the reset button to reset your votes. [" + strings.Join(votedAnswers.VotedAnswers, ", ") + "]"
-			// TODO: Enable to display emoji in error message?
 			return &i18n.Message{
 				ID:    "poll.updateVote.maxVotes",
 				Other: "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",

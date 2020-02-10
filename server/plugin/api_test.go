@@ -208,6 +208,25 @@ func TestHandleVote(t *testing.T) {
 	expectedPost2 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(localizer, manifest.ID, "John Doe"))
 
+	poll3In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 2})
+	poll3Out := poll3In.Copy()
+	msg, err = poll3Out.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	expectedPost3 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost3, poll3Out.ToPostActions(localizer, manifest.ID, "John Doe"))
+
+	poll4In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 2})
+	msg, err = poll4In.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	poll4Out := poll4In.Copy()
+	msg, err = poll4Out.UpdateVote("userID1", 1)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	expectedPost4 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost4, poll4Out.ToPostActions(localizer, manifest.ID, "John Doe"))
+
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
@@ -258,6 +277,48 @@ func TestHandleVote(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost2},
 			ExpectedMsg:        "Your vote has been updated.",
+		},
+		"Valid request, with multi setting, first vote": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"poll_id":       testutils.GetPollID(),
+					"user_id":       "userID1",
+					"voted_answers": []string{"Answer 1"},
+				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll3In, nil)
+				store.PollStore.On("Save", poll3Out).Return(nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			VoteIndex:          0,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost3},
+			ExpectedMsg:        "Your vote has been counted. You have 1 vote left.",
+		},
+		"Valid request, with multi setting, second vote": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"poll_id":       testutils.GetPollID(),
+					"user_id":       "userID1",
+					"voted_answers": []string{"Answer 1", "Answer 2"},
+				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll4In, nil)
+				store.PollStore.On("Save", poll4Out).Return(nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			VoteIndex:          1,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost4},
+			ExpectedMsg:        "Your vote has been counted. You have 0 votes left.",
 		},
 		"Valid request, PollStore.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
