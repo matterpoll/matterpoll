@@ -70,6 +70,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 	}
 
 	actions = append(actions,
+		// TODO: Add "reset votes" option
 		&model.PostAction{
 			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
 			Type: model.POST_ACTION_TYPE_BUTTON,

@@ -147,7 +147,7 @@ func TestPollToPostActions(t *testing.T) {
 			}},
 		},
 		"Multipile questions, settings: progress": {
-			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true}),
+			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1}),
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
@@ -193,7 +193,7 @@ func TestPollToPostActions(t *testing.T) {
 			}},
 		},
 		"Multipile questions, settings: anonymous, public-add-option": {
-			Poll: testutils.GetPollWithSettings(poll.Settings{Anonymous: true, PublicAddOption: true}),
+			Poll: testutils.GetPollWithSettings(poll.Settings{Anonymous: true, PublicAddOption: true, MaxVotes: 1}),
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",

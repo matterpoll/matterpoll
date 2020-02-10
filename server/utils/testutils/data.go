@@ -46,6 +46,7 @@ func GetPoll() *poll.Poll {
 			{Answer: "Answer 2"},
 			{Answer: "Answer 3"},
 		},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
 
@@ -70,6 +71,7 @@ func GetPollWithVotes() *poll.Poll {
 				Voter: []string{"userID4"}},
 			{Answer: "Answer 3"},
 		},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
 
@@ -91,5 +93,6 @@ func GetPollTwoOptions() *poll.Poll {
 			{Answer: "Yes"},
 			{Answer: "No"},
 		},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
 }

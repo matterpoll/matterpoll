@@ -21,7 +21,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"Poll Settings provider further customization, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
 		"- `--anonymous`: Don't show who voted for what\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
-		"- `--public-add-option`: Allow all users to add additional options"
+		"- `--public-add-option`: Allow all users to add additional options\n" +
+		"- `--votes=X`: Allow users to vote for X options"
 
 	for name, test := range map[string]struct {
 		SetupAPI     func(*plugintest.API) *plugintest.API
@@ -138,14 +139,14 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true})
+				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1})
 				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true})
+				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1})
 				store.PollStore.On("Save", poll).Return(nil)
 				return store
 			},
@@ -165,14 +166,14 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true})
+				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, MaxVotes: 1})
 				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true})
+				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, MaxVotes: 1})
 				store.PollStore.On("Save", poll).Return(nil)
 				return store
 			},

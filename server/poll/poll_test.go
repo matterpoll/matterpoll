@@ -23,6 +23,29 @@ func TestNewPoll(t *testing.T) {
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
+		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress", "public-add-option", "votes=3"})
+
+		require.Nil(t, err)
+		require.NotNil(t, p)
+		assert.Equal(testutils.GetPollID(), p.ID)
+		assert.Equal(int64(1234567890), p.CreatedAt)
+		assert.Equal(creator, p.Creator)
+		assert.Equal(question, p.Question)
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
+		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 3}, p.Settings)
+	})
+	t.Run("fine, without votes setting", func(t *testing.T) {
+		assert := assert.New(t)
+		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
+		patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
+		defer patch1.Unpatch()
+		defer patch2.Unpatch()
+
+		creator := model.NewRandomString(10)
+		question := model.NewRandomString(10)
+		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
 		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress", "public-add-option"})
 
 		require.Nil(t, err)
@@ -34,7 +57,7 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
-		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true}, p.Settings)
+		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 1}, p.Settings)
 	})
 	t.Run("error, unknown setting", func(t *testing.T) {
 		assert := assert.New(t)
@@ -60,6 +83,45 @@ func TestNewPoll(t *testing.T) {
 		assert.Nil(p)
 		assert.NotNil(err)
 	})
+}
+
+func TestParseVotesSetting(t *testing.T) {
+	p := testutils.GetPollTwoOptions()
+	for name, test := range map[string]struct {
+		Poll  *poll.Poll
+		S     string
+		Votes int
+		Error bool
+	}{
+		"fine setting": {
+			Poll:  p,
+			S:     "votes=2",
+			Votes: 2,
+			Error: false,
+		},
+		"error, votes=0": {
+			Poll:  p,
+			S:     "votes=0",
+			Error: true,
+		},
+		"error, exceed the number of options": {
+			Poll:  p,
+			S:     "votes=3",
+			Error: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			err := test.Poll.ParseVotesSetting(test.S)
+			if test.Error {
+				assert.NotNil((err))
+			} else {
+				assert.Nil((err))
+				assert.Equal(test.Votes, test.Poll.Settings.MaxVotes)
+			}
+		})
+	}
 }
 
 func TestAddAnswerOption(t *testing.T) {
@@ -111,11 +173,12 @@ func TestDecode(t *testing.T) {
 
 func TestUpdateVote(t *testing.T) {
 	for name, test := range map[string]struct {
-		Poll         poll.Poll
-		UserID       string
-		Index        int
-		ExpectedPoll poll.Poll
-		Error        bool
+		Poll          poll.Poll
+		UserID        string
+		Index         int
+		ExpectedPoll  poll.Poll
+		Error         bool
+		ReturnMessage bool
 	}{
 		"Negative Index": {
 			Poll: poll.Poll{
@@ -136,7 +199,8 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 2"},
 				},
 			},
-			Error: true,
+			Error:         true,
+			ReturnMessage: false,
 		},
 		"To high Index": {
 			Poll: poll.Poll{
@@ -157,7 +221,8 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 2"},
 				},
 			},
-			Error: true,
+			Error:         true,
+			ReturnMessage: false,
 		},
 		"Invalid userID": {
 			Poll: poll.Poll{
@@ -178,7 +243,8 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 2"},
 				},
 			},
-			Error: true,
+			Error:         true,
+			ReturnMessage: false,
 		},
 		"Idempotent": {
 			Poll: poll.Poll{
@@ -199,7 +265,8 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 2"},
 				},
 			},
-			Error: false,
+			Error:         false,
+			ReturnMessage: false,
 		},
 		"Valid Vote": {
 			Poll: poll.Poll{
@@ -221,18 +288,145 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 				},
 			},
-			Error: false,
+			Error:         false,
+			ReturnMessage: false,
+		},
+		"Multi votes setting, first vote": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1"},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			UserID: "a",
+			Index:  0,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			Error:         false,
+			ReturnMessage: false,
+		},
+		"Multi votes setting, second vote": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			UserID: "a",
+			Index:  1,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			Error:         false,
+			ReturnMessage: false,
+		},
+		"Multi votes setting, duplicated vote error": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			UserID: "a",
+			Index:  0,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			Error:         false,
+			ReturnMessage: true,
+		},
+		"Multi votes setting, exceed votes error": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			UserID: "a",
+			Index:  2,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			Error:         false,
+			ReturnMessage: true,
+		},
+		"Multi votes setting, invalid user id error": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			UserID: "",
+			Index:  2,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2},
+			},
+			Error:         true,
+			ReturnMessage: false,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			err := test.Poll.UpdateVote(test.UserID, test.Index)
+			msg, err := test.Poll.UpdateVote(test.UserID, test.Index)
 
 			if test.Error {
 				assert.NotNil(err)
 			} else {
 				assert.Nil(err)
+			}
+
+			if test.ReturnMessage {
+				assert.NotNil(msg)
+			} else {
+				assert.Nil(msg)
 			}
 			assert.Equal(test.ExpectedPoll, test.Poll)
 		})

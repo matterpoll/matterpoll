@@ -58,6 +58,10 @@ var (
 		ID:    "command.help.text.pollSetting.public-add-option",
 		Other: "Allow all users to add additional options",
 	}
+	commandHelpTextPollSettingMultiVote = &i18n.Message{
+		ID:    "command.help.text.pollSetting.multi-vote",
+		Other: "Allow users to vote for X options",
+	}
 
 	commandErrorGeneric = &i18n.Message{
 		ID:    "command.error.generic",
@@ -108,7 +112,8 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		}) + "\n"
 		msg += "- `--anonymous`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
 		msg += "- `--progress`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
-		msg += "- `--public-add-option`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption)
+		msg += "- `--public-add-option`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
+		msg += "- `--votes=X`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
 
 		return msg, nil
 	}

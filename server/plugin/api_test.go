@@ -191,16 +191,19 @@ func TestHandleVote(t *testing.T) {
 
 	poll1In := testutils.GetPoll()
 	poll1Out := poll1In.Copy()
-	err := poll1Out.UpdateVote("userID1", 0)
+	msg, err := poll1Out.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
 	require.Nil(t, err)
 	expectedPost1 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(localizer, manifest.ID, "John Doe"))
 
 	poll2In := testutils.GetPoll()
-	err = poll2In.UpdateVote("userID1", 0)
+	msg, err = poll2In.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
 	require.Nil(t, err)
 	poll2Out := poll2In.Copy()
-	err = poll2Out.UpdateVote("userID1", 1)
+	msg, err = poll2Out.UpdateVote("userID1", 1)
+	require.Nil(t, msg)
 	require.Nil(t, err)
 	expectedPost2 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(localizer, manifest.ID, "John Doe"))
@@ -279,7 +282,8 @@ func TestHandleVote(t *testing.T) {
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				pollIn := testutils.GetPoll()
 				pollOut := pollIn.Copy()
-				err := pollOut.UpdateVote("userID1", 0)
+				msg, err := pollOut.UpdateVote("userID1", 0)
+				require.Nil(t, msg)
 				require.Nil(t, err)
 
 				store.PollStore.On("Get", testutils.GetPollID()).Return(pollIn, nil)

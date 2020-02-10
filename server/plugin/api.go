@@ -38,6 +38,11 @@ var (
 		Other: "Your vote has been updated.",
 	}
 
+	responseVoteUpdatedMulti = &i18n.Message{
+		ID:    "response.vote.multi.updated",
+		Other: "Your vote has been counted. You have 0 votes left.",
+	}
+
 	responseAddOptionSuccess = &i18n.Message{
 		ID:    "response.addOption.success",
 		Other: "Successfully added the option.",
@@ -211,7 +216,11 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	}
 
 	hasVoted := poll.HasVoted(userID)
-	if err = poll.UpdateVote(userID, optionNumber); err != nil {
+	msg, err := poll.UpdateVote(userID, optionNumber)
+	if msg != nil {
+		return msg, nil, nil
+	}
+	if err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to update poll")
 	}
 
@@ -234,10 +243,18 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.ID, displayName))
 	post.AddProp("poll_id", poll.ID)
 
-	if hasVoted {
-		return responseVoteUpdated, post, nil
+	if poll.Settings.MaxVotes > 1 {
+		// Multi Answer Mode
+		// TODO: replace *i18n.Message to *i18n.LocalizeConfig
+		// remains := poll.Settings.MaxVotes - len(v.VotedAnswers)
+		return responseVoteUpdatedMulti, post, nil
+	} else {
+		// Single Answer Mode
+		if hasVoted {
+			return responseVoteUpdated, post, nil
+		}
+		return responseVoteCounted, post, nil
 	}
-	return responseVoteCounted, post, nil
 }
 
 func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
