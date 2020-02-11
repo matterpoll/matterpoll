@@ -262,13 +262,13 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 			TemplateData:   map[string]interface{}{"Remains": remains},
 			PluralCount:    remains,
 		}, post, nil
-	} else {
-		// Single Answer Mode
-		if hasVoted {
-			return &i18n.LocalizeConfig{DefaultMessage: responseVoteUpdated}, post, nil
-		}
-		return &i18n.LocalizeConfig{DefaultMessage: responseVoteCounted}, post, nil
 	}
+
+	// Single Answer Mode
+	if hasVoted {
+		return &i18n.LocalizeConfig{DefaultMessage: responseVoteUpdated}, post, nil
+	}
+	return &i18n.LocalizeConfig{DefaultMessage: responseVoteCounted}, post, nil
 }
 
 func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
@@ -293,7 +293,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: responseResetVotesNoVotes}, nil, nil
 	}
 
-	if err := poll.ResetVotes(userID); err != nil {
+	if err = poll.ResetVotes(userID); err != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, err
 	}
 
