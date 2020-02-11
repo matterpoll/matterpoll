@@ -125,6 +125,9 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 	if p.Settings.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
 	}
+	if p.Settings.MaxVotes > 1 {
+		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
+	}
 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {
