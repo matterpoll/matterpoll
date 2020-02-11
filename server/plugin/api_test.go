@@ -480,15 +480,25 @@ func TestResetVotes(t *testing.T) {
 	}
 
 	poll2WithVotes := poll.Copy()
-	poll2WithVotes.UpdateVote("userID1", 0)
+	msg, err := poll2WithVotes.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
 
 	poll3WithVotes := poll.Copy()
-	poll3WithVotes.UpdateVote("userID1", 0)
-	poll3WithVotes.UpdateVote("userID1", 1)
-	poll3WithVotes.UpdateVote("userID1", 2)
+	msg, err = poll3WithVotes.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	msg, err = poll3WithVotes.UpdateVote("userID1", 1)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	msg, err = poll3WithVotes.UpdateVote("userID1", 2)
+	require.Nil(t, msg)
+	require.Nil(t, err)
 
 	poll4WithVotes := poll.Copy()
-	poll4WithVotes.UpdateVote("userID1", 0)
+	msg, err = poll4WithVotes.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
