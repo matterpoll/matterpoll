@@ -1,7 +1,7 @@
 package kvstore
 
 import (
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
 // SystemStore allows to access system informations in the KV Store.

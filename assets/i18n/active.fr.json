@@ -67,6 +67,30 @@
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "Ajouter une possibilité de réponse"
   },
+  "dialog.delete.submitLabel": {
+    "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
+    "other": "Suppression"
+  },
+  "dialog.delete.title": {
+    "hash": "sha1-ce46cb787a610361503ef26f2b542a1872919716",
+    "other": "Confimer la suppression du sondage"
+  },
+  "dialog.end.submitLabel": {
+    "hash": "sha1-a2bb9d34b8a1a79665858d354585cf147e0dee4e",
+    "other": "Fermer"
+  },
+  "dialog.end.title": {
+    "hash": "sha1-e54c9d4f934f84ae6bfb7abf59fae282f68d810c",
+    "other": "Confirmer la clôture du sondage"
+  },
+  "poll.addAnswerOption.duplicate": {
+    "hash": "sha1-f2e20be1db21bba56adc08d288db5275a7c193d0",
+    "other": "Option en doublon : {{.Option}}"
+  },
+  "poll.addAnswerOption.empty": {
+    "hash": "sha1-12db9817b0feafe98b4b809dceefdde8399f4147",
+    "other": "Une option vide n‘est pas autorisée"
+  },
   "poll.button.addOption": {
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "Ajouter une possibilité de réponse"
@@ -100,6 +124,10 @@
     "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**Total des votes**: {{.TotalVotes}}"
   },
+  "poll.newPoll.unrecognizedSetting": {
+    "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
+    "other": "Paramètre du sondage non reconnu : {{.Setting}}"
+  },
   "response.addOption.invalidPermission": {
     "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
     "other": "Seule la créatrice ou le créateur du sondage et les administrateurs systèmes peuvent ajouter des options."
@@ -121,7 +149,7 @@
     "other": "Seule la créatrice ou le créateur du sondage et les administrateurs systèmes peuvent le clore."
   },
   "response.endPoll.successfully": {
-    "hash": "sha1-255d4b342aeb7c9f2113c3764fb3b7a8d30da27a",
+    "hash": "sha1-a4fba46ee42d558010f595fec2e1e451cf3d4d73",
     "other": "Le sondage **{{.Question}}** est clos et le message originel a été mis à jour. Vous pouvez y accéder en cliquant [ici]({{.Link}})."
   },
   "response.vote.counted": {

@@ -7,9 +7,9 @@ import (
 
 	"bou.ke/monkey"
 	"github.com/blang/semver"
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
-	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
@@ -21,7 +21,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin {
+func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin { //nolint:interfacer
 	p := &MatterpollPlugin{
 		ServerConfig: testutils.GetServerConfig(),
 	}
@@ -194,11 +194,11 @@ func TestPluginOnActivate(t *testing.T) {
 			defer patch.Unpatch()
 
 			siteURL := testutils.GetSiteURL()
-			defaultServerLocale := "en"
+			defaultClientLocale := "en"
 			p := &MatterpollPlugin{
 				ServerConfig: &model.Config{
 					LocalizationSettings: model.LocalizationSettings{
-						DefaultServerLocale: &defaultServerLocale,
+						DefaultClientLocale: &defaultClientLocale,
 					},
 					ServiceSettings: model.ServiceSettings{
 						SiteURL: &siteURL,

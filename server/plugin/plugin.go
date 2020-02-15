@@ -8,8 +8,8 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
@@ -54,8 +54,8 @@ const (
 
 // OnActivate ensures a configuration is set and initializes the API
 func (p *MatterpollPlugin) OnActivate() error {
-	var err error
-	if err = p.checkServerVersion(); err != nil {
+	err := p.checkServerVersion()
+	if err != nil {
 		return err
 	}
 

@@ -9,8 +9,8 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 )
@@ -49,7 +49,7 @@ var (
 
 	responseEndPollSuccessfully = &i18n.Message{
 		ID:    "response.endPoll.successfully",
-		Other: "The poll **{{.Question}}** has ended and the original post has been updated. You can jump to it by clicking [here]({{.Link}}).",
+		Other: "The poll **{{.Question}}** has ended and the original post has been updated. You can jump to it by pressing [here]({{.Link}}).",
 	}
 	responseEndPollInvalidPermission = &i18n.Message{
 		ID:    "response.endPoll.invalidPermission",
@@ -164,7 +164,6 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 		if _, err = w.Write(response.ToJson()); err != nil {
 			p.API.LogWarn("failed to write PostActionIntegrationResponse", "error", err.Error())
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -193,7 +192,6 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 				p.API.LogWarn("failed to write SubmitDialogRequest", "error", err.Error())
 			}
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -338,7 +336,6 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 
 	if err = p.Store.Poll().Save(poll); err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get save poll")
-
 	}
 
 	return responseAddOptionSuccess, nil, nil
@@ -412,44 +409,27 @@ func (p *MatterpollPlugin) handleEndPollConfirm(vars map[string]string, request 
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to delete poll")
 	}
 
-	p.postEndPollAnnouncement(request.TeamId, post.Id, poll.Question)
+	p.postEndPollAnnouncement(request.ChannelId, post.Id, poll.Question)
+
 	return nil, nil, nil
 }
 
-func (p *MatterpollPlugin) postEndPollAnnouncement(teamID, postID, question string) {
-	endPollAnnouncementPostError := "Failed to post the end poll announcement."
-
-	team, err := p.API.GetTeam(teamID)
-	if err != nil {
-		p.API.LogWarn(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to get team with TeamID: %s", teamID))
-		return
-	}
-	link := fmt.Sprintf("%s/%s/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, team.Name, postID)
-
-	pollPost, err := p.API.GetPost(postID)
-	if err != nil {
-		p.API.LogWarn(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to get post with PostID: %s", postID))
-		return
-	}
-	channelID := pollPost.ChannelId
-
-	publicLocalizer := p.getServerLocalizer()
-
+func (p *MatterpollPlugin) postEndPollAnnouncement(channelID, postID, question string) {
 	endPost := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,
 		RootId:    postID,
-		Message: p.LocalizeWithConfig(publicLocalizer, &i18n.LocalizeConfig{
+		Message: p.LocalizeWithConfig(p.getServerLocalizer(), &i18n.LocalizeConfig{
 			DefaultMessage: responseEndPollSuccessfully,
 			TemplateData: map[string]interface{}{
 				"Question": question,
-				"Link":     link,
+				"Link":     fmt.Sprintf("%s/_redirect/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, postID),
 			}}),
 		Type: model.POST_DEFAULT,
 	}
 
-	if _, err = p.API.CreatePost(endPost); err != nil {
-		p.API.LogWarn(endPollAnnouncementPostError, "details", "failed to CreatePost")
+	if _, err := p.API.CreatePost(endPost); err != nil {
+		p.API.LogWarn("Failed to post the end poll announcement", "details", "failed to CreatePost", "error", err.Error())
 	}
 }
 

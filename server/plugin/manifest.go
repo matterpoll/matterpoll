@@ -7,5 +7,5 @@ var manifest = struct {
 	Version string
 }{
 	ID:      "com.github.matterpoll.matterpoll",
-	Version: "1.2.0",
+	Version: "1.3.0",
 }

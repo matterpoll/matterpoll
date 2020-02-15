@@ -3,7 +3,7 @@ package plugin
 import (
 	"testing"
 
-	"github.com/mattermost/mattermost-server/plugin/plugintest"
+	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"

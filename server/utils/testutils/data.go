@@ -1,7 +1,7 @@
 package testutils
 
 import (
-	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/matterpoll/matterpoll/server/poll"
 )
 
@@ -23,13 +23,13 @@ func GetBotUserID() string {
 // GetServerConfig return a static server config.
 func GetServerConfig() *model.Config {
 	siteURL := GetSiteURL()
-	defaultServerLocale := "en"
+	defaultClientLocale := "en"
 	return &model.Config{
 		ServiceSettings: model.ServiceSettings{
 			SiteURL: &siteURL,
 		},
 		LocalizationSettings: model.LocalizationSettings{
-			DefaultServerLocale: &defaultServerLocale,
+			DefaultClientLocale: &defaultClientLocale,
 		},
 	}
 }
