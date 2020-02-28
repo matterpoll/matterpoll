@@ -82,6 +82,8 @@
     "poll.endPost.answer.heading": {
         "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
         "one": "{{.Answer}} ({{.Count}} głos)",
+        "few": "{{.Answer}} ({{.Count}} głosów)",
+        "many": "{{.Answer}} ({{.Count}} głosów)",
         "other": "{{.Answer}} ({{.Count}} głosów)"
     },
     "poll.endPost.seperator": {
