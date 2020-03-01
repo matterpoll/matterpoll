@@ -130,7 +130,7 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	return nil
 }
 
-// getVotedAnswers collect voted answers by a user and returns it as string array
+// getVotedAnswers collect voted answers by a user and returns it as string array.
 func (p *Poll) getVotedAnswers(userID string) ([]string, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("invalid userID")
