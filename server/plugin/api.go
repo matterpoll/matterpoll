@@ -221,7 +221,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 
 	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
 	if appErr != nil {
-		p.API.LogWarn("Failed to check permission", "userID", userID, "error", appErr.Error())
+		p.API.LogWarn("Failed to check admin permission", "userID", userID, "error", appErr.Error())
 		hasAdminPermission = false
 	}
 	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
