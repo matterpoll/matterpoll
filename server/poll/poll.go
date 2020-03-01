@@ -32,7 +32,7 @@ type Settings struct {
 	PublicAddOption bool
 }
 
-// Metadata stores personaized metadata of a poll
+// Metadata stores personaized metadata of a poll.
 type Metadata struct {
 	PollID          string   `json:"poll_id"`
 	UserID          string   `json:"user_id"`
