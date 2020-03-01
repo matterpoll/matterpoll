@@ -146,7 +146,7 @@ func (p *Poll) getVotedAnswers(userID string) ([]string, error) {
 	return votedAnswer, nil
 }
 
-// GetMetadata returns personalized metadata of a poll
+// GetMetadata returns personalized metadata of a poll.
 func (p *Poll) GetMetadata(userID string, permission bool) (*Metadata, error) {
 	answers, err := p.getVotedAnswers(userID)
 	if err != nil {
