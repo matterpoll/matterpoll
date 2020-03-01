@@ -201,7 +201,7 @@ func (p *Poll) Copy() *Poll {
 	return p2
 }
 
-// EncodeToByte returns a Metadata as a byte array
+// EncodeToByte returns a Metadata as a byte array.
 func (v *Metadata) EncodeToByte() []byte {
 	b, _ := json.Marshal(v)
 	return b
