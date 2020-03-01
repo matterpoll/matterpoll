@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	// MatterpollAdminButtonType is action_type of buttons that are used for managing a poll
+	// MatterpollAdminButtonType is action_type of buttons that are used for managing a poll.
 	MatterpollAdminButtonType = "custom_matterpoll_admin_button"
 )
 
