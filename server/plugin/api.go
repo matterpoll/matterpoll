@@ -259,7 +259,10 @@ func (p *MatterpollPlugin) handleCreatePoll(vars map[string]string, request *mod
 		UserId:    p.botUserID,
 		ChannelId: request.ChannelId,
 		RootId:    request.CallbackId,
-		Type:      model.POST_DEFAULT,
+		Type:      MatterpollPostType,
+		Props: map[string]interface{}{
+			"poll_id": poll.ID,
+		},
 	}
 	model.ParseSlackAttachment(post, actions)
 
