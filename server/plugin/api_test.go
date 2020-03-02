@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -1719,7 +1720,7 @@ func TestHandlePollMetadata(t *testing.T) {
 		UserID             string
 		ShouldError        bool
 		ExpectedStatusCode int
-		ExpectedBodyBytes  []byte
+		ExpectedBody       *poll.Metadata
 	}{
 		"Valid request with votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
@@ -1730,12 +1731,12 @@ func TestHandlePollMetadata(t *testing.T) {
 			UserID:             "userID1",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.Metadata{
+			ExpectedBody: (&poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "userID1",
 				AdminPermission: true,
 				VotedAnswers:    []string{"Answer 1"},
-			}).EncodeToByte(),
+			}),
 		},
 		"Valid request without votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1749,12 +1750,12 @@ func TestHandlePollMetadata(t *testing.T) {
 			UserID:             "userID5",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.Metadata{
+			ExpectedBody: (&poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "userID5",
 				AdminPermission: false,
 				VotedAnswers:    []string{},
-			}).EncodeToByte(),
+			}),
 		},
 		"Valid request without votes, HasAdminPermission fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1769,12 +1770,12 @@ func TestHandlePollMetadata(t *testing.T) {
 			UserID:             "userID5",
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedBodyBytes: (&poll.Metadata{
+			ExpectedBody: (&poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "userID5",
 				AdminPermission: false,
 				VotedAnswers:    []string{},
-			}).EncodeToByte(),
+			}),
 		},
 		"Valid request, PollStore.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
@@ -1815,8 +1816,10 @@ func TestHandlePollMetadata(t *testing.T) {
 				assert.Equal([]byte{}, bodyBytes)
 				assert.Equal(http.Header{}, result.Header)
 			} else {
-				assert.Equal(test.ExpectedBodyBytes, bodyBytes)
 				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
+				b, err := json.Marshal(test.ExpectedBody)
+				assert.Nil(err)
+				assert.Equal(b, bodyBytes)
 			}
 		})
 	}

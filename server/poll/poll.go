@@ -3,6 +3,7 @@ package poll
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -206,10 +207,11 @@ func (p *Poll) Copy() *Poll {
 	return p2
 }
 
-// EncodeToByte returns a Metadata as a byte array.
-func (v *Metadata) EncodeToByte() []byte {
+// WriteTo write Metadata to the io.Writer given as an argument
+func (v *Metadata) WriteTo(w io.Writer) error {
 	b, _ := json.Marshal(v)
-	return b
+	_, err := w.Write(b)
+	return err
 }
 
 // ToMap returns a Metadata as a map
