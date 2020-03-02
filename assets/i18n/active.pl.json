@@ -1,135 +1,127 @@
 {
-    "bot.description": {
-        "hash": "sha1-a007d7390f1601bbdc83a397f619335ed591699f",
-        "other": "Poll Bot"
-    },
-    "command.autoComplete.desc": {
-        "hash": "sha1-1cd8e96070c8a1464138423657b6ffef691fab49",
-        "other": "Utwórz sondę"
-    },
-    "command.autoComplete.hint": {
-        "hash": "sha1-7355a4eaa6ce5feb9d4b4c0ed10f3af30101bf41",
-        "other": "\"[Pytanie]\" \"[Odpowiedź 1]\" \"[Odpowiedź 2]\"..."
-    },
-    "command.default.no": {
-        "hash": "sha1-816c52fd2bdd94a63cd0944823a6c0aa9384c103",
-        "other": "Nie"
-    },
-    "command.default.yes": {
-        "hash": "sha1-5397e0583f14f6c88de06b1ef28f460a1fb5b0ae",
-        "other": "Tak"
-    },
-    "command.error.generic": {
-        "hash": "sha1-73c841bf1e817ec2ab09b17eb0b43ec61bf1eda9",
-        "other": "Coś poszło nie tak. Spróbuj później."
-    },
-    "command.error.invalidInput": {
-        "hash": "sha1-6ef073c836a398485967d7c10a085b611d272ddc",
-        "other": "Nieprawidłowy wpis: {{.Error}}"
-    },
-    "command.error.invalidNumberOfOptions": {
-        "hash": "sha1-31287872531872ed11e9ae69975afc1cd2ee09ae",
-        "other": "Musisz podać co najmniej dwie odpowiedzi albo żadnej."
-    },
-    "command.help.text.options": {
-        "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
-        "other": "Możesz dostowować opcje wpisując `/{{.Trigger}} \"Pytanie\" \"Odpowiedź 1\" \"Odpowiedź 2\" \"Odpowiedź 3\"`"
-    },
-    "command.help.text.pollSetting.anonymous": {
-        "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
-        "other": "Nie pokazuj kto na co głosował"
-    },
-    "command.help.text.pollSetting.introduction": {
-        "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
-        "other": "Dodatkowe ustawienia ankiety, np.: `/{{.Trigger}} \"Pytanie\" \"Odpowiedź 1\" \"Odpowiedź 2\" \"Odpowiedź 3\" --progress --anonymous`. Dostępne ustawienia sondy:"
-    },
-    "command.help.text.pollSetting.progress": {
-        "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
-        "other": "Podczas sondy, pokaż ile głosów uzyskała każda odpowiedź."
-    },
-    "command.help.text.pollSetting.public-add-option": {
-        "hash": "sha1-97f6e52cd7135ca4c73b79790a946ead7513cd33",
-        "other": "Zezwalaj użytkownikom na dodanie własnych odpowiedzi."
-    },
-    "command.help.text.simple": {
-        "hash": "sha1-783c9e50cbbd9a11685f41524265201b2e97d369",
-        "other": "Żeby utworzyć sondę z odpowiedziami \"{{.Yes}}\" i \"{{.No}}\" wpisz `/{{.Trigger}} \"Pytanie\"`"
-    },
-    "dialog.addOption.element.displayName": {
-        "hash": "sha1-e31d972229de381b461860014dd710856361917a",
-        "other": "Opcja"
-    },
-    "dialog.addOption.submitLabel": {
-        "hash": "sha1-61cc55aa0453184734c3fa0b621eda6fa874bd83",
-        "other": "Dodaj"
-    },
-    "dialog.addOption.title": {
-        "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
-        "other": "Dodaj opcje"
-    },
-    "poll.button.addOption": {
-        "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
-        "other": "Dodaj opcje"
-    },
-    "poll.button.deletePoll": {
-        "hash": "sha1-390ff4fdd0cfef6ef35fbf067a605aa3ea87ecca",
-        "other": "Usuń sondę"
-    },
-    "poll.button.endPoll": {
-        "hash": "sha1-60ddde386bd7190fa3da2ba13f97e3caa625d3e6",
-        "other": "Zakończ sondę"
-    },
-    "poll.endPost.answer.heading": {
-        "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
-        "one": "{{.Answer}} ({{.Count}} głos)",
-        "other": "{{.Answer}} ({{.Count}} głosów)"
-    },
-    "poll.endPost.seperator": {
-        "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
-        "other": "i"
-    },
-    "poll.endPost.text": {
-        "hash": "sha1-61a7f4e4c5ffd36b1302f820a994f24317cef74f",
-        "other": "Sonda została zakończona. Wyniki:"
-    },
-    "poll.message.pollSettings": {
-        "hash": "sha1-b31a3d90a09c220db0f1bc97bd0ae79eeca4edf1",
-        "other": "**Ustawienia sondy**: {{.Settings}}"
-    },
-    "poll.message.totalVotes": {
-        "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
-        "other": "**Razem głosów**: {{.TotalVotes}}"
-    },
-    "response.addOption.invalidPermission": {
-        "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
-        "other": "Tylko twórca sondy i administratorzy mogą dodać opcje."
-    },
-    "response.addOption.success": {
-        "hash": "sha1-274a82da87d06380a636d43c8aa480f207c7928b",
-        "other": "Pomyślnie dodano opcje."
-    },
-    "response.deletePoll.invalidPermission": {
-        "hash": "sha1-97d4d7bd45a958bc6eea2bd33401a3bc5056cc1d",
-        "other": "Tylko twórca sondy i administratorzy mogą usunąć sondę."
-    },
-    "response.deletePoll.success": {
-        "hash": "sha1-cb754e0331888691ff5e4179b22155fc6df1ac1d",
-        "other": "Pomyślnie usunięto sondę."
-    },
-    "response.endPoll.invalidPermission": {
-        "hash": "sha1-6fec2172c9fbcf6944812318684b19ebda485a82",
-        "other": "Tylko twórca sondy i administratorzy mogą zakończyć sondę."
-    },
-    "response.endPoll.successfully": {
-        "hash": "sha1-255d4b342aeb7c9f2113c3764fb3b7a8d30da27a",
-        "other": "Sonda **{{.Question}}** została zakończona i oryginalny post został zaktualizowany. Możesz przejść do tej wiadomości klikając [tutaj]({{.Link}})."
-    },
-    "response.vote.counted": {
-        "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
-        "other": "Twój głos został policzony."
-    },
-    "response.vote.updated": {
-        "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
-        "other": "Twój głos został zmieniony."
-    }
+  "bot.description": {
+    "hash": "sha1-a007d7390f1601bbdc83a397f619335ed591699f",
+    "other": "Poll Bot"
+  },
+  "command.autoComplete.desc": {
+    "hash": "sha1-1cd8e96070c8a1464138423657b6ffef691fab49",
+    "other": "Utwórz sondę"
+  },
+  "command.autoComplete.hint": {
+    "hash": "sha1-7355a4eaa6ce5feb9d4b4c0ed10f3af30101bf41",
+    "other": "\"[Pytanie]\" \"[Odpowiedź 1]\" \"[Odpowiedź 2]\"..."
+  },
+  "command.default.no": {
+    "hash": "sha1-816c52fd2bdd94a63cd0944823a6c0aa9384c103",
+    "other": "Nie"
+  },
+  "command.default.yes": {
+    "hash": "sha1-5397e0583f14f6c88de06b1ef28f460a1fb5b0ae",
+    "other": "Tak"
+  },
+  "command.error.generic": {
+    "hash": "sha1-73c841bf1e817ec2ab09b17eb0b43ec61bf1eda9",
+    "other": "Coś poszło nie tak. Spróbuj później."
+  },
+  "command.error.invalidInput": {
+    "hash": "sha1-6ef073c836a398485967d7c10a085b611d272ddc",
+    "other": "Nieprawidłowy wpis: {{.Error}}"
+  },
+  "command.error.invalidNumberOfOptions": {
+    "hash": "sha1-31287872531872ed11e9ae69975afc1cd2ee09ae",
+    "other": "Musisz podać co najmniej dwie odpowiedzi albo żadnej."
+  },
+  "command.help.text.options": {
+    "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
+    "other": "Możesz dostowować opcje wpisując `/{{.Trigger}} \"Pytanie\" \"Odpowiedź 1\" \"Odpowiedź 2\" \"Odpowiedź 3\"`"
+  },
+  "command.help.text.pollSetting.introduction": {
+    "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
+    "other": "Dodatkowe ustawienia ankiety, np.: `/{{.Trigger}} \"Pytanie\" \"Odpowiedź 1\" \"Odpowiedź 2\" \"Odpowiedź 3\" --progress --anonymous`. Dostępne ustawienia sondy:"
+  },
+  "command.help.text.pollSetting.progress": {
+    "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
+    "other": "Podczas sondy, pokaż ile głosów uzyskała każda odpowiedź."
+  },
+  "command.help.text.pollSetting.public-add-option": {
+    "hash": "sha1-97f6e52cd7135ca4c73b79790a946ead7513cd33",
+    "other": "Zezwalaj użytkownikom na dodanie własnych odpowiedzi."
+  },
+  "command.help.text.simple": {
+    "hash": "sha1-783c9e50cbbd9a11685f41524265201b2e97d369",
+    "other": "Żeby utworzyć sondę z odpowiedziami \"{{.Yes}}\" i \"{{.No}}\" wpisz `/{{.Trigger}} \"Pytanie\"`"
+  },
+  "dialog.addOption.element.displayName": {
+    "hash": "sha1-e31d972229de381b461860014dd710856361917a",
+    "other": "Opcja"
+  },
+  "dialog.addOption.submitLabel": {
+    "hash": "sha1-61cc55aa0453184734c3fa0b621eda6fa874bd83",
+    "other": "Dodaj"
+  },
+  "dialog.addOption.title": {
+    "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
+    "other": "Dodaj opcje"
+  },
+  "poll.button.addOption": {
+    "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
+    "other": "Dodaj opcje"
+  },
+  "poll.button.deletePoll": {
+    "hash": "sha1-390ff4fdd0cfef6ef35fbf067a605aa3ea87ecca",
+    "other": "Usuń sondę"
+  },
+  "poll.button.endPoll": {
+    "hash": "sha1-60ddde386bd7190fa3da2ba13f97e3caa625d3e6",
+    "other": "Zakończ sondę"
+  },
+  "poll.endPost.answer.heading": {
+    "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
+    "one": "{{.Answer}} ({{.Count}} głos)",
+    "other": "{{.Answer}} ({{.Count}} głosów)"
+  },
+  "poll.endPost.seperator": {
+    "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
+    "other": "i"
+  },
+  "poll.endPost.text": {
+    "hash": "sha1-61a7f4e4c5ffd36b1302f820a994f24317cef74f",
+    "other": "Sonda została zakończona. Wyniki:"
+  },
+  "poll.message.pollSettings": {
+    "hash": "sha1-b31a3d90a09c220db0f1bc97bd0ae79eeca4edf1",
+    "other": "**Ustawienia sondy**: {{.Settings}}"
+  },
+  "poll.message.totalVotes": {
+    "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
+    "other": "**Razem głosów**: {{.TotalVotes}}"
+  },
+  "response.addOption.invalidPermission": {
+    "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
+    "other": "Tylko twórca sondy i administratorzy mogą dodać opcje."
+  },
+  "response.addOption.success": {
+    "hash": "sha1-274a82da87d06380a636d43c8aa480f207c7928b",
+    "other": "Pomyślnie dodano opcje."
+  },
+  "response.deletePoll.invalidPermission": {
+    "hash": "sha1-97d4d7bd45a958bc6eea2bd33401a3bc5056cc1d",
+    "other": "Tylko twórca sondy i administratorzy mogą usunąć sondę."
+  },
+  "response.deletePoll.success": {
+    "hash": "sha1-cb754e0331888691ff5e4179b22155fc6df1ac1d",
+    "other": "Pomyślnie usunięto sondę."
+  },
+  "response.endPoll.invalidPermission": {
+    "hash": "sha1-6fec2172c9fbcf6944812318684b19ebda485a82",
+    "other": "Tylko twórca sondy i administratorzy mogą zakończyć sondę."
+  },
+  "response.vote.counted": {
+    "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
+    "other": "Twój głos został policzony."
+  },
+  "response.vote.updated": {
+    "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
+    "other": "Twój głos został zmieniony."
+  }
 }

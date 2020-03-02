@@ -35,10 +35,6 @@
     "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
     "other": "`/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`のように入力することで、回答をカスタマイズすることができます。"
   },
-  "command.help.text.pollSetting.anonymous": {
-    "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
-    "other": "誰がどこに回答したのか表示しない"
-  },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "投票に関する設定を行うこともできます。例: `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. 利用可能な設定:"
@@ -146,10 +142,6 @@
   "response.endPoll.invalidPermission": {
     "hash": "sha1-6fec2172c9fbcf6944812318684b19ebda485a82",
     "other": "投票の作成者とシステム管理者のみが投票を終了できます。"
-  },
-  "response.endPoll.successfully": {
-    "hash": "sha1-1b6815bb2d4e133557649a1d5b0a20bb2a969560",
-    "other": "投票 **{{.Question}}** が終了し、元の投稿が更新されています。[このリンク]({{.Link}})をクリックして、結果を確認しましょう."
   },
   "response.vote.counted": {
     "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",

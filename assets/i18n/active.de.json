@@ -36,7 +36,7 @@
     "other": "Du kannst Antwortmöglichkeit festlegen, indem du `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\"` eingibst"
   },
   "command.help.text.pollSetting.anonymous": {
-    "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
+    "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
     "other": "Verberge, wer für was gestimmt hat"
   },
   "command.help.text.pollSetting.introduction": {
@@ -66,6 +66,14 @@
   "dialog.addOption.title": {
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "Antwortoption hinzufügen"
+  },
+  "dialog.create.submitLabel": {
+    "hash": "sha1-6e157c5da4410b7e9de85f5c93026b9176e69064",
+    "other": "Erstellen"
+  },
+  "dialog.create.title": {
+    "hash": "sha1-c643db620cf4120486a230ec3e8635d822bba294",
+    "other": "Umfrage erstellen"
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
