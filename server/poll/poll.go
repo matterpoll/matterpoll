@@ -40,7 +40,7 @@ type Settings struct {
 // AdminPermission will be true if the user with "UserID" has admin permission for the poll with "PollID". Otherwise AdminPermission will be false.
 // VotedAnswers is list of answer that the user with "UserID" have voted for the poll with "PollID"
 type Metadata struct {
-	PollID          string   `json:"poll_id"`
+	PollID          string   `json:"poll_id"` // PollID is ID for poll
 	UserID          string   `json:"user_id"`
 	AdminPermission bool     `json:"admin_permission"`
 	VotedAnswers    []string `json:"voted_answers"`
