@@ -77,7 +77,7 @@
   },
   "dialog.createPoll.option": {
     "hash": "sha1-790c56f066138f17e25e3bc55141bafb55eae14b",
-    "other": "Antwortoption {{ .Number }}"
+    "other": "{{ .Number }}. Antwortoption"
   },
   "dialog.createPoll.question": {
     "hash": "sha1-002ff598115d84595ffeee6219cb5c03d3a1d4a6",
