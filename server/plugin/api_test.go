@@ -307,7 +307,7 @@ func TestHandleVote(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return().Maybe()
+				api.On("LogWarn", GetMockArgumentsWithType("string", 7)...).Return().Maybe()
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
 					"poll_id":          testutils.GetPollID(),
 					"user_id":          "userID2",

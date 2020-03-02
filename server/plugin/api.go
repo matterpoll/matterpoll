@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 )
@@ -219,17 +220,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
-	if appErr != nil {
-		p.API.LogWarn("Failed to check admin permission", "userID", userID, "error", appErr.Error())
-		hasAdminPermission = false
-	}
-	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
-	if err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get voted answers")
-	}
-
-	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
+	p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
@@ -240,6 +231,21 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return responseVoteUpdated, post, nil
 	}
 	return responseVoteCounted, post, nil
+}
+
+func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
+	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
+	if appErr != nil {
+		p.API.LogWarn("Failed to check admin permission", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
+		hasAdminPermission = false
+	}
+	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
+	if err != nil {
+		p.API.LogWarn("Failed to get poll metadata", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
+		return
+	}
+
+	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
 }
 
 func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
