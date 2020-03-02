@@ -525,7 +525,7 @@ func (p *MatterpollPlugin) handlePollMetadata(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := metadata.WriteTo(w); err != nil {
+	if _, err := metadata.WriteTo(w); err != nil {
 		p.API.LogWarn("failed to write response", "error", err.Error())
 	}
 }

@@ -208,10 +208,10 @@ func (p *Poll) Copy() *Poll {
 }
 
 // WriteTo write Metadata to the io.Writer given as an argument
-func (v *Metadata) WriteTo(w io.Writer) error {
+func (v *Metadata) WriteTo(w io.Writer) (int64, error) {
 	b, _ := json.Marshal(v)
-	_, err := w.Write(b)
-	return err
+	i, err := w.Write(b)
+	return int64(i), err
 }
 
 // ToMap returns a Metadata as a map
