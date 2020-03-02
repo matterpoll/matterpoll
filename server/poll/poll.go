@@ -34,16 +34,11 @@ type Settings struct {
 }
 
 // Metadata stores personaized metadata of a poll.
-//
-// PollID is ID for poll
-// UserID is ID for user
-// AdminPermission will be true if the user with "UserID" has admin permission for the poll with "PollID". Otherwise AdminPermission will be false.
-// VotedAnswers is list of answer that the user with "UserID" have voted for the poll with "PollID"
 type Metadata struct {
-	PollID          string   `json:"poll_id"` // PollID is ID for poll
+	PollID          string   `json:"poll_id"`
 	UserID          string   `json:"user_id"`
-	AdminPermission bool     `json:"admin_permission"`
-	VotedAnswers    []string `json:"voted_answers"`
+	AdminPermission bool     `json:"admin_permission"` // AdminPermission will be true if the user with "UserID" has admin permission for the poll with "PollID", otherwise false.
+	VotedAnswers    []string `json:"voted_answers"`    // VotedAnswers is list of answer that the user with "UserID" have voted for the poll with "PollID"
 }
 
 // ErrorMessage contains error messsage for a user that can be localized.
