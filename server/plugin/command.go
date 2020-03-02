@@ -103,7 +103,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		}
 
 		if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
-			p.API.LogWarn("failed to open add option dialog", "err", appErr.Error())
+			p.API.LogWarn("failed to open create poll dialog", "err", appErr.Error())
 			return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 		}
 		return "", nil
