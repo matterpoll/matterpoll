@@ -75,6 +75,14 @@
     "hash": "sha1-c643db620cf4120486a230ec3e8635d822bba294",
     "other": "Umfrage erstellen"
   },
+  "dialog.createPoll.option": {
+    "hash": "sha1-790c56f066138f17e25e3bc55141bafb55eae14b",
+    "other": "Antwortoption {{ .Number }}"
+  },
+  "dialog.createPoll.question": {
+    "hash": "sha1-002ff598115d84595ffeee6219cb5c03d3a1d4a6",
+    "other": "Frage"
+  },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
     "other": "Löschen"

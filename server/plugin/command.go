@@ -200,18 +200,28 @@ func (p *MatterpollPlugin) getCommand(trigger string) *model.Command {
 
 func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer) model.Dialog {
 	elements := []model.DialogElement{{
-		DisplayName: "Question",
-		Name:        questionKey,
-		Type:        "text",
-		SubType:     "text",
+		DisplayName: p.LocalizeDefaultMessage(l, &i18n.Message{
+			ID:    "dialog.createPoll.question",
+			Other: "Question",
+		}),
+		Name:    questionKey,
+		Type:    "text",
+		SubType: "text",
 	}}
 	for i := 1; i < 4; i++ {
 		elements = append(elements, model.DialogElement{
-			DisplayName: fmt.Sprintf("Option %v", i),
-			Name:        fmt.Sprintf("option%v", i),
-			Type:        "text",
-			SubType:     "text",
-			Optional:    i > 2,
+			DisplayName: p.LocalizeWithConfig(l, &i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "dialog.createPoll.option",
+					Other: "Option {{ .Number }}",
+				},
+				TemplateData: map[string]interface{}{
+					"Number": i,
+				}}),
+			Name:     fmt.Sprintf("option%v", i),
+			Type:     "text",
+			SubType:  "text",
+			Optional: i > 2,
 		})
 	}
 	elements = append(elements, model.DialogElement{

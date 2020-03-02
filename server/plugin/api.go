@@ -211,13 +211,13 @@ func (p *MatterpollPlugin) handleCreatePoll(vars map[string]string, request *mod
 	var answerOptions []string
 	o1, ok := request.Submission["option1"].(string)
 	if !ok {
-		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", questionKey)
+		return commandErrorGeneric, nil, errors.New("failed to get option1 key")
 	}
 	answerOptions = append(answerOptions, o1)
 
 	o2, ok := request.Submission["option2"].(string)
 	if !ok {
-		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", questionKey)
+		return commandErrorGeneric, nil, errors.New("failed to get option2 key")
 	}
 	answerOptions = append(answerOptions, o2)
 

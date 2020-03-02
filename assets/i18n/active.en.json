@@ -18,6 +18,8 @@
   "dialog.addOption.title": "Add Option",
   "dialog.create.submitLabel": "Create",
   "dialog.create.title": "Create Poll",
+  "dialog.createPoll.option": "Option {{ .Number }}",
+  "dialog.createPoll.question": "Question",
   "dialog.delete.submitLabel": "Delete",
   "dialog.delete.title": "Confirm Poll Delete",
   "dialog.end.submitLabel": "End",
