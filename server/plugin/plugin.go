@@ -2,8 +2,6 @@ package plugin
 
 import (
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
 	"sync"
 
 	"github.com/blang/semver"
@@ -77,7 +75,10 @@ func (p *MatterpollPlugin) OnActivate() error {
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 	}
-	botUserID, appErr := p.Helpers.EnsureBot(bot)
+	options := []plugin.EnsureBotOption{
+		plugin.ProfileImagePath("assets/logo_dark.png"),
+	}
+	botUserID, appErr := p.Helpers.EnsureBot(bot, options...)
 	if appErr != nil {
 		return errors.Wrap(appErr, "failed to ensure bot user")
 	}
@@ -85,10 +86,6 @@ func (p *MatterpollPlugin) OnActivate() error {
 
 	if err = p.patchBotDescription(); err != nil {
 		return errors.Wrap(err, "failed to patch bot description")
-	}
-
-	if err = p.setProfileImage(); err != nil {
-		return errors.Wrap(err, "failed to set profile image")
 	}
 
 	p.router = p.InitAPI()
@@ -141,23 +138,6 @@ func (p *MatterpollPlugin) patchBotDescription() error {
 		return errors.Wrap(appErr, "failed to patch bot")
 	}
 
-	return nil
-}
-
-// setProfileImage set the profile image of the bot account
-func (p *MatterpollPlugin) setProfileImage() error {
-	bundlePath, err := p.API.GetBundlePath()
-	if err != nil {
-		return errors.Wrap(err, "failed to get bundle path")
-	}
-
-	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "logo_dark.png"))
-	if err != nil {
-		return errors.Wrap(err, "failed to read profile image")
-	}
-	if appErr := p.API.SetProfileImage(p.botUserID, profileImage); appErr != nil {
-		return errors.Wrap(appErr, "failed to set profile image")
-	}
 	return nil
 }
 
