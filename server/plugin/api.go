@@ -220,7 +220,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	p.publishPollMetadata(poll, userID)
+	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
