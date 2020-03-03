@@ -76,9 +76,11 @@
     "other": "Zakończ sondę"
   },
   "poll.endPost.answer.heading": {
+    "few": "{{.Answer}} ({{.Count}} głosy)",
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
+    "many": "{{.Answer}} ({{.Count}} głosów)",
     "one": "{{.Answer}} ({{.Count}} głos)",
-    "other": "{{.Answer}} ({{.Count}} głosów)"
+    "other": "{{.Answer}} ({{.Count}} głosu)"
   },
   "poll.endPost.seperator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
