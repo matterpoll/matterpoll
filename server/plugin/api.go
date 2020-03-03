@@ -217,7 +217,7 @@ func (p *MatterpollPlugin) handleCreatePoll(vars map[string]string, request *mod
 
 	o2, ok := request.Submission["option2"].(string)
 	if !ok {
-		return commandErrorGeneric, nil, errors.Errorf("failed to get option1 key. Value is: %v", request.Submission["option2"])
+		return commandErrorGeneric, nil, errors.Errorf("failed to get option2 key. Value is: %v", request.Submission["option2"])
 	}
 	answerOptions = append(answerOptions, o2)
 
