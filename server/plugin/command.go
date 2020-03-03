@@ -108,6 +108,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		}
 		return "", nil
 	}
+
 	if q == "help" {
 		msg := p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextSimple,
@@ -127,6 +128,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 
 		return msg, nil
 	}
+
 	if len(o) == 1 {
 		return "", &model.AppError{
 			Id:         p.LocalizeDefaultMessage(userLocalizer, commandErrorinvalidNumberOfOptions),
