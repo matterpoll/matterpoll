@@ -199,7 +199,7 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 	}
 }
 
-func (p *MatterpollPlugin) handleCreatePoll(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
 	publicLocalizer := p.getServerLocalizer()
 	creatorID := request.UserId
 
