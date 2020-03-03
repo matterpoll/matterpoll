@@ -35,10 +35,6 @@
     "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
     "other": "Vous pouvez personnaliser les options en tapant `/{{.Trigger}} \"Question\" \"Réponse 1\" \"Réponse 2\" \"Réponse 3\"`"
   },
-  "command.help.text.pollSetting.anonymous": {
-    "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
-    "other": "Ne pas montrer qui a voté quoi"
-  },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "Les paramètres du sondage permettent une personnalisation plus poussée, e.g. `/{{.Trigger}} \"Question\" \"Réponse 1\" \"Réponse 2\" \"Réponse 3\" --progress --anonymous`. Les éléments de configuration disponibles sont:"
