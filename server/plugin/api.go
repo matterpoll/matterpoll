@@ -205,19 +205,19 @@ func (p *MatterpollPlugin) handleCreatePoll(vars map[string]string, request *mod
 
 	question, ok := request.Submission[questionKey].(string)
 	if !ok {
-		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", questionKey)
+		return commandErrorGeneric, nil, errors.Errorf("failed to get option1 key. Value is: %v", request.Submission[questionKey])
 	}
 
 	var answerOptions []string
 	o1, ok := request.Submission["option1"].(string)
 	if !ok {
-		return commandErrorGeneric, nil, errors.New("failed to get option1 key")
+		return commandErrorGeneric, nil, errors.Errorf("failed to get option1 key. Value is: %v", request.Submission["option1"])
 	}
 	answerOptions = append(answerOptions, o1)
 
 	o2, ok := request.Submission["option2"].(string)
 	if !ok {
-		return commandErrorGeneric, nil, errors.New("failed to get option2 key")
+		return commandErrorGeneric, nil, errors.Errorf("failed to get option1 key. Value is: %v", request.Submission["option2"])
 	}
 	answerOptions = append(answerOptions, o2)
 
@@ -245,13 +245,13 @@ func (p *MatterpollPlugin) handleCreatePoll(vars map[string]string, request *mod
 		return nil, response, nil
 	}
 
-	if err := p.Store.Poll().Save(poll); err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
-	}
-
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
+	}
+
+	if err := p.Store.Poll().Save(poll); err != nil {
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
 	actions := poll.ToPostActions(publicLocalizer, manifest.ID, displayName)
