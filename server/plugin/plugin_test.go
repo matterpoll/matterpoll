@@ -45,6 +45,7 @@ func TestPluginOnActivate(t *testing.T) {
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 	}
+
 	for name, test := range map[string]struct {
 		SetupAPI     func(*plugintest.API) *plugintest.API
 		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
@@ -62,11 +63,10 @@ func TestPluginOnActivate(t *testing.T) {
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: false,
@@ -79,11 +79,10 @@ func TestPluginOnActivate(t *testing.T) {
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: false,
@@ -139,7 +138,7 @@ func TestPluginOnActivate(t *testing.T) {
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return("", &model.AppError{})
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return("", &model.AppError{})
 				return helpers
 			},
 			ShouldError: true,
@@ -155,24 +154,7 @@ func TestPluginOnActivate(t *testing.T) {
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
-				return helpers
-			},
-			ShouldError: true,
-		},
-		"SetProfileImage fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(&model.AppError{})
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: true,

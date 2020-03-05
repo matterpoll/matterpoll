@@ -66,6 +66,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
 		}
 		actions = append(actions, &model.PostAction{
+			Id:   fmt.Sprintf("vote%v", i),
 			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
@@ -76,24 +77,28 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 
 	actions = append(actions,
 		&model.PostAction{
+			Id:   "addOption",
 			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
 			},
 		}, &model.PostAction{
+			Id:   "deletePoll",
 			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
 			Type: MatterpollAdminButtonType,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
 			},
 		}, &model.PostAction{
+			Id:   "endPoll",
 			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
 			Type: MatterpollAdminButtonType,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
 			},
-		})
+		},
+	)
 
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
