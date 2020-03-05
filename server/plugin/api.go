@@ -115,17 +115,12 @@ func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 
 func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, r *http.Request) {
 	configuration := p.getConfiguration()
-	b, err := json.Marshal(configuration)
-	if err != nil {
-		p.API.LogWarn("failed to decode configuration object.", "error", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+
 	w.Header().Set("Content-Type", "application/json")
-	if _, err = w.Write(b); err != nil {
-		p.API.LogWarn("failed to write response.", "error", err.Error())
+	err := json.NewEncoder(w).Encode(configuration)
+	if err != nil {
+		p.API.LogWarn("failed to write configuration response.", "error", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 }
 
@@ -165,8 +160,10 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		if _, err = w.Write(response.ToJson()); err != nil {
+		err = json.NewEncoder(w).Encode(response)
+		if err != nil {
 			p.API.LogWarn("failed to write PostActionIntegrationResponse", "error", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
 }
@@ -192,8 +189,10 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 
 		if response != nil {
 			w.Header().Set("Content-Type", "application/json")
-			if _, err = w.Write(response.ToJson()); err != nil {
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
 				p.API.LogWarn("failed to write SubmitDialogRequest", "error", err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}
 	}
