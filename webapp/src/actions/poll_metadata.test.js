@@ -2,7 +2,7 @@ import configureStore from 'redux-mock-store';
 
 import ActionTypes from 'action_types';
 
-import {fetchVotedAnswers} from './vote';
+import {fetchPollMetadata} from './poll_metadata';
 
 const promisifyMiddleware = () => (next) => (action) => {
     return new Promise((resolve) => resolve(next(action)));
@@ -28,11 +28,11 @@ describe('test', () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = 'poll_id1';
         const expected = {
-            type: ActionTypes.FETCH_VOTED_ANSWERS,
+            type: ActionTypes.FETCH_POLL_METADATA,
             data: mockSuccessResponse,
         };
 
-        store.dispatch(fetchVotedAnswers(siteUrl, pollId)).
+        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
             then(() => {
                 const actions = store.getActions();
                 expect(actions[0]).toEqual(expected);
@@ -42,7 +42,7 @@ describe('test', () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = undefined; // eslint-disable-line no-undefined
 
-        store.dispatch(fetchVotedAnswers(siteUrl, pollId)).
+        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
             then(() => {
                 const actions = store.getActions();
                 expect(actions.length).toEqual(0);
@@ -52,7 +52,7 @@ describe('test', () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = '';
 
-        store.dispatch(fetchVotedAnswers(siteUrl, pollId)).
+        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
             then(() => {
                 const actions = store.getActions();
                 expect(actions.length).toEqual(0);

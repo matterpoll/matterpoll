@@ -1,6 +1,8 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
+import {ActionButtonType} from 'utils/constants';
+
 import ActionView from 'components/post_type/action_view/action_view';
 
 describe('components/post_type/action_view/ActionView', () => {
@@ -14,22 +16,44 @@ describe('components/post_type/action_view/ActionView', () => {
         },
         attachment: {
             actions: [
-                {id: 'action_id1', name: 'answer1', type: 'button'},
-                {id: 'action_id2', name: 'answer2', type: 'button'},
-                {id: 'action_id3', name: 'answer3', type: 'button'},
+                {id: 'action_id1', name: 'answer1', type: ActionButtonType.BUTTON},
+                {id: 'action_id2', name: 'answer2', type: ActionButtonType.BUTTON},
+                {id: 'action_id3', name: 'answer3', type: ActionButtonType.BUTTON},
+                {id: 'delete', name: 'Delete Poll', type: ActionButtonType.MATTERPOLL_ADMIN_BUTTON},
+                {id: 'end', name: 'EndPoll', type: ActionButtonType.MATTERPOLL_ADMIN_BUTTON},
             ],
         },
-        votedAnswers: {
-            samplepollid1: ['answer1', 'answer2'],
+        pollMetadata: {
+            samplepollid1: {
+                poll_id: samplePollId,
+                user_id: 'user_id1',
+                admin_permission: false,
+                voted_answers: ['answer1', 'answer2'],
+            },
         },
         siteUrl: 'http://localhost:8065',
         actions: {
-            fetchVotedAnswers: jest.fn(),
+            fetchPollMetadata: jest.fn(),
         },
     };
 
     test('should match snapshot', () => {
         const wrapper = shallow(<ActionView {...baseProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+    test('should match snapshot with permission', () => {
+        const newProps = {
+            ...baseProps,
+            pollMetadata: {
+                samplepollid1: {
+                    poll_id: samplePollId,
+                    user_id: 'user_id1',
+                    admin_permission: true,
+                    voted_answers: ['answer1', 'answer2'],
+                },
+            },
+        };
+        const wrapper = shallow(<ActionView {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
     test('should match snapshot without any actions', () => {
@@ -45,8 +69,8 @@ describe('components/post_type/action_view/ActionView', () => {
             ...baseProps,
             attachment: {
                 actions: [
-                    {id: 'action_id1', name: 'answer1', type: 'button'},
-                    {id: 'action_id2', name: 'answer2', type: 'select'},
+                    {id: 'action_id1', name: 'answer1', type: ActionButtonType.BUTTON},
+                    {id: 'action_id2', name: 'answer2', type: ActionButtonType.SELECT},
                 ],
             },
         };
@@ -58,10 +82,10 @@ describe('components/post_type/action_view/ActionView', () => {
             ...baseProps,
             attachment: {
                 actions: [
-                    {id: 'action_id1', name: 'answer1', type: 'button'},
-                    {id: 'action_id2', name: '', type: 'button'},
-                    {id: '', name: 'answer3', type: 'button'},
-                    {id: 'action_id4', name: 'answer4', type: 'button'},
+                    {id: 'action_id1', name: 'answer1', type: ActionButtonType.BUTTON},
+                    {id: 'action_id2', name: '', type: ActionButtonType.BUTTON},
+                    {id: '', name: 'answer3', type: ActionButtonType.BUTTON},
+                    {id: 'action_id4', name: 'answer4', type: ActionButtonType.BUTTON},
                 ],
             },
         };

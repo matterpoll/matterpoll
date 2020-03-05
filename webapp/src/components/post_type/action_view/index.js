@@ -3,8 +3,8 @@ import {bindActionCreators} from 'redux';
 
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
-import {fetchVotedAnswers} from 'actions/vote';
-import {votedAnswers} from 'selector';
+import {fetchPollMetadata} from 'actions/poll_metadata';
+import {pollMetadata} from 'selector';
 
 import ActionView from './action_view';
 
@@ -12,14 +12,14 @@ function mapStateToProps(state) {
     const config = getConfig(state);
     return {
         siteUrl: config.SiteURL,
-        votedAnswers: votedAnswers(state),
+        pollMetadata: pollMetadata(state),
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators({
-            fetchVotedAnswers,
+            fetchPollMetadata,
         }, dispatch),
     };
 }
