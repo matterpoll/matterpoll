@@ -2174,9 +2174,10 @@ func TestHandlePollMetadata(t *testing.T) {
 				assert.Equal(http.Header{}, result.Header)
 			} else {
 				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
-				b, err := json.Marshal(test.ExpectedBody)
+				b := new(bytes.Buffer)
+				err = json.NewEncoder(b).Encode(test.ExpectedBody)
 				assert.Nil(err)
-				assert.Equal(b, bodyBytes)
+				assert.Equal(b.Bytes(), bodyBytes)
 			}
 		})
 	}
