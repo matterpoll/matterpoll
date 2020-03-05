@@ -32,14 +32,6 @@ type Settings struct {
 	PublicAddOption bool
 }
 
-// Metadata stores personaized metadata of a poll.
-type Metadata struct {
-	PollID          string   `json:"poll_id"`
-	UserID          string   `json:"user_id"`
-	AdminPermission bool     `json:"admin_permission"` // AdminPermission will be true if the user with "UserID" has admin permission for the poll with "PollID", otherwise false.
-	VotedAnswers    []string `json:"voted_answers"`    // VotedAnswers is list of answer that the user with "UserID" have voted for the poll with "PollID"
-}
-
 // ErrorMessage contains error messsage for a user that can be localized.
 // It should not be wrapped and instead always returned.
 type ErrorMessage struct {
@@ -199,14 +191,4 @@ func (p *Poll) Copy() *Poll {
 		p2.AnswerOptions[i].Voter = o.Voter
 	}
 	return p2
-}
-
-// ToMap returns a Metadata as a map
-func (v *Metadata) ToMap() map[string]interface{} {
-	return map[string]interface{}{
-		"poll_id":          v.PollID,
-		"user_id":          v.UserID,
-		"admin_permission": v.AdminPermission,
-		"voted_answers":    v.VotedAnswers,
-	}
 }
