@@ -10,15 +10,16 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store"
-	"github.com/matterpoll/matterpoll/server/store/kvstore"
-	"github.com/matterpoll/matterpoll/server/store/mockstore"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/text/language"
+
+	"github.com/matterpoll/matterpoll/server/store"
+	"github.com/matterpoll/matterpoll/server/store/kvstore"
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin { //nolint:interfacer

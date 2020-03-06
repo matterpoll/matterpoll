@@ -8,10 +8,11 @@ import (
 	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestPluginExecuteCommand(t *testing.T) {

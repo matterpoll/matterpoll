@@ -6,10 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 	"golang.org/x/text/language"
+
+	"github.com/matterpoll/matterpoll/server/poll"
 )
 
 // initBundle loads all localization files in i18n into a bundle and return this

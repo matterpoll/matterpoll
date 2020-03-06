@@ -8,11 +8,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/pkg/errors"
+
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/pkg/errors"
 )
 
 // MatterpollPlugin is the object to run the plugin

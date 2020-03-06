@@ -1,11 +1,16 @@
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
 linters-settings:
   goconst:
     min-len: 2
     min-occurrences: 2
   gofmt:
     simplify: true
+  goimports:
+    local-prefixes: github.com/matterpoll/matterpoll
   golint:
-    # minimal confidence for issues, default is 0.8
     min-confidence: 0.0
   govet:
     check-shadowing: true
@@ -16,21 +21,34 @@ linters-settings:
     suggest-new: true
   
 linters:
+  disable-all: true
   enable:
     - bodyclose
+    - deadcode
+    - dogsled
+    - errcheck
     - goconst
     - gocritic
     - gofmt
     - goimports
     - golint
     - gosec
+    - gosimple
+    - govet
+    - ineffassign
     - interfacer
     - maligned
     - misspell
+    - nakedret
     - scopelint
+    - staticcheck
+    - structcheck
     - stylecheck
+    - typecheck
     - unconvert
     - unparam
+    - unused
+    - varcheck
     - whitespace
 
 issues:

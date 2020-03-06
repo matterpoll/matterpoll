@@ -6,10 +6,11 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store/mockstore"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func TestOnConfigurationChange(t *testing.T) {
