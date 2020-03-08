@@ -2,19 +2,18 @@ package plugin
 
 import (
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
 	"sync"
 
 	"github.com/blang/semver"
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/pkg/errors"
+
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/pkg/errors"
 )
 
 // MatterpollPlugin is the object to run the plugin
@@ -43,7 +42,7 @@ var botDescription = &i18n.Message{
 }
 
 const (
-	minimumServerVersion = "5.14.0"
+	minimumServerVersion = "5.20.0"
 
 	botUserName    = "matterpoll"
 	botDisplayName = "Matterpoll"
@@ -77,7 +76,10 @@ func (p *MatterpollPlugin) OnActivate() error {
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 	}
-	botUserID, appErr := p.Helpers.EnsureBot(bot)
+	options := []plugin.EnsureBotOption{
+		plugin.ProfileImagePath("assets/logo_dark.png"),
+	}
+	botUserID, appErr := p.Helpers.EnsureBot(bot, options...)
 	if appErr != nil {
 		return errors.Wrap(appErr, "failed to ensure bot user")
 	}
@@ -85,10 +87,6 @@ func (p *MatterpollPlugin) OnActivate() error {
 
 	if err = p.patchBotDescription(); err != nil {
 		return errors.Wrap(err, "failed to patch bot description")
-	}
-
-	if err = p.setProfileImage(); err != nil {
-		return errors.Wrap(err, "failed to set profile image")
 	}
 
 	p.router = p.InitAPI()
@@ -144,23 +142,6 @@ func (p *MatterpollPlugin) patchBotDescription() error {
 	return nil
 }
 
-// setProfileImage set the profile image of the bot account
-func (p *MatterpollPlugin) setProfileImage() error {
-	bundlePath, err := p.API.GetBundlePath()
-	if err != nil {
-		return errors.Wrap(err, "failed to get bundle path")
-	}
-
-	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "logo_dark.png"))
-	if err != nil {
-		return errors.Wrap(err, "failed to read profile image")
-	}
-	if appErr := p.API.SetProfileImage(p.botUserID, profileImage); appErr != nil {
-		return errors.Wrap(appErr, "failed to set profile image")
-	}
-	return nil
-}
-
 // ConvertUserIDToDisplayName returns the display name to a given user ID
 func (p *MatterpollPlugin) ConvertUserIDToDisplayName(userID string) (string, *model.AppError) {
 	user, err := p.API.GetUser(userID)
@@ -182,8 +163,8 @@ func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (stri
 	return displayName, nil
 }
 
-// HasPermission checks if a given user has the permission to end or delete a given poll
-func (p *MatterpollPlugin) HasPermission(poll *poll.Poll, issuerID string) (bool, *model.AppError) {
+// HasAdminPermission checks if a given user has the admin permission to end or delete a given poll
+func (p *MatterpollPlugin) HasAdminPermission(poll *poll.Poll, issuerID string) (bool, *model.AppError) {
 	if issuerID == poll.Creator {
 		return true, nil
 	}

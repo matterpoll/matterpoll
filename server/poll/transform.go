@@ -8,6 +8,11 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+const (
+	// MatterpollAdminButtonType is action_type of buttons that are used for managing a poll.
+	MatterpollAdminButtonType = "custom_matterpoll_admin_button"
+)
+
 // IDToNameConverter converts a given userID to a human readable name.
 type IDToNameConverter func(userID string) (string, *model.AppError)
 
@@ -65,6 +70,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
 		}
 		actions = append(actions, &model.PostAction{
+			Id:   fmt.Sprintf("vote%v", i),
 			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
@@ -76,6 +82,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 	if p.Settings.MaxVotes > 1 {
 		actions = append(actions,
 			&model.PostAction{
+				Id:   "resetVote",
 				Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonResetVotes}),
 				Type: model.POST_ACTION_TYPE_BUTTON,
 				Integration: &model.PostActionIntegration{
@@ -84,25 +91,30 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 			},
 		)
 	}
-	actions = append(actions, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
+	actions = append(actions,
+		&model.PostAction{
+			Id:   "addOption",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
+			Type: model.POST_ACTION_TYPE_BUTTON,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
+			},
+		}, &model.PostAction{
+			Id:   "deletePoll",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
+			Type: MatterpollAdminButtonType,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
+			},
+		}, &model.PostAction{
+			Id:   "endPoll",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
+			Type: MatterpollAdminButtonType,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
+			},
 		},
-	}, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
-		},
-	}, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
-		},
-	})
+	)
 
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,

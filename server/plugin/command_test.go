@@ -8,10 +8,11 @@ import (
 	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestPluginExecuteCommand(t *testing.T) {
@@ -19,10 +20,63 @@ func TestPluginExecuteCommand(t *testing.T) {
 	const helpText = "To create a poll with the answer options \"Yes\" and \"No\" type `/poll \"Question\"`\n" +
 		"You can customize the options by typing `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
 		"Poll Settings provider further customization, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
-		"- `--anonymous`: Don't show who voted for what\n" +
+		"- `--anonymous`: Don't show who voted for what when the poll ends\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
 		"- `--votes=X`: Allow users to vote for X options"
+	triggerID := model.NewId()
+	rootID := model.NewId()
+
+	createPollDialog := model.OpenDialogRequest{
+		TriggerId: triggerID,
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.ID),
+		Dialog: model.Dialog{
+			CallbackId: rootID,
+			Title:      "Create Poll",
+			IconURL:    fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
+			Elements: []model.DialogElement{{
+				DisplayName: "Question",
+				Name:        "question",
+				Type:        "text",
+				SubType:     "text",
+			}, {
+				DisplayName: "Option 1",
+				Name:        "option1",
+				Type:        "text",
+				SubType:     "text",
+			}, {
+				DisplayName: "Option 2",
+				Name:        "option2",
+				Type:        "text",
+				SubType:     "text",
+			}, {
+				DisplayName: "Option 3",
+				Name:        "option3",
+				Type:        "text",
+				SubType:     "text",
+				Optional:    true,
+			}, {
+				DisplayName: "Anonymous",
+				Name:        "setting-anonymous",
+				Type:        "bool",
+				Placeholder: "Don't show who voted for what when the poll ends",
+				Optional:    true,
+			}, {
+				DisplayName: "Progress",
+				Name:        "setting-progress",
+				Type:        "bool",
+				Placeholder: "During the poll, show how many votes each answer option got",
+				Optional:    true,
+			}, {
+				DisplayName: "Public Add Option",
+				Name:        "setting-public-add-option",
+				Type:        "bool",
+				Placeholder: "Allow all users to add additional options",
+				Optional:    true,
+			}},
+			SubmitLabel: "Create",
+		},
+	}
 
 	for name, test := range map[string]struct {
 		SetupAPI     func(*plugintest.API) *plugintest.API
@@ -32,10 +86,23 @@ func TestPluginExecuteCommand(t *testing.T) {
 		ShouldError  bool
 	}{
 		"No argument": {
-			SetupAPI:     func(api *plugintest.API) *plugintest.API { return api },
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("OpenInteractiveDialog", createPollDialog).Return(nil)
+				return api
+			},
 			SetupStore:   func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:      fmt.Sprintf("/%s", trigger),
-			ExpectedText: helpText,
+			ExpectedText: "",
+		},
+		"No argument, OpenInteractiveDialog fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("OpenInteractiveDialog", createPollDialog).Return(&model.AppError{})
+				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+				return api
+			},
+			SetupStore:   func(store *mockstore.Store) *mockstore.Store { return store },
+			Command:      fmt.Sprintf("/%s", trigger),
+			ExpectedText: commandErrorGeneric.Other,
 		},
 		"Help text": {
 			SetupAPI:     func(api *plugintest.API) *plugintest.API { return api },
@@ -57,7 +124,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
-					RootId:    "postID1",
+					RootId:    rootID,
 					Type:      MatterpollPostType,
 					Props: model.StringInterface{
 						"poll_id": testutils.GetPollID(),
@@ -81,7 +148,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
-					RootId:    "postID1",
+					RootId:    rootID,
 					Type:      MatterpollPostType,
 					Props: model.StringInterface{
 						"poll_id": testutils.GetPollID(),
@@ -108,7 +175,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
-					RootId:    "postID1",
+					RootId:    rootID,
 					Type:      MatterpollPostType,
 					Props: model.StringInterface{
 						"poll_id": testutils.GetPollID(),
@@ -133,7 +200,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
-					RootId:    "postID1",
+					RootId:    rootID,
 					Type:      MatterpollPostType,
 					Props: model.StringInterface{
 						"poll_id": testutils.GetPollID(),
@@ -160,7 +227,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
 					ChannelId: "channelID1",
-					RootId:    "postID1",
+					RootId:    rootID,
 					Type:      MatterpollPostType,
 					Props: model.StringInterface{
 						"poll_id": testutils.GetPollID(),
@@ -239,7 +306,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Command:   test.Command,
 				UserId:    "userID1",
 				ChannelId: "channelID1",
-				RootId:    "postID1",
+				RootId:    rootID,
+				TriggerId: triggerID,
 			})
 
 			assert.Equal(&model.CommandResponse{}, r)

@@ -1,9 +1,10 @@
 package mockstore
 
 import (
+	"github.com/stretchr/testify/mock"
+
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/mockstore/mocks"
-	"github.com/stretchr/testify/mock"
 )
 
 // Store is a mock store

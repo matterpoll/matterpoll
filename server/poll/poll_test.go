@@ -6,10 +6,11 @@ import (
 
 	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/matterpoll/matterpoll/server/poll"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/matterpoll/matterpoll/server/poll"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func TestNewPoll(t *testing.T) {
@@ -541,12 +542,13 @@ func TestResetVotes(t *testing.T) {
 	}
 }
 
-func TestGetVotedAnswer(t *testing.T) {
+func TestGetMetadata(t *testing.T) {
 	for name, test := range map[string]struct {
 		Poll             poll.Poll
 		UserID           string
+		Permission       bool
 		ShouldError      bool
-		ExpectedResponse *poll.VotedAnswerResponse
+		ExpectedResponse *poll.Metadata
 	}{
 		"Voted an Answer": {
 			Poll: poll.Poll{
@@ -557,9 +559,15 @@ func TestGetVotedAnswer(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:           "a",
-			ShouldError:      false,
-			ExpectedResponse: &poll.VotedAnswerResponse{PollID: testutils.GetPollID(), UserID: "a", VotedAnswers: []string{"Answer 1"}},
+			UserID:      "a",
+			Permission:  true,
+			ShouldError: false,
+			ExpectedResponse: &poll.Metadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "a",
+				AdminPermission: true,
+				VotedAnswers:    []string{"Answer 1"},
+			},
 		},
 		"Voted two Answers": {
 			Poll: poll.Poll{
@@ -570,9 +578,15 @@ func TestGetVotedAnswer(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:           "b",
-			ShouldError:      false,
-			ExpectedResponse: &poll.VotedAnswerResponse{PollID: testutils.GetPollID(), UserID: "b", VotedAnswers: []string{"Answer 2", "Answer 3"}},
+			UserID:      "b",
+			Permission:  true,
+			ShouldError: false,
+			ExpectedResponse: &poll.Metadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "b",
+				AdminPermission: true,
+				VotedAnswers:    []string{"Answer 2", "Answer 3"},
+			},
 		},
 		"Voted no Answers": {
 			Poll: poll.Poll{
@@ -583,10 +597,15 @@ func TestGetVotedAnswer(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:           "c",
-			ShouldError:      false,
-			ExpectedResponse: &poll.VotedAnswerResponse{PollID: testutils.GetPollID(), UserID: "c", VotedAnswers: []string{}},
-		},
+			UserID:      "c",
+			Permission:  true,
+			ShouldError: false,
+			ExpectedResponse: &poll.Metadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "c",
+				AdminPermission: true,
+				VotedAnswers:    []string{},
+			}},
 		"Invalid userID": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),
@@ -603,13 +622,13 @@ func TestGetVotedAnswer(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			answers, err := test.Poll.GetVotedAnswer(test.UserID)
+			metadata, err := test.Poll.GetMetadata(test.UserID, test.Permission)
 			if test.ShouldError {
 				assert.NotNil(err)
-				assert.Nil(answers)
+				assert.Nil(metadata)
 			} else {
 				assert.Nil(err)
-				assert.Equal(test.ExpectedResponse, answers)
+				assert.Equal(test.ExpectedResponse, metadata)
 			}
 		})
 	}

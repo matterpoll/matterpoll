@@ -14,12 +14,15 @@ import (
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
+
+	"github.com/matterpoll/matterpoll/server/poll"
 )
 
 const (
 	iconFilename = "logo_dark.png"
 
 	addOptionKey = "answerOption"
+	questionKey  = "question"
 )
 
 type (
@@ -91,6 +94,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	apiV1.Use(checkAuthenticity)
 	apiV1.HandleFunc("/configuration", p.handlePluginConfiguration).Methods(http.MethodGet)
 
+	apiV1.HandleFunc("/polls/create", p.handleSubmitDialogRequest(p.handleCreatePoll)).Methods(http.MethodPost)
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
 	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/votes/reset", p.handlePostActionIntegrationRequest(p.handleResetVotes)).Methods(http.MethodPost)
@@ -100,7 +104,7 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	pollRouter.HandleFunc("/end/confirm", p.handleSubmitDialogRequest(p.handleEndPollConfirm)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/delete", p.handlePostActionIntegrationRequest(p.handleDeletePoll)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/delete/confirm", p.handleSubmitDialogRequest(p.handleDeletePollConfirm)).Methods(http.MethodPost)
-	pollRouter.HandleFunc("/voted", p.handleUserVoted).Methods(http.MethodGet)
+	pollRouter.HandleFunc("/metadata", p.handlePollMetadata).Methods(http.MethodGet)
 	return r
 }
 
@@ -127,17 +131,12 @@ func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 
 func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, r *http.Request) {
 	configuration := p.getConfiguration()
-	b, err := json.Marshal(configuration)
-	if err != nil {
-		p.API.LogWarn("failed to decode configuration object.", "error", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+
 	w.Header().Set("Content-Type", "application/json")
-	if _, err = w.Write(b); err != nil {
-		p.API.LogWarn("failed to write response.", "error", err.Error())
+	err := json.NewEncoder(w).Encode(configuration)
+	if err != nil {
+		p.API.LogWarn("failed to write configuration response.", "error", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 }
 
@@ -177,8 +176,10 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		if _, err = w.Write(response.ToJson()); err != nil {
+		err = json.NewEncoder(w).Encode(response)
+		if err != nil {
 			p.API.LogWarn("failed to write PostActionIntegrationResponse", "error", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
 }
@@ -204,12 +205,89 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 
 		if response != nil {
 			w.Header().Set("Content-Type", "application/json")
-			if _, err = w.Write(response.ToJson()); err != nil {
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
 				p.API.LogWarn("failed to write SubmitDialogRequest", "error", err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}
 	}
 }
+
+func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+	publicLocalizer := p.getServerLocalizer()
+	creatorID := request.UserId
+
+	question, ok := request.Submission[questionKey].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get question key. Value is: %v", request.Submission[questionKey])
+	}
+
+	var answerOptions []string
+	o1, ok := request.Submission["option1"].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get option1 key. Value is: %v", request.Submission["option1"])
+	}
+	answerOptions = append(answerOptions, o1)
+
+	o2, ok := request.Submission["option2"].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get option2 key. Value is: %v", request.Submission["option2"])
+	}
+	answerOptions = append(answerOptions, o2)
+
+	o3, ok := request.Submission["option3"].(string)
+	if ok {
+		answerOptions = append(answerOptions, o3)
+	}
+
+	var settings []string
+	for k, v := range request.Submission {
+		if strings.HasPrefix(k, "setting-") {
+			b, ok := v.(bool)
+			if b && ok {
+				settings = append(settings, strings.TrimPrefix(k, "setting-"))
+			}
+		}
+	}
+
+	userLocalizer := p.getUserLocalizer(creatorID)
+	poll, errMsg := poll.NewPoll(creatorID, question, answerOptions, settings)
+	if errMsg != nil {
+		response := &model.SubmitDialogResponse{
+			Error: p.LocalizeErrorMessage(userLocalizer, errMsg),
+		}
+		return nil, response, nil
+	}
+
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
+	if appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
+	}
+
+	if err := p.Store.Poll().Save(poll); err != nil {
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
+	}
+
+	actions := poll.ToPostActions(publicLocalizer, manifest.ID, displayName)
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: request.ChannelId,
+		RootId:    request.CallbackId,
+		Type:      MatterpollPostType,
+		Props: map[string]interface{}{
+			"poll_id": poll.ID,
+		},
+	}
+	model.ParseSlackAttachment(post, actions)
+
+	if _, appErr = p.API.CreatePost(post); appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to create poll post")
+	}
+
+	return nil, nil, nil
+}
+
 
 func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
 	pollID := vars["id"]
@@ -239,15 +317,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	v, err := poll.GetVotedAnswer(userID)
-	if err != nil {
-		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get voted answers")
-	}
-	p.API.PublishWebSocketEvent("has_voted", map[string]interface{}{
-		"user_id":       v.UserID,
-		"poll_id":       v.PollID,
-		"voted_answers": v.VotedAnswers,
-	}, &model.WebsocketBroadcast{UserId: userID})
+	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
@@ -318,6 +388,21 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	}, post, nil
 }
 
+func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
+	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
+	if appErr != nil {
+		p.API.LogWarn("Failed to check admin permission", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
+		hasAdminPermission = false
+	}
+	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
+	if err != nil {
+		p.API.LogWarn("Failed to get poll metadata", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
+		return
+	}
+
+	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
+}
+
 func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
 	pollID := vars["id"]
 	userLocalizer := p.getUserLocalizer(request.UserId)
@@ -328,11 +413,11 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	}
 
 	if !poll.Settings.PublicAddOption {
-		hasPermission, appErr := p.HasPermission(poll, request.UserId)
+		hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
 		if appErr != nil {
 			return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 		}
-		if !hasPermission {
+		if !hasAdmminPermission {
 			return &i18n.LocalizeConfig{DefaultMessage: responseAddOptionInvalidPermission}, nil, nil
 		}
 	}
@@ -426,11 +511,11 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	hasPermission, appErr := p.HasPermission(poll, request.UserId)
+	hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
 	if appErr != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 	}
-	if !hasPermission {
+	if !hasAdmminPermission {
 		return &i18n.LocalizeConfig{DefaultMessage: responseEndPollInvalidPermission}, nil, nil
 	}
 
@@ -518,11 +603,11 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	hasPermission, appErr := p.HasPermission(poll, request.UserId)
+	hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
 	if appErr != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 	}
-	if !hasPermission {
+	if !hasAdmminPermission {
 		return &i18n.LocalizeConfig{DefaultMessage: responseDeletePollInvalidPermission}, nil, nil
 	}
 
@@ -570,7 +655,7 @@ func (p *MatterpollPlugin) handleDeletePollConfirm(vars map[string]string, reque
 	return responseDeletePollSuccess, nil, nil
 }
 
-func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) handlePollMetadata(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	pollID := vars["id"]
 	userID := r.Header.Get("Mattermost-User-Id")
@@ -582,16 +667,20 @@ func (p *MatterpollPlugin) handleUserVoted(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	v, err := poll.GetVotedAnswer(userID)
+	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
+	if appErr != nil {
+		p.API.LogWarn("Failed to check permission", "userID", userID, "error", appErr.Error())
+		hasAdminPermission = false
+	}
+	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		p.API.LogWarn("Failed to get voted answers", "userID", userID, "error", err.Error())
+		p.API.LogWarn("Failed to get poll metadata", "userID", userID, "error", err.Error())
 		return
 	}
 
-	b := v.EncodeToByte()
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(b); err != nil {
+	if err := json.NewEncoder(w).Encode(metadata); err != nil {
 		p.API.LogWarn("failed to write response", "error", err.Error())
 	}
 }

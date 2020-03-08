@@ -3,8 +3,9 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/matterpoll/matterpoll/server/utils"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/matterpoll/matterpoll/server/utils"
 )
 
 func TestParseInput(t *testing.T) {

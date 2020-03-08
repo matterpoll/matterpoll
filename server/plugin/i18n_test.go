@@ -4,9 +4,10 @@ import (
 	"testing"
 
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
 )
 
 func TestLocalizeDefaultMessage(t *testing.T) {

@@ -10,15 +10,16 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store"
-	"github.com/matterpoll/matterpoll/server/store/kvstore"
-	"github.com/matterpoll/matterpoll/server/store/mockstore"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/text/language"
+
+	"github.com/matterpoll/matterpoll/server/store"
+	"github.com/matterpoll/matterpoll/server/store/kvstore"
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin { //nolint:interfacer
@@ -45,6 +46,7 @@ func TestPluginOnActivate(t *testing.T) {
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 	}
+
 	for name, test := range map[string]struct {
 		SetupAPI     func(*plugintest.API) *plugintest.API
 		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
@@ -62,11 +64,10 @@ func TestPluginOnActivate(t *testing.T) {
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: false,
@@ -79,11 +80,10 @@ func TestPluginOnActivate(t *testing.T) {
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: false,
@@ -139,7 +139,7 @@ func TestPluginOnActivate(t *testing.T) {
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return("", &model.AppError{})
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return("", &model.AppError{})
 				return helpers
 			},
 			ShouldError: true,
@@ -155,24 +155,7 @@ func TestPluginOnActivate(t *testing.T) {
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
-				return helpers
-			},
-			ShouldError: true,
-		},
-		"SetProfileImage fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(&model.AppError{})
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: true,

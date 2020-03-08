@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/mattermost/mattermost-server/v5/plugin"
+
 	"github.com/matterpoll/matterpoll/server/poll"
 )
 
