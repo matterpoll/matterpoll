@@ -263,44 +263,51 @@ func TestPollToPostActions(t *testing.T) {
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: votes=3\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
+					Id:   "vote0",
 					Name: "Answer 1",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Id:   "vote1",
 					Name: "Answer 2",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Id:   "vote2",
 					Name: "Answer 3",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Id:   "resetVote",
 					Name: "Reset Votes",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Id:   "addOption",
 					Name: "Add Option",
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Id:   "deletePoll",
 					Name: "Delete Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
+					Type: poll.MatterpollAdminButtonType,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Id:   "endPoll",
 					Name: "End Poll",
-					Type: model.POST_ACTION_TYPE_BUTTON,
+					Type: poll.MatterpollAdminButtonType,
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},

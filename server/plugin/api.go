@@ -288,7 +288,6 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 	return nil, nil, nil
 }
 
-
 func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
 	pollID := vars["id"]
 	optionNumber, _ := strconv.Atoi(vars["optionNumber"])
@@ -326,7 +325,8 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 
 	if poll.Settings.MaxVotes > 1 {
 		// Multi Answer Mode
-		remains := poll.Settings.MaxVotes - len(v.VotedAnswers)
+		votedAnswers, _ := poll.GetVotedAnswers(userID)
+		remains := poll.Settings.MaxVotes - len(votedAnswers)
 		return &i18n.LocalizeConfig{
 			DefaultMessage: responseVoteUpdatedMulti,
 			TemplateData:   map[string]interface{}{"Remains": remains},
@@ -339,6 +339,21 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return &i18n.LocalizeConfig{DefaultMessage: responseVoteUpdated}, post, nil
 	}
 	return &i18n.LocalizeConfig{DefaultMessage: responseVoteCounted}, post, nil
+}
+
+func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
+	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
+	if appErr != nil {
+		p.API.LogWarn("Failed to check admin permission", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
+		hasAdminPermission = false
+	}
+	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
+	if err != nil {
+		p.API.LogWarn("Failed to get poll metadata", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
+		return
+	}
+
+	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
 }
 
 func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
@@ -355,11 +370,11 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	votes, err := poll.GetVotedAnswer(userID)
+	votedAnswers, err := poll.GetVotedAnswers(userID)
 	if err != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get voted answers")
 	}
-	if len(votes.VotedAnswers) == 0 {
+	if len(votedAnswers) == 0 {
 		return &i18n.LocalizeConfig{DefaultMessage: responseResetVotesNoVotes}, nil, nil
 	}
 
@@ -384,23 +399,8 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 
 	return &i18n.LocalizeConfig{
 		DefaultMessage: responseResetVotes,
-		TemplateData:   map[string]interface{}{"ClearedVotes": strings.Join(votes.VotedAnswers, ", ")},
+		TemplateData:   map[string]interface{}{"ClearedVotes": strings.Join(votedAnswers, ", ")},
 	}, post, nil
-}
-
-func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
-	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
-	if appErr != nil {
-		p.API.LogWarn("Failed to check admin permission", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
-		hasAdminPermission = false
-	}
-	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
-	if err != nil {
-		p.API.LogWarn("Failed to get poll metadata", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
-		return
-	}
-
-	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
 }
 
 func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {

@@ -154,11 +154,11 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 
 	if p.Settings.MaxVotes > 1 {
 		// Multi Answer Mode
-		votedAnswers, err := p.GetVotedAnswer(userID)
+		votedAnswers, err := p.GetVotedAnswers(userID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get existing data")
 		}
-		for _, answers := range votedAnswers.VotedAnswers {
+		for _, answers := range votedAnswers {
 			if answers == p.AnswerOptions[index].Answer {
 				return &i18n.Message{
 					ID:    "poll.updateVote.alreadyVoted",
@@ -167,7 +167,7 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 			}
 		}
 
-		if p.Settings.MaxVotes <= len(votedAnswers.VotedAnswers) {
+		if p.Settings.MaxVotes <= len(votedAnswers) {
 			return &i18n.Message{
 				ID:    "poll.updateVote.maxVotes",
 				Other: "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
@@ -205,8 +205,8 @@ func (p *Poll) ResetVotes(userID string) error {
 	return nil
 }
 
-// getVotedAnswers collect voted answers by a user and returns it as string array.
-func (p *Poll) getVotedAnswers(userID string) ([]string, error) {
+// GetVotedAnswers collect voted answers by a user and returns it as string array.
+func (p *Poll) GetVotedAnswers(userID string) ([]string, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("invalid userID")
 	}
@@ -223,7 +223,7 @@ func (p *Poll) getVotedAnswers(userID string) ([]string, error) {
 
 // GetMetadata returns personalized metadata of a poll.
 func (p *Poll) GetMetadata(userID string, permission bool) (*Metadata, error) {
-	answers, err := p.getVotedAnswers(userID)
+	answers, err := p.GetVotedAnswers(userID)
 	if err != nil {
 		return nil, err
 	}
