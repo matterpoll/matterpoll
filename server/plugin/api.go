@@ -243,7 +243,12 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 
 	var settings []string
 	for k, v := range request.Submission {
-		if strings.HasPrefix(k, "setting-") {
+		if k == "setting-multi" {
+			f, ok := v.(float64)
+			if ok {
+				settings = append(settings, fmt.Sprintf("votes=%d", int(f)))
+			}
+		} else if strings.HasPrefix(k, "setting-") {
 			b, ok := v.(bool)
 			if b && ok {
 				settings = append(settings, strings.TrimPrefix(k, "setting-"))
@@ -386,11 +391,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	p.API.PublishWebSocketEvent("has_voted", map[string]interface{}{
-		"user_id":       userID,
-		"poll_id":       pollID,
-		"voted_answers": []string{},
-	}, &model.WebsocketBroadcast{UserId: userID})
+	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()

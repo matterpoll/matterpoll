@@ -232,6 +232,15 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 			Optional: i > 2,
 		})
 	}
+
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Multi vote",
+		Name:        "setting-multi",
+		Type:        "text",
+		SubType:     "number",
+		HelpText:    "The number of options that an user can vote on. If empty, users are allowed to vote only one option.",
+		Optional:    true,
+	})
 	elements = append(elements, model.DialogElement{
 		DisplayName: "Anonymous",
 		Name:        "setting-anonymous",
