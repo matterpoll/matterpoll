@@ -250,7 +250,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	if err := p.Store.Poll().Save(poll); err != nil {
+	if err := p.Store.Poll().Insert(poll); err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
@@ -288,12 +288,13 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
+	prev := poll.Copy()
 	hasVoted := poll.HasVoted(userID)
 	if err = poll.UpdateVote(userID, optionNumber); err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to update poll")
 	}
 
-	if err = p.Store.Poll().Save(poll); err != nil {
+	if err = p.Store.Poll().Update(prev, poll); err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
@@ -400,6 +401,7 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", addOptionKey)
 	}
 
+	prev := poll.Copy()
 	userLocalizer := p.getUserLocalizer(poll.Creator)
 
 	if errMsg := poll.AddAnswerOption(answerOption); errMsg != nil {
@@ -417,7 +419,7 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
 	}
 
-	if err = p.Store.Poll().Save(poll); err != nil {
+	if err = p.Store.Poll().Update(prev, poll); err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get save poll")
 	}
 
