@@ -26,6 +26,7 @@ The localization process is defined below:
 - German: [@hanzei](https://github.com/hanzei)
 - Japanese: [@kaakaa](https://github.com/kaakaa)
 - Polish: [@burasuk](https://github.com/burasuk)
+- Spanish: [@ernestoittig](https://github.com/ernestoittig)
 
 ### Translation Process for Existing Languages
 
