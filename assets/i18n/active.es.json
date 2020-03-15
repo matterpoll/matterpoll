@@ -162,7 +162,7 @@
   },
   "response.endPoll.invalidPermission": {
     "hash": "sha1-6fec2172c9fbcf6944812318684b19ebda485a82",
-    "other": "Solo el creador de la encuesta y los administradores del sistema pueden terminarla."
+    "other": "Solo el creador de la encuesta y los administradores del sistema tienen permitido terminarla."
   },
   "response.endPoll.successfully": {
     "hash": "sha1-a4fba46ee42d558010f595fec2e1e451cf3d4d73",
