@@ -25,7 +25,7 @@
   },
   "command.error.invalidInput": {
     "hash": "sha1-6ef073c836a398485967d7c10a085b611d272ddc",
-    "other": "Entrada invalida: {{.Error}}"
+    "other": "Entrada inválida: {{.Error}}"
   },
   "command.error.invalidNumberOfOptions": {
     "hash": "sha1-31287872531872ed11e9ae69975afc1cd2ee09ae",
@@ -89,7 +89,7 @@
   },
   "dialog.delete.title": {
     "hash": "sha1-ce46cb787a610361503ef26f2b542a1872919716",
-    "other": "Confirmar eliminacíon de encuesta"
+    "other": "Confirmar eliminación de encuesta"
   },
   "dialog.end.submitLabel": {
     "hash": "sha1-a2bb9d34b8a1a79665858d354585cf147e0dee4e",
@@ -170,7 +170,7 @@
   },
   "response.vote.counted": {
     "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
-    "other": "Su voto a sido contado."
+    "other": "Su voto ha sido contado."
   },
   "response.vote.updated": {
     "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
