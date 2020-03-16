@@ -46,6 +46,7 @@ The currently supported languages are:
 - German
 - Japanese
 - Polish
+- Spanish
 
 
 ## Troubleshooting
