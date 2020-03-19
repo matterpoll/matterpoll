@@ -60,7 +60,9 @@ Let's say you want to translate the local `de`. Replace `de` in the following co
 
 3. Translate all messages in `asserts/i18n/translate.de.json` and rename it to `active.de.json`.
 
-4. [Submit a PR](https://github.com/matterpoll/matterpoll/compare) with this file and add you to the list of [Translation Maintainer](#translation-maintainer)
+4. Add your language to the list of [Supported Languages](https://github.com/matterpoll/matterpoll#localization) in `README.md` and add you to the list of [Translation Maintainer](#translation-maintainers) in `CONTRIBUTING.md`
+
+5. [Submit a PR](https://github.com/matterpoll/matterpoll/compare) with these files, 
 
 
 ## Submitting Patches
