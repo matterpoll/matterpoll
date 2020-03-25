@@ -135,7 +135,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", testutils.GetPollTwoOptions()).Return(nil)
+				store.PollStore.On("Insert", testutils.GetPollTwoOptions()).Return(nil)
 				return store
 			},
 			Command: fmt.Sprintf("/%s \"Question\"", trigger),
@@ -160,7 +160,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", testutils.GetPollTwoOptions()).Return(nil)
+				store.PollStore.On("Insert", testutils.GetPollTwoOptions()).Return(nil)
 				return store
 			},
 			Command:      fmt.Sprintf("/%s \"Question\"", trigger),
@@ -186,7 +186,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", testutils.GetPoll()).Return(nil)
+				store.PollStore.On("Insert", testutils.GetPoll()).Return(nil)
 				return store
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
@@ -213,7 +213,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true})
-				store.PollStore.On("Save", poll).Return(nil)
+				store.PollStore.On("Insert", poll).Return(nil)
 				return store
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
@@ -240,7 +240,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true})
-				store.PollStore.On("Save", poll).Return(nil)
+				store.PollStore.On("Insert", poll).Return(nil)
 				return store
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --anonymous --progress", trigger),
@@ -251,7 +251,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", testutils.GetPoll()).Return(errors.New(""))
+				store.PollStore.On("Insert", testutils.GetPoll()).Return(errors.New(""))
 				return store
 			},
 			Command:      fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
@@ -264,7 +264,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", testutils.GetPoll()).Return(nil)
+				store.PollStore.On("Insert", testutils.GetPoll()).Return(nil)
 				return store
 			},
 			Command:      fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
