@@ -32,9 +32,9 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(int64(1234567890), p.CreatedAt)
 		assert.Equal(creator, p.Creator)
 		assert.Equal(question, p.Question)
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: nil}, p.AnswerOptions[0])
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: nil}, p.AnswerOptions[1])
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: nil}, p.AnswerOptions[2])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: []string{}}, p.AnswerOptions[0])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: []string{}}, p.AnswerOptions[1])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: []string{}}, p.AnswerOptions[2])
 		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true}, p.Settings)
 	})
 	t.Run("error, unknown setting", func(t *testing.T) {
@@ -360,6 +360,7 @@ func TestPollCopy(t *testing.T) {
 		p.Question = "Different question"
 		assert.NotEqual(p.Question, p2.Question)
 		assert.NotEqual(p, p2)
+		assert.Equal(testutils.GetPoll(), p2)
 	})
 	t.Run("change AnswerOptions", func(t *testing.T) {
 		p := testutils.GetPoll()
@@ -368,6 +369,16 @@ func TestPollCopy(t *testing.T) {
 		p.AnswerOptions[0].Answer = "abc"
 		assert.NotEqual(p.AnswerOptions[0].Answer, p2.AnswerOptions[0].Answer)
 		assert.NotEqual(p, p2)
+		assert.Equal(testutils.GetPoll(), p2)
+	})
+	t.Run("change Voter", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+		p2 := p.Copy()
+
+		err := p.UpdateVote("userID1", 0)
+		require.Nil(t, err)
+		assert.NotEqual(p, p2)
+		assert.Equal(testutils.GetPollWithVotes(), p2)
 	})
 	t.Run("change Settings", func(t *testing.T) {
 		p := testutils.GetPoll()
@@ -376,5 +387,6 @@ func TestPollCopy(t *testing.T) {
 		p.Settings.Progress = true
 		assert.NotEqual(p.Settings.Progress, p2.Settings.Progress)
 		assert.NotEqual(p, p2)
+		assert.Equal(testutils.GetPoll(), p2)
 	})
 }
