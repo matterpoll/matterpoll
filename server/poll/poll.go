@@ -99,7 +99,11 @@ func (p *Poll) AddAnswerOption(newAnswerOption string) *ErrorMessage {
 			}
 		}
 	}
-	p.AnswerOptions = append(p.AnswerOptions, &AnswerOption{Answer: newAnswerOption})
+	ao := &AnswerOption{
+		Answer: newAnswerOption,
+		Voter:  []string{},
+	}
+	p.AnswerOptions = append(p.AnswerOptions, ao)
 	return nil
 }
 
@@ -180,7 +184,7 @@ func DecodePollFromByte(b []byte) *Poll {
 	return &p
 }
 
-// Copy deep copys a poll
+// Copy deep copies a poll
 func (p *Poll) Copy() *Poll {
 	p2 := new(Poll)
 	*p2 = *p
@@ -188,7 +192,13 @@ func (p *Poll) Copy() *Poll {
 	for i, o := range p.AnswerOptions {
 		p2.AnswerOptions[i] = new(AnswerOption)
 		p2.AnswerOptions[i].Answer = o.Answer
-		p2.AnswerOptions[i].Voter = o.Voter
+		// Only copy Voter if they are nil to ensure the new poll is an exact copy.
+		// Please note that polls fetched from the DB might have a nil value,
+		// hence we have to still think about this case in the future.
+		if o.Voter != nil {
+			p2.AnswerOptions[i].Voter = make([]string, len(o.Voter))
+			copy(p2.AnswerOptions[i].Voter, o.Voter)
+		}
 	}
 	return p2
 }
