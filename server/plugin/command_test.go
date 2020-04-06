@@ -56,6 +56,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 				SubType:     "text",
 				Optional:    true,
 			}, {
+				DisplayName: "Multi vote",
+				Name:        "setting-multi",
+				Type:        "text",
+				SubType:     "number",
+				HelpText:    "The number of options that an user can vote on. If empty, users are allowed to vote only one option.",
+				Optional:    true,
+			}, {
 				DisplayName: "Anonymous",
 				Name:        "setting-anonymous",
 				Type:        "bool",

@@ -660,8 +660,8 @@ func TestHandleVote(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll3In, nil)
-				store.PollStore.On("Save", poll3Out).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll3In.Copy(), nil)
+				store.PollStore.On("Update", poll3In, poll3Out).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
@@ -682,8 +682,8 @@ func TestHandleVote(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll4In, nil)
-				store.PollStore.On("Save", poll4Out).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll4In.Copy(), nil)
+				store.PollStore.On("Update", poll4In, poll4Out).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -910,7 +910,7 @@ func TestResetVotes(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll, nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll.Copy(), nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -922,15 +922,16 @@ func TestResetVotes(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"poll_id":       testutils.GetPollID(),
-					"user_id":       "userID1",
-					"voted_answers": []string{},
+					"admin_permission": true,
+					"poll_id":          testutils.GetPollID(),
+					"user_id":          "userID1",
+					"voted_answers":    []string{},
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll2WithVotes, nil)
-				store.PollStore.On("Save", poll).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll2WithVotes.Copy(), nil)
+				store.PollStore.On("Update", poll2WithVotes, poll).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -942,15 +943,16 @@ func TestResetVotes(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"poll_id":       testutils.GetPollID(),
-					"user_id":       "userID1",
-					"voted_answers": []string{},
+					"admin_permission": true,
+					"poll_id":          testutils.GetPollID(),
+					"user_id":          "userID1",
+					"voted_answers":    []string{},
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll3WithVotes, nil)
-				store.PollStore.On("Save", poll).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll3WithVotes.Copy(), nil)
+				store.PollStore.On("Update", poll3WithVotes, poll).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -978,7 +980,7 @@ func TestResetVotes(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll, nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll.Copy(), nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -992,7 +994,7 @@ func TestResetVotes(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll, nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll.Copy(), nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -1006,8 +1008,8 @@ func TestResetVotes(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll4WithVotes, nil)
-				store.PollStore.On("Save", poll).Return(&model.AppError{})
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll4WithVotes.Copy(), nil)
+				store.PollStore.On("Update", poll4WithVotes, poll).Return(&model.AppError{})
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
