@@ -163,7 +163,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		return "", appErr
 	}
 
-	if err := p.Store.Poll().Save(newPoll); err != nil {
+	if err := p.Store.Poll().Insert(newPoll); err != nil {
 		p.API.LogWarn("failed to save poll", "error", err.Error())
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}

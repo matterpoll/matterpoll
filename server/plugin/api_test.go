@@ -178,7 +178,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
 
 		w := httptest.NewRecorder()
-		url := fmt.Sprintf("/api/v1/polls/create")
+		url := "/api/v1/polls/create"
 		body := bytes.NewReader(request.ToJson())
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
@@ -243,7 +243,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", pollWithTwoOptions).Return(nil)
+				store.PollStore.On("Insert", pollWithTwoOptions).Return(nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -267,7 +267,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", expectedPoll).Return(nil)
+				store.PollStore.On("Insert", expectedPoll).Return(nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -292,7 +292,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", pollWithSettings).Return(nil)
+				store.PollStore.On("Insert", pollWithSettings).Return(nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -428,7 +428,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", pollWithTwoOptions).Return(errors.New(""))
+				store.PollStore.On("Insert", pollWithTwoOptions).Return(errors.New(""))
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -452,7 +452,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Save", pollWithTwoOptions).Return(nil)
+				store.PollStore.On("Insert", pollWithTwoOptions).Return(nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -615,8 +615,8 @@ func TestHandleVote(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll1In, nil)
-				store.PollStore.On("Save", poll1Out).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll1In.Copy(), nil)
+				store.PollStore.On("Update", poll1In, poll1Out).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -637,8 +637,8 @@ func TestHandleVote(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll2In, nil)
-				store.PollStore.On("Save", poll2Out).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll2In.Copy(), nil)
+				store.PollStore.On("Update", poll2In, poll2Out).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -719,8 +719,8 @@ func TestHandleVote(t *testing.T) {
 				require.Nil(t, msg)
 				require.Nil(t, err)
 
-				store.PollStore.On("Get", testutils.GetPollID()).Return(pollIn, nil)
-				store.PollStore.On("Save", pollOut).Return(&model.AppError{})
+				store.PollStore.On("Get", testutils.GetPollID()).Return(pollIn.Copy(), nil)
+				store.PollStore.On("Update", pollIn, pollOut).Return(&model.AppError{})
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
@@ -743,8 +743,8 @@ func TestHandleVote(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll5In, nil)
-				store.PollStore.On("Save", poll5Out).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll5In.Copy(), nil)
+				store.PollStore.On("Update", poll5In, poll5Out).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
@@ -1326,8 +1326,8 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
-				store.PollStore.On("Save", poll1Out).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll1In.Copy(), nil)
+				store.PollStore.On("Update", poll1In, poll1Out).Return(nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -1485,8 +1485,8 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
-				store.PollStore.On("Save", poll1Out).Return(errors.New(""))
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll1In.Copy(), nil)
+				store.PollStore.On("Update", poll1In, poll1Out).Return(errors.New(""))
 				return store
 			},
 			Request: &model.SubmitDialogRequest{

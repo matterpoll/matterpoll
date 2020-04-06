@@ -42,11 +42,16 @@ func GetPoll() *poll.Poll {
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
-		AnswerOptions: []*poll.AnswerOption{
-			{Answer: "Answer 1"},
-			{Answer: "Answer 2"},
-			{Answer: "Answer 3"},
-		},
+		AnswerOptions: []*poll.AnswerOption{{
+			Answer: "Answer 1",
+			Voter:  []string{},
+		}, {
+			Answer: "Answer 2",
+			Voter:  []string{},
+		}, {
+			Answer: "Answer 3",
+			Voter:  []string{},
+		}},
 		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
@@ -65,13 +70,16 @@ func GetPollWithVotes() *poll.Poll {
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
-		AnswerOptions: []*poll.AnswerOption{
-			{Answer: "Answer 1",
-				Voter: []string{"userID1", "userID2", "userID3"}},
-			{Answer: "Answer 2",
-				Voter: []string{"userID4"}},
-			{Answer: "Answer 3"},
-		},
+		AnswerOptions: []*poll.AnswerOption{{
+			Answer: "Answer 1",
+			Voter:  []string{"userID1", "userID2", "userID3"},
+		}, {
+			Answer: "Answer 2",
+			Voter:  []string{"userID4"},
+		}, {
+			Answer: "Answer 3",
+			Voter:  []string{},
+		}},
 		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
@@ -90,10 +98,13 @@ func GetPollTwoOptions() *poll.Poll {
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
-		AnswerOptions: []*poll.AnswerOption{
-			{Answer: "Yes"},
-			{Answer: "No"},
-		},
+		AnswerOptions: []*poll.AnswerOption{{
+			Answer: "Yes",
+			Voter:  []string{},
+		}, {
+			Answer: "No",
+			Voter:  []string{},
+		}},
 		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
