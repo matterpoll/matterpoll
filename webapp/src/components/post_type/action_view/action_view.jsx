@@ -46,11 +46,15 @@ export default class ActionView extends React.PureComponent {
      * @param {object} metadata metadata for poll
      * @return {boolean} voted or not
      */
-    hasVoted(name, metadata) {
-        if (!metadata.voted_answers) {
+    hasVoted(action, metadata) {
+        if (this.isAddOptionAction(action) || !metadata.voted_answers) {
             return false
         }
-        return metadata.voted_answers.indexOf(name) >= 0;
+        return metadata.voted_answers.indexOf(action.name) >= 0;
+    }
+
+    isAddOptionAction(action) {
+        return action && (action.id === 'addOption');
     }
 
     render() {
@@ -69,7 +73,7 @@ export default class ActionView extends React.PureComponent {
             forEach((action) => {
                 switch (action.type) {
                 case ActionButtonType.BUTTON:
-                    if (action.id === 'addOption' && !this.hasPermissionForAddOption(metadata)) {
+                    if (this.isAddOptionAction(action) && !this.hasPermissionForAddOption(metadata)) {
                         // skip to add the button for addOption if the user doesn't have permission for adding options
                         break;
                     }
@@ -78,7 +82,7 @@ export default class ActionView extends React.PureComponent {
                             key={action.id}
                             action={action}
                             postId={this.props.post.id}
-                            hasVoted={this.hasVoted(action.name, metadata)}
+                            hasVoted={this.hasVoted(action, metadata)}
                         />
                     );
                     break;
