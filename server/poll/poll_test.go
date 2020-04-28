@@ -60,6 +60,21 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: []string{}}, p.AnswerOptions[2])
 		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 1}, p.Settings)
 	})
+	t.Run("error, invalid votes setting", func(t *testing.T) {
+		assert := assert.New(t)
+		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
+		patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
+		defer patch1.Unpatch()
+		defer patch2.Unpatch()
+
+		creator := model.NewRandomString(10)
+		question := model.NewRandomString(10)
+		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
+		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress", "public-add-option", "votes=4"})
+
+		assert.Nil(p)
+		assert.NotNil(err)
+	})
 	t.Run("error, unknown setting", func(t *testing.T) {
 		assert := assert.New(t)
 

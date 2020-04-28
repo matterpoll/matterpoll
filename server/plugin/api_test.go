@@ -216,7 +216,7 @@ func TestHandleCreatePoll(t *testing.T) {
 	}
 	model.ParseSlackAttachment(expectedPostTwoOptions, pollWithTwoOptions.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe"))
 
-	pollWithSettings := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, PublicAddOption: true, MaxVotes: 1})
+	pollWithSettings := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, PublicAddOption: true, MaxVotes: 3})
 	expectedPostWithSettings := &model.Post{
 		UserId:    testutils.GetBotUserID(),
 		ChannelId: channelID,
@@ -304,6 +304,7 @@ func TestHandleCreatePoll(t *testing.T) {
 					"option1":                   pollWithSettings.AnswerOptions[0].Answer,
 					"option2":                   pollWithSettings.AnswerOptions[1].Answer,
 					"option3":                   pollWithSettings.AnswerOptions[2].Answer,
+					"setting-multi":             3,
 					"setting-anonymous":         true,
 					"setting-progress":          true,
 					"setting-public-add-option": true,
@@ -587,12 +588,20 @@ func TestHandleVote(t *testing.T) {
 	model.ParseSlackAttachment(expectedPost4, poll4Out.ToPostActions(localizer, manifest.ID, "John Doe"))
 
 	poll5In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 2})
-	poll5Out := poll5In.Copy()
-	msg, err = poll5Out.UpdateVote("userID2", 1)
+	msg, err = poll5In.UpdateVote("userID1", 0)
 	require.Nil(t, msg)
 	require.Nil(t, err)
-	expectedPost5 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost5, poll5Out.ToPostActions(localizer, manifest.ID, "John Doe"))
+	msg, err = poll5In.UpdateVote("userID1", 1)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+
+	poll6In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 2})
+	poll6Out := poll6In.Copy()
+	msg, err = poll6Out.UpdateVote("userID2", 1)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	expectedPost6 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost6, poll6Out.ToPostActions(localizer, manifest.ID, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -692,6 +701,21 @@ func TestHandleVote(t *testing.T) {
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost4},
 			ExpectedMsg:        "Your vote has been counted. You have 0 votes left.",
 		},
+		"Valid request, with multi setting, over the max": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll5In.Copy(), nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			VoteIndex:          2,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{},
+			ExpectedMsg:        "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
+		},
 		"Valid request, PollStore.Get fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
@@ -743,14 +767,14 @@ func TestHandleVote(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll5In.Copy(), nil)
-				store.PollStore.On("Update", poll5In, poll5Out).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll6In.Copy(), nil)
+				store.PollStore.On("Update", poll6In, poll6Out).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost5},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost6},
 			ExpectedMsg:        "Your vote has been counted. You have 1 vote left.",
 		},
 		"Invalid index": {
@@ -843,7 +867,7 @@ func TestHandleVote(t *testing.T) {
 	}
 }
 
-func TestResetVotes(t *testing.T) {
+func TestHandleResetVotes(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
