@@ -48,7 +48,7 @@ export default class ActionView extends React.PureComponent {
      */
     hasVoted(action, metadata) {
         if (this.isAddOptionAction(action) || !metadata.voted_answers) {
-            return false
+            return false;
         }
         return metadata.voted_answers.indexOf(action.name) >= 0;
     }

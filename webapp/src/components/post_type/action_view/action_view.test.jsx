@@ -26,10 +26,10 @@ describe('components/post_type/action_view/ActionView', () => {
         },
         pollMetadata: {
             samplepollid1: {
+                voted_answers: ['answer1', 'answer2'],
                 poll_id: samplePollId,
                 user_id: 'user_id1',
                 admin_permission: false,
-                voted_answers: ['answer1', 'answer2'],
                 setting_public_add_option: false,
             },
         },
@@ -48,10 +48,10 @@ describe('components/post_type/action_view/ActionView', () => {
             ...baseProps,
             pollMetadata: {
                 samplepollid1: {
+                    voted_answers: ['answer1', 'answer2'],
                     poll_id: samplePollId,
                     user_id: 'user_id1',
                     admin_permission: true,
-                    voted_answers: ['answer1', 'answer2'],
                 },
             },
         };

@@ -17,10 +17,10 @@ func TestToMap(t *testing.T) {
 	}
 
 	expectedMap := map[string]interface{}{
+		"voted_answers":             []string(nil),
 		"poll_id":                   "pollID",
 		"user_id":                   "userID",
 		"admin_permission":          true,
-		"voted_answers":             []string(nil),
 		"setting_public_add_option": true,
 	}
 	assert.Equal(t, expectedMap, m.ToMap())
