@@ -21,6 +21,38 @@ export default class ActionView extends React.PureComponent {
         this.props.actions.fetchPollMetadata(this.props.siteUrl, this.props.post.props.poll_id);
     }
 
+    /**
+     * return true if the user has permission for adding option. if not, return false.
+     * In details, return true in the following cases
+     * - '--public-add-option' is set
+     * or
+     * - '--public-add-option' is NOT set AND has admin permission
+     * @param {object} metadata metadata for poll
+     * @return {boolean} which or not the button for add option display
+     */
+    hasPermissionForAddOption(metadata) {
+        if (!metadata) {
+            return false;
+        }
+        if (metadata.setting_public_add_options === true) {
+            return true;
+        }
+        return metadata.admin_permission;
+    }
+
+    /**
+     * return true if the user has already voted the option named by `name`.
+     * @param {string} name
+     * @param {object} metadata metadata for poll
+     * @return {boolean} voted or not
+     */
+    hasVoted(name, metadata) {
+        if (!metadata.voted_answers) {
+            return false
+        }
+        return metadata.voted_answers.indexOf(name) >= 0;
+    }
+
     render() {
         const actions = this.props.attachment.actions;
         if (!actions || !actions.length) {
@@ -37,12 +69,16 @@ export default class ActionView extends React.PureComponent {
             forEach((action) => {
                 switch (action.type) {
                 case ActionButtonType.BUTTON:
+                    if (action.id === 'addOption' && !this.hasPermissionForAddOption(metadata)) {
+                        // skip to add the button for addOption if the user doesn't have permission for adding options
+                        break;
+                    }
                     content.push(
                         <ActionButton
                             key={action.id}
                             action={action}
                             postId={this.props.post.id}
-                            hasVoted={metadata.voted_answers && (metadata.voted_answers.indexOf(action.name) >= 0)}
+                            hasVoted={this.hasVoted(action.name, metadata)}
                         />
                     );
                     break;

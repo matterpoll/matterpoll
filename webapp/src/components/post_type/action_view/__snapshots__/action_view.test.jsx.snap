@@ -149,6 +149,18 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
       key="action_id3"
       postId="post_id"
     />
+    <Connect(ActionButton)
+      action={
+        Object {
+          "id": "addOption",
+          "name": "Add option",
+          "type": "button",
+        }
+      }
+      hasVoted={false}
+      key="addOption"
+      postId="post_id"
+    />
   </div>
   <div
     className="attachment-actions"
@@ -156,25 +168,25 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
     <Connect(ActionButton)
       action={
         Object {
-          "id": "delete",
+          "id": "deletePoll",
           "name": "Delete Poll",
           "type": "custom_matterpoll_admin_button",
         }
       }
       hasVoted={false}
-      key="delete"
+      key="deletePoll"
       postId="post_id"
     />
     <Connect(ActionButton)
       action={
         Object {
-          "id": "end",
-          "name": "EndPoll",
+          "id": "endPoll",
+          "name": "End Poll",
           "type": "custom_matterpoll_admin_button",
         }
       }
       hasVoted={false}
-      key="end"
+      key="endPoll"
       postId="post_id"
     />
   </div>
