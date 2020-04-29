@@ -34,7 +34,7 @@ export default class ActionView extends React.PureComponent {
         if (!metadata) {
             return false;
         }
-        if (metadata.setting_public_add_options === true) {
+        if (metadata.setting_public_add_option === true) {
             return true;
         }
         return metadata.admin_permission;
