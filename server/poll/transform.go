@@ -54,6 +54,18 @@ var (
 	}
 )
 
+// TOOD
+func (p *Poll) ToProps(localizer *i18n.Localizer, pluginID string, convert IDToNameConverter) map[string]interface{} {
+	props := make(map[string]interface{})
+
+	creatorName, _ := convert(p.Creator)
+	props["poll_id"] = p.ID
+	props["attachments"] = p.ToPostActions(localizer, pluginID, creatorName)
+	props["card"] = p.ToCard(localizer, convert)
+
+	return props
+}
+
 // ToPostActions returns the poll as a message
 func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName string) []*model.SlackAttachment {
 	numberOfVotes := 0
@@ -178,4 +190,40 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 	model.ParseSlackAttachment(post, attachments)
 
 	return post, nil
+}
+
+// ToPostActions returns the poll as a message
+func (p *Poll) ToCard(localizer *i18n.Localizer, convert IDToNameConverter) string {
+	s := fmt.Sprintf("# %s\n", p.Question)
+
+	creatorName, _ := convert(p.Creator)
+	s += fmt.Sprintf("Created by %s\n", creatorName)
+
+	for _, o := range p.AnswerOptions {
+		var voter string
+		if !p.Settings.Anonymous {
+			for i := 0; i < len(o.Voter); i++ {
+				displayName, err := convert(o.Voter[i])
+				if err != nil {
+					return ""
+				}
+				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
+					voter += " " + localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
+				} else if i != 0 {
+					voter += ", "
+				}
+				voter += displayName
+			}
+		}
+
+		s += "### " + localizer.MustLocalize(&i18n.LocalizeConfig{
+			DefaultMessage: pollEndPostAnswerHeading,
+			TemplateData: map[string]interface{}{
+				"Answer": o.Answer,
+				"Count":  len(o.Voter),
+			},
+			PluralCount: len(o.Voter),
+		}) + "\n" + voter + "\n"
+	}
+	return s
 }

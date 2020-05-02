@@ -177,6 +177,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		Type:      MatterpollPostType,
 		Props: map[string]interface{}{
 			"poll_id": newPoll.ID,
+			"card":    newPoll.ToCard(publicLocalizer, p.ConvertUserIDToDisplayName),
 		},
 	}
 	model.ParseSlackAttachment(post, actions)
