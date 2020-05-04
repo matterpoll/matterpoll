@@ -149,10 +149,11 @@ func (p *Poll) GetMetadata(userID string, permission bool) (*Metadata, error) {
 		return nil, err
 	}
 	return &Metadata{
-		PollID:          p.ID,
-		UserID:          userID,
-		AdminPermission: permission,
-		VotedAnswers:    answers,
+		PollID:                 p.ID,
+		UserID:                 userID,
+		AdminPermission:        permission,
+		VotedAnswers:           answers,
+		SettingPublicAddOption: p.Settings.PublicAddOption,
 	}, nil
 }
 

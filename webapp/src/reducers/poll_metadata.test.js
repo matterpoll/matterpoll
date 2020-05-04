@@ -3,17 +3,19 @@ import {pollMetadata} from 'reducers/poll_metadata';
 
 const initialState = {
     poll_id1: {
+        voted_answers: ['answer1'],
         user_id: 'user_id1',
         poll_id: 'poll_id1',
         admin_permission: false,
-        voted_answers: ['answer1'],
+        setting_public_add_option: false,
     },
 };
 const additionalState = {
+    voted_answers: [],
     user_id: 'user_id1',
     poll_id: 'poll_id2',
     admin_permission: true,
-    voted_answers: [],
+    setting_public_add_option: false,
 };
 
 describe('vote reducers', () => {
@@ -30,10 +32,11 @@ describe('vote reducers', () => {
                 {
                     type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
+                        voted_answers: [],
                         user_id: 'user_id1',
                         poll_id: 'poll_id2',
                         admin_permission: true,
-                        voted_answers: [],
+                        setting_public_add_option: false,
                     },
                 },
             ),
@@ -52,10 +55,11 @@ describe('vote reducers', () => {
                 {
                     type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
+                        voted_answers: ['answer1', 'answer2'],
                         user_id: 'user_id1',
                         poll_id: 'poll_id1',
                         admin_permission: false,
-                        voted_answers: ['answer1', 'answer2'],
+                        setting_public_add_option: false,
                     },
                 },
             ),
@@ -68,10 +72,11 @@ describe('vote reducers', () => {
                 {
                     type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
+                        voted_answers: ['answer1', 'answer2'],
                         user_id: 'user_id1',
                         poll_id: '',
                         admin_permission: false,
-                        voted_answers: ['answer1', 'answer2'],
+                        setting_public_add_option: false,
                     },
                 },
             ),
