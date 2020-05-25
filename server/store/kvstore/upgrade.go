@@ -3,7 +3,7 @@ package kvstore
 import (
 	"fmt"
 
-	"github.com/blang/semver"
+	"github.com/blang/semver/v4"
 )
 
 type upgrade struct {
