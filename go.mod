@@ -6,7 +6,7 @@ require (
 	bou.ke/monkey v1.0.2
 	github.com/blang/semver/v4 v4.0.0
 	github.com/gorilla/mux v1.7.4
-	github.com/mattermost/mattermost-server/v5 v5.22.0-rc1
+	github.com/mattermost/mattermost-server/v5 v5.23.0
 	github.com/nicksnyder/go-i18n/v2 v2.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.5.1
