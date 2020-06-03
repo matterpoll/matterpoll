@@ -238,12 +238,13 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-multi",
 		Type:        "text",
 		SubType:     "number",
+		Default:     "1",
 		HelpText: p.LocalizeWithConfig(l, &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "dialog.createPoll.setting.multi",
-				Other: "The number of options that an user can vote on. If empty, users are allowed to vote only one option.",
+				Other: "The number of options that an user can vote on.",
 			}}),
-		Optional: true,
+		Optional: false,
 	})
 	elements = append(elements, model.DialogElement{
 		DisplayName: "Anonymous",
