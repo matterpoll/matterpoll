@@ -380,6 +380,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	if err != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get voted answers")
 	}
+	
 	if len(votedAnswers) == 0 {
 		return &i18n.LocalizeConfig{DefaultMessage: responseResetVotesNoVotes}, nil, nil
 	}
