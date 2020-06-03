@@ -125,6 +125,16 @@ func TestParseVotesSetting(t *testing.T) {
 			S:     "votes=3",
 			Error: true,
 		},
+		"error, invalid argument": {
+			Poll:  p,
+			S:     "invalid",
+			Error: true,
+		},
+		"error, invalid argument 2": {
+			Poll:  p,
+			S:     "votes=2abc",
+			Error: true,
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
