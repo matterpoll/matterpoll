@@ -234,7 +234,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 	}
 
 	elements = append(elements, model.DialogElement{
-		DisplayName: "Multi vote",
+		DisplayName: "Number of Votes",
 		Name:        "setting-multi",
 		Type:        "text",
 		SubType:     "number",

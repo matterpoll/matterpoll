@@ -56,7 +56,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				SubType:     "text",
 				Optional:    true,
 			}, {
-				DisplayName: "Multi vote",
+				DisplayName: "Number of Votes",
 				Name:        "setting-multi",
 				Type:        "text",
 				SubType:     "number",
