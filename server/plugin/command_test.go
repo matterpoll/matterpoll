@@ -227,6 +227,33 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress", trigger),
 		},
+		"With 4 arguments and multi setting": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+
+				post := &model.Post{
+					UserId:    testutils.GetBotUserID(),
+					ChannelId: "channelID1",
+					RootId:    rootID,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
+				}
+				poll := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 3})
+				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				model.ParseSlackAttachment(post, actions)
+				api.On("CreatePost", post).Return(post, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				poll := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 3})
+				store.PollStore.On("Insert", poll).Return(nil)
+				return store
+			},
+			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=3", trigger),
+		},
 		"With 4 arguments and setting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
@@ -283,6 +310,30 @@ func TestPluginExecuteCommand(t *testing.T) {
 			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --unknownOption", trigger),
+			ShouldError: true,
+		},
+		"Invalid multi setting, ": {
+			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=4", trigger),
+			ShouldError: true,
+		},
+		"Invalid multi setting, invalid number": {
+			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=0", trigger),
+			ShouldError: true,
+		},
+		"Invalid multi setting, exceed number": {
+			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=4", trigger),
+			ShouldError: true,
+		},
+		"Invalid multi setting, not number": {
+			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=abc", trigger),
 			ShouldError: true,
 		},
 	} {
