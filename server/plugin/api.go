@@ -41,21 +41,6 @@ var (
 		ID:    "response.vote.updated",
 		Other: "Your vote has been updated.",
 	}
-
-	responseVoteUpdatedMulti = &i18n.Message{
-		ID:    "response.vote.multi.updated",
-		One:   "Your vote has been counted. You have {{.Remains}} vote left.",
-		Other: "Your vote has been counted. You have {{.Remains}} votes left.",
-	}
-	responseResetVotesNoVotes = &i18n.Message{
-		ID:    "response.resetVotes.noVotes",
-		Other: "There are no votes to reset.",
-	}
-	responseResetVotes = &i18n.Message{
-		ID:    "response.resetVotes.success",
-		Other: "All votes are cleared. [{{.ClearedVotes}}]",
-	}
-
 	responseAddOptionSuccess = &i18n.Message{
 		ID:    "response.addOption.success",
 		Other: "Successfully added the option.",
@@ -334,9 +319,13 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		votedAnswers, _ := poll.GetVotedAnswers(userID)
 		remains := poll.Settings.MaxVotes - len(votedAnswers)
 		return &i18n.LocalizeConfig{
-			DefaultMessage: responseVoteUpdatedMulti,
-			TemplateData:   map[string]interface{}{"Remains": remains},
-			PluralCount:    remains,
+			DefaultMessage: &i18n.Message{
+				ID:    "response.vote.multi.updated",
+				One:   "Your vote has been counted. You have {{.Remains}} vote left.",
+				Other: "Your vote has been counted. You have {{.Remains}} votes left.",
+			},
+			TemplateData: map[string]interface{}{"Remains": remains},
+			PluralCount:  remains,
 		}, post, nil
 	}
 
@@ -382,7 +371,10 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	}
 	
 	if len(votedAnswers) == 0 {
-		return &i18n.LocalizeConfig{DefaultMessage: responseResetVotesNoVotes}, nil, nil
+		return &i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+			ID:    "response.resetVotes.noVotes",
+			Other: "There are no votes to reset.",
+		}}, nil, nil
 	}
 
 	prev := poll.Copy()
@@ -402,8 +394,11 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	post.AddProp("poll_id", poll.ID)
 
 	return &i18n.LocalizeConfig{
-		DefaultMessage: responseResetVotes,
-		TemplateData:   map[string]interface{}{"ClearedVotes": strings.Join(votedAnswers, ", ")},
+		DefaultMessage: &i18n.Message{
+			ID:    "response.resetVotes.success",
+			Other: "All votes are cleared. [{{.ClearedVotes}}]",
+		},
+		TemplateData: map[string]interface{}{"ClearedVotes": strings.Join(votedAnswers, ", ")},
 	}, post, nil
 }
 
