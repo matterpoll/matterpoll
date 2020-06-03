@@ -85,6 +85,11 @@ func NewPoll(creator, question string, answerOptions, settings []string) (*Poll,
 	return &p, nil
 }
 
+// IsMultiVote return true if poll is set to multi vote
+func (p *Poll) IsMultiVote() bool {
+	return p.Settings.MaxVotes > 1
+}
+
 // ParseVotesSetting parses and sets a setting for votes ("--votes=X")
 func (p *Poll) ParseVotesSetting(s string) *ErrorMessage {
 	e := votesSettingPattern.FindStringSubmatch(s)

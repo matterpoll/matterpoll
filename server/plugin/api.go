@@ -314,7 +314,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.ID, displayName))
 	post.AddProp("poll_id", poll.ID)
 
-	if poll.Settings.MaxVotes > 1 {
+	if poll.IsMultiVote() {
 		// Multi Answer Mode
 		votedAnswers, _ := poll.GetVotedAnswers(userID)
 		remains := poll.Settings.MaxVotes - len(votedAnswers)
