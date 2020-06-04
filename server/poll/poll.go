@@ -163,10 +163,7 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 
 	if p.Settings.MaxVotes > 1 {
 		// Multi Answer Mode
-		votedAnswers, err := p.GetVotedAnswers(userID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get existing data")
-		}
+		votedAnswers := p.GetVotedAnswers(userID)
 		for _, answers := range votedAnswers {
 			if answers == p.AnswerOptions[index].Answer {
 				return &i18n.Message{
@@ -215,10 +212,7 @@ func (p *Poll) ResetVotes(userID string) error {
 }
 
 // GetVotedAnswers collect voted answers by a user and returns it as string array.
-func (p *Poll) GetVotedAnswers(userID string) ([]string, error) {
-	if userID == "" {
-		return nil, fmt.Errorf("invalid userID")
-	}
+func (p *Poll) GetVotedAnswers(userID string) []string {
 	votedAnswer := []string{}
 	for _, o := range p.AnswerOptions {
 		for _, v := range o.Voter {
@@ -227,21 +221,17 @@ func (p *Poll) GetVotedAnswers(userID string) ([]string, error) {
 			}
 		}
 	}
-	return votedAnswer, nil
+	return votedAnswer
 }
 
 // GetMetadata returns personalized metadata of a poll.
-func (p *Poll) GetMetadata(userID string, permission bool) (*Metadata, error) {
-	answers, err := p.GetVotedAnswers(userID)
-	if err != nil {
-		return nil, err
-	}
+func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
 	return &Metadata{
 		PollID:          p.ID,
 		UserID:          userID,
 		AdminPermission: permission,
-		VotedAnswers:    answers,
-	}, nil
+		VotedAnswers:    p.GetVotedAnswers(userID),
+	}
 }
 
 // HasVoted return true if a given user has voted in this poll

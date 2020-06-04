@@ -572,7 +572,6 @@ func TestGetMetadata(t *testing.T) {
 		Poll             poll.Poll
 		UserID           string
 		Permission       bool
-		ShouldError      bool
 		ExpectedResponse *poll.Metadata
 	}{
 		"Voted an Answer": {
@@ -584,9 +583,8 @@ func TestGetMetadata(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:      "a",
-			Permission:  true,
-			ShouldError: false,
+			UserID:     "a",
+			Permission: true,
 			ExpectedResponse: &poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "a",
@@ -603,9 +601,8 @@ func TestGetMetadata(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:      "b",
-			Permission:  true,
-			ShouldError: false,
+			UserID:     "b",
+			Permission: true,
 			ExpectedResponse: &poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "b",
@@ -622,9 +619,8 @@ func TestGetMetadata(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:      "c",
-			Permission:  true,
-			ShouldError: false,
+			UserID:     "c",
+			Permission: true,
 			ExpectedResponse: &poll.Metadata{
 				PollID:          testutils.GetPollID(),
 				UserID:          "c",
@@ -640,21 +636,20 @@ func TestGetMetadata(t *testing.T) {
 					{Answer: "Answer 3", Voter: []string{"b"}},
 				},
 			},
-			UserID:      "",
-			ShouldError: true,
+			UserID: "",
+			ExpectedResponse: &poll.Metadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "",
+				AdminPermission: false,
+				VotedAnswers:    []string{},
+			},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			metadata, err := test.Poll.GetMetadata(test.UserID, test.Permission)
-			if test.ShouldError {
-				assert.NotNil(err)
-				assert.Nil(metadata)
-			} else {
-				assert.Nil(err)
-				assert.Equal(test.ExpectedResponse, metadata)
-			}
+			metadata := test.Poll.GetMetadata(test.UserID, test.Permission)
+			assert.Equal(test.ExpectedResponse, metadata)
 		})
 	}
 }

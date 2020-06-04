@@ -316,7 +316,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 
 	if poll.IsMultiVote() {
 		// Multi Answer Mode
-		votedAnswers, _ := poll.GetVotedAnswers(userID)
+		votedAnswers := poll.GetVotedAnswers(userID)
 		remains := poll.Settings.MaxVotes - len(votedAnswers)
 		return &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -342,12 +342,7 @@ func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
 		p.API.LogWarn("Failed to check admin permission", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
 		hasAdminPermission = false
 	}
-	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
-	if err != nil {
-		p.API.LogWarn("Failed to get poll metadata", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
-		return
-	}
-
+	metadata := poll.GetMetadata(userID, hasAdminPermission)
 	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
 }
 
@@ -365,11 +360,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	votedAnswers, err := poll.GetVotedAnswers(userID)
-	if err != nil {
-		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get voted answers")
-	}
-
+	votedAnswers := poll.GetVotedAnswers(userID)
 	if len(votedAnswers) == 0 {
 		return &i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
 			ID:    "response.resetVotes.noVotes",
@@ -672,13 +663,7 @@ func (p *MatterpollPlugin) handlePollMetadata(w http.ResponseWriter, r *http.Req
 		p.API.LogWarn("Failed to check permission", "userID", userID, "error", appErr.Error())
 		hasAdminPermission = false
 	}
-	metadata, err := poll.GetMetadata(userID, hasAdminPermission)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		p.API.LogWarn("Failed to get poll metadata", "userID", userID, "error", err.Error())
-		return
-	}
-
+	metadata := poll.GetMetadata(userID, hasAdminPermission)
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(metadata); err != nil {
 		p.API.LogWarn("failed to write response", "error", err.Error())
