@@ -44,57 +44,92 @@ type ErrorMessage struct {
 	Data    map[string]interface{}
 }
 
-// NewPoll creates a new poll with the given paramatern.
-func NewPoll(creator, question string, answerOptions, settings []string) (*Poll, *ErrorMessage) {
+// NewPoll creates a new poll with the given parameter.
+func NewPoll(creator, question string, answerOptions []string, settings Settings) (*Poll, *ErrorMessage) {
 	p := Poll{
 		ID:        model.NewId(),
 		CreatedAt: model.GetMillis(),
 		Creator:   creator,
 		Question:  question,
-		Settings:  Settings{MaxVotes: 1},
+		Settings:  settings,
 	}
 	for _, answerOption := range answerOptions {
 		if errMsg := p.AddAnswerOption(answerOption); errMsg != nil {
 			return nil, errMsg
 		}
 	}
-	for _, s := range settings {
+
+	if errMsg := p.validate(); errMsg != nil {
+		return nil, errMsg
+	}
+
+	return &p, nil
+}
+
+// NewSettingsFromStrings creates a new settings with the given parameter.
+func NewSettingsFromStrings(strs []string) (Settings, *ErrorMessage) {
+	settings := Settings{MaxVotes: 1}
+	for _, str := range strs {
 		switch {
-		case s == "anonymous":
-			p.Settings.Anonymous = true
-		case s == "progress":
-			p.Settings.Progress = true
-		case s == "public-add-option":
-			p.Settings.PublicAddOption = true
-		case votesSettingPattern.MatchString(s):
-			if errMsg := p.ParseVotesSetting(s); errMsg != nil {
-				return nil, errMsg
+		case str == "anonymous":
+			settings.Anonymous = true
+		case str == "progress":
+			settings.Progress = true
+		case str == "public-add-option":
+			settings.PublicAddOption = true
+		case votesSettingPattern.MatchString(str):
+			i, errMsg := parseVotesSettings(str)
+			if errMsg != nil {
+				return settings, errMsg
 			}
+			settings.MaxVotes = i
 		default:
-			return nil, &ErrorMessage{
+			return settings, &ErrorMessage{
 				Message: &i18n.Message{
 					ID:    "poll.newPoll.unrecognizedSetting",
 					Other: "Unrecognized poll setting: {{.Setting}}",
 				},
 				Data: map[string]interface{}{
-					"Setting": s,
+					"Setting": str,
 				},
 			}
 		}
 	}
-	return &p, nil
+	return settings, nil
 }
 
-// IsMultiVote return true if poll is set to multi vote
-func (p *Poll) IsMultiVote() bool {
-	return p.Settings.MaxVotes > 1
+// NewSettingsFromSubmission creates a new settings with the given parameter.
+func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
+	settings := Settings{MaxVotes: 1}
+	for k, v := range submission {
+		if k == "setting-multi" {
+			f, ok := v.(float64)
+			if ok {
+				settings.MaxVotes = int(f)
+			}
+		} else if strings.HasPrefix(k, "setting-") {
+			b, ok := v.(bool)
+			if b && ok {
+				s := strings.TrimPrefix(k, "setting-")
+				switch s {
+				case "anonymous":
+					settings.Anonymous = true
+				case "progress":
+					settings.Progress = true
+				case "public-add-option":
+					settings.PublicAddOption = true
+				}
+			}
+		}
+	}
+	return settings
 }
 
-// ParseVotesSetting parses and sets a setting for votes ("--votes=X")
-func (p *Poll) ParseVotesSetting(s string) *ErrorMessage {
+// parseVotesSettings parses setting for votes ("--votes=X")
+func parseVotesSettings(s string) (int, *ErrorMessage) {
 	e := votesSettingPattern.FindStringSubmatch(s)
 	if len(e) != 2 {
-		return &ErrorMessage{
+		return 0, &ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.unexpectedError",
 				Other: "Unexpected error happens when parsing {{.Setting}}",
@@ -105,20 +140,40 @@ func (p *Poll) ParseVotesSetting(s string) *ErrorMessage {
 		}
 	}
 	i, err := strconv.Atoi(e[1])
-	if err != nil || i <= 0 || i > len(p.AnswerOptions) {
-		return &ErrorMessage{
+	if err != nil {
+		return 0, &ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.invalidSetting",
-				Other: "The number of votes must be a positive number and less than or equal to the number of options. You specified {{.Setting}}, but the number of options is {{.Options}}",
+				Other: "Unexpected error happens when parsing {{.Setting}}",
 			},
 			Data: map[string]interface{}{
 				"Setting": s,
-				"Options": len(p.AnswerOptions),
 			},
 		}
 	}
-	p.Settings.MaxVotes = i
+	return i, nil
+}
+
+// validate checks if poll is valid
+func (p *Poll) validate() *ErrorMessage {
+	if p.Settings.MaxVotes <= 0 || p.Settings.MaxVotes > len(p.AnswerOptions) {
+		return &ErrorMessage{
+			Message: &i18n.Message{
+				ID:    "poll.newPoll.votesettings.invalidSetting",
+				Other: `The number of votes must be a positive number and less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}"`,
+			},
+			Data: map[string]interface{}{
+				"MaxVotes": p.Settings.MaxVotes,
+				"Options":  len(p.AnswerOptions),
+			},
+		}
+	}
 	return nil
+}
+
+// IsMultiVote return true if poll is set to multi vote
+func (p *Poll) IsMultiVote() bool {
+	return p.Settings.MaxVotes > 1
 }
 
 // AddAnswerOption adds a new AnswerOption to a poll

@@ -226,22 +226,9 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 		answerOptions = append(answerOptions, o3)
 	}
 
-	var settings []string
-	for k, v := range request.Submission {
-		if k == "setting-multi" {
-			f, ok := v.(float64)
-			if ok {
-				settings = append(settings, fmt.Sprintf("votes=%d", int(f)))
-			}
-		} else if strings.HasPrefix(k, "setting-") {
-			b, ok := v.(bool)
-			if b && ok {
-				settings = append(settings, strings.TrimPrefix(k, "setting-"))
-			}
-		}
-	}
-
 	userLocalizer := p.getUserLocalizer(creatorID)
+
+	settings := poll.NewSettingsFromSubmission(request.Submission)
 	poll, errMsg := poll.NewPoll(creatorID, question, answerOptions, settings)
 	if errMsg != nil {
 		response := &model.SubmitDialogResponse{

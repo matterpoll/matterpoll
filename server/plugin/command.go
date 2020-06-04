@@ -143,12 +143,25 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		}
 	}
 
+	settings, errMsg := poll.NewSettingsFromStrings(s)
+	if errMsg != nil {
+		appErr := &model.AppError{
+			Id: p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+				DefaultMessage: commandErrorInvalidInput,
+				TemplateData: map[string]interface{}{
+					"Error": p.LocalizeErrorMessage(userLocalizer, errMsg),
+				}}),
+			StatusCode: http.StatusBadRequest,
+			Where:      "ExecuteCommand",
+		}
+		return "", appErr
+	}
+
 	var newPoll *poll.Poll
-	var errMsg *poll.ErrorMessage
 	if len(o) == 0 {
-		newPoll, errMsg = poll.NewPoll(creatorID, q, []string{defaultYes, defaultNo}, s)
+		newPoll, errMsg = poll.NewPoll(creatorID, q, []string{defaultYes, defaultNo}, settings)
 	} else {
-		newPoll, errMsg = poll.NewPoll(creatorID, q, o, s)
+		newPoll, errMsg = poll.NewPoll(creatorID, q, o, settings)
 	}
 	if errMsg != nil {
 		appErr := &model.AppError{
