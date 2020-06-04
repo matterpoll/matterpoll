@@ -464,7 +464,6 @@ func TestResetVotes(t *testing.T) {
 		Poll         poll.Poll
 		UserID       string
 		ExpectedPoll poll.Poll
-		Error        bool
 	}{
 		"Reset success, with votes": {
 			Poll: poll.Poll{
@@ -486,7 +485,6 @@ func TestResetVotes(t *testing.T) {
 				},
 				Settings: poll.Settings{MaxVotes: 3},
 			},
-			Error: false,
 		},
 		"Reset success, with no votes": {
 			Poll: poll.Poll{
@@ -508,7 +506,6 @@ func TestResetVotes(t *testing.T) {
 				},
 				Settings: poll.Settings{MaxVotes: 3},
 			},
-			Error: false,
 		},
 		"Reset success, with votes from multi user": {
 			Poll: poll.Poll{
@@ -530,7 +527,6 @@ func TestResetVotes(t *testing.T) {
 				},
 				Settings: poll.Settings{MaxVotes: 3},
 			},
-			Error: false,
 		},
 		"invalid user id": {
 			Poll: poll.Poll{
@@ -550,18 +546,12 @@ func TestResetVotes(t *testing.T) {
 				},
 				Settings: poll.Settings{MaxVotes: 3},
 			},
-			Error: true,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			err := test.Poll.ResetVotes(test.UserID)
-			if test.Error {
-				assert.NotNil(err)
-			} else {
-				assert.Nil(err)
-			}
+			test.Poll.ResetVotes(test.UserID)
 			assert.Equal(test.ExpectedPoll, test.Poll)
 		})
 	}

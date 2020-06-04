@@ -369,9 +369,8 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	}
 
 	prev := poll.Copy()
-	if err = poll.ResetVotes(userID); err != nil {
-		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to reset votes")
-	}
+
+	poll.ResetVotes(userID)
 
 	if err = p.Store.Poll().Update(prev, poll); err != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to save poll")

@@ -196,11 +196,7 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 }
 
 // ResetVotes remove votes by a given user
-func (p *Poll) ResetVotes(userID string) error {
-	if userID == "" {
-		return fmt.Errorf("invalid userID")
-	}
-
+func (p *Poll) ResetVotes(userID string) {
 	for _, o := range p.AnswerOptions {
 		for i := 0; i < len(o.Voter); i++ {
 			if userID == o.Voter[i] {
@@ -208,8 +204,6 @@ func (p *Poll) ResetVotes(userID string) error {
 			}
 		}
 	}
-
-	return nil
 }
 
 // GetVotedAnswers collect voted answers by a user and returns it as string array.
