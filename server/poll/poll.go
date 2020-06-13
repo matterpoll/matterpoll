@@ -13,6 +13,12 @@ import (
 
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
 
+const (
+	SettingKeyAnonymous       = "anonymous"
+	SettingKeyProgress        = "progress"
+	SettingKeyPublicAddOption = "public-add-option"
+)
+
 // Poll stores all needed information for a poll
 type Poll struct {
 	ID            string
@@ -71,11 +77,11 @@ func NewSettingsFromStrings(strs []string) (Settings, *ErrorMessage) {
 	settings := Settings{MaxVotes: 1}
 	for _, str := range strs {
 		switch {
-		case str == "anonymous":
+		case str == SettingKeyAnonymous:
 			settings.Anonymous = true
-		case str == "progress":
+		case str == SettingKeyProgress:
 			settings.Progress = true
-		case str == "public-add-option":
+		case str == SettingKeyPublicAddOption:
 			settings.PublicAddOption = true
 		case votesSettingPattern.MatchString(str):
 			i, errMsg := parseVotesSettings(str)
@@ -112,11 +118,11 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 			if b && ok {
 				s := strings.TrimPrefix(k, "setting-")
 				switch s {
-				case "anonymous":
+				case SettingKeyAnonymous:
 					settings.Anonymous = true
-				case "progress":
+				case SettingKeyProgress:
 					settings.Progress = true
-				case "public-add-option":
+				case SettingKeyPublicAddOption:
 					settings.PublicAddOption = true
 				}
 			}
