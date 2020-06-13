@@ -24,7 +24,12 @@ func TestNewPoll(t *testing.T) {
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress", "public-add-option", "votes=3"})
+		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{
+			Anonymous:       true,
+			Progress:        true,
+			PublicAddOption: true,
+			MaxVotes:        3,
+		})
 
 		require.Nil(t, err)
 		require.NotNil(t, p)
@@ -37,29 +42,7 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: []string{}}, p.AnswerOptions[2])
 		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 3}, p.Settings)
 	})
-	t.Run("fine, without votes setting", func(t *testing.T) {
-		assert := assert.New(t)
-		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-		patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
-		defer patch1.Unpatch()
-		defer patch2.Unpatch()
 
-		creator := model.NewRandomString(10)
-		question := model.NewRandomString(10)
-		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress", "public-add-option"})
-
-		require.Nil(t, err)
-		require.NotNil(t, p)
-		assert.Equal(testutils.GetPollID(), p.ID)
-		assert.Equal(int64(1234567890), p.CreatedAt)
-		assert.Equal(creator, p.Creator)
-		assert.Equal(question, p.Question)
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: []string{}}, p.AnswerOptions[0])
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: []string{}}, p.AnswerOptions[1])
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: []string{}}, p.AnswerOptions[2])
-		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 1}, p.Settings)
-	})
 	t.Run("error, invalid votes setting", func(t *testing.T) {
 		assert := assert.New(t)
 		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
@@ -70,18 +53,12 @@ func TestNewPoll(t *testing.T) {
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, []string{"anonymous", "progress", "public-add-option", "votes=4"})
-
-		assert.Nil(p)
-		assert.NotNil(err)
-	})
-	t.Run("error, unknown setting", func(t *testing.T) {
-		assert := assert.New(t)
-
-		creator := model.NewRandomString(10)
-		question := model.NewRandomString(10)
-		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, []string{"unkownOption"})
+		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{
+			Anonymous:       true,
+			Progress:        true,
+			PublicAddOption: true,
+			MaxVotes:        4,
+		})
 
 		assert.Nil(p)
 		assert.NotNil(err)
@@ -94,58 +71,131 @@ func TestNewPoll(t *testing.T) {
 		question := model.NewRandomString(10)
 		option := model.NewRandomString(10)
 		answerOptions := []string{option, model.NewRandomString(10), option}
-		p, err := poll.NewPoll(creator, question, answerOptions, nil)
+		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{MaxVotes: 1})
 
 		assert.Nil(p)
 		assert.NotNil(err)
 	})
 }
 
-func TestParseVotesSetting(t *testing.T) {
-	p := testutils.GetPollTwoOptions()
+func TestNewSettingsFromStrings(t *testing.T) {
 	for name, test := range map[string]struct {
-		Poll  *poll.Poll
-		S     string
-		Votes int
-		Error bool
+		Strs             []string
+		ShouldError      bool
+		ExpectedSettings poll.Settings
 	}{
-		"fine setting": {
-			Poll:  p,
-			S:     "votes=2",
-			Votes: 2,
-			Error: false,
+		"no settings": {
+			Strs:        []string{},
+			ShouldError: false,
+			ExpectedSettings: poll.Settings{
+				Anonymous:       false,
+				Progress:        false,
+				PublicAddOption: false,
+				MaxVotes:        1,
+			},
 		},
-		"error, votes=0": {
-			Poll:  p,
-			S:     "votes=0",
-			Error: true,
+		"full settings": {
+			Strs:        []string{"anonymous", "progress", "public-add-option", "votes=4"},
+			ShouldError: false,
+			ExpectedSettings: poll.Settings{
+				Anonymous:       true,
+				Progress:        true,
+				PublicAddOption: true,
+				MaxVotes:        4,
+			},
 		},
-		"error, exceed the number of options": {
-			Poll:  p,
-			S:     "votes=3",
-			Error: true,
+		"without votes settings": {
+			Strs:        []string{"anonymous", "progress", "public-add-option"},
+			ShouldError: false,
+			ExpectedSettings: poll.Settings{
+				Anonymous:       true,
+				Progress:        true,
+				PublicAddOption: true,
+				MaxVotes:        1,
+			},
 		},
-		"error, invalid argument": {
-			Poll:  p,
-			S:     "invalid",
-			Error: true,
+		"invalid votes setting": {
+			Strs:        []string{"votes=9223372036854775808"}, // Exceed math.MaxInt64
+			ShouldError: true,
+			ExpectedSettings: poll.Settings{
+				Anonymous:       false,
+				Progress:        false,
+				PublicAddOption: false,
+				MaxVotes:        1,
+			},
 		},
-		"error, invalid argument 2": {
-			Poll:  p,
-			S:     "votes=2abc",
-			Error: true,
+		"invalid setting": {
+			Strs:        []string{"anonymous", "progress", "public-add-option", "invalid"},
+			ShouldError: true,
+			ExpectedSettings: poll.Settings{
+				Anonymous:       true,
+				Progress:        true,
+				PublicAddOption: true,
+				MaxVotes:        1,
+			},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			err := test.Poll.ParseVotesSetting(test.S)
-			if test.Error {
-				assert.NotNil((err))
+			settings, errMsg := poll.NewSettingsFromStrings(test.Strs)
+			if test.ShouldError {
+				assert.NotNil(errMsg)
 			} else {
-				assert.Nil((err))
-				assert.Equal(test.Votes, test.Poll.Settings.MaxVotes)
+				assert.Nil(errMsg)
 			}
+			assert.Equal(test.ExpectedSettings, settings)
+		})
+	}
+}
+
+func TestNewSettingsFromSubmission(t *testing.T) {
+	for name, test := range map[string]struct {
+		Submission       map[string]interface{}
+		ExpectedSettings poll.Settings
+	}{
+		"no settings": {
+			Submission: map[string]interface{}{},
+			ExpectedSettings: poll.Settings{
+				Anonymous:       false,
+				Progress:        false,
+				PublicAddOption: false,
+				MaxVotes:        1,
+			},
+		},
+		"full settings": {
+			Submission: map[string]interface{}{
+				"setting-anonymous":         true,
+				"setting-progress":          true,
+				"setting-public-add-option": true,
+				"setting-multi":             float64(4),
+			},
+			ExpectedSettings: poll.Settings{
+				Anonymous:       true,
+				Progress:        true,
+				PublicAddOption: true,
+				MaxVotes:        4,
+			},
+		},
+		"without votes settings": {
+			Submission: map[string]interface{}{
+				"setting-anonymous":         false,
+				"setting-progress":          false,
+				"setting-public-add-option": false,
+			},
+			ExpectedSettings: poll.Settings{
+				Anonymous:       false,
+				Progress:        false,
+				PublicAddOption: false,
+				MaxVotes:        1,
+			},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
+
+			settings := poll.NewSettingsFromSubmission(test.Submission)
+			assert.Equal(test.ExpectedSettings, settings)
 		})
 	}
 }
