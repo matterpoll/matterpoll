@@ -277,10 +277,11 @@ func (p *Poll) GetVotedAnswers(userID string) []string {
 // GetMetadata returns personalized metadata of a poll.
 func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
 	return &Metadata{
-		PollID:          p.ID,
-		UserID:          userID,
-		AdminPermission: permission,
-		VotedAnswers:    p.GetVotedAnswers(userID),
+		PollID:                 p.ID,
+		UserID:                 userID,
+		AdminPermission:        permission,
+		VotedAnswers:           p.GetVotedAnswers(userID),
+		SettingPublicAddOption: p.Settings.PublicAddOption,
 	}
 }
 

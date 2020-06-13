@@ -72,3 +72,20 @@ If you are contributing a feature, [please open a feature request](https://githu
 You can find all issue that we seek help with [here](https://github.com/matterpoll/matterpoll/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Help+Wanted%22).
 
 Note that this project uses [Go modules](https://github.com/golang/go/wiki/Modules). Be sure to locate the project outside of `$GOPATH`, or allow the use of Go modules within your `$GOPATH` with an `export GO111MODULE=on`.
+
+## Development
+
+This plugin contains both a server and webapp portion.
+
+* Use `make dist` to build distributions of the plugin that you can upload to a Mattermost server.
+* Use `make test` to run tests of the plugin.
+* Use `make check-style` to check the style.
+* Use `make deploy` to deploy the plugin to your Mattermost server. Before running make deploy you need to set a few environment variables:
+
+```sh
+export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
+export MM_ADMIN_USERNAME=admin
+export MM_ADMIN_PASSWORD=password
+```
+
+* Use `make help` to know all useful targets for devleopment

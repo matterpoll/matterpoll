@@ -1,0 +1,12 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: weekly
+  reviewers:
+  - hanzei
+  assignees:
+  - hanzei
+  labels:
+  - 3. To Review
