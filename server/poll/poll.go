@@ -40,7 +40,7 @@ type Settings struct {
 	Anonymous       bool
 	Progress        bool
 	PublicAddOption bool
-	MaxVotes        int
+	MaxVotes        int `json:"max_votes,omitempty"`
 }
 
 // ErrorMessage contains error messsage for a user that can be localized.
