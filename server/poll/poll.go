@@ -133,9 +133,13 @@ func (p *Poll) getVotedAnswers(userID string) ([]string, error) {
 	}
 	votedAnswer := []string{}
 	for _, o := range p.AnswerOptions {
+		answer := o.Answer
+		if p.Settings.Progress {
+			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
+		}
 		for _, v := range o.Voter {
 			if userID == v {
-				votedAnswer = append(votedAnswer, o.Answer)
+				votedAnswer = append(votedAnswer, answer)
 			}
 		}
 	}
