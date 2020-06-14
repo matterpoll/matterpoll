@@ -223,7 +223,7 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 		return nil, fmt.Errorf("invalid userID")
 	}
 
-	if p.Settings.MaxVotes > 1 {
+	if p.IsMultiVote() {
 		// Multi Answer Mode
 		votedAnswers := p.GetVotedAnswers(userID)
 		for _, answers := range votedAnswers {
