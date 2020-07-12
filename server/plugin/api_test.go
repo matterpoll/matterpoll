@@ -782,14 +782,13 @@ func TestHandleVote(t *testing.T) {
 func TestHandleAddOption(t *testing.T) {
 	userID := testutils.GetPollWithVotes().Creator
 	triggerID := model.NewId()
-	postID := model.NewId()
 
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
-		request := &model.PostActionIntegrationRequest{UserId: userID, PostId: postID, TriggerId: triggerID}
+		request := &model.PostActionIntegrationRequest{UserId: userID, PostId: "postID1", TriggerId: triggerID}
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID())
@@ -810,7 +809,7 @@ func TestHandleAddOption(t *testing.T) {
 		Dialog: model.Dialog{
 			Title:       "Add Option",
 			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
-			CallbackId:  postID,
+			CallbackId:  "postID1",
 			SubmitLabel: "Add",
 			Elements: []model.DialogElement{{
 				DisplayName: "Option",
@@ -820,6 +819,9 @@ func TestHandleAddOption(t *testing.T) {
 			},
 			},
 		},
+	}
+	post := &model.Post{
+		ChannelId: "channelID1",
 	}
 
 	for name, test := range map[string]struct {
@@ -831,6 +833,8 @@ func TestHandleAddOption(t *testing.T) {
 	}{
 		"Valid request": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", userID, "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("OpenInteractiveDialog", dialogRequest).Return(nil)
 				return api
@@ -842,7 +846,27 @@ func TestHandleAddOption(t *testing.T) {
 			Request: &model.PostActionIntegrationRequest{
 				UserId:    userID,
 				ChannelId: "channelID1",
-				PostId:    postID,
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedMsg:        "",
+		},
+		"Valid request, poll without postID": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("OpenInteractiveDialog", dialogRequest).Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithoutPostID(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    userID,
+				ChannelId: "channelID1",
+				PostId:    "postID1",
 				TriggerId: triggerID,
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -850,6 +874,8 @@ func TestHandleAddOption(t *testing.T) {
 		},
 		"Valid request, issuer is system admin": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID2").Return(&model.User{
 					Username: "user2",
 					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
@@ -864,7 +890,7 @@ func TestHandleAddOption(t *testing.T) {
 			Request: &model.PostActionIntegrationRequest{
 				UserId:    "userID2",
 				ChannelId: "channelID1",
-				PostId:    postID,
+				PostId:    "postID1",
 				TriggerId: triggerID,
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -872,6 +898,8 @@ func TestHandleAddOption(t *testing.T) {
 		},
 		"Valid request, Invalid permission": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID2").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -881,7 +909,8 @@ func TestHandleAddOption(t *testing.T) {
 			},
 			Request: &model.PostActionIntegrationRequest{
 				UserId:    "userID2",
-				PostId:    postID,
+				ChannelId: "channelID1",
+				PostId:    "postID1",
 				TriggerId: triggerID,
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -889,6 +918,8 @@ func TestHandleAddOption(t *testing.T) {
 		},
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				return api
 			},
@@ -898,31 +929,30 @@ func TestHandleAddOption(t *testing.T) {
 			},
 			Request: &model.PostActionIntegrationRequest{
 				UserId:    "userID2",
-				PostId:    postID,
+				ChannelId: "channelID1",
+				PostId:    "postID1",
 				TriggerId: triggerID,
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
 		"Valid request, PollStore.Get fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				return api
-			},
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, errors.New(""))
 				return store
 			},
 			Request: &model.PostActionIntegrationRequest{
 				UserId:    userID,
-				PostId:    postID,
+				PostId:    "postID1",
 				TriggerId: triggerID,
 			},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedMsg:        "Something went wrong. Please try again later.",
+			ExpectedStatusCode: http.StatusInternalServerError,
 		},
 		"Valid request, OpenInteractiveDialog fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", userID, "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("OpenInteractiveDialog", dialogRequest).Return(&model.AppError{})
 				return api
@@ -934,7 +964,7 @@ func TestHandleAddOption(t *testing.T) {
 			Request: &model.PostActionIntegrationRequest{
 				UserId:    userID,
 				ChannelId: "channelID1",
-				PostId:    postID,
+				PostId:    "postID1",
 				TriggerId: triggerID,
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -973,7 +1003,11 @@ func TestHandleAddOption(t *testing.T) {
 			url := fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID())
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
-			r.Header.Add("Mattermost-User-ID", model.NewId())
+			if test.Request != nil {
+				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
+			} else {
+				r.Header.Add("Mattermost-User-ID", model.NewId())
+			}
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -1018,11 +1052,21 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 	postID := model.NewId()
 
 	poll1In := testutils.GetPollWithVotes()
+	poll1In.PostID = postID
 	poll1Out := poll1In.Copy()
 	err := poll1Out.AddAnswerOption("New Option")
 	require.Nil(t, err)
-	expectedPost1 := &model.Post{}
+	expectedPost1 := &model.Post{
+		ChannelId: channelID,
+	}
 	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe"))
+
+	poll2In := testutils.GetPollWithoutPostID()
+	poll2Out := poll2In.Copy()
+	err = poll2Out.AddAnswerOption("New Option")
+	require.Nil(t, err)
+	expectedPost2 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -1034,8 +1078,9 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 	}{
 		"Valid request": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost1, nil)
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("GetPost", postID).Return(&model.Post{}, nil)
 				api.On("UpdatePost", expectedPost1).Return(expectedPost1, nil)
 				return api
 			},
@@ -1056,13 +1101,17 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			ExpectedResponse:   nil,
 			ExpectedMsg:        "Successfully added the option.",
 		},
-		"Valid request, PollStore.Get fails": {
+		"Valid request, poll without postID": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetPost", postID).Return(&model.Post{}, nil)
+				api.On("UpdatePost", expectedPost2).Return(expectedPost2, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, errors.New(""))
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll2In.Copy(), nil)
+				store.PollStore.On("Update", poll2In, poll2Out).Return(nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -1075,15 +1124,35 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   nil,
-			ExpectedMsg:        "Something went wrong. Please try again later.",
+			ExpectedMsg:        "Successfully added the option.",
+		},
+		"Valid request, PollStore.Get fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, errors.New(""))
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					"answerOption": "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusInternalServerError,
 		},
 		"Valid request, GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost1, nil)
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				poll := testutils.GetPollWithVotes().Copy()
+				poll.PostID = postID
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll, nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -1100,12 +1169,13 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 		},
 		"Valid request, GetPost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetPost", postID).Return(nil, &model.AppError{})
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				poll := testutils.GetPollWithVotes().Copy()
+				poll.PostID = postID
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll, nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -1116,18 +1186,20 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 					"answerOption": "New Option",
 				},
 			},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   nil,
-			ExpectedMsg:        "Something went wrong. Please try again later.",
+			ExpectedStatusCode: http.StatusInternalServerError,
 		},
 		"Invalid request with integer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost1, nil)
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetPost", postID).Return(&model.Post{}, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				poll := testutils.GetPollWithVotes().Copy()
+				poll.PostID = postID
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll, nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -1144,12 +1216,16 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 		},
 		"Valid request, duplicate new answeroption": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost1, nil)
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetPost", postID).Return(&model.Post{}, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				poll := testutils.GetPollWithVotes().Copy()
+				poll.PostID = postID
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll, nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -1170,13 +1246,17 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 		},
 		"Valid request, UpdatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost1, nil)
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetPost", postID).Return(&model.Post{}, nil)
 				api.On("UpdatePost", expectedPost1).Return(nil, &model.AppError{})
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				poll := testutils.GetPollWithVotes().Copy()
+				poll.PostID = postID
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll, nil)
 				return store
 			},
 			Request: &model.SubmitDialogRequest{
@@ -1193,6 +1273,8 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 		},
 		"Valid request, PollStore.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost1, nil)
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetPost", postID).Return(&model.Post{}, nil)
 				api.On("UpdatePost", expectedPost1).Return(expectedPost1, nil)
@@ -1247,7 +1329,11 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			url := fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID())
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
-			r.Header.Add("Mattermost-User-ID", model.NewId())
+			if test.Request != nil {
+				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
+			} else {
+				r.Header.Add("Mattermost-User-ID", model.NewId())
+			}
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
