@@ -131,7 +131,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 				}
 				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
-				api.On("CreatePost", post).Return(post, nil)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -159,10 +163,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Insert", testutils.GetPollTwoOptions()).Return(nil)
-				return store
-			},
+			SetupStore:   func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:      fmt.Sprintf("/%s \"Question\"", trigger),
 			ExpectedText: commandErrorGeneric.Other,
 		},
@@ -182,7 +183,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 				}
 				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
-				api.On("CreatePost", post).Return(post, nil)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -208,7 +213,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true})
 				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
-				api.On("CreatePost", post).Return(post, nil)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -235,7 +244,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true})
 				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
-				api.On("CreatePost", post).Return(post, nil)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -247,11 +260,31 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Store.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+
+				post := &model.Post{
+					UserId:    testutils.GetBotUserID(),
+					ChannelId: "channelID1",
+					RootId:    rootID,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
+				}
+				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				model.ParseSlackAttachment(post, actions)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
 				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Insert", testutils.GetPoll()).Return(errors.New(""))
+				poll := testutils.GetPoll()
+				poll.PostID = "postID1"
+				store.PollStore.On("Insert", poll).Return(errors.New(""))
 				return store
 			},
 			Command:      fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
@@ -263,10 +296,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Insert", testutils.GetPoll()).Return(nil)
-				return store
-			},
+			SetupStore:   func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:      fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"", trigger),
 			ExpectedText: commandErrorGeneric.Other,
 		},

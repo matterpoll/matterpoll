@@ -39,6 +39,7 @@ func GetServerConfig() *model.Config {
 func GetPoll() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
+		PostID:    "postID1",
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
@@ -66,6 +67,7 @@ func GetPollWithSettings(settings poll.Settings) *poll.Poll {
 func GetPollWithVotes() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
+		PostID:    "postID1",
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
@@ -93,6 +95,7 @@ func GetPollWithVotesAndSettings(settings poll.Settings) *poll.Poll {
 func GetPollTwoOptions() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
+		PostID:    "postID1",
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
