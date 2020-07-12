@@ -1739,6 +1739,9 @@ func TestHandleDeletePoll(t *testing.T) {
 			SubmitLabel: "Delete",
 		},
 	}
+	post := &model.Post{
+		ChannelId: "channelID1",
+	}
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -1749,6 +1752,8 @@ func TestHandleDeletePoll(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("OpenInteractiveDialog", dialog).Return(nil)
 				return api
@@ -1766,8 +1771,30 @@ func TestHandleDeletePoll(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedMsg:        "",
 		},
+		"Valid request, poll without postID": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				api.On("OpenInteractiveDialog", dialog).Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithoutPostID(), nil)
+				return store
+			},
+			Request: &model.PostActionIntegrationRequest{
+				UserId:    "userID1",
+				ChannelId: "channelID1",
+				PostId:    "postID1",
+				TriggerId: triggerID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedMsg:        "",
+		},
 		"Valid request with no votes, issuer is system admin": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID2").Return(&model.User{
 					Username: "user2",
 					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
@@ -1789,10 +1816,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			ExpectedMsg:        "",
 		},
 		"Valid request, Store.Get fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
-				return api
-			},
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
 				return store
@@ -1803,11 +1827,12 @@ func TestHandleDeletePoll(t *testing.T) {
 				PostId:    "postID1",
 				TriggerId: triggerID,
 			},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedMsg:        "Something went wrong. Please try again later.",
+			ExpectedStatusCode: http.StatusInternalServerError,
 		},
 		"Valid request, GetUser fails for issuer": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				return api
 			},
@@ -1826,6 +1851,8 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request, Invalid permission": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
 				return api
 			},
@@ -1844,6 +1871,8 @@ func TestHandleDeletePoll(t *testing.T) {
 		},
 		"Valid request, OpenInteractiveDialog fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("OpenInteractiveDialog", dialog).Return(&model.AppError{})
 				return api
@@ -1894,7 +1923,11 @@ func TestHandleDeletePoll(t *testing.T) {
 			url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
-			r.Header.Add("Mattermost-User-ID", model.NewId())
+			if test.Request != nil {
+				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
+			} else {
+				r.Header.Add("Mattermost-User-ID", model.NewId())
+			}
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
@@ -1934,6 +1967,10 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
 
+	post := &model.Post{
+		ChannelId: "channelID1",
+	}
+
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
@@ -1944,6 +1981,8 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 	}{
 		"Valid request": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("DeletePost", "postID1").Return(nil)
 				return api
@@ -1963,11 +2002,30 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			ExpectedResponse:   nil,
 			ExpectedMsg:        "Successfully deleted the poll.",
 		},
-		"Valid request, PollStore.Get fails": {
+		"Valid request, poll without postID": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
+				api.On("DeletePost", "postID2").Return(nil)
 				return api
 			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithoutPostID(), nil)
+				store.PollStore.On("Delete", testutils.GetPollWithoutPostID()).Return(nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID1",
+				CallbackId: "postID2",
+				ChannelId:  "channelID1",
+				Submission: map[string]interface{}{},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Successfully deleted the poll.",
+		},
+		"Valid request, PollStore.Get fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, errors.New(""))
 				return store
@@ -1978,12 +2036,12 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				ChannelId:  "channelID1",
 				Submission: map[string]interface{}{},
 			},
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   nil,
-			ExpectedMsg:        "Something went wrong. Please try again later.",
+			ExpectedStatusCode: http.StatusInternalServerError,
 		},
 		"Valid request, DeletePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				api.On("DeletePost", "postID1").Return(&model.AppError{})
 				return api
@@ -2004,6 +2062,8 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 		},
 		"Valid request, PollStore.Delete fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("DeletePost", "postID1").Return(nil)
 				return api
@@ -2055,7 +2115,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			url := fmt.Sprintf("/api/v1/polls/%s/delete/confirm", testutils.GetPollID())
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
-			r.Header.Add("Mattermost-User-ID", model.NewId())
+			r.Header.Add("Mattermost-User-ID", test.Request.UserId)
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
