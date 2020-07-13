@@ -56,7 +56,7 @@ func GetPoll() *poll.Poll {
 	}
 }
 
-// GetPoll returns a Poll with three Options, without PostID.
+// GetPollWithoutPostID returns a Poll with three Options, without PostID.
 func GetPollWithoutPostID() *poll.Poll {
 	poll := GetPoll().Copy()
 	poll.PostID = ""
