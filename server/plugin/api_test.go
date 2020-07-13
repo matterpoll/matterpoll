@@ -238,8 +238,13 @@ func TestHandleCreatePoll(t *testing.T) {
 	}{
 		"Valid request, two options": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("CreatePost", expectedPostTwoOptions).Return(nil, nil)
+
+				rPost := expectedPostTwoOptions.Clone()
+				rPost.Id = "postID1"
+				api.On("CreatePost", expectedPostTwoOptions).Return(rPost, nil)
+
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -262,8 +267,13 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Valid request, three options": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("CreatePost", expectedPost).Return(nil, nil)
+
+				rPost := expectedPost.Clone()
+				rPost.Id = "postID1"
+				api.On("CreatePost", expectedPost).Return(rPost, nil)
+
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -287,8 +297,13 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Valid request with settings": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("CreatePost", expectedPostWithSettings).Return(nil, nil)
+
+				rPost := expectedPostWithSettings.Clone()
+				rPost.Id = "postID1"
+				api.On("CreatePost", expectedPostWithSettings).Return(rPost, nil)
+
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -315,6 +330,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Invalid request, question not set": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -336,6 +352,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Invalid request, option 1 not set": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -357,6 +374,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Invalid request, option 2 not set": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -378,6 +396,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Invalid request, duplicate option": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -402,6 +421,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Valid request, GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				return api
 			},
@@ -424,7 +444,13 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Valid request, PollStore.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+
+				rPost := expectedPostTwoOptions.Clone()
+				rPost.Id = "postID1"
+				api.On("CreatePost", expectedPostTwoOptions).Return(rPost, nil)
+
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -447,14 +473,12 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 		"Valid request, createPost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("CreatePost", expectedPostTwoOptions).Return(nil, &model.AppError{})
 				return api
 			},
-			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Insert", pollWithTwoOptions).Return(nil)
-				return store
-			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store { return store },
 			Request: &model.SubmitDialogRequest{
 				UserId:     userID,
 				CallbackId: rootID,
@@ -506,7 +530,11 @@ func TestHandleCreatePoll(t *testing.T) {
 			url := "/api/v1/polls/create"
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
-			r.Header.Add("Mattermost-User-ID", model.NewId())
+			if test.Request != nil {
+				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
+			} else {
+				r.Header.Add("Mattermost-User-ID", model.NewId())
+			}
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
