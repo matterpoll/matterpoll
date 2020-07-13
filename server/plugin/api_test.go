@@ -573,6 +573,10 @@ func TestHandleVote(t *testing.T) {
 	expectedPost3 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost3, poll3Out.ToPostActions(localizer, manifest.ID, "John Doe"))
 
+	post := &model.Post{
+		ChannelId: "channelID1",
+	}
+
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
@@ -584,6 +588,8 @@ func TestHandleVote(t *testing.T) {
 	}{
 		"Valid request with no votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
 					"voted_answers":             []string{"Answer 1"},
@@ -605,8 +611,38 @@ func TestHandleVote(t *testing.T) {
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
 			ExpectedMsg:        "Your vote has been counted.",
 		},
+		"Valid request with no votes, poll without postID": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"voted_answers":             []string{"Answer 1"},
+					"poll_id":                   testutils.GetPollID(),
+					"user_id":                   "userID1",
+					"admin_permission":          true,
+					"setting_public_add_option": false,
+				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				pollIn := poll1In.Copy()
+				pollIn.PostID = ""
+				store.PollStore.On("Get", testutils.GetPollID()).Return(pollIn.Copy(), nil)
+				pollOut := poll1Out.Copy()
+				pollOut.PostID = ""
+				store.PollStore.On("Update", pollIn, pollOut).Return(nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			VoteIndex:          0,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost1},
+			ExpectedMsg:        "Your vote has been counted.",
+		},
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
 					"voted_answers":             []string{"Answer 2"},
@@ -629,22 +665,19 @@ func TestHandleVote(t *testing.T) {
 			ExpectedMsg:        "Your vote has been updated.",
 		},
 		"Valid request, PollStore.Get fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				return api
-			},
+			SetupAPI: func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(nil, &model.AppError{})
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			VoteIndex:          1,
-			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
-			ExpectedMsg:        "Something went wrong. Please try again later.",
+			ExpectedStatusCode: http.StatusInternalServerError,
 		},
 		"Valid request, PollStore.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -666,6 +699,8 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Valid request with vote, HasAdminPermission fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				api.On("LogWarn", GetMockArgumentsWithType("string", 7)...).Return().Maybe()
@@ -691,6 +726,8 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Invalid index": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				return api
 			},
@@ -706,6 +743,8 @@ func TestHandleVote(t *testing.T) {
 		},
 		"Valid request, GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
 				return api
 			},
@@ -754,7 +793,11 @@ func TestHandleVote(t *testing.T) {
 			url := fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex)
 			body := bytes.NewReader(test.Request.ToJson())
 			r := httptest.NewRequest(http.MethodPost, url, body)
-			r.Header.Add("Mattermost-User-ID", model.NewId())
+			if test.Request != nil {
+				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
+			} else {
+				r.Header.Add("Mattermost-User-ID", model.NewId())
+			}
 			p.ServeHTTP(nil, w, r)
 
 			result := w.Result()
