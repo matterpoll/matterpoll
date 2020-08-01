@@ -1,0 +1,258 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/post_type/fields/FiledsTable should match snapshot 1`] = `
+<div>
+  <table
+    className="attachment-fields"
+    key="attachment__table__0"
+  >
+    <thead>
+      <tr />
+    </thead>
+    <tbody>
+      <tr />
+    </tbody>
+  </table>
+  <table
+    className="attachment-fields"
+    key="attachment__table__1"
+  >
+    <thead>
+      <tr>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-0__1"
+          width="50%"
+        >
+          title1
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          className="attachment-field"
+          key="attachment__field-0__1"
+        >
+          mockMessageHtmlToComponent
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`components/post_type/fields/FiledsTable should match snapshot with a short field 1`] = `
+<div>
+  <table
+    className="attachment-fields"
+    key="attachment__table__0"
+  >
+    <thead>
+      <tr>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-0__0"
+          width="50%"
+        >
+          title1
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          className="attachment-field"
+          key="attachment__field-0__0"
+        >
+          mockMessageHtmlToComponent
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`components/post_type/fields/FiledsTable should match snapshot with three short fields 1`] = `
+<div>
+  <table
+    className="attachment-fields"
+    key="attachment__table__0"
+  >
+    <thead>
+      <tr>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-0__0"
+          width="50%"
+        >
+          title1
+        </th>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-1__0"
+          width="50%"
+        >
+          title2
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          className="attachment-field"
+          key="attachment__field-0__0"
+        >
+          mockMessageHtmlToComponent
+        </td>
+        <td
+          className="attachment-field"
+          key="attachment__field-1__0"
+        >
+          mockMessageHtmlToComponent
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table
+    className="attachment-fields"
+    key="attachment__table__1"
+  >
+    <thead>
+      <tr>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-2__1"
+          width="50%"
+        >
+          title3
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          className="attachment-field"
+          key="attachment__field-2__1"
+        >
+          mockMessageHtmlToComponent
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`components/post_type/fields/FiledsTable should match snapshot with two fields 1`] = `
+<div>
+  <table
+    className="attachment-fields"
+    key="attachment__table__0"
+  >
+    <thead>
+      <tr />
+    </thead>
+    <tbody>
+      <tr />
+    </tbody>
+  </table>
+  <table
+    className="attachment-fields"
+    key="attachment__table__1"
+  >
+    <thead>
+      <tr>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-0__1"
+          width="50%"
+        >
+          title1
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          className="attachment-field"
+          key="attachment__field-0__1"
+        >
+          mockMessageHtmlToComponent
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table
+    className="attachment-fields"
+    key="attachment__table__2"
+  >
+    <thead>
+      <tr>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-1__2"
+          width="50%"
+        >
+          title2
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          className="attachment-field"
+          key="attachment__field-1__2"
+        >
+          mockMessageHtmlToComponent
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`components/post_type/fields/FiledsTable should match snapshot with two short fields 1`] = `
+<div>
+  <table
+    className="attachment-fields"
+    key="attachment__table__0"
+  >
+    <thead>
+      <tr>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-0__0"
+          width="50%"
+        >
+          title1
+        </th>
+        <th
+          className="attachment-field__caption"
+          key="attachment__field-caption-1__0"
+          width="50%"
+        >
+          title2
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          className="attachment-field"
+          key="attachment__field-0__0"
+        >
+          mockMessageHtmlToComponent
+        </td>
+        <td
+          className="attachment-field"
+          key="attachment__field-1__0"
+        >
+          mockMessageHtmlToComponent
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`components/post_type/fields/FiledsTable should match snapshot without any fields 1`] = `""`;
