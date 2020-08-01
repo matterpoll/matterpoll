@@ -8,8 +8,8 @@ describe('components/post_type/fields/FiledsTable', () => {
         attachment: {
             fields: [
                 {
-                    title: "title1",
-                    value: "value1",
+                    title: 'title1',
+                    value: 'value1',
                     short: false,
                 },
             ],
@@ -27,7 +27,7 @@ describe('components/post_type/fields/FiledsTable', () => {
     test('should match snapshot without any fields', () => {
         const newProps = {
             ...baseProps,
-        }
+        };
         newProps.attachment.fields = [];
         const wrapper = shallow(<FieldsTable {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
@@ -37,10 +37,10 @@ describe('components/post_type/fields/FiledsTable', () => {
             ...baseProps,
             attachment: {
                 fields: [
-                    { title: "title1", value: "value1", short: false },
-                    { title: "title2", value: "value2", short: false },
-                ]
-            }
+                    {title: 'title1', value: 'value1', short: false},
+                    {title: 'title2', value: 'value2', short: false},
+                ],
+            },
         };
         const wrapper = shallow(<FieldsTable {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
@@ -51,10 +51,10 @@ describe('components/post_type/fields/FiledsTable', () => {
             ...baseProps,
             attachment: {
                 fields: [
-                    { title: "title1", value: "value1", short: true },
-                ]
-            }
-        }
+                    {title: 'title1', value: 'value1', short: true},
+                ],
+            },
+        };
         const wrapper = shallow(<FieldsTable {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
@@ -63,11 +63,11 @@ describe('components/post_type/fields/FiledsTable', () => {
             ...baseProps,
             attachment: {
                 fields: [
-                    { title: "title1", value: "value1", short: true },
-                    { title: "title2", value: "value2", short: true },
-                ]
-            }
-        }
+                    {title: 'title1', value: 'value1', short: true},
+                    {title: 'title2', value: 'value2', short: true},
+                ],
+            },
+        };
         const wrapper = shallow(<FieldsTable {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
@@ -76,12 +76,12 @@ describe('components/post_type/fields/FiledsTable', () => {
             ...baseProps,
             attachment: {
                 fields: [
-                    { title: "title1", value: "value1", short: true },
-                    { title: "title2", value: "value2", short: true },
-                    { title: "title3", value: "value3", short: true },
-                ]
-            }
-        }
+                    {title: 'title1', value: 'value1', short: true},
+                    {title: 'title2', value: 'value2', short: true},
+                    {title: 'title3', value: 'value3', short: true},
+                ],
+            },
+        };
         const wrapper = shallow(<FieldsTable {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
