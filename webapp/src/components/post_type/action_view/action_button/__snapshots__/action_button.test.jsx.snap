@@ -19,7 +19,7 @@ exports[`components/action_button/ActionButton should match snapshot 1`] = `
     key="action_id1"
     onClick={[Function]}
   >
-    mockMessageHtmlToComponent
+    mockMessageHtmlToComponent(mockFormatText(action_name))
   </Button>
 </ButtonToolbar>
 `;
@@ -43,7 +43,7 @@ exports[`components/action_button/ActionButton should match snapshot with hasVot
     key="action_id1"
     onClick={[Function]}
   >
-    mockMessageHtmlToComponent
+    mockMessageHtmlToComponent(mockFormatText(action_name))
   </Button>
 </ButtonToolbar>
 `;

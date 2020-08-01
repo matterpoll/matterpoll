@@ -19,13 +19,13 @@ exports[`components/post_type/PostType should match snapshot 1`] = `
       <h1
         className="attachment__title"
       >
-        mockMessageHtmlToComponent
+        mockMessageHtmlToComponent(mockFormatText(sample_title))
       </h1>
       <div>
         <div
           className="attachment__body attachment__body--no_thumb"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(sample_text))
           <FieldsTable
             attachment={
               Object {
@@ -91,13 +91,13 @@ exports[`components/post_type/PostType should match snapshot with two attachment
       <h1
         className="attachment__title"
       >
-        mockMessageHtmlToComponent
+        mockMessageHtmlToComponent(mockFormatText(sample_title))
       </h1>
       <div>
         <div
           className="attachment__body attachment__body--no_thumb"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(sample_text))
           <FieldsTable
             attachment={
               Object {

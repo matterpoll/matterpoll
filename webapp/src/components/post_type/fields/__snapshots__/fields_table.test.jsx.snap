@@ -34,7 +34,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot 1`] = `
           className="attachment-field"
           key="attachment__field-0__1"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value1))
         </td>
       </tr>
     </tbody>
@@ -65,7 +65,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with a sh
           className="attachment-field"
           key="attachment__field-0__0"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value1))
         </td>
       </tr>
     </tbody>
@@ -103,13 +103,13 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with thre
           className="attachment-field"
           key="attachment__field-0__0"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value1))
         </td>
         <td
           className="attachment-field"
           key="attachment__field-1__0"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value2))
         </td>
       </tr>
     </tbody>
@@ -135,7 +135,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with thre
           className="attachment-field"
           key="attachment__field-2__1"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value3))
         </td>
       </tr>
     </tbody>
@@ -177,7 +177,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with two 
           className="attachment-field"
           key="attachment__field-0__1"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value1))
         </td>
       </tr>
     </tbody>
@@ -203,7 +203,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with two 
           className="attachment-field"
           key="attachment__field-1__2"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value2))
         </td>
       </tr>
     </tbody>
@@ -241,13 +241,13 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with two 
           className="attachment-field"
           key="attachment__field-0__0"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value1))
         </td>
         <td
           className="attachment-field"
           key="attachment__field-1__0"
         >
-          mockMessageHtmlToComponent
+          mockMessageHtmlToComponent(mockFormatText(value2))
         </td>
       </tr>
     </tbody>
