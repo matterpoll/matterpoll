@@ -47,13 +47,15 @@ export default class FieldsTable extends React.PureComponent {
                 nrTables += 1;
                 lastWasLong = false;
             }
+
+            const fieldTitle = messageHtmlToComponent(formatText(field.title, this.props.options));
             headerCols.push(
                 <th
                     className='attachment-field__caption'
                     key={'attachment__field-caption-' + i + '__' + nrTables}
                     width='50%'
                 >
-                    {field.title}
+                    {fieldTitle}
                 </th>
             );
 

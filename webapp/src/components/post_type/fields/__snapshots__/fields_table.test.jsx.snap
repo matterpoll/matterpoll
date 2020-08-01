@@ -24,7 +24,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot 1`] = `
           key="attachment__field-caption-0__1"
           width="50%"
         >
-          title1
+          mockMessageHtmlToComponent(mockFormatText(title1))
         </th>
       </tr>
     </thead>
@@ -55,7 +55,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with a sh
           key="attachment__field-caption-0__0"
           width="50%"
         >
-          title1
+          mockMessageHtmlToComponent(mockFormatText(title1))
         </th>
       </tr>
     </thead>
@@ -86,14 +86,14 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with thre
           key="attachment__field-caption-0__0"
           width="50%"
         >
-          title1
+          mockMessageHtmlToComponent(mockFormatText(title1))
         </th>
         <th
           className="attachment-field__caption"
           key="attachment__field-caption-1__0"
           width="50%"
         >
-          title2
+          mockMessageHtmlToComponent(mockFormatText(title2))
         </th>
       </tr>
     </thead>
@@ -125,7 +125,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with thre
           key="attachment__field-caption-2__1"
           width="50%"
         >
-          title3
+          mockMessageHtmlToComponent(mockFormatText(title3))
         </th>
       </tr>
     </thead>
@@ -167,7 +167,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with two 
           key="attachment__field-caption-0__1"
           width="50%"
         >
-          title1
+          mockMessageHtmlToComponent(mockFormatText(title1))
         </th>
       </tr>
     </thead>
@@ -193,7 +193,7 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with two 
           key="attachment__field-caption-1__2"
           width="50%"
         >
-          title2
+          mockMessageHtmlToComponent(mockFormatText(title2))
         </th>
       </tr>
     </thead>
@@ -224,14 +224,14 @@ exports[`components/post_type/fields/FiledsTable should match snapshot with two 
           key="attachment__field-caption-0__0"
           width="50%"
         >
-          title1
+          mockMessageHtmlToComponent(mockFormatText(title1))
         </th>
         <th
           className="attachment-field__caption"
           key="attachment__field-caption-1__0"
           width="50%"
         >
-          title2
+          mockMessageHtmlToComponent(mockFormatText(title2))
         </th>
       </tr>
     </thead>
