@@ -27,7 +27,7 @@ The localization process is defined below:
 - Japanese: [@kaakaa](https://github.com/kaakaa)
 - Polish: [@burasuk](https://github.com/burasuk)
 - Spanish: [@ernestoittig](https://github.com/ernestoittig)
-- Chinese: [@sharuru](https://github.com/sharuru)
+- Simplified Chinese: [@sharuru](https://github.com/sharuru)
 
 ### Translation Process for Existing Languages
 
