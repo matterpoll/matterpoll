@@ -28,6 +28,7 @@ The localization process is defined below:
 - Polish: [@burasuk](https://github.com/burasuk)
 - Spanish: [@ernestoittig](https://github.com/ernestoittig)
 - Traditional Chinese: [@mouson](https://github.com/mouson)
+- Simplified Chinese: [@sharuru](https://github.com/sharuru)
 
 ### Translation Process for Existing Languages
 

@@ -48,7 +48,7 @@ The currently supported languages are:
 - Polish
 - Spanish
 - Traditional Chinese
-
+- Simplified Chinese
 
 ## Troubleshooting
 
