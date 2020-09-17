@@ -46,8 +46,9 @@ The currently supported languages are:
 - German
 - Japanese
 - Polish
-- Spanish
 - Simplified Chinese
+- Spanish
+- Traditional Chinese
 
 
 ## Troubleshooting
