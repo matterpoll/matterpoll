@@ -45,6 +45,7 @@ The currently supported languages are:
 - France
 - German
 - Japanese
+- Korean
 - Polish
 - Simplified Chinese
 - Spanish

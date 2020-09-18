@@ -1,0 +1,178 @@
+{
+  "bot.description": {
+    "hash": "sha1-a007d7390f1601bbdc83a397f619335ed591699f",
+    "other": "투표 봇"
+  },
+  "command.autoComplete.desc": {
+    "hash": "sha1-1cd8e96070c8a1464138423657b6ffef691fab49",
+    "other": "투표 만들기"
+  },
+  "command.autoComplete.hint": {
+    "hash": "sha1-7355a4eaa6ce5feb9d4b4c0ed10f3af30101bf41",
+    "other": "\"[질의]\" \"[응답 1]\" \"[응답 2]\"..."
+  },
+  "command.default.no": {
+    "hash": "sha1-816c52fd2bdd94a63cd0944823a6c0aa9384c103",
+    "other": "아니오"
+  },
+  "command.default.yes": {
+    "hash": "sha1-5397e0583f14f6c88de06b1ef28f460a1fb5b0ae",
+    "other": "예"
+  },
+  "command.error.generic": {
+    "hash": "sha1-73c841bf1e817ec2ab09b17eb0b43ec61bf1eda9",
+    "other": "문제가 발생했습니다. 나중에 다시 시도해주세요."
+  },
+  "command.error.invalidInput": {
+    "hash": "sha1-6ef073c836a398485967d7c10a085b611d272ddc",
+    "other": "유효하지 않은 입력: {{.Error}}"
+  },
+  "command.error.invalidNumberOfOptions": {
+    "hash": "sha1-31287872531872ed11e9ae69975afc1cd2ee09ae",
+    "other": "응답하지 않거나 최소한 2개의 응답을 해야 합니다."
+  },
+  "command.help.text.options": {
+    "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
+    "other": "`/{{.Trigger}} \"질의\" \"응답 1\" \"응답 2\" \"응답 3\"`과 같이 입력하여 투표를 시작할 수 있습니다."
+  },
+  "command.help.text.pollSetting.anonymous": {
+    "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
+    "other": "누가 어떤 응답을 했는지 보여주지 않습니다"
+  },
+  "command.help.text.pollSetting.introduction": {
+    "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
+    "other": "다음과 같이 사용자 정의 투표 설정을 할 수 있습니다. 예: `/{{.Trigger}} \"질의\" \"응답 1\" \"응답 2\" \"응답 3\" --progress --anonymous`. 가능한 투표 설정은 다음과 같습니다:"
+  },
+  "command.help.text.pollSetting.progress": {
+    "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
+    "other": "투표가 진행되는 동안에 각 응답이 얼마나 투표되었는지 보여줍니다."
+  },
+  "command.help.text.pollSetting.public-add-option": {
+    "hash": "sha1-97f6e52cd7135ca4c73b79790a946ead7513cd33",
+    "other": "모든 사용자들이 응답을 추가할 수 있도록 합니다."
+  },
+  "command.help.text.simple": {
+    "hash": "sha1-783c9e50cbbd9a11685f41524265201b2e97d369",
+    "other": "`/{{.Trigger}} \"질의\"`를 입력하여 \"{{.Yes}}\"와 \"{{.No}}\"로만 응답을 받는 투표를 시작할 수 있습니다."
+  },
+  "dialog.addOption.element.displayName": {
+    "hash": "sha1-e31d972229de381b461860014dd710856361917a",
+    "other": "응답"
+  },
+  "dialog.addOption.submitLabel": {
+    "hash": "sha1-61cc55aa0453184734c3fa0b621eda6fa874bd83",
+    "other": "추가"
+  },
+  "dialog.addOption.title": {
+    "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
+    "other": "응답 추가"
+  },
+  "dialog.create.submitLabel": {
+    "hash": "sha1-6e157c5da4410b7e9de85f5c93026b9176e69064",
+    "other": "만들기"
+  },
+  "dialog.create.title": {
+    "hash": "sha1-c643db620cf4120486a230ec3e8635d822bba294",
+    "other": "투표 만들기"
+  },
+  "dialog.createPoll.option": {
+    "hash": "sha1-790c56f066138f17e25e3bc55141bafb55eae14b",
+    "other": "응답 {{ .Number }}"
+  },
+  "dialog.createPoll.question": {
+    "hash": "sha1-002ff598115d84595ffeee6219cb5c03d3a1d4a6",
+    "other": "질의"
+  },
+  "dialog.delete.submitLabel": {
+    "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
+    "other": "삭제"
+  },
+  "dialog.delete.title": {
+    "hash": "sha1-ce46cb787a610361503ef26f2b542a1872919716",
+    "other": "투표를 삭제합니다."
+  },
+  "dialog.end.submitLabel": {
+    "hash": "sha1-a2bb9d34b8a1a79665858d354585cf147e0dee4e",
+    "other": "종료"
+  },
+  "dialog.end.title": {
+    "hash": "sha1-e54c9d4f934f84ae6bfb7abf59fae282f68d810c",
+    "other": "투표를 종료합니다."
+  },
+  "poll.addAnswerOption.duplicate": {
+    "hash": "sha1-f2e20be1db21bba56adc08d288db5275a7c193d0",
+    "other": "중복된 응답: {{.Option}}"
+  },
+  "poll.addAnswerOption.empty": {
+    "hash": "sha1-12db9817b0feafe98b4b809dceefdde8399f4147",
+    "other": "빈 응답은 허용되지 않습니다"
+  },
+  "poll.button.addOption": {
+    "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
+    "other": "응답 추가"
+  },
+  "poll.button.deletePoll": {
+    "hash": "sha1-390ff4fdd0cfef6ef35fbf067a605aa3ea87ecca",
+    "other": "투표 삭제"
+  },
+  "poll.button.endPoll": {
+    "hash": "sha1-60ddde386bd7190fa3da2ba13f97e3caa625d3e6",
+    "other": "투표 종료"
+  },
+  "poll.endPost.answer.heading": {
+    "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
+    "other": "{{.Answer}} ({{.Count}}명 참여)"
+  },
+  "poll.endPost.seperator": {
+    "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
+    "other": "그리고"
+  },
+  "poll.endPost.text": {
+    "hash": "sha1-61a7f4e4c5ffd36b1302f820a994f24317cef74f",
+    "other": "투표가 마감되었습니다. 결과는 다음과 같습니다:"
+  },
+  "poll.message.pollSettings": {
+    "hash": "sha1-b31a3d90a09c220db0f1bc97bd0ae79eeca4edf1",
+    "other": "**투표 설정**: {{.Settings}}"
+  },
+  "poll.message.totalVotes": {
+    "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
+    "other": "**전체 투표**: {{.TotalVotes}}"
+  },
+  "poll.newPoll.unrecognizedSetting": {
+    "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
+    "other": "알 수 없는 투표 설정: {{.Setting}}"
+  },
+  "response.addOption.invalidPermission": {
+    "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
+    "other": "투표를 개설한 사람과 시스템 관리자만이 응답을 추가할 수 있습니다."
+  },
+  "response.addOption.success": {
+    "hash": "sha1-274a82da87d06380a636d43c8aa480f207c7928b",
+    "other": "응답을 추가했습니다."
+  },
+  "response.deletePoll.invalidPermission": {
+    "hash": "sha1-97d4d7bd45a958bc6eea2bd33401a3bc5056cc1d",
+    "other": "투표를 개설한 사람과 시스템 관리자만이 투표를 삭제할 수 있습니다."
+  },
+  "response.deletePoll.success": {
+    "hash": "sha1-cb754e0331888691ff5e4179b22155fc6df1ac1d",
+    "other": "투표를 삭제했습니다."
+  },
+  "response.endPoll.invalidPermission": {
+    "hash": "sha1-6fec2172c9fbcf6944812318684b19ebda485a82",
+    "other": "투표를 개설한 사람과 시스템 관리자만이 투표를 종료할 수 있습니다."
+  },
+  "response.endPoll.successfully": {
+    "hash": "sha1-a4fba46ee42d558010f595fec2e1e451cf3d4d73",
+    "other": "**{{.Question}}** 투표가 종료되었으며, 원본 게시글이 갱신되었습니다. [여기]({{.Link}})를 눌러서 바로 이동할 수 있습니다."
+  },
+  "response.vote.counted": {
+    "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
+    "other": "투표 참여가 집계되었습니다."
+  },
+  "response.vote.updated": {
+    "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
+    "other": "투표 참여가 갱신되었습니다."
+  }
+}
