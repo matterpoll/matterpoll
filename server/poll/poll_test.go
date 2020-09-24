@@ -286,6 +286,28 @@ func TestGetMetadata(t *testing.T) {
 				VotedAnswers:    []string{"Answer 2", "Answer 3"},
 			},
 		},
+		"Voted two Answers, with progress option": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a", "b"}},
+					{Answer: "Answer 3", Voter: []string{"b"}},
+				},
+				Settings: poll.Settings{
+					Progress: true,
+				},
+			},
+			UserID:      "b",
+			Permission:  true,
+			ShouldError: false,
+			ExpectedResponse: &poll.Metadata{
+				PollID:          testutils.GetPollID(),
+				UserID:          "b",
+				AdminPermission: true,
+				VotedAnswers:    []string{"Answer 2 (2)", "Answer 3 (1)"},
+			},
+		},
 		"Voted no Answers": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),

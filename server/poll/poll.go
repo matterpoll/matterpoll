@@ -126,6 +126,14 @@ func (p *Poll) UpdateVote(userID string, index int) error {
 	return nil
 }
 
+// getAnswerOptionName returns answer option name (with voter count if progress setting is available)
+func (p *Poll) getAnswerOptionName(o *AnswerOption) string {
+	if p.Settings.Progress {
+		return fmt.Sprintf("%s (%d)", o.Answer, len(o.Voter))
+	}
+	return o.Answer
+}
+
 // getVotedAnswers collect voted answers by a user and returns it as string array.
 func (p *Poll) getVotedAnswers(userID string) ([]string, error) {
 	if userID == "" {
@@ -135,7 +143,7 @@ func (p *Poll) getVotedAnswers(userID string) ([]string, error) {
 	for _, o := range p.AnswerOptions {
 		for _, v := range o.Voter {
 			if userID == v {
-				votedAnswer = append(votedAnswer, o.Answer)
+				votedAnswer = append(votedAnswer, p.getAnswerOptionName(o))
 			}
 		}
 	}
