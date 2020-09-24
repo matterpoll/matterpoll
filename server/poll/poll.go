@@ -131,6 +131,7 @@ func (p *Poll) getAnswerOptionName(o *AnswerOption) string {
 	if p.Settings.Progress {
 		return fmt.Sprintf("%s (%d)", o.Answer, len(o.Voter))
 	}
+	
 	return o.Answer
 }
 
