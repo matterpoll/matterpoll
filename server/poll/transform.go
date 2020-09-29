@@ -34,11 +34,6 @@ var (
 		ID:    "poll.endPost.seperator",
 		Other: "and",
 	}
-	pollEndPostAnswerHeading = &i18n.Message{
-		ID:    "poll.endPost.answer.heading",
-		One:   "{{.Answer}} ({{.Count}} vote)",
-		Other: "{{.Answer}} ({{.Count}} votes)",
-	}
 )
 
 // ToPostActions returns the poll as a message
@@ -172,7 +167,13 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 		fields = append(fields, &model.SlackAttachmentField{
 			Short: true,
 			Title: localizer.MustLocalize(&i18n.LocalizeConfig{
-				DefaultMessage: pollEndPostAnswerHeading,
+				DefaultMessage: &i18n.Message{
+					ID:    "poll.endPost.answer.heading",
+					One:   "{{.Answer}} ({{.Count}} vote)",
+					Few:   "{{.Answer}} ({{.Count}} votes)",
+					Many:  "{{.Answer}} ({{.Count}} votes)",
+					Other: "{{.Answer}} ({{.Count}} votes)",
+				},
 				TemplateData: map[string]interface{}{
 					"Answer": o.Answer,
 					"Count":  len(o.Voter),

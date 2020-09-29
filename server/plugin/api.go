@@ -309,6 +309,8 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 			DefaultMessage: &i18n.Message{
 				ID:    "response.vote.multi.updated",
 				One:   "Your vote has been counted. You have {{.Remains}} vote left.",
+				Few:   "Your vote has been counted. You have {{.Remains}} votes left.",
+				Many:  "Your vote has been counted. You have {{.Remains}} votes left.",
 				Other: "Your vote has been counted. You have {{.Remains}} votes left.",
 			},
 			TemplateData: map[string]interface{}{"Remains": remains},
