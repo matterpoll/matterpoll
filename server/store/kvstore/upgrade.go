@@ -2,8 +2,14 @@ package kvstore
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/blang/semver/v4"
+	"github.com/pkg/errors"
+)
+
+const (
+	perPage = 50
 )
 
 type upgrade struct {
@@ -16,6 +22,7 @@ func getUpgrades() []*upgrade {
 		{toVersion: "1.1.0", upgradeFunc: nil},
 		{toVersion: "1.2.0", upgradeFunc: nil},
 		{toVersion: "1.3.0", upgradeFunc: nil},
+		{toVersion: "1.4.0", upgradeFunc: upgradeTo14},
 	}
 }
 
@@ -44,9 +51,11 @@ func (s *Store) UpdateDatabase(pluginVersion string) error {
 					return err
 				}
 			}
+
 			if err := s.System().SaveVersion(upgrade.toVersion); err != nil {
 				return err
 			}
+
 			s.api.LogWarn(fmt.Sprintf("Update to version %v complete", upgrade.toVersion))
 			currentVersion = upgrade.toVersion
 		}
@@ -61,4 +70,49 @@ func (s *Store) shouldPerformUpgrade(currentSchemaVersion, expectedSchemaVersion
 		return true
 	}
 	return false
+}
+
+func upgradeTo14(s *Store) error {
+	var allKeys []string
+	i := 0
+	for {
+		keys, appErr := s.api.KVList(i, perPage)
+		if appErr != nil {
+			return errors.Wrap(appErr, "failed to list poll keys")
+		}
+
+		if len(keys) == 0 {
+			break
+		}
+
+		allKeys = append(allKeys, keys...)
+		i++
+	}
+
+	for _, k := range allKeys {
+		// Only migrate plugin keys
+		if strings.HasPrefix(k, pollPrefix) {
+			k = strings.TrimPrefix(k, pollPrefix)
+
+			poll, err := s.Poll().Get(k)
+			if err != nil {
+				s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
+				continue
+			}
+
+			if poll.Settings.MaxVotes > 0 {
+				// Already migrated
+				continue
+			}
+
+			poll.Settings.MaxVotes = 1
+			err = s.Poll().Save(poll)
+			if err != nil {
+				s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
+				continue
+			}
+		}
+	}
+
+	return nil
 }

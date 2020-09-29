@@ -105,7 +105,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"No argument, OpenInteractiveDialog fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("OpenInteractiveDialog", createPollDialog).Return(&model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore:   func(store *mockstore.Store) *mockstore.Store { return store },
@@ -127,7 +127,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"Just question": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
@@ -165,7 +165,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -178,7 +178,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"With 4 arguments": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
@@ -203,7 +203,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"With 4 arguments and setting progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
@@ -230,7 +230,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"With 4 arguments and multi setting": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
@@ -257,7 +257,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"With 4 arguments and setting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("LogDebug", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{
 					UserId:    testutils.GetBotUserID(),
@@ -283,7 +283,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"Store.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -296,7 +296,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"GetUser fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {

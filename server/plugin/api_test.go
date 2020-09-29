@@ -47,7 +47,7 @@ func TestServeHTTP(t *testing.T) {
 			assert := assert.New(t)
 
 			api := &plugintest.API{}
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
@@ -89,7 +89,7 @@ func TestServeFile(t *testing.T) {
 		"failed to get executable": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetBundlePath").Return("", errors.New(""))
-				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 				return api
 			},
 			ExpectedStatusCode: http.StatusInternalServerError,
@@ -99,7 +99,7 @@ func TestServeFile(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
@@ -141,7 +141,7 @@ func TestHandlePluginConfiguration(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
@@ -172,7 +172,7 @@ func TestHandlePluginConfiguration(t *testing.T) {
 func TestHandleCreatePoll(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
@@ -483,8 +483,8 @@ func TestHandleCreatePoll(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -529,7 +529,7 @@ func TestHandleCreatePoll(t *testing.T) {
 func TestHandleVote(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
@@ -761,7 +761,7 @@ func TestHandleVote(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 7)...).Return().Maybe()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 7)...).Return().Maybe()
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
 					"voted_answers":             []string{"Answer 2"},
 					"poll_id":                   testutils.GetPollID(),
@@ -826,8 +826,8 @@ func TestHandleVote(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -875,7 +875,7 @@ func TestHandleVote(t *testing.T) {
 func TestHandleResetVotes(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
@@ -1053,8 +1053,8 @@ func TestHandleResetVotes(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -1105,7 +1105,7 @@ func TestHandleAddOption(t *testing.T) {
 
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: userID, PostId: postID, TriggerId: triggerID}
@@ -1271,8 +1271,8 @@ func TestHandleAddOption(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -1316,7 +1316,7 @@ func TestHandleAddOption(t *testing.T) {
 func TestHandleAddOptionConfirm(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
@@ -1547,8 +1547,8 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -1588,7 +1588,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 func TestHandleEndPoll(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"}
@@ -1751,8 +1751,8 @@ func TestHandleEndPoll(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -1796,7 +1796,7 @@ func TestHandleEndPoll(t *testing.T) {
 func TestHandleEndPollConfirm(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.SubmitDialogRequest{}
@@ -1953,8 +1953,8 @@ func TestHandleEndPollConfirm(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -2013,7 +2013,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		"Valid request, CreatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 5)...).Return()
 				return api
 			},
 		},
@@ -2029,7 +2029,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 func TestHandleDeletePoll(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{}
@@ -2192,8 +2192,8 @@ func TestHandleDeletePoll(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -2237,7 +2237,7 @@ func TestHandleDeletePoll(t *testing.T) {
 func TestHandleDeletePollConfirm(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.SubmitDialogRequest{}
@@ -2355,8 +2355,8 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
@@ -2440,7 +2440,7 @@ func TestHandlePollMetadata(t *testing.T) {
 		"Valid request without votes, HasAdminPermission fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID5").Return(nil, &model.AppError{})
-				api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return().Maybe()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 5)...).Return().Maybe()
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -2472,8 +2472,8 @@ func TestHandlePollMetadata(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", GetMockArgumentsWithType("string", 7)...).Return()
-			api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return().Maybe()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)

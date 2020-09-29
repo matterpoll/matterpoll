@@ -261,11 +261,3 @@ func TestPluginOnDeactivate(t *testing.T) {
 	err := p.OnDeactivate()
 	assert.Nil(t, err)
 }
-
-func GetMockArgumentsWithType(typeString string, num int) []interface{} {
-	ret := make([]interface{}, num)
-	for i := 0; i < len(ret); i++ {
-		ret[i] = mock.AnythingOfTypeArgument(typeString)
-	}
-	return ret
-}

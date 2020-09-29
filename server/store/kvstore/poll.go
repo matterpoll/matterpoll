@@ -49,6 +49,15 @@ func (s *PollStore) Insert(poll *poll.Poll) error {
 	return nil
 }
 
+// Save stores a poll in the KV Store. Overwrittes any existing poll with the same id.
+func (s *PollStore) Save(poll *poll.Poll) error {
+	if err := s.api.KVSet(pollPrefix+poll.ID, poll.EncodeToByte()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Update updates an existing a poll in the KV Store.
 func (s *PollStore) Update(prev *poll.Poll, new *poll.Poll) error {
 	opt := model.PluginKVSetOptions{
