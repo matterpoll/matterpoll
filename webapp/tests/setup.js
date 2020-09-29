@@ -7,6 +7,6 @@ configure({adapter: new Adapter()});
 global.ReactBootstrap = require('react-bootstrap');
 
 global.PostUtils = {
-    formatText: jest.fn().mockImplementation(() => 'sample'),
-    messageHtmlToComponent: jest.fn(),
+    formatText: jest.fn().mockImplementation((t) => 'mockFormatText(' + t + ')'),
+    messageHtmlToComponent: jest.fn().mockImplementation((t) => 'mockMessageHtmlToComponent(' + t + ')'),
 };

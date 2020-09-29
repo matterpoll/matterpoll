@@ -47,6 +47,13 @@ func TestPluginOnActivate(t *testing.T) {
 		DisplayName: botDisplayName,
 	}
 
+	command := &model.Command{
+		Trigger:          "poll",
+		AutoComplete:     true,
+		AutoCompleteDesc: "Create a poll",
+		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+	}
+
 	for name, test := range map[string]struct {
 		SetupAPI     func(*plugintest.API) *plugintest.API
 		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
@@ -64,6 +71,7 @@ func TestPluginOnActivate(t *testing.T) {
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
+				api.On("RegisterCommand", command).Return(nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
@@ -80,6 +88,7 @@ func TestPluginOnActivate(t *testing.T) {
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
+				api.On("RegisterCommand", command).Return(nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {

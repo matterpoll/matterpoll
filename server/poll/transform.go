@@ -48,13 +48,9 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
-		answer := o.Answer
-		if p.Settings.Progress {
-			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
-		}
 		actions = append(actions, &model.PostAction{
 			Id:   fmt.Sprintf("vote%v", i),
-			Name: answer,
+			Name: p.getAnswerOptionName(o),
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/vote/%v", pluginID, p.ID, i),

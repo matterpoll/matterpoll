@@ -267,16 +267,25 @@ func (p *Poll) ResetVotes(userID string) {
 	}
 }
 
+// getAnswerOptionName returns answer option name (with voter count if progress setting is available)
+func (p *Poll) getAnswerOptionName(o *AnswerOption) string {
+	if p.Settings.Progress {
+		return fmt.Sprintf("%s (%d)", o.Answer, len(o.Voter))
+	}
+	return o.Answer
+}
+
 // GetVotedAnswers collect voted answers by a user and returns it as string array.
 func (p *Poll) GetVotedAnswers(userID string) []string {
 	votedAnswer := []string{}
 	for _, o := range p.AnswerOptions {
 		for _, v := range o.Voter {
 			if userID == v {
-				votedAnswer = append(votedAnswer, o.Answer)
+				votedAnswer = append(votedAnswer, p.getAnswerOptionName(o))
 			}
 		}
 	}
+
 	return votedAnswer
 }
 

@@ -89,6 +89,10 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return errors.Wrap(err, "failed to patch bot description")
 	}
 
+	if err := p.API.RegisterCommand(p.getCommand(p.getConfiguration().Trigger)); err != nil {
+		return errors.Wrap(err, "failed to register  command")
+	}
+
 	p.router = p.InitAPI()
 
 	p.setActivated(true)
