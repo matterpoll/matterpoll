@@ -39,7 +39,7 @@ export default class FieldsTable extends React.PureComponent {
                                 {bodyCols}
                             </tr>
                         </tbody>
-                    </table>
+                    </table>,
                 );
                 headerCols = [];
                 bodyCols = [];
@@ -56,7 +56,7 @@ export default class FieldsTable extends React.PureComponent {
                     width='50%'
                 >
                     {fieldTitle}
-                </th>
+                </th>,
             );
 
             const fieldValue = messageHtmlToComponent(formatText(field.value, this.props.options));
@@ -66,7 +66,7 @@ export default class FieldsTable extends React.PureComponent {
                     key={'attachment__field-' + i + '__' + nrTables}
                 >
                     {fieldValue}
-                </td>
+                </td>,
             );
             rowPos += 1;
             lastWasLong = !(field.short === true);
@@ -87,7 +87,7 @@ export default class FieldsTable extends React.PureComponent {
                             {bodyCols}
                         </tr>
                     </tbody>
-                </table>
+                </table>,
             );
         }
         return (

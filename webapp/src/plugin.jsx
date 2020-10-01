@@ -12,13 +12,13 @@ export default class MatterPollPlugin {
             'custom_' + pluginId + '_configuration_change',
             (message) => {
                 store.dispatch(configurationChange(registry, store, message.data));
-            }
+            },
         );
         registry.registerWebSocketEventHandler(
             'custom_' + pluginId + '_has_voted',
             (message) => {
                 store.dispatch(websocketHasVoted(message.data));
-            }
+            },
         );
 
         // When logging in, read plugin configuration from server.

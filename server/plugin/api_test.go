@@ -34,7 +34,7 @@ func TestServeHTTP(t *testing.T) {
 			RequestURL:         "/",
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedHeader:     http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}},
-			ExpectedbodyString: infoMessage,
+			ExpectedbodyString: "Thanks for using Matterpoll v" + manifest.Version + "\n",
 		},
 		"InvalidRequestURL": {
 			RequestURL:         "/not_found",
@@ -201,7 +201,7 @@ func TestHandleCreatePoll(t *testing.T) {
 			"poll_id": testutils.GetPollID(),
 		},
 	}
-	model.ParseSlackAttachment(expectedPost, expectedPoll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost, expectedPoll.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe"))
 
 	pollWithTwoOptions := testutils.GetPoll()
 	pollWithTwoOptions.AnswerOptions = pollWithTwoOptions.AnswerOptions[0:2]
@@ -214,7 +214,7 @@ func TestHandleCreatePoll(t *testing.T) {
 			"poll_id": testutils.GetPollID(),
 		},
 	}
-	model.ParseSlackAttachment(expectedPostTwoOptions, pollWithTwoOptions.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe"))
+	model.ParseSlackAttachment(expectedPostTwoOptions, pollWithTwoOptions.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe"))
 
 	pollWithSettings := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, PublicAddOption: true})
 	expectedPostWithSettings := &model.Post{
@@ -226,7 +226,7 @@ func TestHandleCreatePoll(t *testing.T) {
 			"poll_id": testutils.GetPollID(),
 		},
 	}
-	model.ParseSlackAttachment(expectedPostWithSettings, pollWithSettings.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe"))
+	model.ParseSlackAttachment(expectedPostWithSettings, pollWithSettings.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -553,7 +553,7 @@ func TestHandleVote(t *testing.T) {
 	err := poll1Out.UpdateVote("userID1", 0)
 	require.Nil(t, err)
 	expectedPost1 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(localizer, manifest.ID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(localizer, manifest.Id, "John Doe"))
 
 	poll2In := testutils.GetPoll()
 	err = poll2In.UpdateVote("userID1", 0)
@@ -562,7 +562,7 @@ func TestHandleVote(t *testing.T) {
 	err = poll2Out.UpdateVote("userID1", 1)
 	require.Nil(t, err)
 	expectedPost2 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(localizer, manifest.ID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(localizer, manifest.Id, "John Doe"))
 
 	poll3In := testutils.GetPoll()
 	err = poll3In.UpdateVote("userID2", 0)
@@ -571,7 +571,7 @@ func TestHandleVote(t *testing.T) {
 	err = poll3Out.UpdateVote("userID2", 1)
 	require.Nil(t, err)
 	expectedPost3 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost3, poll3Out.ToPostActions(localizer, manifest.ID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost3, poll3Out.ToPostActions(localizer, manifest.Id, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -806,10 +806,10 @@ func TestHandleAddOption(t *testing.T) {
 
 	dialogRequest := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", manifest.ID, testutils.GetPollID()),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", manifest.Id, testutils.GetPollID()),
 		Dialog: model.Dialog{
 			Title:       "Add Option",
-			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
+			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.Id),
 			CallbackId:  postID,
 			SubmitLabel: "Add",
 			Elements: []model.DialogElement{{
@@ -1022,7 +1022,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 	err := poll1Out.AddAnswerOption("New Option")
 	require.Nil(t, err)
 	expectedPost1 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe"))
+	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -1290,10 +1290,10 @@ func TestHandleEndPoll(t *testing.T) {
 	triggerID := model.NewId()
 	dialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", manifest.ID, testutils.GetPollID()),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", manifest.Id, testutils.GetPollID()),
 		Dialog: model.Dialog{
 			Title:       "Confirm Poll End",
-			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
+			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.Id),
 			CallbackId:  "postID1",
 			SubmitLabel: "End",
 		},
@@ -1731,10 +1731,10 @@ func TestHandleDeletePoll(t *testing.T) {
 	triggerID := model.NewId()
 	dialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", manifest.ID, testutils.GetPollID()),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", manifest.Id, testutils.GetPollID()),
 		Dialog: model.Dialog{
 			Title:       "Confirm Poll Delete",
-			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
+			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.Id),
 			CallbackId:  "postID1",
 			SubmitLabel: "Delete",
 		},

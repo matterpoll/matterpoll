@@ -31,8 +31,6 @@ type (
 )
 
 var (
-	infoMessage = "Thanks for using Matterpoll v" + manifest.Version + "\n"
-
 	responseVoteCounted = &i18n.Message{
 		ID:    "response.vote.counted",
 		Other: "Your vote has been counted.",
@@ -99,7 +97,7 @@ func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r
 }
 
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
-	_, _ = io.WriteString(w, infoMessage)
+	_, _ = io.WriteString(w, "Thanks for using Matterpoll v"+manifest.Version+"\n")
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
@@ -254,7 +252,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	actions := poll.ToPostActions(publicLocalizer, manifest.ID, displayName)
+	actions := poll.ToPostActions(publicLocalizer, manifest.Id, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: request.ChannelId,
@@ -302,7 +300,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.ID, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
 
 	if hasVoted {
@@ -348,13 +346,13 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", manifest.ID, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", manifest.Id, pollID),
 		Dialog: model.Dialog{
 			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.addOption.title",
 				Other: "Add Option",
 			}),
-			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.ID),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
 			CallbackId: request.PostId,
 			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.addOption.submitLabel",
@@ -414,7 +412,7 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 	}
 
 	publicLocalizer := p.getServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.ID, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.Id, displayName))
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
 	}
@@ -446,13 +444,13 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", manifest.ID, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", manifest.Id, pollID),
 		Dialog: model.Dialog{
 			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.end.title",
 				Other: "Confirm Poll End",
 			}),
-			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.ID),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
 			CallbackId: request.PostId,
 			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.end.submitLabel",
@@ -538,13 +536,13 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", manifest.ID, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", manifest.Id, pollID),
 		Dialog: model.Dialog{
 			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.delete.title",
 				Other: "Confirm Poll Delete",
 			}),
-			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.ID),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
 			CallbackId: request.PostId,
 			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.delete.submitLabel",

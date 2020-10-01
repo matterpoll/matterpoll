@@ -24,7 +24,6 @@ func TestLocalizeDefaultMessage(t *testing.T) {
 	})
 	t.Run("empty message", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return()
 		defer api.AssertExpectations(t)
 
 		p := setupTestPlugin(t, api, &mockstore.Store{})
@@ -60,7 +59,7 @@ func TestLocalizeWithConfig(t *testing.T) {
 
 		assert.Equal(t, "", p.LocalizeWithConfig(l, lc))
 	})
-	t.Run("empty message", func(t *testing.T) {
+	t.Run("ids missmatch", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
@@ -68,7 +67,10 @@ func TestLocalizeWithConfig(t *testing.T) {
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		l := p.getServerLocalizer()
 		lc := &i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{},
+			DefaultMessage: &i18n.Message{
+				ID: "some ID",
+			},
+			MessageID: "some other ID",
 		}
 
 		assert.Equal(t, "", p.LocalizeWithConfig(l, lc))

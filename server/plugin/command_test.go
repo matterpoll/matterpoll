@@ -28,11 +28,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 
 	createPollDialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.ID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.Id),
 		Dialog: model.Dialog{
 			CallbackId: rootID,
 			Title:      "Create Poll",
-			IconURL:    fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.ID),
+			IconURL:    fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.Id),
 			Elements: []model.DialogElement{{
 				DisplayName: "Question",
 				Name:        "question",
@@ -129,7 +129,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -153,7 +153,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(nil, &model.AppError{})
 				api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
@@ -180,7 +180,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -206,7 +206,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true})
-				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api
@@ -233,7 +233,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true})
-				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.ID, "John Doe")
+				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(post, nil)
 				return api

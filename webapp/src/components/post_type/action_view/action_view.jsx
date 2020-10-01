@@ -83,7 +83,7 @@ export default class ActionView extends React.PureComponent {
                             action={action}
                             postId={this.props.post.id}
                             hasVoted={this.hasVoted(action, metadata)}
-                        />
+                        />,
                     );
                     break;
                 case ActionButtonType.MATTERPOLL_ADMIN_BUTTON:
@@ -94,7 +94,7 @@ export default class ActionView extends React.PureComponent {
                                 action={action}
                                 postId={this.props.post.id}
                                 hasVoted={false}
-                            />
+                            />,
                         );
                     }
                     break;
