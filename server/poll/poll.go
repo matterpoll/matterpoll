@@ -12,6 +12,7 @@ import (
 // Poll stores all needed information for a poll
 type Poll struct {
 	ID            string
+	PostID        string `json:"post_id,omitempty"`
 	CreatedAt     int64
 	Creator       string
 	Question      string

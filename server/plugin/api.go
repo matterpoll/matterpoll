@@ -144,6 +144,39 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 			http.Error(w, "invalid request", http.StatusBadRequest)
 			return
 		}
+
+		if request.UserId != r.Header.Get("Mattermost-User-ID") {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		vars := mux.Vars(r)
+		pollID := vars["id"]
+		poll, err := p.Store.Poll().Get(pollID)
+		if err != nil {
+			http.Error(w, "failed to get poll", http.StatusInternalServerError)
+			return
+		}
+
+		postID := poll.PostID
+		if postID != "" {
+			post, appEerr := p.API.GetPost(postID)
+			if appEerr != nil {
+				http.Error(w, "failed to get post", http.StatusInternalServerError)
+				return
+			}
+
+			if request.ChannelId != post.ChannelId {
+				http.Error(w, "not authorized", http.StatusUnauthorized)
+				return
+			}
+		}
+
+		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PERMISSION_READ_CHANNEL) {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
 		userLocalizer := p.getUserLocalizer(request.UserId)
 
 		msg, update, err := handler(mux.Vars(r), request)
@@ -178,7 +211,41 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 			return
 		}
 
-		msg, response, err := handler(mux.Vars(r), request)
+		if request.UserId != r.Header.Get("Mattermost-User-ID") {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		vars := mux.Vars(r)
+		pollID := vars["id"]
+		if pollID != "" {
+			poll, err := p.Store.Poll().Get(pollID)
+			if err != nil {
+				http.Error(w, "failed to get poll", http.StatusInternalServerError)
+				return
+			}
+
+			postID := poll.PostID
+			if postID != "" {
+				post, appEerr := p.API.GetPost(postID)
+				if appEerr != nil {
+					http.Error(w, "failed to get post", http.StatusInternalServerError)
+					return
+				}
+
+				if request.ChannelId != post.ChannelId {
+					http.Error(w, "not authorized", http.StatusUnauthorized)
+					return
+				}
+			}
+		}
+
+		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PERMISSION_READ_CHANNEL) {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		msg, response, err := handler(vars, request)
 		if err != nil {
 			p.API.LogWarn("failed to handle SubmitDialogRequest", "error", err.Error())
 		}
@@ -250,10 +317,6 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	if err := p.Store.Poll().Insert(poll); err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
-	}
-
 	actions := poll.ToPostActions(publicLocalizer, manifest.ID, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
@@ -266,8 +329,15 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 	}
 	model.ParseSlackAttachment(post, actions)
 
-	if _, appErr = p.API.CreatePost(post); appErr != nil {
+	rPost, appErr := p.API.CreatePost(post)
+	if appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to create poll post")
+	}
+
+	poll.PostID = rPost.Id
+
+	if err := p.Store.Poll().Insert(poll); err != nil {
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
 	}
 
 	return nil, nil, nil
@@ -391,7 +461,15 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	post, appErr := p.API.GetPost(request.CallbackId)
+	var postID string
+	if poll.PostID != "" {
+		postID = poll.PostID
+	} else {
+		// Legacy check if polls created without a postID
+		postID = request.CallbackId
+	}
+
+	post, appErr := p.API.GetPost(postID)
 	if appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get post")
 	}
@@ -485,7 +563,15 @@ func (p *MatterpollPlugin) handleEndPollConfirm(vars map[string]string, request 
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get convert to end poll post")
 	}
 
-	post.Id = request.CallbackId
+	var postID string
+	if poll.PostID != "" {
+		postID = poll.PostID
+	} else {
+		// Legacy check if polls created without a postID
+		postID = request.CallbackId
+	}
+
+	post.Id = postID
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
 	}
@@ -568,7 +654,15 @@ func (p *MatterpollPlugin) handleDeletePollConfirm(vars map[string]string, reque
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	if appErr := p.API.DeletePost(request.CallbackId); appErr != nil {
+	var postID string
+	if poll.PostID != "" {
+		postID = poll.PostID
+	} else {
+		// Legacy check if polls created without a postID
+		postID = request.CallbackId
+	}
+
+	if appErr := p.API.DeletePost(postID); appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to delete post")
 	}
 
