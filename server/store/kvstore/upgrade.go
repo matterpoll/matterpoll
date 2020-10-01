@@ -81,11 +81,12 @@ func upgradeTo14(s *Store) error {
 			return errors.Wrap(appErr, "failed to list poll keys")
 		}
 
-		if len(keys) == 0 {
+		allKeys = append(allKeys, keys...)
+
+		if len(keys) < perPage {
 			break
 		}
 
-		allKeys = append(allKeys, keys...)
 		i++
 	}
 

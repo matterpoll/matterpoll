@@ -184,7 +184,6 @@ func TestUpgradeTo14(t *testing.T) {
 
 		api := &plugintest.API{}
 		api.On("KVList", 0, perPage).Return(keys, nil)
-		api.On("KVList", 1, perPage).Return(nil, nil)
 
 		api.On("KVGet", pollPrefix+oldPoll.ID).Return(oldPoll.EncodeToByte(), nil)
 		api.On("KVGet", pollPrefix+newPoll.ID).Return(newPoll.EncodeToByte(), nil)
