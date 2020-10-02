@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func TestLocalizeDefaultMessage(t *testing.T) {
@@ -24,7 +25,7 @@ func TestLocalizeDefaultMessage(t *testing.T) {
 	})
 	t.Run("empty message", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogWarn", GetMockArgumentsWithType("string", 5)...).Return()
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 5)...).Return()
 		defer api.AssertExpectations(t)
 
 		p := setupTestPlugin(t, api, &mockstore.Store{})
@@ -51,7 +52,7 @@ func TestLocalizeWithConfig(t *testing.T) {
 	})
 	t.Run("empty config", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
 
 		p := setupTestPlugin(t, api, &mockstore.Store{})
@@ -62,7 +63,7 @@ func TestLocalizeWithConfig(t *testing.T) {
 	})
 	t.Run("empty message", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
 
 		p := setupTestPlugin(t, api, &mockstore.Store{})

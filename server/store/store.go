@@ -14,6 +14,7 @@ type Store interface {
 type PollStore interface {
 	Get(id string) (*poll.Poll, error)
 	Insert(*poll.Poll) error
+	Save(*poll.Poll) error
 	Update(prev *poll.Poll, new *poll.Poll) error
 	Delete(*poll.Poll) error
 }

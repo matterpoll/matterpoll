@@ -53,6 +53,7 @@ func GetPoll() *poll.Poll {
 			Answer: "Answer 3",
 			Voter:  []string{},
 		}},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
 
@@ -88,6 +89,7 @@ func GetPollWithVotes() *poll.Poll {
 			Answer: "Answer 3",
 			Voter:  []string{},
 		}},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
 
@@ -113,5 +115,6 @@ func GetPollTwoOptions() *poll.Poll {
 			Answer: "No",
 			Voter:  []string{},
 		}},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
