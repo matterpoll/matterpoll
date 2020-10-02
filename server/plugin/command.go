@@ -176,11 +176,6 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		return "", appErr
 	}
 
-	if err := p.Store.Poll().Insert(newPoll); err != nil {
-		p.API.LogWarn("failed to save poll", "error", err.Error())
-		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
-	}
-
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
 		p.API.LogWarn("failed to ConvertCreatorIDToDisplayName", "error", appErr.Error())
@@ -199,12 +194,20 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	}
 	model.ParseSlackAttachment(post, actions)
 
-	if _, appErr = p.API.CreatePost(post); appErr != nil {
+	rPost, appErr := p.API.CreatePost(post)
+	if appErr != nil {
 		p.API.LogWarn("failed to post poll post", "error", appErr.Error())
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
-	p.API.LogDebug("Created a new poll", "post", post.ToJson())
+	newPoll.PostID = rPost.Id
+
+	if err := p.Store.Poll().Insert(newPoll); err != nil {
+		p.API.LogWarn("failed to save poll", "error", err.Error())
+		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+	}
+
+	p.API.LogDebug("Created a new poll", "post", rPost.ToJson())
 	return "", nil
 }
 
