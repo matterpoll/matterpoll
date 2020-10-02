@@ -445,7 +445,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	return &i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "response.resetVotes.success",
-			Other: "All votes are cleared. [{{.ClearedVotes}}]",
+			Other: "All votes are cleared. Your previous votes were [{{.ClearedVotes}}].",
 		},
 		TemplateData: map[string]interface{}{"ClearedVotes": strings.Join(votedAnswers, ", ")},
 	}, post, nil

@@ -1095,7 +1095,7 @@ func TestHandleResetVotes(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{},
-			ExpectedMsg:        "All votes are cleared. [Answer 1]",
+			ExpectedMsg:        "All votes are cleared. Your previous votes were [Answer 1].",
 		},
 		"Valid request, reset multi votes": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1118,7 +1118,7 @@ func TestHandleResetVotes(t *testing.T) {
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{},
-			ExpectedMsg:        "All votes are cleared. [Answer 1, Answer 2, Answer 3]",
+			ExpectedMsg:        "All votes are cleared. Your previous votes were [Answer 1, Answer 2, Answer 3].",
 		},
 		"Failed to get poll": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
