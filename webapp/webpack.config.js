@@ -36,7 +36,7 @@ if (NPM_TARGET === 'build:watch' || NPM_TARGET === 'debug:watch') {
 
 module.exports = {
     entry: [
-        './src/index.js',
+        './src/index.tsx',
     ],
     resolve: {
         modules: [
