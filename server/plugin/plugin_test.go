@@ -25,6 +25,7 @@ import (
 func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin { //nolint:interfacer
 	p := &MatterpollPlugin{
 		ServerConfig: testutils.GetServerConfig(),
+		getIconData:  getIconDataMock,
 	}
 	p.setConfiguration(&configuration{
 		Trigger:        "poll",
@@ -41,6 +42,10 @@ func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) 
 	return p
 }
 
+func getIconDataMock() (string, error) {
+	return "someIconData", nil
+}
+
 func TestPluginOnActivate(t *testing.T) {
 	bot := &model.Bot{
 		Username:    botUserName,
@@ -48,10 +53,11 @@ func TestPluginOnActivate(t *testing.T) {
 	}
 
 	command := &model.Command{
-		Trigger:          "poll",
-		AutoComplete:     true,
-		AutoCompleteDesc: "Create a poll",
-		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		Trigger:              "poll",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Create a poll",
+		AutoCompleteHint:     `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		AutocompleteIconData: "someIconData",
 	}
 
 	for name, test := range map[string]struct {
@@ -196,6 +202,7 @@ func TestPluginOnActivate(t *testing.T) {
 						SiteURL: &siteURL,
 					},
 				},
+				getIconData: getIconDataMock,
 			}
 			p.setConfiguration(&configuration{
 				Trigger: "poll",
