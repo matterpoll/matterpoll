@@ -42,8 +42,6 @@ var botDescription = &i18n.Message{
 }
 
 const (
-	minimumServerVersion = "5.20.0"
-
 	botUserName    = "matterpoll"
 	botDisplayName = "Matterpoll"
 
@@ -122,9 +120,9 @@ func (p *MatterpollPlugin) checkServerVersion() error {
 		return errors.Wrap(err, "failed to parse server version")
 	}
 
-	r := semver.MustParseRange(">=" + minimumServerVersion)
+	r := semver.MustParseRange(">=" + manifest.MinServerVersion)
 	if !r(serverVersion) {
-		return fmt.Errorf("this plugin requires Mattermost v%s or later", minimumServerVersion)
+		return fmt.Errorf("this plugin requires Mattermost v%s or later", manifest.MinServerVersion)
 	}
 
 	return nil
