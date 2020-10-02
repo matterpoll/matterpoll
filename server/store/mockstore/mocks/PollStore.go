@@ -65,6 +65,20 @@ func (_m *PollStore) Insert(_a0 *poll.Poll) error {
 	return r0
 }
 
+// Save provides a mock function with given fields: _a0
+func (_m *PollStore) Save(_a0 *poll.Poll) error {
+	ret := _m.Called(_a0)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*poll.Poll) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Update provides a mock function with given fields: prev, new
 func (_m *PollStore) Update(prev *poll.Poll, new *poll.Poll) error {
 	ret := _m.Called(prev, new)

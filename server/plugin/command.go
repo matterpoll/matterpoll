@@ -60,6 +60,10 @@ var (
 		ID:    "command.help.text.pollSetting.public-add-option",
 		Other: "Allow all users to add additional options",
 	}
+	commandHelpTextPollSettingMultiVote = &i18n.Message{
+		ID:    "command.help.text.pollSetting.multi-vote",
+		Other: "Allow users to vote for X options",
+	}
 
 	commandErrorGeneric = &i18n.Message{
 		ID:    "command.error.generic",
@@ -125,7 +129,8 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		}) + "\n"
 		msg += "- `--anonymous`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
 		msg += "- `--progress`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
-		msg += "- `--public-add-option`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption)
+		msg += "- `--public-add-option`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
+		msg += "- `--votes=X`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
 
 		return msg, nil
 	}
@@ -138,13 +143,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		}
 	}
 
-	var newPoll *poll.Poll
-	var errMsg *poll.ErrorMessage
-	if len(o) == 0 {
-		newPoll, errMsg = poll.NewPoll(creatorID, q, []string{defaultYes, defaultNo}, s)
-	} else {
-		newPoll, errMsg = poll.NewPoll(creatorID, q, o, s)
-	}
+	settings, errMsg := poll.NewSettingsFromStrings(s)
 	if errMsg != nil {
 		appErr := &model.AppError{
 			Id: p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
@@ -158,9 +157,23 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		return "", appErr
 	}
 
-	if err := p.Store.Poll().Insert(newPoll); err != nil {
-		p.API.LogWarn("failed to save poll", "error", err.Error())
-		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+	var newPoll *poll.Poll
+	if len(o) == 0 {
+		newPoll, errMsg = poll.NewPoll(creatorID, q, []string{defaultYes, defaultNo}, settings)
+	} else {
+		newPoll, errMsg = poll.NewPoll(creatorID, q, o, settings)
+	}
+	if errMsg != nil {
+		appErr := &model.AppError{
+			Id: p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+				DefaultMessage: commandErrorInvalidInput,
+				TemplateData: map[string]interface{}{
+					"Error": p.LocalizeErrorMessage(userLocalizer, errMsg),
+				}}),
+			StatusCode: http.StatusBadRequest,
+			Where:      "ExecuteCommand",
+		}
+		return "", appErr
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
@@ -181,12 +194,20 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	}
 	model.ParseSlackAttachment(post, actions)
 
-	if _, appErr = p.API.CreatePost(post); appErr != nil {
+	rPost, appErr := p.API.CreatePost(post)
+	if appErr != nil {
 		p.API.LogWarn("failed to post poll post", "error", appErr.Error())
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
-	p.API.LogDebug("Created a new poll", "post", post.ToJson())
+	newPoll.PostID = rPost.Id
+
+	if err := p.Store.Poll().Insert(newPoll); err != nil {
+		p.API.LogWarn("failed to save poll", "error", err.Error())
+		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+	}
+
+	p.API.LogDebug("Created a new poll", "post", rPost.ToJson())
 	return "", nil
 }
 
@@ -227,6 +248,20 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 			Optional: i > 2,
 		})
 	}
+
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Number of Votes",
+		Name:        "setting-multi",
+		Type:        "text",
+		SubType:     "number",
+		Default:     "1",
+		HelpText: p.LocalizeWithConfig(l, &i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "dialog.createPoll.setting.multi",
+				Other: "The number of options that an user can vote on.",
+			}}),
+		Optional: false,
+	})
 	elements = append(elements, model.DialogElement{
 		DisplayName: "Anonymous",
 		Name:        "setting-anonymous",

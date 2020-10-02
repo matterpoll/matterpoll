@@ -17,19 +17,6 @@ const (
 type IDToNameConverter func(userID string) (string, *model.AppError)
 
 var (
-	pollButtonAddOption = &i18n.Message{
-		ID:    "poll.button.addOption",
-		Other: "Add Option",
-	}
-	pollButtonDeletePoll = &i18n.Message{
-		ID:    "poll.button.deletePoll",
-		Other: "Delete Poll",
-	}
-	pollButtonEndPoll = &i18n.Message{
-		ID:    "poll.button.endPoll",
-		Other: "End Poll",
-	}
-
 	pollMessageSettings = &i18n.Message{
 		ID:    "poll.message.pollSettings",
 		Other: "**Poll Settings**: {{.Settings}}",
@@ -46,11 +33,6 @@ var (
 	pollEndPostSeperator = &i18n.Message{
 		ID:    "poll.endPost.seperator",
 		Other: "and",
-	}
-	pollEndPostAnswerHeading = &i18n.Message{
-		ID:    "poll.endPost.answer.heading",
-		One:   "{{.Answer}} ({{.Count}} vote)",
-		Other: "{{.Answer}} ({{.Count}} votes)",
 	}
 )
 
@@ -71,24 +53,48 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 		})
 	}
 
+	if p.Settings.MaxVotes > 1 {
+		actions = append(actions,
+			&model.PostAction{
+				Id: "resetVote",
+				Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+					ID:    "poll.button.resetVotes",
+					Other: "Reset Votes",
+				}}),
+				Type: model.POST_ACTION_TYPE_BUTTON,
+				Integration: &model.PostActionIntegration{
+					URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
+				},
+			},
+		)
+	}
 	actions = append(actions,
 		&model.PostAction{
-			Id:   "addOption",
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
+			Id: "addOption",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.addOption",
+				Other: "Add Option",
+			}}),
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
 			},
 		}, &model.PostAction{
-			Id:   "deletePoll",
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
+			Id: "deletePoll",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.deletePoll",
+				Other: "Delete Poll",
+			}}),
 			Type: MatterpollAdminButtonType,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
 			},
 		}, &model.PostAction{
-			Id:   "endPoll",
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
+			Id: "endPoll",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.endPoll",
+				Other: "End Poll",
+			}}),
 			Type: MatterpollAdminButtonType,
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
@@ -116,6 +122,9 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 	}
 	if p.Settings.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
+	}
+	if p.Settings.MaxVotes > 1 {
+		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
 	}
 
 	lines := []string{"---"}
@@ -158,7 +167,13 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 		fields = append(fields, &model.SlackAttachmentField{
 			Short: true,
 			Title: localizer.MustLocalize(&i18n.LocalizeConfig{
-				DefaultMessage: pollEndPostAnswerHeading,
+				DefaultMessage: &i18n.Message{
+					ID:    "poll.endPost.answer.heading",
+					One:   "{{.Answer}} ({{.Count}} vote)",
+					Few:   "{{.Answer}} ({{.Count}} votes)",
+					Many:  "{{.Answer}} ({{.Count}} votes)",
+					Other: "{{.Answer}} ({{.Count}} votes)",
+				},
 				TemplateData: map[string]interface{}{
 					"Answer": o.Answer,
 					"Count":  len(o.Voter),
