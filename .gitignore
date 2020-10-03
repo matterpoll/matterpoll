@@ -1,2 +1,13 @@
-dist
+dist/
+
+# Mac
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Jetbrains
+.idea/
+
+# i18n
 assets/i18n/translate.*.*

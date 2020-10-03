@@ -35,7 +35,7 @@ export default class PostType extends React.PureComponent {
                     key={'attachment__author-name'}
                 >
                     {attachment.author_name}
-                </span>
+                </span>,
             );
         }
 

@@ -62,7 +62,7 @@ func TestPluginOnActivate(t *testing.T) {
 		// server version tests
 		"greater minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(minimumServerVersion)
+				m := semver.MustParse(manifest.MinServerVersion)
 				err := m.IncrementMinor()
 				require.NoError(t, err)
 				api.On("GetServerVersion").Return(m.String())
@@ -82,7 +82,7 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 		"same version as minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
@@ -99,7 +99,7 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 		"lesser minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(minimumServerVersion)
+				m := semver.MustParse(manifest.MinServerVersion)
 				if m.Minor == 0 {
 					m.Major--
 					m.Minor = 0
@@ -123,7 +123,7 @@ func TestPluginOnActivate(t *testing.T) {
 		// i18n bundle tests
 		"GetBundlePath fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 				api.On("GetBundlePath").Return("", errors.New(""))
 				return api
 			},
@@ -131,7 +131,7 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 		"i18n directory doesn't exist ": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 				api.On("GetBundlePath").Return("/tmp", nil)
 				return api
 			},
@@ -140,7 +140,7 @@ func TestPluginOnActivate(t *testing.T) {
 		// Bot tests
 		"EnsureBot fails ": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
@@ -155,7 +155,7 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 		"patch bot description fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
@@ -213,7 +213,7 @@ func TestPluginOnActivate(t *testing.T) {
 	}
 	t.Run("NewStore() fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("GetServerVersion").Return(minimumServerVersion)
+		api.On("GetServerVersion").Return(manifest.MinServerVersion)
 		defer api.AssertExpectations(t)
 
 		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
@@ -239,7 +239,7 @@ func TestPluginOnActivate(t *testing.T) {
 	})
 	t.Run("SiteURL not set", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("GetServerVersion").Return(minimumServerVersion)
+		api.On("GetServerVersion").Return(manifest.MinServerVersion)
 		defer api.AssertExpectations(t)
 
 		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {

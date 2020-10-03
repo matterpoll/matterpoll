@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	// Parameter: SiteURL, manifest.ID
+	// Parameter: SiteURL, manifest.Id
 	responseIconURL = "%s/plugins/%s/logo_dark.png"
 )
 
@@ -103,7 +103,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 		dialog := model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
-			URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.ID),
+			URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.Id),
 			Dialog:    p.getCreatePollDialog(siteURL, args.RootId, userLocalizer),
 		}
 
@@ -182,7 +182,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
-	actions := newPoll.ToPostActions(publicLocalizer, manifest.ID, displayName)
+	actions := newPoll.ToPostActions(publicLocalizer, manifest.Id, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: args.ChannelId,
@@ -290,7 +290,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 			ID:    "dialog.create.title",
 			Other: "Create Poll",
 		}),
-		IconURL: fmt.Sprintf(responseIconURL, siteURL, manifest.ID),
+		IconURL: fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
 		SubmitLabel: p.LocalizeDefaultMessage(l, &i18n.Message{
 			ID:    "dialog.create.submitLabel",
 			Other: "Create",

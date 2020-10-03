@@ -22,7 +22,7 @@ describe('vote reducers', () => {
     test('no action', () => expect(pollMetadata(undefined, {})).toEqual({})); // eslint-disable-line no-undefined
     test('no action with initial state', () => {
         expect(
-            pollMetadata(initialState, {})
+            pollMetadata(initialState, {}),
         ).toEqual(initialState);
     });
     test('action to add new poll', () => {
