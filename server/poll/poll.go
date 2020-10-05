@@ -167,7 +167,7 @@ func (p *Poll) validate() *ErrorMessage {
 		return &ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.invalidSetting",
-				Other: `The number of votes must be a positive number and less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}"`,
+				Other: `The number of votes must be a positive number and less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}".`,
 			},
 			Data: map[string]interface{}{
 				"MaxVotes": p.Settings.MaxVotes,
