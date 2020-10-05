@@ -156,6 +156,7 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 			return
 		}
 
+		var rootID string
 		postID := poll.PostID
 		if postID != "" {
 			post, appEerr := p.API.GetPost(postID)
@@ -167,6 +168,12 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 			if request.ChannelId != post.ChannelId {
 				http.Error(w, "not authorized", http.StatusUnauthorized)
 				return
+			}
+
+			if post.RootId != "" {
+				rootID = post.RootId
+			} else {
+				rootID = post.Id
 			}
 		}
 
@@ -183,7 +190,7 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 		}
 
 		if lc != nil {
-			p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeWithConfig(userLocalizer, lc))
+			p.SendEphemeralPost(request.ChannelId, request.UserId, rootID, p.LocalizeWithConfig(userLocalizer, lc))
 		}
 
 		response := &model.PostActionIntegrationResponse{}
@@ -214,6 +221,8 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 			return
 		}
 
+		var rootID string
+
 		vars := mux.Vars(r)
 		pollID := vars["id"]
 		if pollID != "" {
@@ -235,6 +244,12 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 					http.Error(w, "not authorized", http.StatusUnauthorized)
 					return
 				}
+
+				if post.RootId != "" {
+					rootID = post.RootId
+				} else {
+					rootID = post.Id
+				}
 			}
 		}
 
@@ -250,7 +265,7 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 
 		if msg != nil {
 			userLocalizer := p.getUserLocalizer(request.UserId)
-			p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, msg))
+			p.SendEphemeralPost(request.ChannelId, request.UserId, rootID, p.LocalizeDefaultMessage(userLocalizer, msg))
 		}
 
 		if response != nil {
