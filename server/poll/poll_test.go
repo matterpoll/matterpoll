@@ -439,6 +439,30 @@ func TestUpdateVote(t *testing.T) {
 			Error:         false,
 			ReturnMessage: true,
 		},
+		"Multi votes setting, with progress option, duplicated vote error": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{Progress: true, MaxVotes: 2},
+			},
+			UserID: "a",
+			Index:  0,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{Progress: true, MaxVotes: 2},
+			},
+			Error:         false,
+			ReturnMessage: true,
+		},
 		"Multi votes setting, exceed votes error": {
 			Poll: poll.Poll{
 				Question: "Question",
@@ -725,6 +749,20 @@ func TestHasVoted(t *testing.T) {
 	}
 	assert.True(t, p1.HasVoted("a"))
 	assert.False(t, p1.HasVoted("b"))
+}
+
+func TestHasVotedToAnswer(t *testing.T) {
+	p1 := &poll.Poll{Question: "Question",
+		AnswerOptions: []*poll.AnswerOption{
+			{Answer: "Answer 1",
+				Voter: []string{"a"}},
+			{Answer: "Answer 2"},
+		},
+	}
+	assert.True(t, p1.HasVotedToAnswer("a", "Answer 1"))
+	assert.False(t, p1.HasVotedToAnswer("a", "Answer 2"))
+	assert.False(t, p1.HasVotedToAnswer("b", "Answer 1"))
+	assert.False(t, p1.HasVotedToAnswer("b", "Answer 2"))
 }
 
 func TestPollCopy(t *testing.T) {

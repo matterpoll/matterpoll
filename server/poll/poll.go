@@ -226,16 +226,13 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 
 	if p.IsMultiVote() {
 		// Multi Answer Mode
-		votedAnswers := p.GetVotedAnswers(userID)
-		for _, answers := range votedAnswers {
-			if answers == p.AnswerOptions[index].Answer {
-				return &i18n.Message{
-					ID:    "poll.updateVote.alreadyVoted",
-					Other: "You've already voted for this option.",
-				}, nil
-			}
+		if p.HasVotedToAnswer(userID, p.AnswerOptions[index].Answer) {
+			return &i18n.Message{
+				ID:    "poll.updateVote.alreadyVoted",
+				Other: "You've already voted for this option.",
+			}, nil
 		}
-
+		votedAnswers := p.GetVotedAnswers(userID)
 		if p.Settings.MaxVotes <= len(votedAnswers) {
 			return &i18n.Message{
 				ID:    "poll.updateVote.maxVotes",
@@ -304,6 +301,21 @@ func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
 // HasVoted return true if a given user has voted in this poll
 func (p *Poll) HasVoted(userID string) bool {
 	for _, o := range p.AnswerOptions {
+		for i := 0; i < len(o.Voter); i++ {
+			if userID == o.Voter[i] {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// HasVotedToAnswer return true if a given user has voted to given answer
+func (p *Poll) HasVotedToAnswer(userID, answer string) bool {
+	for _, o := range p.AnswerOptions {
+		if o.Answer != answer {
+			continue
+		}
 		for i := 0; i < len(o.Voter); i++ {
 			if userID == o.Voter[i] {
 				return true
