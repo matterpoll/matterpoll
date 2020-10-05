@@ -182,10 +182,11 @@ func (p *MatterpollPlugin) HasAdminPermission(poll *poll.Poll, issuerID string) 
 }
 
 // SendEphemeralPost sends an ephemeral post to a user as the bot account
-func (p *MatterpollPlugin) SendEphemeralPost(channelID, userID, message string) {
+func (p *MatterpollPlugin) SendEphemeralPost(channelID, userID, rootID, message string) {
 	ephemeralPost := &model.Post{
 		ChannelId: channelID,
 		UserId:    p.botUserID,
+		RootId:    rootID,
 		Message:   message,
 	}
 	_ = p.API.SendEphemeralPost(userID, ephemeralPost)

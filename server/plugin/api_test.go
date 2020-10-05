@@ -953,6 +953,7 @@ func TestHandleVote(t *testing.T) {
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: test.Request.ChannelId,
+					RootId:    post.Id,
 					UserId:    testutils.GetBotUserID(),
 					Message:   test.ExpectedMsg,
 				}

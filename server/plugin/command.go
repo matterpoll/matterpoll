@@ -83,7 +83,7 @@ var (
 func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	msg, appErr := p.executeCommand(args)
 	if msg != "" {
-		p.SendEphemeralPost(args.ChannelId, args.UserId, msg)
+		p.SendEphemeralPost(args.ChannelId, args.UserId, args.RootId, msg)
 	}
 	return &model.CommandResponse{}, appErr
 }

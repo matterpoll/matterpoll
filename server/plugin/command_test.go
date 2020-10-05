@@ -379,6 +379,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			if test.ExpectedText != "" {
 				ephemeralPost := &model.Post{
 					ChannelId: "channelID1",
+					RootId:    rootID,
 					UserId:    testutils.GetBotUserID(),
 					Message:   test.ExpectedText,
 				}
