@@ -226,13 +226,15 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 
 	if p.IsMultiVote() {
 		// Multi Answer Mode
-		if p.HasVotedToAnswer(userID, p.AnswerOptions[index].Answer) {
-			return &i18n.Message{
-				ID:    "poll.updateVote.alreadyVoted",
-				Other: "You've already voted for this option.",
-			}, nil
-		}
 		votedAnswers := p.GetVotedAnswers(userID)
+		for _, answer := range votedAnswers {
+			if answer == p.AnswerOptions[index].Answer {
+				return &i18n.Message{
+					ID:    "poll.updateVote.alreadyVoted",
+					Other: "You've already voted for this option.",
+				}, nil
+			}
+		}
 		if p.Settings.MaxVotes <= len(votedAnswers) {
 			return &i18n.Message{
 				ID:    "poll.updateVote.maxVotes",
@@ -279,7 +281,7 @@ func (p *Poll) GetVotedAnswers(userID string) []string {
 	for _, o := range p.AnswerOptions {
 		for _, v := range o.Voter {
 			if userID == v {
-				votedAnswer = append(votedAnswer, p.getAnswerOptionName(o))
+				votedAnswer = append(votedAnswer, o.Answer)
 			}
 		}
 	}
@@ -289,11 +291,19 @@ func (p *Poll) GetVotedAnswers(userID string) []string {
 
 // GetMetadata returns personalized metadata of a poll.
 func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
+	votedAnswers := []string{}
+	for _, o := range p.AnswerOptions {
+		for _, v := range o.Voter {
+			if userID == v {
+				votedAnswers = append(votedAnswers, p.getAnswerOptionName(o))
+			}
+		}
+	}
 	return &Metadata{
 		PollID:                 p.ID,
 		UserID:                 userID,
 		AdminPermission:        permission,
-		VotedAnswers:           p.GetVotedAnswers(userID),
+		VotedAnswers:           votedAnswers,
 		SettingPublicAddOption: p.Settings.PublicAddOption,
 	}
 }
@@ -301,21 +311,6 @@ func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
 // HasVoted return true if a given user has voted in this poll
 func (p *Poll) HasVoted(userID string) bool {
 	for _, o := range p.AnswerOptions {
-		for i := 0; i < len(o.Voter); i++ {
-			if userID == o.Voter[i] {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-// HasVotedToAnswer return true if a given user has voted to given answer
-func (p *Poll) HasVotedToAnswer(userID, answer string) bool {
-	for _, o := range p.AnswerOptions {
-		if o.Answer != answer {
-			continue
-		}
 		for i := 0; i < len(o.Voter); i++ {
 			if userID == o.Voter[i] {
 				return true

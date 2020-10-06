@@ -742,27 +742,12 @@ func TestGetMetadata(t *testing.T) {
 func TestHasVoted(t *testing.T) {
 	p1 := &poll.Poll{Question: "Question",
 		AnswerOptions: []*poll.AnswerOption{
-			{Answer: "Answer 1",
-				Voter: []string{"a"}},
+			{Answer: "Answer 1", Voter: []string{"a"}},
 			{Answer: "Answer 2"},
 		},
 	}
 	assert.True(t, p1.HasVoted("a"))
 	assert.False(t, p1.HasVoted("b"))
-}
-
-func TestHasVotedToAnswer(t *testing.T) {
-	p1 := &poll.Poll{Question: "Question",
-		AnswerOptions: []*poll.AnswerOption{
-			{Answer: "Answer 1",
-				Voter: []string{"a"}},
-			{Answer: "Answer 2"},
-		},
-	}
-	assert.True(t, p1.HasVotedToAnswer("a", "Answer 1"))
-	assert.False(t, p1.HasVotedToAnswer("a", "Answer 2"))
-	assert.False(t, p1.HasVotedToAnswer("b", "Answer 1"))
-	assert.False(t, p1.HasVotedToAnswer("b", "Answer 2"))
 }
 
 func TestPollCopy(t *testing.T) {
