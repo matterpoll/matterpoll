@@ -67,8 +67,8 @@ func (p *MatterpollPlugin) LocalizeDefaultMessage(l *i18n.Localizer, m *i18n.Mes
 	s, err := l.LocalizeMessage(m)
 	if err != nil {
 		p.API.LogWarn("Failed to localize message", "message ID", m.ID, "error", err.Error())
-		return ""
 	}
+
 	return s
 }
 
@@ -77,8 +77,8 @@ func (p *MatterpollPlugin) LocalizeWithConfig(l *i18n.Localizer, lc *i18n.Locali
 	s, err := l.Localize(lc)
 	if err != nil {
 		p.API.LogWarn("Failed to localize with config", "error", err.Error())
-		return ""
 	}
+
 	return s
 }
 
