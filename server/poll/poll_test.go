@@ -439,6 +439,30 @@ func TestUpdateVote(t *testing.T) {
 			Error:         false,
 			ReturnMessage: true,
 		},
+		"Multi votes setting, with progress option, duplicated vote error": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{Progress: true, MaxVotes: 2},
+			},
+			UserID: "a",
+			Index:  0,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{Progress: true, MaxVotes: 2},
+			},
+			Error:         false,
+			ReturnMessage: true,
+		},
 		"Multi votes setting, exceed votes error": {
 			Poll: poll.Poll{
 				Question: "Question",
@@ -718,8 +742,7 @@ func TestGetMetadata(t *testing.T) {
 func TestHasVoted(t *testing.T) {
 	p1 := &poll.Poll{Question: "Question",
 		AnswerOptions: []*poll.AnswerOption{
-			{Answer: "Answer 1",
-				Voter: []string{"a"}},
+			{Answer: "Answer 1", Voter: []string{"a"}},
 			{Answer: "Answer 2"},
 		},
 	}

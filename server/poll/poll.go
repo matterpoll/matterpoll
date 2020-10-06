@@ -227,15 +227,14 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 	if p.IsMultiVote() {
 		// Multi Answer Mode
 		votedAnswers := p.GetVotedAnswers(userID)
-		for _, answers := range votedAnswers {
-			if answers == p.AnswerOptions[index].Answer {
+		for _, answer := range votedAnswers {
+			if answer == p.AnswerOptions[index].Answer {
 				return &i18n.Message{
 					ID:    "poll.updateVote.alreadyVoted",
 					Other: "You've already voted for this option.",
 				}, nil
 			}
 		}
-
 		if p.Settings.MaxVotes <= len(votedAnswers) {
 			return &i18n.Message{
 				ID:    "poll.updateVote.maxVotes",
@@ -282,7 +281,7 @@ func (p *Poll) GetVotedAnswers(userID string) []string {
 	for _, o := range p.AnswerOptions {
 		for _, v := range o.Voter {
 			if userID == v {
-				votedAnswer = append(votedAnswer, p.getAnswerOptionName(o))
+				votedAnswer = append(votedAnswer, o.Answer)
 			}
 		}
 	}
@@ -292,11 +291,19 @@ func (p *Poll) GetVotedAnswers(userID string) []string {
 
 // GetMetadata returns personalized metadata of a poll.
 func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
+	votedAnswers := []string{}
+	for _, o := range p.AnswerOptions {
+		for _, v := range o.Voter {
+			if userID == v {
+				votedAnswers = append(votedAnswers, p.getAnswerOptionName(o))
+			}
+		}
+	}
 	return &Metadata{
 		PollID:                 p.ID,
 		UserID:                 userID,
 		AdminPermission:        permission,
-		VotedAnswers:           p.GetVotedAnswers(userID),
+		VotedAnswers:           votedAnswers,
 		SettingPublicAddOption: p.Settings.PublicAddOption,
 	}
 }
