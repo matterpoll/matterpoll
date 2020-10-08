@@ -41,7 +41,7 @@ The localization process is defined below:
 
 `goi18n merge -format json -outdir assets/i18n/ assets/i18n/active.*.json`
 
-3. Translate all messages in `asserts/i18n/translate.*.json` for the languages you are comfortable with.
+3. Translate all messages in `assets/i18n/translate.*.json` for the languages you are comfortable with.
 
 4. Merge the translated messages into the active message files:
 
@@ -55,13 +55,13 @@ Let's say you want to translate the local `de`. Replace `de` in the following co
 
 1. Create a translation file:
 
-`touch asserts/i18n/translate.de.json`
+`touch assets/i18n/translate.de.json`
 
 2. Merge all current messages into your translation file:
 
 `goi18n merge -format json -outdir assets/i18n/ assets/i18n/active.en.json assets/i18n/translate.de.json`
 
-3. Translate all messages in `asserts/i18n/translate.de.json` and rename it to `active.de.json`.
+3. Translate all messages in `assets/i18n/translate.de.json` and rename it to `active.de.json`.
 
 4. Add your language to the list of [Supported Languages](https://github.com/matterpoll/matterpoll#localization) in `README.md` and add you to the list of [Translation Maintainer](#translation-maintainers) in `CONTRIBUTING.md`
 
