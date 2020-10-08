@@ -15,7 +15,7 @@ import (
 
 const (
 	// Parameter: SiteURL, manifest.Id
-	responseIconURL = "%s/plugins/%s/logo_dark.png"
+	responseIconURL = "%s/plugins/%s/logo_dark-bg.png"
 )
 
 var (

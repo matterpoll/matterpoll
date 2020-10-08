@@ -57,7 +57,7 @@ func NewMatterpollPlugin() *MatterpollPlugin {
 	plugin := &MatterpollPlugin{}
 
 	getIconData := func() (string, error) {
-		return command.GetIconData(plugin.API, "assets/logo_dark.svg")
+		return command.GetIconData(plugin.API, "assets/logo_dark-bg.svg")
 	}
 	plugin.getIconData = getIconData
 
@@ -90,7 +90,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 		DisplayName: botDisplayName,
 	}
 	options := []plugin.EnsureBotOption{
-		plugin.ProfileImagePath("assets/logo_dark.png"),
+		plugin.ProfileImagePath("assets/logo_dark-bg.png"),
 	}
 	botUserID, appErr := p.Helpers.EnsureBot(bot, options...)
 	if appErr != nil {

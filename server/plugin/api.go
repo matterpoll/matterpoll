@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	iconFilename = "logo_dark.png"
+	iconFilename = "logo_dark-bg.png"
 
 	addOptionKey = "answerOption"
 	questionKey  = "question"
