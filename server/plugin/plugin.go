@@ -36,7 +36,7 @@ type MatterpollPlugin struct {
 	configuration *configuration
 	ServerConfig  *model.Config
 
-	// getIconData TODO
+	// getIconData provides access to command.GetIconData in a way that is mockable for unit testing.
 	getIconData func() (string, error)
 }
 
