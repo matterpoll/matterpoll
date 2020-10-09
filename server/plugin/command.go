@@ -7,6 +7,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/pkg/errors"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils"
@@ -14,7 +15,7 @@ import (
 
 const (
 	// Parameter: SiteURL, manifest.Id
-	responseIconURL = "%s/plugins/%s/logo_dark.png"
+	responseIconURL = "%s/plugins/%s/logo_dark-bg.png"
 )
 
 var (
@@ -211,15 +212,21 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	return "", nil
 }
 
-func (p *MatterpollPlugin) getCommand(trigger string) *model.Command {
+func (p *MatterpollPlugin) getCommand(trigger string) (*model.Command, error) {
+	iconData, err := p.getIconData()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get icon data")
+	}
+
 	localizer := p.getServerLocalizer()
 
 	return &model.Command{
-		Trigger:          trigger,
-		AutoComplete:     true,
-		AutoCompleteDesc: p.LocalizeDefaultMessage(localizer, commandAutoCompleteDesc),
-		AutoCompleteHint: p.LocalizeDefaultMessage(localizer, commandAutoCompleteHint),
-	}
+		Trigger:              trigger,
+		AutoComplete:         true,
+		AutoCompleteDesc:     p.LocalizeDefaultMessage(localizer, commandAutoCompleteDesc),
+		AutoCompleteHint:     p.LocalizeDefaultMessage(localizer, commandAutoCompleteHint),
+		AutocompleteIconData: iconData,
+	}, nil
 }
 
 func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer) model.Dialog {

@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	mmplugin.ClientMain(&plugin.MatterpollPlugin{})
+	mmplugin.ClientMain(plugin.NewMatterpollPlugin())
 }

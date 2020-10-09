@@ -15,10 +15,11 @@ import (
 
 func TestOnConfigurationChange(t *testing.T) {
 	command := &model.Command{
-		Trigger:          "poll",
-		AutoComplete:     true,
-		AutoCompleteDesc: "Create a poll",
-		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		Trigger:              "poll",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Create a poll",
+		AutoCompleteHint:     `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		AutocompleteIconData: "someIconData",
 	}
 
 	botPatch := &model.BotPatch{
