@@ -12,9 +12,7 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 ## Installation
 
 1. Go to the [releases page of this GitHub repository](https://github.com/matterpoll/matterpoll/releases/latest) and download the latest release for your Mattermost server.
-2. Upload this file in the Mattermost **System Console > Plugins > Plugin Management** page to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#custom-plugins).
-3. You should set **Enable integrations to override usernames** and **Enable integrations to override profile picture icons** in **System Console > Custom Integrations** to `true`.
-
+2. In Mattermost, open **Main Menu > Plugin Marketplace** to install and configure Matterpoll.
 
 ## Settings
 You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
@@ -30,7 +28,7 @@ You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
 If you want to define all answer options by yourself, type `/poll "Is Matterpoll great?" "Of course" "In any case" "Definitely"`- Note that the double quotes are required in this case.
 
-`/poll` show up interactive dialog for creating a poll.
+`/poll` show up a modal for creating a poll.
 
 ### Poll Settings
 
