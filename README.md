@@ -20,7 +20,7 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
 * **Trigger Word**: Change trigger word for poll command. (default `/poll`)
-* **Experimental UI**: Enable new experimental UI for a poll post. 
+* **Experimental UI**: Enable new experimental UI for poll posts:
   - Change button color of voted answers
   - Hide poll management buttons (Add Option / Delete Poll / End Poll) from users who don't have permission
 
