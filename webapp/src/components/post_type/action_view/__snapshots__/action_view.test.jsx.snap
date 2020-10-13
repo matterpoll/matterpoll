@@ -48,7 +48,67 @@ exports[`components/post_type/action_view/ActionView should match snapshot 1`] =
 </div>
 `;
 
-exports[`components/post_type/action_view/ActionView should match snapshot with admin permission 1`] = `
+exports[`components/post_type/action_view/ActionView should match snapshot with only button actions 1`] = `
+<div>
+  <div
+    className="attachment-actions"
+  >
+    <Connect(ActionButton)
+      action={
+        Object {
+          "id": "action_id1",
+          "name": "answer1",
+          "type": "button",
+        }
+      }
+      hasVoted={true}
+      key="action_id1"
+      postId="post_id"
+    />
+  </div>
+  <div
+    className="attachment-actions"
+  />
+</div>
+`;
+
+exports[`components/post_type/action_view/ActionView should match snapshot with only non-empty aciton id and name 1`] = `
+<div>
+  <div
+    className="attachment-actions"
+  >
+    <Connect(ActionButton)
+      action={
+        Object {
+          "id": "action_id1",
+          "name": "answer1",
+          "type": "button",
+        }
+      }
+      hasVoted={true}
+      key="action_id1"
+      postId="post_id"
+    />
+    <Connect(ActionButton)
+      action={
+        Object {
+          "id": "action_id4",
+          "name": "answer4",
+          "type": "button",
+        }
+      }
+      hasVoted={false}
+      key="action_id4"
+      postId="post_id"
+    />
+  </div>
+  <div
+    className="attachment-actions"
+  />
+</div>
+`;
+
+exports[`components/post_type/action_view/ActionView should match snapshot with permission to manage poll 1`] = `
 <div>
   <div
     className="attachment-actions"
@@ -133,31 +193,9 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
 </div>
 `;
 
-exports[`components/post_type/action_view/ActionView should match snapshot with only button actions 1`] = `
-<div>
-  <div
-    className="attachment-actions"
-  >
-    <Connect(ActionButton)
-      action={
-        Object {
-          "id": "action_id1",
-          "name": "answer1",
-          "type": "button",
-        }
-      }
-      hasVoted={true}
-      key="action_id1"
-      postId="post_id"
-    />
-  </div>
-  <div
-    className="attachment-actions"
-  />
-</div>
-`;
+exports[`components/post_type/action_view/ActionView should match snapshot without any actions 1`] = `""`;
 
-exports[`components/post_type/action_view/ActionView should match snapshot with only non-empty aciton id and name 1`] = `
+exports[`components/post_type/action_view/ActionView should match snapshot without permission for adding options 1`] = `
 <div>
   <div
     className="attachment-actions"
@@ -177,13 +215,25 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
     <Connect(ActionButton)
       action={
         Object {
-          "id": "action_id4",
-          "name": "answer4",
+          "id": "action_id2",
+          "name": "answer2",
+          "type": "button",
+        }
+      }
+      hasVoted={true}
+      key="action_id2"
+      postId="post_id"
+    />
+    <Connect(ActionButton)
+      action={
+        Object {
+          "id": "action_id3",
+          "name": "answer3",
           "type": "button",
         }
       }
       hasVoted={false}
-      key="action_id4"
+      key="action_id3"
       postId="post_id"
     />
   </div>
@@ -193,7 +243,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
 </div>
 `;
 
-exports[`components/post_type/action_view/ActionView should match snapshot without admin permission, with public-add-option 1`] = `
+exports[`components/post_type/action_view/ActionView should match snapshot without permission to manage poll, with public-add-option 1`] = `
 <div>
   <div
     className="attachment-actions"
@@ -244,56 +294,6 @@ exports[`components/post_type/action_view/ActionView should match snapshot witho
       }
       hasVoted={false}
       key="addOption"
-      postId="post_id"
-    />
-  </div>
-  <div
-    className="attachment-actions"
-  />
-</div>
-`;
-
-exports[`components/post_type/action_view/ActionView should match snapshot without any actions 1`] = `""`;
-
-exports[`components/post_type/action_view/ActionView should match snapshot without permission for adding options 1`] = `
-<div>
-  <div
-    className="attachment-actions"
-  >
-    <Connect(ActionButton)
-      action={
-        Object {
-          "id": "action_id1",
-          "name": "answer1",
-          "type": "button",
-        }
-      }
-      hasVoted={true}
-      key="action_id1"
-      postId="post_id"
-    />
-    <Connect(ActionButton)
-      action={
-        Object {
-          "id": "action_id2",
-          "name": "answer2",
-          "type": "button",
-        }
-      }
-      hasVoted={true}
-      key="action_id2"
-      postId="post_id"
-    />
-    <Connect(ActionButton)
-      action={
-        Object {
-          "id": "action_id3",
-          "name": "answer3",
-          "type": "button",
-        }
-      }
-      hasVoted={false}
-      key="action_id3"
       postId="post_id"
     />
   </div>
