@@ -364,7 +364,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	}
 
 	prev := poll.Copy()
-	hasVoted := poll.HasVoted(userID)
+	previouslyVoted := poll.HasVoted(userID)
 	msg, err := poll.UpdateVote(userID, optionNumber)
 	if msg != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: msg}, nil, nil
@@ -402,7 +402,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	}
 
 	// Single Answer Mode
-	if hasVoted {
+	if previouslyVoted {
 		return &i18n.LocalizeConfig{DefaultMessage: responseVoteUpdated}, post, nil
 	}
 	return &i18n.LocalizeConfig{DefaultMessage: responseVoteCounted}, post, nil
