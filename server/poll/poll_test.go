@@ -650,10 +650,10 @@ func TestGetMetadata(t *testing.T) {
 			UserID:     "a",
 			Permission: true,
 			ExpectedResponse: &poll.Metadata{
-				PollID:          testutils.GetPollID(),
-				UserID:          "a",
-				AdminPermission: true,
-				VotedAnswers:    []string{"Answer 1"},
+				PollID:        testutils.GetPollID(),
+				UserID:        "a",
+				CanManagePoll: true,
+				VotedAnswers:  []string{"Answer 1"},
 			},
 		},
 		"Voted two Answers": {
@@ -668,10 +668,10 @@ func TestGetMetadata(t *testing.T) {
 			UserID:     "b",
 			Permission: true,
 			ExpectedResponse: &poll.Metadata{
-				PollID:          testutils.GetPollID(),
-				UserID:          "b",
-				AdminPermission: true,
-				VotedAnswers:    []string{"Answer 2", "Answer 3"},
+				PollID:        testutils.GetPollID(),
+				UserID:        "b",
+				CanManagePoll: true,
+				VotedAnswers:  []string{"Answer 2", "Answer 3"},
 			},
 		},
 		"Voted two Answers, with progress option": {
@@ -689,10 +689,10 @@ func TestGetMetadata(t *testing.T) {
 			UserID:     "b",
 			Permission: true,
 			ExpectedResponse: &poll.Metadata{
-				PollID:          testutils.GetPollID(),
-				UserID:          "b",
-				AdminPermission: true,
-				VotedAnswers:    []string{"Answer 2 (2)", "Answer 3 (1)"},
+				PollID:        testutils.GetPollID(),
+				UserID:        "b",
+				CanManagePoll: true,
+				VotedAnswers:  []string{"Answer 2 (2)", "Answer 3 (1)"},
 			},
 		},
 		"Voted no Answers": {
@@ -707,10 +707,10 @@ func TestGetMetadata(t *testing.T) {
 			UserID:     "c",
 			Permission: true,
 			ExpectedResponse: &poll.Metadata{
-				PollID:          testutils.GetPollID(),
-				UserID:          "c",
-				AdminPermission: true,
-				VotedAnswers:    []string{},
+				PollID:        testutils.GetPollID(),
+				UserID:        "c",
+				CanManagePoll: true,
+				VotedAnswers:  []string{},
 			}},
 		"Invalid userID": {
 			Poll: poll.Poll{
@@ -723,10 +723,10 @@ func TestGetMetadata(t *testing.T) {
 			},
 			UserID: "",
 			ExpectedResponse: &poll.Metadata{
-				PollID:          testutils.GetPollID(),
-				UserID:          "",
-				AdminPermission: false,
-				VotedAnswers:    []string{},
+				PollID:        testutils.GetPollID(),
+				UserID:        "",
+				CanManagePoll: false,
+				VotedAnswers:  []string{},
 			},
 		},
 	} {

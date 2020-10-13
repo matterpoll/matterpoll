@@ -409,12 +409,12 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 }
 
 func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
-	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
+	canManagePoll, appErr := p.CanManagePoll(poll, userID)
 	if appErr != nil {
-		p.API.LogWarn("Failed to check admin permission", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
-		hasAdminPermission = false
+		p.API.LogWarn("Failed to check permission to manage poll", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
+		canManagePoll = false
 	}
-	metadata := poll.GetMetadata(userID, hasAdminPermission)
+	metadata := poll.GetMetadata(userID, canManagePoll)
 	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
 }
 
@@ -474,7 +474,7 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	}
 
 	if !poll.Settings.PublicAddOption {
-		hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
+		hasAdmminPermission, appErr := p.CanManagePoll(poll, request.UserId)
 		if appErr != nil {
 			return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 		}
@@ -581,7 +581,7 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
+	hasAdmminPermission, appErr := p.CanManagePoll(poll, request.UserId)
 	if appErr != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 	}
@@ -681,7 +681,7 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
+	hasAdmminPermission, appErr := p.CanManagePoll(poll, request.UserId)
 	if appErr != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 	}
@@ -753,12 +753,12 @@ func (p *MatterpollPlugin) handlePollMetadata(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
+	canManagePoll, appErr := p.CanManagePoll(poll, userID)
 	if appErr != nil {
 		p.API.LogWarn("Failed to check permission", "userID", userID, "error", appErr.Error())
-		hasAdminPermission = false
+		canManagePoll = false
 	}
-	metadata := poll.GetMetadata(userID, hasAdminPermission)
+	metadata := poll.GetMetadata(userID, canManagePoll)
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(metadata); err != nil {
 		p.API.LogWarn("failed to write response", "error", err.Error())

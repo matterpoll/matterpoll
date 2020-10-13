@@ -302,7 +302,7 @@ func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
 	return &Metadata{
 		PollID:                 p.ID,
 		UserID:                 userID,
-		AdminPermission:        permission,
+		CanManagePoll:          permission,
 		VotedAnswers:           votedAnswers,
 		SettingPublicAddOption: p.Settings.PublicAddOption,
 	}

@@ -29,7 +29,7 @@ describe('components/post_type/action_view/ActionView', () => {
                 voted_answers: ['answer1', 'answer2'],
                 poll_id: samplePollId,
                 user_id: 'user_id1',
-                admin_permission: false,
+                can_manage_poll: false,
                 setting_public_add_option: false,
             },
         },
@@ -43,7 +43,7 @@ describe('components/post_type/action_view/ActionView', () => {
         const wrapper = shallow(<ActionView {...baseProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
-    test('should match snapshot with admin permission', () => {
+    test('should match snapshot with permission to manage poll', () => {
         const newProps = {
             ...baseProps,
             pollMetadata: {
@@ -51,7 +51,7 @@ describe('components/post_type/action_view/ActionView', () => {
                     voted_answers: ['answer1', 'answer2'],
                     poll_id: samplePollId,
                     user_id: 'user_id1',
-                    admin_permission: true,
+                    can_manage_poll: true,
                 },
             },
         };
@@ -66,7 +66,7 @@ describe('components/post_type/action_view/ActionView', () => {
                     voted_answers: ['answer1', 'answer2'],
                     poll_id: samplePollId,
                     user_id: 'user_id1',
-                    admin_permission: false,
+                    can_manage_poll: false,
                     setting_public_add_option: false,
                 },
             },
@@ -74,7 +74,7 @@ describe('components/post_type/action_view/ActionView', () => {
         const wrapper = shallow(<ActionView {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
-    test('should match snapshot without admin permission, with public-add-option', () => {
+    test('should match snapshot without permission to manage poll, with public-add-option', () => {
         const newProps = {
             ...baseProps,
             pollMetadata: {
@@ -82,7 +82,7 @@ describe('components/post_type/action_view/ActionView', () => {
                     voted_answers: ['answer1', 'answer2'],
                     poll_id: samplePollId,
                     user_id: 'user_id1',
-                    admin_permission: false,
+                    can_manage_poll: false,
                     setting_public_add_option: true,
                 },
             },

@@ -12,7 +12,7 @@ func TestToMap(t *testing.T) {
 	m := poll.Metadata{
 		PollID:                 "pollID",
 		UserID:                 "userID",
-		AdminPermission:        true,
+		CanManagePoll:          true,
 		SettingPublicAddOption: true,
 	}
 
@@ -20,7 +20,7 @@ func TestToMap(t *testing.T) {
 		"voted_answers":             []string(nil),
 		"poll_id":                   "pollID",
 		"user_id":                   "userID",
-		"admin_permission":          true,
+		"can_manage_poll":           true,
 		"setting_public_add_option": true,
 	}
 	assert.Equal(t, expectedMap, m.ToMap())

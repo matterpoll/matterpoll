@@ -8,7 +8,7 @@ export const websocketHasVoted = (data) => async (dispatch) => {
             voted_answers: data.voted_answers,
             user_id: data.user_id,
             poll_id: data.poll_id,
-            admin_permission: data.admin_permission,
+            can_manage_poll: data.can_manage_poll,
             setting_public_add_option: data.setting_public_add_option,
         },
     });
