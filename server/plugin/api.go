@@ -474,11 +474,11 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	}
 
 	if !poll.Settings.PublicAddOption {
-		hasAdmminPermission, appErr := p.CanManagePoll(poll, request.UserId)
+		canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
 		if appErr != nil {
 			return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 		}
-		if !hasAdmminPermission {
+		if !canManagePoll {
 			return &i18n.LocalizeConfig{DefaultMessage: responseAddOptionInvalidPermission}, nil, nil
 		}
 	}
@@ -581,11 +581,11 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	hasAdmminPermission, appErr := p.CanManagePoll(poll, request.UserId)
+	canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
 	if appErr != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 	}
-	if !hasAdmminPermission {
+	if !canManagePoll {
 		return &i18n.LocalizeConfig{DefaultMessage: responseEndPollInvalidPermission}, nil, nil
 	}
 
@@ -681,11 +681,11 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	hasAdmminPermission, appErr := p.CanManagePoll(poll, request.UserId)
+	canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
 	if appErr != nil {
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 	}
-	if !hasAdmminPermission {
+	if !canManagePoll {
 		return &i18n.LocalizeConfig{DefaultMessage: responseDeletePollInvalidPermission}, nil, nil
 	}
 
