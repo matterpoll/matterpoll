@@ -1,12 +1,15 @@
 version: 2
 updates:
-- package-ecosystem: gomod
+- package-ecosystem: "gomod"
   directory: "/"
   schedule:
-    interval: weekly
+    interval: "daily"
   reviewers:
-  - hanzei
+  - "hanzei"
   assignees:
-  - hanzei
+  - "hanzei"
   labels:
-  - 3. To Review
+  - "3. To Review"
+  allowed_updates:
+    - match:
+      update_type: "security"
