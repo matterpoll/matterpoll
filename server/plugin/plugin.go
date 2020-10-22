@@ -1,10 +1,8 @@
 package plugin
 
 import (
-	"fmt"
 	"sync"
 
-	"github.com/blang/semver/v4"
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-plugin-api/experimental/command"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -66,15 +64,11 @@ func NewMatterpollPlugin() *MatterpollPlugin {
 
 // OnActivate ensures a configuration is set and initializes the API
 func (p *MatterpollPlugin) OnActivate() error {
-	err := p.checkServerVersion()
-	if err != nil {
-		return err
-	}
-
 	if p.ServerConfig.ServiceSettings.SiteURL == nil {
 		return errors.New("siteURL is not set. Please set a siteURL and restart the plugin")
 	}
 
+	var err error
 	p.Store, err = kvstore.NewStore(p.API, manifest.Version)
 	if err != nil {
 		return errors.Wrap(err, "failed to create store")
@@ -131,21 +125,6 @@ func (p *MatterpollPlugin) setActivated(activated bool) {
 
 func (p *MatterpollPlugin) isActivated() bool {
 	return p.activated
-}
-
-// checkServerVersion checks Mattermost Server has at least the required version
-func (p *MatterpollPlugin) checkServerVersion() error {
-	serverVersion, err := semver.Parse(p.API.GetServerVersion())
-	if err != nil {
-		return errors.Wrap(err, "failed to parse server version")
-	}
-
-	r := semver.MustParseRange(">=" + manifest.MinServerVersion)
-	if !r(serverVersion) {
-		return fmt.Errorf("this plugin requires Mattermost v%s or later", manifest.MinServerVersion)
-	}
-
-	return nil
 }
 
 // patchBotDescription updates the bot description based on the servers local
