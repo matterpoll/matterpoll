@@ -26,7 +26,7 @@ export default class ActionView extends React.PureComponent {
      * In details, return true in the following cases
      * - '--public-add-option' is set
      * or
-     * - '--public-add-option' is NOT set AND has admin permission
+     * - '--public-add-option' is NOT set AND can manage the poll
      * @param {object} metadata metadata for poll
      * @return {boolean} which or not the button for add option display
      */
