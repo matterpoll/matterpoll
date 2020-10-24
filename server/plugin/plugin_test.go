@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/blang/semver/v4"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
@@ -66,26 +65,7 @@ func TestPluginOnActivate(t *testing.T) {
 		ShouldError  bool
 	}{
 		// server version tests
-		"greater minor version than minimumServerVersion": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(manifest.MinServerVersion)
-				err := m.IncrementMinor()
-				require.NoError(t, err)
-
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("RegisterCommand", command).Return(nil)
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
-				return helpers
-			},
-			ShouldError: false,
-		},
-		"same version as minimumServerVersion": {
+		"all fine": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
