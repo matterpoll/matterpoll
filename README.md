@@ -65,3 +65,5 @@ For example, this error happens in case you set SiteURL starting with `http://`,
 We welcome contributions for bug reports, issues, feature requests, feature implementations and pull requests. Feel free to [**file a new issue**](https://github.com/matterpoll/matterpoll/issues/new/choose) or join the [**Matterpoll channel**](https://community.mattermost.com/core/channels/matterpoll) on the Mattermost community server.
 
 For a complete guide on contributing to Matterpoll, see the [Contribution Guideline](CONTRIBUTING.md).
+
+DO NOT MERGE
