@@ -36,12 +36,16 @@
     "other": "Du kannst Antwortmöglichkeit festlegen, indem du `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\"` eingibst"
   },
   "command.help.text.pollSetting.anonymous": {
-    "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
+    "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
     "other": "Verberge, wer für was gestimmt hat"
   },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "Umfrageeinstellungen ermöglichen weitere Anpassungen , z.B. `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\" --progress --anonymous`. Die möglichen Umfrageeinstellungen sind:"
+  },
+  "command.help.text.pollSetting.multi-vote": {
+    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
+    "other": "Erlaube Benutzenden für X verschiedene Antwortoptionen abzustimmen."
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -67,6 +71,50 @@
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "Antwortoption hinzufügen"
   },
+  "dialog.create.submitLabel": {
+    "hash": "sha1-6e157c5da4410b7e9de85f5c93026b9176e69064",
+    "other": "Erstellen"
+  },
+  "dialog.create.title": {
+    "hash": "sha1-c643db620cf4120486a230ec3e8635d822bba294",
+    "other": "Umfrage erstellen"
+  },
+  "dialog.createPoll.option": {
+    "hash": "sha1-790c56f066138f17e25e3bc55141bafb55eae14b",
+    "other": "{{ .Number }}. Antwortoption"
+  },
+  "dialog.createPoll.question": {
+    "hash": "sha1-002ff598115d84595ffeee6219cb5c03d3a1d4a6",
+    "other": "Frage"
+  },
+  "dialog.createPoll.setting.multi": {
+    "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
+    "other": "Die Anzahl der Stimmen, die jeder Benutzenden hat."
+  },
+  "dialog.delete.submitLabel": {
+    "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
+    "other": "Löschen"
+  },
+  "dialog.delete.title": {
+    "hash": "sha1-ce46cb787a610361503ef26f2b542a1872919716",
+    "other": "Bestätige Löschung von Umfrage"
+  },
+  "dialog.end.submitLabel": {
+    "hash": "sha1-a2bb9d34b8a1a79665858d354585cf147e0dee4e",
+    "other": "Beenden"
+  },
+  "dialog.end.title": {
+    "hash": "sha1-e54c9d4f934f84ae6bfb7abf59fae282f68d810c",
+    "other": "Bestätige Beendigung von Umfrage"
+  },
+  "poll.addAnswerOption.duplicate": {
+    "hash": "sha1-f2e20be1db21bba56adc08d288db5275a7c193d0",
+    "other": "Doppelte Antwortoption: {{.Option}}"
+  },
+  "poll.addAnswerOption.empty": {
+    "hash": "sha1-12db9817b0feafe98b4b809dceefdde8399f4147",
+    "other": "Die Antwortoptionen darf nicht leer sein"
+  },
   "poll.button.addOption": {
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "Antwortoption hinzufügen"
@@ -78,6 +126,10 @@
   "poll.button.endPoll": {
     "hash": "sha1-60ddde386bd7190fa3da2ba13f97e3caa625d3e6",
     "other": "Umfrage beenden"
+  },
+  "poll.button.resetVotes": {
+    "hash": "sha1-5dde85fe02a747ab6a09cd15156c01d955c8ab56",
+    "other": "Stimmen zurücksetzen"
   },
   "poll.endPost.answer.heading": {
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
@@ -100,6 +152,26 @@
     "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**Anzahl der abgegeben Stimmen**: {{.TotalVotes}}"
   },
+  "poll.newPoll.unrecognizedSetting": {
+    "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
+    "other": "Unbekannte Umfrageeinstellung: {{.Setting}}"
+  },
+  "poll.newPoll.votesettings.invalidSetting": {
+    "hash": "sha1-a0649f6d7040b480c543e843e12cd14de97ef6d6",
+    "other": "Die Anzahl der Stimmen musss eine positive Zahl kleiner gleich der Anzahl der Antwortoptionen sein. Gewählt wurde \"{{.MaxVotes}}\", aber die Anzahl der Antwortoptionen ist \"{{.Options}}\"."
+  },
+  "poll.newPoll.votesettings.unexpectedError": {
+    "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
+    "other": "Unerwarteter Fehler beim Verarbeiten von {{.Setting}}"
+  },
+  "poll.updateVote.alreadyVoted": {
+    "hash": "sha1-c73a2717c594b9f0da1b70e9c7ff0027e5aa1eb2",
+    "other": "Du hast bereits für diese Antwortoptionen abgestimmt."
+  },
+  "poll.updateVote.maxVotes": {
+    "hash": "sha1-7804621555aa16cac819fa2a31c7521f1758de8f",
+    "other": "Du kannst nicht Antwortoptionen abstimmen, weil du keine Stimmen mehr hast. Klicke auf \"Stimmen Zurücksetzen \", um alle deine Stimmen zurückzusetzen."
+  },
   "response.addOption.invalidPermission": {
     "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
     "other": "Nur der Ersteller einer Umfrage und System Administration dürfen Antwortoption hinzufügen."
@@ -121,12 +193,25 @@
     "other": "Nur der Ersteller einer Umfrage und System Administration dürfen diese beenden."
   },
   "response.endPoll.successfully": {
-    "hash": "sha1-255d4b342aeb7c9f2113c3764fb3b7a8d30da27a",
+    "hash": "sha1-a4fba46ee42d558010f595fec2e1e451cf3d4d73",
     "other": "Die Umfrage **{{.Question}}** wurde beendet and die ursprüngliche Nachricht aktualisiert. Klicke [here]({{.Link}}) um direkt dort hin zu springen."
+  },
+  "response.resetVotes.noVotes": {
+    "hash": "sha1-18b17380e0289d021b70c7111bab1dca0d563b30",
+    "other": "Es gibt keine Stimmen, die zurückgesetzt werden könnten."
+  },
+  "response.resetVotes.success": {
+    "hash": "sha1-fd557010c26787d3aeece2745511dab764cb09c7",
+    "other": "Deine Stimmen wurden zurückgestezt. Sie waren [{{.ClearedVotes}}]."
   },
   "response.vote.counted": {
     "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
     "other": "Deine Stimme wurde gezählt."
+  },
+  "response.vote.multi.updated": {
+    "hash": "sha1-213785e569b994863b96b984772e9497f8629bbc",
+    "one": "Deine Stimme wurde gezählt. Du hast {{.Remains}} verbleibende Stimme.",
+    "other": "Deine Stimme wurde gezählt. Du hast {{.Remains}} verbleibende Stimmen."
   },
   "response.vote.updated": {
     "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",

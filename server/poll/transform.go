@@ -4,24 +4,19 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/model"
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-var (
-	pollButtonAddOption = &i18n.Message{
-		ID:    "poll.button.addOption",
-		Other: "Add Option",
-	}
-	pollButtonDeltePoll = &i18n.Message{
-		ID:    "poll.button.deletePoll",
-		Other: "Delete Poll",
-	}
-	pollButtonEndPoll = &i18n.Message{
-		ID:    "poll.button.endPoll",
-		Other: "End Poll",
-	}
+const (
+	// MatterpollAdminButtonType is action_type of buttons that are used for managing a poll.
+	MatterpollAdminButtonType = "custom_matterpoll_admin_button"
+)
 
+// IDToNameConverter converts a given userID to a human readable name.
+type IDToNameConverter func(userID string) (string, *model.AppError)
+
+var (
 	pollMessageSettings = &i18n.Message{
 		ID:    "poll.message.pollSettings",
 		Other: "**Poll Settings**: {{.Settings}}",
@@ -39,56 +34,73 @@ var (
 		ID:    "poll.endPost.seperator",
 		Other: "and",
 	}
-	pollEndPostAnswerHeading = &i18n.Message{
-		ID:    "poll.endPost.answer.heading",
-		One:   "{{.Answer}} ({{.Count}} vote)",
-		Other: "{{.Answer}} ({{.Count}} votes)",
-	}
 )
 
 // ToPostActions returns the poll as a message
-func (p *Poll) ToPostActions(localizer *i18n.Localizer, siteURL, pluginID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName string) []*model.SlackAttachment {
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
 
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
-		answer := o.Answer
-		if p.Settings.Progress {
-			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
-		}
 		actions = append(actions, &model.PostAction{
-			Name: answer,
+			Id:   fmt.Sprintf("vote%v", i),
+			Name: p.getAnswerOptionName(o),
 			Type: model.POST_ACTION_TYPE_BUTTON,
 			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/vote/%v", siteURL, pluginID, p.ID, i),
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/vote/%v", pluginID, p.ID, i),
 			},
 		})
 	}
 
-	actions = append(actions, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add/request", siteURL, pluginID, p.ID),
+	if p.Settings.MaxVotes > 1 {
+		actions = append(actions,
+			&model.PostAction{
+				Id: "resetVote",
+				Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+					ID:    "poll.button.resetVotes",
+					Other: "Reset Votes",
+				}}),
+				Type: model.POST_ACTION_TYPE_BUTTON,
+				Integration: &model.PostActionIntegration{
+					URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
+				},
+			},
+		)
+	}
+	actions = append(actions,
+		&model.PostAction{
+			Id: "addOption",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.addOption",
+				Other: "Add Option",
+			}}),
+			Type: model.POST_ACTION_TYPE_BUTTON,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
+			},
+		}, &model.PostAction{
+			Id: "deletePoll",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.deletePoll",
+				Other: "Delete Poll",
+			}}),
+			Type: MatterpollAdminButtonType,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
+			},
+		}, &model.PostAction{
+			Id: "endPoll",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.endPoll",
+				Other: "End Poll",
+			}}),
+			Type: MatterpollAdminButtonType,
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
+			},
 		},
-	})
-
-	actions = append(actions, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeltePoll}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/delete", siteURL, pluginID, p.ID),
-		},
-	})
-
-	actions = append(actions, &model.PostAction{
-		Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
-		Type: model.POST_ACTION_TYPE_BUTTON,
-		Integration: &model.PostActionIntegration{
-			URL: fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/end", siteURL, pluginID, p.ID),
-		},
-	})
+	)
 
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
@@ -111,6 +123,9 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 	if p.Settings.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
 	}
+	if p.Settings.MaxVotes > 1 {
+		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
+	}
 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {
@@ -128,7 +143,7 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 }
 
 // ToEndPollPost returns the poll end message
-func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, convert func(string) (string, *model.AppError)) (*model.Post, *model.AppError) {
+func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, convert IDToNameConverter) (*model.Post, *model.AppError) {
 	post := &model.Post{}
 	fields := []*model.SlackAttachmentField{}
 
@@ -152,7 +167,13 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 		fields = append(fields, &model.SlackAttachmentField{
 			Short: true,
 			Title: localizer.MustLocalize(&i18n.LocalizeConfig{
-				DefaultMessage: pollEndPostAnswerHeading,
+				DefaultMessage: &i18n.Message{
+					ID:    "poll.endPost.answer.heading",
+					One:   "{{.Answer}} ({{.Count}} vote)",
+					Few:   "{{.Answer}} ({{.Count}} votes)",
+					Many:  "{{.Answer}} ({{.Count}} votes)",
+					Other: "{{.Answer}} ({{.Count}} votes)",
+				},
 				TemplateData: map[string]interface{}{
 					"Answer": o.Answer,
 					"Count":  len(o.Voter),

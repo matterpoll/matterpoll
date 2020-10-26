@@ -3,11 +3,12 @@ package kvstore
 import (
 	"testing"
 
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func TestPollStoreGet(t *testing.T) {
@@ -18,7 +19,7 @@ func TestPollStoreGet(t *testing.T) {
 		store := setupTestStore(api)
 
 		rpoll, err := store.Poll().Get(testutils.GetPollID())
-		require.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, testutils.GetPoll(), rpoll)
 	})
 	t.Run("KVGet() fails", func(t *testing.T) {
@@ -28,7 +29,7 @@ func TestPollStoreGet(t *testing.T) {
 		store := setupTestStore(api)
 
 		rpoll, err := store.Poll().Get(testutils.GetPollID())
-		assert.NotNil(t, err)
+		assert.Error(t, err)
 		assert.Nil(t, rpoll)
 	})
 	t.Run("Decode fails", func(t *testing.T) {
@@ -38,29 +39,110 @@ func TestPollStoreGet(t *testing.T) {
 		store := setupTestStore(api)
 
 		rpoll, err := store.Poll().Get(testutils.GetPollID())
-		assert.NotNil(t, err)
+		assert.Error(t, err)
 		assert.Nil(t, rpoll)
 	})
 }
 
-func TestPollStoreSave(t *testing.T) {
+func TestPollStoreInsert(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
+		opt := model.PluginKVSetOptions{
+			Atomic:   true,
+			OldValue: nil,
+		}
 		api := &plugintest.API{}
-		api.On("KVSet", pollPrefix+testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(nil)
+		api.On("KVSetWithOptions", pollPrefix+testutils.GetPollID(), testutils.GetPoll().EncodeToByte(), opt).Return(true, nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
-		err := store.Poll().Save(testutils.GetPoll())
-		require.Nil(t, err)
+		err := store.Poll().Insert(testutils.GetPoll())
+		require.NoError(t, err)
 	})
-	t.Run("KVSet() fails", func(t *testing.T) {
+	t.Run("KVSetWithOptions() fails", func(t *testing.T) {
+		opt := model.PluginKVSetOptions{
+			Atomic:   true,
+			OldValue: nil,
+		}
 		api := &plugintest.API{}
-		api.On("KVSet", pollPrefix+testutils.GetPollID(), testutils.GetPoll().EncodeToByte()).Return(&model.AppError{})
+		api.On("KVSetWithOptions", pollPrefix+testutils.GetPollID(), testutils.GetPoll().EncodeToByte(), opt).Return(false, &model.AppError{})
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
-		err := store.Poll().Save(testutils.GetPoll())
-		require.NotNil(t, err)
+		err := store.Poll().Insert(testutils.GetPoll())
+		require.Error(t, err)
+	})
+	t.Run("Poll already exists", func(t *testing.T) {
+		opt := model.PluginKVSetOptions{
+			Atomic:   true,
+			OldValue: nil,
+		}
+		api := &plugintest.API{}
+		api.On("KVSetWithOptions", pollPrefix+testutils.GetPollID(), testutils.GetPoll().EncodeToByte(), opt).Return(false, nil)
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		err := store.Poll().Insert(testutils.GetPoll())
+		require.Error(t, err)
+	})
+}
+
+func TestPollStoreUpdate(t *testing.T) {
+	t.Run("all fine", func(t *testing.T) {
+		oldPoll := testutils.GetPoll()
+		newPoll := oldPoll.Copy()
+		msg, err := newPoll.UpdateVote(model.NewId(), 0)
+		require.Nil(t, msg)
+		require.NoError(t, err)
+		opt := model.PluginKVSetOptions{
+			Atomic:   true,
+			OldValue: oldPoll.EncodeToByte(),
+		}
+
+		api := &plugintest.API{}
+		api.On("KVSetWithOptions", pollPrefix+newPoll.ID, newPoll.EncodeToByte(), opt).Return(true, nil)
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		err = store.Poll().Update(oldPoll, newPoll)
+		require.NoError(t, err)
+	})
+	t.Run("KVSetWithOptions() fails", func(t *testing.T) {
+		oldPoll := testutils.GetPoll()
+		newPoll := oldPoll.Copy()
+		msg, err := newPoll.UpdateVote(model.NewId(), 0)
+		require.Nil(t, msg)
+		require.NoError(t, err)
+		opt := model.PluginKVSetOptions{
+			Atomic:   true,
+			OldValue: oldPoll.EncodeToByte(),
+		}
+
+		api := &plugintest.API{}
+		api.On("KVSetWithOptions", pollPrefix+newPoll.ID, newPoll.EncodeToByte(), opt).Return(false, &model.AppError{})
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		err = store.Poll().Update(oldPoll, newPoll)
+		require.Error(t, err)
+	})
+	t.Run("db compare fails fails", func(t *testing.T) {
+		oldPoll := testutils.GetPoll()
+		newPoll := oldPoll.Copy()
+		msg, err := newPoll.UpdateVote(model.NewId(), 0)
+		require.Nil(t, msg)
+		require.NoError(t, err)
+		opt := model.PluginKVSetOptions{
+			Atomic:   true,
+			OldValue: oldPoll.EncodeToByte(),
+		}
+
+		api := &plugintest.API{}
+		api.On("KVSetWithOptions", pollPrefix+newPoll.ID, newPoll.EncodeToByte(), opt).Return(false, nil)
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		err = store.Poll().Update(oldPoll, newPoll)
+		require.Error(t, err)
 	})
 }
 
@@ -72,7 +154,7 @@ func TestPollStoreDelete(t *testing.T) {
 		store := setupTestStore(api)
 
 		err := store.Poll().Delete(testutils.GetPoll())
-		require.Nil(t, err)
+		require.NoError(t, err)
 	})
 	t.Run("KVDelete() fails", func(t *testing.T) {
 		api := &plugintest.API{}
@@ -81,6 +163,6 @@ func TestPollStoreDelete(t *testing.T) {
 		store := setupTestStore(api)
 
 		err := store.Poll().Delete(testutils.GetPoll())
-		require.NotNil(t, err)
+		require.Error(t, err)
 	})
 }

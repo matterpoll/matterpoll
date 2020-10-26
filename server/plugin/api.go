@@ -1,33 +1,36 @@
 package plugin
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
+
+	"github.com/matterpoll/matterpoll/server/poll"
 )
 
 const (
-	iconFilename = "logo_dark.png"
+	iconFilename = "logo_dark-bg.png"
 
 	addOptionKey = "answerOption"
+	questionKey  = "question"
 )
 
 type (
-	postActionHandler   func(map[string]string, *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error)
+	postActionHandler   func(map[string]string, *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error)
 	submitDialogHandler func(map[string]string, *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error)
 )
 
 var (
-	infoMessage = "Thanks for using Matterpoll v" + manifest.ID + "\n"
-
 	responseVoteCounted = &i18n.Message{
 		ID:    "response.vote.counted",
 		Other: "Your vote has been counted.",
@@ -36,7 +39,6 @@ var (
 		ID:    "response.vote.updated",
 		Other: "Your vote has been updated.",
 	}
-
 	responseAddOptionSuccess = &i18n.Message{
 		ID:    "response.addOption.success",
 		Other: "Successfully added the option.",
@@ -46,22 +48,9 @@ var (
 		Other: "Only the creator of a poll and System Admins are allowed to add options.",
 	}
 
-	dialogAddOptionTitle = &i18n.Message{
-		ID:    "dialog.addOption.title",
-		Other: "Add Option",
-	}
-	dialogAddOptionSubmitLabel = &i18n.Message{
-		ID:    "dialog.addOption.submitLabel",
-		Other: "Add",
-	}
-	dialogAddOptionElementDisplayName = &i18n.Message{
-		ID:    "dialog.addOption.element.displayName",
-		Other: "Option",
-	}
-
 	responseEndPollSuccessfully = &i18n.Message{
 		ID:    "response.endPoll.successfully",
-		Other: "The poll **{{.Question}}** has ended and the original post have been updated. You can jump to it by pressing [here]({{.Link}}).",
+		Other: "The poll **{{.Question}}** has ended and the original post has been updated. You can jump to it by pressing [here]({{.Link}}).",
 	}
 	responseEndPollInvalidPermission = &i18n.Message{
 		ID:    "response.endPoll.invalidPermission",
@@ -86,13 +75,19 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 
 	apiV1 := r.PathPrefix("/api/v1").Subrouter()
 	apiV1.Use(checkAuthenticity)
+	apiV1.HandleFunc("/configuration", p.handlePluginConfiguration).Methods(http.MethodGet)
 
+	apiV1.HandleFunc("/polls/create", p.handleSubmitDialogRequest(p.handleCreatePoll)).Methods(http.MethodPost)
 	pollRouter := apiV1.PathPrefix("/polls/{id:[a-z0-9]+}").Subrouter()
 	pollRouter.HandleFunc("/vote/{optionNumber:[0-9]+}", p.handlePostActionIntegrationRequest(p.handleVote)).Methods(http.MethodPost)
-	pollRouter.HandleFunc("/option/add", p.handleSubmitDialogRequest(p.handleAddOption)).Methods(http.MethodPost)
-	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOptionDialogRequest)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/votes/reset", p.handlePostActionIntegrationRequest(p.handleResetVotes)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/option/add/request", p.handlePostActionIntegrationRequest(p.handleAddOption)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/option/add", p.handleSubmitDialogRequest(p.handleAddOptionConfirm)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/end", p.handlePostActionIntegrationRequest(p.handleEndPoll)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/end/confirm", p.handleSubmitDialogRequest(p.handleEndPollConfirm)).Methods(http.MethodPost)
 	pollRouter.HandleFunc("/delete", p.handlePostActionIntegrationRequest(p.handleDeletePoll)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/delete/confirm", p.handleSubmitDialogRequest(p.handleDeletePollConfirm)).Methods(http.MethodPost)
+	pollRouter.HandleFunc("/metadata", p.handlePollMetadata).Methods(http.MethodGet)
 	return r
 }
 
@@ -102,7 +97,7 @@ func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r
 }
 
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
-	_, _ = io.WriteString(w, infoMessage)
+	_, _ = io.WriteString(w, "Thanks for using Matterpoll v"+manifest.Version+"\n")
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
@@ -115,6 +110,17 @@ func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "public, max-age=604800")
 	http.ServeFile(w, r, filepath.Join(bundlePath, "assets", iconFilename))
+}
+
+func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, r *http.Request) {
+	configuration := p.getConfiguration()
+
+	w.Header().Set("Content-Type", "application/json")
+	err := json.NewEncoder(w).Encode(configuration)
+	if err != nil {
+		p.API.LogWarn("failed to write configuration response.", "error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
 func checkAuthenticity(next http.Handler) http.Handler {
@@ -136,26 +142,68 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 			http.Error(w, "invalid request", http.StatusBadRequest)
 			return
 		}
+
+		if request.UserId != r.Header.Get("Mattermost-User-ID") {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		vars := mux.Vars(r)
+		pollID := vars["id"]
+		poll, err := p.Store.Poll().Get(pollID)
+		if err != nil {
+			http.Error(w, "failed to get poll", http.StatusInternalServerError)
+			return
+		}
+
+		var rootID string
+		postID := poll.PostID
+		if postID != "" {
+			post, appEerr := p.API.GetPost(postID)
+			if appEerr != nil {
+				http.Error(w, "failed to get post", http.StatusInternalServerError)
+				return
+			}
+
+			if request.ChannelId != post.ChannelId {
+				http.Error(w, "not authorized", http.StatusUnauthorized)
+				return
+			}
+
+			if post.RootId != "" {
+				rootID = post.RootId
+			} else {
+				rootID = post.Id
+			}
+		}
+
+		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PERMISSION_READ_CHANNEL) {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
 		userLocalizer := p.getUserLocalizer(request.UserId)
 
-		msg, update, err := handler(mux.Vars(r), request)
+		lc, update, err := handler(mux.Vars(r), request)
 		if err != nil {
 			p.API.LogWarn("failed to handle PostActionIntegrationRequest", "error", err.Error())
 		}
 
-		response := &model.PostActionIntegrationResponse{}
-		if msg != nil {
-			response.EphemeralText = p.LocalizeDefaultMessage(userLocalizer, msg)
+		if lc != nil {
+			p.SendEphemeralPost(request.ChannelId, request.UserId, rootID, p.LocalizeWithConfig(userLocalizer, lc))
 		}
+
+		response := &model.PostActionIntegrationResponse{}
 		if update != nil {
 			response.Update = update
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		if _, err = w.Write(response.ToJson()); err != nil {
+		err = json.NewEncoder(w).Encode(response)
+		if err != nil {
 			p.API.LogWarn("failed to write PostActionIntegrationResponse", "error", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -168,150 +216,307 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 			return
 		}
 
-		msg, response, err := handler(mux.Vars(r), request)
+		if request.UserId != r.Header.Get("Mattermost-User-ID") {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		var rootID string
+
+		vars := mux.Vars(r)
+		pollID := vars["id"]
+		if pollID != "" {
+			poll, err := p.Store.Poll().Get(pollID)
+			if err != nil {
+				http.Error(w, "failed to get poll", http.StatusInternalServerError)
+				return
+			}
+
+			postID := poll.PostID
+			if postID != "" {
+				post, appEerr := p.API.GetPost(postID)
+				if appEerr != nil {
+					http.Error(w, "failed to get post", http.StatusInternalServerError)
+					return
+				}
+
+				if request.ChannelId != post.ChannelId {
+					http.Error(w, "not authorized", http.StatusUnauthorized)
+					return
+				}
+
+				if post.RootId != "" {
+					rootID = post.RootId
+				} else {
+					rootID = post.Id
+				}
+			}
+		}
+
+		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PERMISSION_READ_CHANNEL) {
+			http.Error(w, "not authorized", http.StatusUnauthorized)
+			return
+		}
+
+		msg, response, err := handler(vars, request)
 		if err != nil {
 			p.API.LogWarn("failed to handle SubmitDialogRequest", "error", err.Error())
 		}
 
 		if msg != nil {
 			userLocalizer := p.getUserLocalizer(request.UserId)
-			p.SendEphemeralPost(request.ChannelId, request.UserId, p.LocalizeDefaultMessage(userLocalizer, msg))
+			p.SendEphemeralPost(request.ChannelId, request.UserId, rootID, p.LocalizeDefaultMessage(userLocalizer, msg))
 		}
 
 		if response != nil {
 			w.Header().Set("Content-Type", "application/json")
-			if _, err = w.Write(response.ToJson()); err != nil {
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
 				p.API.LogWarn("failed to write SubmitDialogRequest", "error", err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
-func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
+func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+	publicLocalizer := p.getServerLocalizer()
+	creatorID := request.UserId
+
+	question, ok := request.Submission[questionKey].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get question key. Value is: %v", request.Submission[questionKey])
+	}
+
+	var answerOptions []string
+	o1, ok := request.Submission["option1"].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get option1 key. Value is: %v", request.Submission["option1"])
+	}
+	answerOptions = append(answerOptions, o1)
+
+	o2, ok := request.Submission["option2"].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get option2 key. Value is: %v", request.Submission["option2"])
+	}
+	answerOptions = append(answerOptions, o2)
+
+	o3, ok := request.Submission["option3"].(string)
+	if ok {
+		answerOptions = append(answerOptions, o3)
+	}
+
+	userLocalizer := p.getUserLocalizer(creatorID)
+
+	settings := poll.NewSettingsFromSubmission(request.Submission)
+	poll, errMsg := poll.NewPoll(creatorID, question, answerOptions, settings)
+	if errMsg != nil {
+		response := &model.SubmitDialogResponse{
+			Error: p.LocalizeErrorMessage(userLocalizer, errMsg),
+		}
+		return nil, response, nil
+	}
+
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
+	if appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
+	}
+
+	actions := poll.ToPostActions(publicLocalizer, manifest.Id, displayName)
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: request.ChannelId,
+		RootId:    request.CallbackId,
+		Type:      MatterpollPostType,
+		Props: map[string]interface{}{
+			"poll_id": poll.ID,
+		},
+	}
+	model.ParseSlackAttachment(post, actions)
+
+	rPost, appErr := p.API.CreatePost(post)
+	if appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to create poll post")
+	}
+
+	poll.PostID = rPost.Id
+
+	if err := p.Store.Poll().Insert(poll); err != nil {
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
+	}
+
+	return nil, nil, nil
+}
+
+func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
 	pollID := vars["id"]
 	optionNumber, _ := strconv.Atoi(vars["optionNumber"])
 	userID := request.UserId
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
+	prev := poll.Copy()
 	hasVoted := poll.HasVoted(userID)
-	if err = poll.UpdateVote(userID, optionNumber); err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to update poll")
+	msg, err := poll.UpdateVote(userID, optionNumber)
+	if msg != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: msg}, nil, nil
+	}
+	if err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to update poll")
 	}
 
-	if err = p.Store.Poll().Save(poll); err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
+	if err = p.Store.Poll().Update(prev, poll); err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to save poll")
 	}
+
+	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.ID, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.Id, displayName))
+	post.AddProp("poll_id", poll.ID)
 
-	if hasVoted {
-		return responseVoteUpdated, post, nil
+	if poll.IsMultiVote() {
+		// Multi Answer Mode
+		votedAnswers := poll.GetVotedAnswers(userID)
+		remains := poll.Settings.MaxVotes - len(votedAnswers)
+		return &i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "response.vote.multi.updated",
+				One:   "Your vote has been counted. You have {{.Remains}} vote left.",
+				Few:   "Your vote has been counted. You have {{.Remains}} votes left.",
+				Many:  "Your vote has been counted. You have {{.Remains}} votes left.",
+				Other: "Your vote has been counted. You have {{.Remains}} votes left.",
+			},
+			TemplateData: map[string]interface{}{"Remains": remains},
+			PluralCount:  remains,
+		}, post, nil
 	}
-	return responseVoteCounted, post, nil
+
+	// Single Answer Mode
+	if hasVoted {
+		return &i18n.LocalizeConfig{DefaultMessage: responseVoteUpdated}, post, nil
+	}
+	return &i18n.LocalizeConfig{DefaultMessage: responseVoteCounted}, post, nil
 }
 
-func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
+	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
+	if appErr != nil {
+		p.API.LogWarn("Failed to check admin permission", "userID", userID, "pollID", poll.ID, "error", appErr.Error())
+		hasAdminPermission = false
+	}
+	metadata := poll.GetMetadata(userID, hasAdminPermission)
+	p.API.PublishWebSocketEvent("has_voted", metadata.ToMap(), &model.WebsocketBroadcast{UserId: userID})
+}
+
+func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
 	pollID := vars["id"]
+	userID := request.UserId
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	post, appErr := p.API.GetPost(request.CallbackId)
-	if appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get post")
+	votedAnswers := poll.GetVotedAnswers(userID)
+	if len(votedAnswers) == 0 {
+		return &i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+			ID:    "response.resetVotes.noVotes",
+			Other: "There are no votes to reset.",
+		}}, nil, nil
 	}
 
-	answerOption, ok := request.Submission[addOptionKey].(string)
-	if !ok {
-		return commandErrorGeneric, nil, errors.Wrapf(appErr, "failed to get submission key %s", addOptionKey)
+	prev := poll.Copy()
+
+	poll.ResetVotes(userID)
+
+	if err = p.Store.Poll().Update(prev, poll); err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	if err = poll.AddAnswerOption(answerOption); err != nil {
-		response := &model.SubmitDialogResponse{
-			Errors: map[string]string{
-				addOptionKey: err.Error(),
-			},
-		}
-		return nil, response, nil
-	}
+	go p.publishPollMetadata(poll, userID)
 
+	post := &model.Post{}
 	publicLocalizer := p.getServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, *p.ServerConfig.ServiceSettings.SiteURL, manifest.ID, displayName))
-	if _, appErr = p.API.UpdatePost(post); appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
-	}
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.Id, displayName))
+	post.AddProp("poll_id", poll.ID)
 
-	if err = p.Store.Poll().Save(poll); err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get save poll")
-
-	}
-
-	return responseAddOptionSuccess, nil, nil
+	return &i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "response.resetVotes.success",
+			Other: "All votes are cleared. Your previous votes were [{{.ClearedVotes}}].",
+		},
+		TemplateData: map[string]interface{}{"ClearedVotes": strings.Join(votedAnswers, ", ")},
+	}, post, nil
 }
 
-func (p *MatterpollPlugin) handleAddOptionDialogRequest(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
+func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
 	pollID := vars["id"]
 	userLocalizer := p.getUserLocalizer(request.UserId)
 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
 	if !poll.Settings.PublicAddOption {
-		hasPermission, appErr := p.HasPermission(poll, request.UserId)
+		hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
 		if appErr != nil {
-			return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to check permission")
+			return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
 		}
-		if !hasPermission {
-			return responseAddOptionInvalidPermission, nil, nil
+		if !hasAdmminPermission {
+			return &i18n.LocalizeConfig{DefaultMessage: responseAddOptionInvalidPermission}, nil, nil
 		}
 	}
 
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("%s/plugins/%s/api/v1/polls/%s/option/add", siteURL, manifest.ID, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", manifest.Id, pollID),
 		Dialog: model.Dialog{
-			Title:       p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionTitle),
-			IconURL:     fmt.Sprintf(responseIconURL, siteURL, manifest.ID),
-			CallbackId:  request.PostId,
-			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionSubmitLabel),
+			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
+				ID:    "dialog.addOption.title",
+				Other: "Add Option",
+			}),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
+			CallbackId: request.PostId,
+			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
+				ID:    "dialog.addOption.submitLabel",
+				Other: "Add",
+			}),
 			Elements: []model.DialogElement{{
-				DisplayName: p.LocalizeDefaultMessage(userLocalizer, dialogAddOptionElementDisplayName),
-				Name:        addOptionKey,
-				Type:        "text",
-				SubType:     "text",
+				DisplayName: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
+					ID:    "dialog.addOption.element.displayName",
+					Other: "Option",
+				}),
+				Name:    addOptionKey,
+				Type:    "text",
+				SubType: "text",
 			}},
 		},
 	}
 
 	if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to open add option dialog")
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to open add option dialog")
 	}
 	return nil, nil, nil
 }
 
-func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
+func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
 	pollID := vars["id"]
 
 	poll, err := p.Store.Poll().Get(pollID)
@@ -319,12 +524,101 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	hasPermission, appErr := p.HasPermission(poll, request.UserId)
+	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to check permission")
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
-	if !hasPermission {
-		return responseEndPollInvalidPermission, nil, nil
+
+	var postID string
+	if poll.PostID != "" {
+		postID = poll.PostID
+	} else {
+		// Legacy check if polls created without a postID
+		postID = request.CallbackId
+	}
+
+	post, appErr := p.API.GetPost(postID)
+	if appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get post")
+	}
+
+	answerOption, ok := request.Submission[addOptionKey].(string)
+	if !ok {
+		return commandErrorGeneric, nil, errors.Errorf("failed to get submission key: %s", addOptionKey)
+	}
+
+	prev := poll.Copy()
+	userLocalizer := p.getUserLocalizer(poll.Creator)
+
+	if errMsg := poll.AddAnswerOption(answerOption); errMsg != nil {
+		response := &model.SubmitDialogResponse{
+			Errors: map[string]string{
+				addOptionKey: p.LocalizeErrorMessage(userLocalizer, errMsg),
+			},
+		}
+		return nil, response, nil
+	}
+
+	publicLocalizer := p.getServerLocalizer()
+	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.Id, displayName))
+	if _, appErr = p.API.UpdatePost(post); appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
+	}
+
+	if err = p.Store.Poll().Update(prev, poll); err != nil {
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get save poll")
+	}
+
+	return responseAddOptionSuccess, nil, nil
+}
+
+func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
+	pollID := vars["id"]
+	userLocalizer := p.getUserLocalizer(request.UserId)
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
+	}
+
+	hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
+	if appErr != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
+	}
+	if !hasAdmminPermission {
+		return &i18n.LocalizeConfig{DefaultMessage: responseEndPollInvalidPermission}, nil, nil
+	}
+
+	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
+	dialog := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", manifest.Id, pollID),
+		Dialog: model.Dialog{
+			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
+				ID:    "dialog.end.title",
+				Other: "Confirm Poll End",
+			}),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
+			CallbackId: request.PostId,
+			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
+				ID:    "dialog.end.submitLabel",
+				Other: "End",
+			}),
+		},
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to open end poll dialog")
+	}
+	return nil, nil, nil
+}
+
+func (p *MatterpollPlugin) handleEndPollConfirm(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+	pollID := vars["id"]
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
@@ -337,52 +631,90 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get convert to end poll post")
 	}
 
+	var postID string
+	if poll.PostID != "" {
+		postID = poll.PostID
+	} else {
+		// Legacy check if polls created without a postID
+		postID = request.CallbackId
+	}
+
+	post.Id = postID
+	if _, appErr = p.API.UpdatePost(post); appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
+	}
+
 	if err := p.Store.Poll().Delete(poll); err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to delete poll")
 	}
 
-	p.postEndPollAnnouncement(request, poll.Question)
-	return nil, post, nil
+	p.postEndPollAnnouncement(request.ChannelId, post.Id, poll.Question)
+
+	return nil, nil, nil
 }
 
-func (p *MatterpollPlugin) postEndPollAnnouncement(request *model.PostActionIntegrationRequest, question string) {
-	endPollAnnouncementPostError := "Failed to post the end poll announcement."
-
-	team, err := p.API.GetTeam(request.TeamId)
-	if err != nil {
-		p.API.LogError(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to GetTeam with TeamId: %s", request.TeamId))
-		return
-	}
-	link := fmt.Sprintf("%s/%s/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, team.Name, request.PostId)
-
-	pollPost, err := p.API.GetPost(request.PostId)
-	if err != nil {
-		p.API.LogError(endPollAnnouncementPostError, "details", fmt.Sprintf("failed to GetPost with PostId: %s", request.PostId))
-		return
-	}
-	channelID := pollPost.ChannelId
-
-	publicLocalizer := p.getServerLocalizer()
-
+func (p *MatterpollPlugin) postEndPollAnnouncement(channelID, postID, question string) {
 	endPost := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,
-		RootId:    request.PostId,
-		Message: p.LocalizeWithConfig(publicLocalizer, &i18n.LocalizeConfig{
+		RootId:    postID,
+		Message: p.LocalizeWithConfig(p.getServerLocalizer(), &i18n.LocalizeConfig{
 			DefaultMessage: responseEndPollSuccessfully,
 			TemplateData: map[string]interface{}{
 				"Question": question,
-				"Link":     link,
+				"Link":     fmt.Sprintf("%s/_redirect/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, postID),
 			}}),
 		Type: model.POST_DEFAULT,
 	}
 
-	if _, err = p.API.CreatePost(endPost); err != nil {
-		p.API.LogError(endPollAnnouncementPostError, "details", "failed to CreatePost")
+	if _, err := p.API.CreatePost(endPost); err != nil {
+		p.API.LogWarn("Failed to post the end poll announcement", "details", "failed to CreatePost", "error", err.Error())
 	}
 }
 
-func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.Message, *model.Post, error) {
+func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
+	pollID := vars["id"]
+	userLocalizer := p.getUserLocalizer(request.UserId)
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
+	}
+
+	hasAdmminPermission, appErr := p.HasAdminPermission(poll, request.UserId)
+	if appErr != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
+	}
+	if !hasAdmminPermission {
+		return &i18n.LocalizeConfig{DefaultMessage: responseDeletePollInvalidPermission}, nil, nil
+	}
+
+	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
+	dialog := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", manifest.Id, pollID),
+		Dialog: model.Dialog{
+			Title: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
+				ID:    "dialog.delete.title",
+				Other: "Confirm Poll Delete",
+			}),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
+			CallbackId: request.PostId,
+			SubmitLabel: p.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
+				ID:    "dialog.delete.submitLabel",
+				Other: "Delete",
+			}),
+		},
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to open delete poll dialog")
+	}
+
+	return nil, nil, nil
+}
+
+func (p *MatterpollPlugin) handleDeletePollConfirm(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
 	pollID := vars["id"]
 
 	poll, err := p.Store.Poll().Get(pollID)
@@ -390,16 +722,15 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	hasPermission, appErr := p.HasPermission(poll, request.UserId)
-	if appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to check permission")
-	}
-	if !hasPermission {
-		return responseDeletePollInvalidPermission, nil, nil
+	var postID string
+	if poll.PostID != "" {
+		postID = poll.PostID
+	} else {
+		// Legacy check if polls created without a postID
+		postID = request.CallbackId
 	}
 
-	appErr = p.API.DeletePost(request.PostId)
-	if appErr != nil {
+	if appErr := p.API.DeletePost(postID); appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to delete post")
 	}
 
@@ -408,4 +739,28 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 	}
 
 	return responseDeletePollSuccess, nil, nil
+}
+
+func (p *MatterpollPlugin) handlePollMetadata(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pollID := vars["id"]
+	userID := r.Header.Get("Mattermost-User-Id")
+
+	poll, err := p.Store.Poll().Get(pollID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		p.API.LogWarn("failed to get poll", "error", err.Error())
+		return
+	}
+
+	hasAdminPermission, appErr := p.HasAdminPermission(poll, userID)
+	if appErr != nil {
+		p.API.LogWarn("Failed to check permission", "userID", userID, "error", appErr.Error())
+		hasAdminPermission = false
+	}
+	metadata := poll.GetMetadata(userID, hasAdminPermission)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(metadata); err != nil {
+		p.API.LogWarn("failed to write response", "error", err.Error())
+	}
 }

@@ -2,20 +2,20 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.0.5
-  plugin-ci: mattermost/plugin-ci@0.0.5
+  plugin-ci: mattermost/plugin-ci@0.1.0
 
 workflows:
   version: 2
   main:
     jobs:
       - plugin-ci/lint:
-        filters:
-          tags:
-            only: /^v.*/
+          filters:
+            tags:
+              only: /^v.*/
       - plugin-ci/coverage:
-        filters:
-          tags:
-            only: /^v.*/
+          filters:
+            tags:
+              only: /^v.*/
       - plugin-ci/build:
           filters:
             tags:

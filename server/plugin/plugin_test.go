@@ -5,28 +5,31 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/blang/semver"
 	"bou.ke/monkey"
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
-	"github.com/mattermost/mattermost-server/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store"
-	"github.com/matterpoll/matterpoll/server/store/kvstore"
-	"github.com/matterpoll/matterpoll/server/store/mockstore"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
+	"github.com/blang/semver/v4"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/text/language"
+
+	"github.com/matterpoll/matterpoll/server/store"
+	"github.com/matterpoll/matterpoll/server/store/kvstore"
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
-func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin {
+func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin { //nolint:interfacer
 	p := &MatterpollPlugin{
 		ServerConfig: testutils.GetServerConfig(),
+		getIconData:  getIconDataMock,
 	}
 	p.setConfiguration(&configuration{
-		Trigger: "poll",
+		Trigger:        "poll",
+		ExperimentalUI: true,
 	})
 
 	p.SetAPI(api)
@@ -39,11 +42,24 @@ func setupTestPlugin(t *testing.T, api *plugintest.API, store *mockstore.Store) 
 	return p
 }
 
+func getIconDataMock() (string, error) {
+	return "someIconData", nil
+}
+
 func TestPluginOnActivate(t *testing.T) {
 	bot := &model.Bot{
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 	}
+
+	command := &model.Command{
+		Trigger:              "poll",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Create a poll",
+		AutoCompleteHint:     `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		AutocompleteIconData: "someIconData",
+	}
+
 	for name, test := range map[string]struct {
 		SetupAPI     func(*plugintest.API) *plugintest.API
 		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
@@ -52,7 +68,7 @@ func TestPluginOnActivate(t *testing.T) {
 		// server version tests
 		"greater minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(minimumServerVersion)
+				m := semver.MustParse(manifest.MinServerVersion)
 				err := m.IncrementMinor()
 				require.NoError(t, err)
 				api.On("GetServerVersion").Return(m.String())
@@ -61,35 +77,35 @@ func TestPluginOnActivate(t *testing.T) {
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
+				api.On("RegisterCommand", command).Return(nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: false,
 		},
 		"same version as minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
+				api.On("RegisterCommand", command).Return(nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: false,
 		},
 		"lesser minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(minimumServerVersion)
+				m := semver.MustParse(manifest.MinServerVersion)
 				if m.Minor == 0 {
 					m.Major--
 					m.Minor = 0
@@ -113,7 +129,7 @@ func TestPluginOnActivate(t *testing.T) {
 		// i18n bundle tests
 		"GetBundlePath fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 				api.On("GetBundlePath").Return("", errors.New(""))
 				return api
 			},
@@ -121,7 +137,7 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 		"i18n directory doesn't exist ": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 				api.On("GetBundlePath").Return("/tmp", nil)
 				return api
 			},
@@ -130,7 +146,7 @@ func TestPluginOnActivate(t *testing.T) {
 		// Bot tests
 		"EnsureBot fails ": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
@@ -138,14 +154,14 @@ func TestPluginOnActivate(t *testing.T) {
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return("", &model.AppError{})
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return("", &model.AppError{})
 				return helpers
 			},
 			ShouldError: true,
 		},
 		"patch bot description fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
@@ -154,24 +170,7 @@ func TestPluginOnActivate(t *testing.T) {
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
-				return helpers
-			},
-			ShouldError: true,
-		},
-		"SetProfileImage fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(&model.AppError{})
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
+				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
 				return helpers
 			},
 			ShouldError: true,
@@ -193,16 +192,17 @@ func TestPluginOnActivate(t *testing.T) {
 			defer patch.Unpatch()
 
 			siteURL := testutils.GetSiteURL()
-			defaultServerLocale := "en"
+			defaultClientLocale := "en"
 			p := &MatterpollPlugin{
 				ServerConfig: &model.Config{
 					LocalizationSettings: model.LocalizationSettings{
-						DefaultServerLocale: &defaultServerLocale,
+						DefaultClientLocale: &defaultClientLocale,
 					},
 					ServiceSettings: model.ServiceSettings{
 						SiteURL: &siteURL,
 					},
 				},
+				getIconData: getIconDataMock,
 			}
 			p.setConfiguration(&configuration{
 				Trigger: "poll",
@@ -220,7 +220,7 @@ func TestPluginOnActivate(t *testing.T) {
 	}
 	t.Run("NewStore() fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("GetServerVersion").Return(minimumServerVersion)
+		api.On("GetServerVersion").Return(manifest.MinServerVersion)
 		defer api.AssertExpectations(t)
 
 		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
@@ -246,7 +246,7 @@ func TestPluginOnActivate(t *testing.T) {
 	})
 	t.Run("SiteURL not set", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("GetServerVersion").Return(minimumServerVersion)
+		api.On("GetServerVersion").Return(manifest.MinServerVersion)
 		defer api.AssertExpectations(t)
 
 		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
@@ -272,16 +272,8 @@ func TestPluginOnActivate(t *testing.T) {
 }
 
 func TestPluginOnDeactivate(t *testing.T) {
-		p := setupTestPlugin(t, &plugintest.API{}, &mockstore.Store{})
+	p := setupTestPlugin(t, &plugintest.API{}, &mockstore.Store{})
 
-		err := p.OnDeactivate()
-		assert.Nil(t, err)
-}
-
-func GetMockArgumentsWithType(typeString string, num int) []interface{} {
-	ret := make([]interface{}, num)
-	for i := 0; i < len(ret); i++ {
-		ret[i] = mock.AnythingOfTypeArgument(typeString)
-	}
-	return ret
+	err := p.OnDeactivate()
+	assert.Nil(t, err)
 }

@@ -3,11 +3,12 @@ package plugin
 import (
 	"testing"
 
+	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func TestLocalizeDefaultMessage(t *testing.T) {
@@ -24,7 +25,6 @@ func TestLocalizeDefaultMessage(t *testing.T) {
 	})
 	t.Run("empty message", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
 
 		p := setupTestPlugin(t, api, &mockstore.Store{})
@@ -51,7 +51,7 @@ func TestLocalizeWithConfig(t *testing.T) {
 	})
 	t.Run("empty config", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
 
 		p := setupTestPlugin(t, api, &mockstore.Store{})
@@ -60,15 +60,18 @@ func TestLocalizeWithConfig(t *testing.T) {
 
 		assert.Equal(t, "", p.LocalizeWithConfig(l, lc))
 	})
-	t.Run("empty message", func(t *testing.T) {
+	t.Run("ids missmatch", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogWarn", GetMockArgumentsWithType("string", 3)...).Return()
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 		defer api.AssertExpectations(t)
 
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		l := p.getServerLocalizer()
 		lc := &i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{},
+			DefaultMessage: &i18n.Message{
+				ID: "some ID",
+			},
+			MessageID: "some other ID",
 		}
 
 		assert.Equal(t, "", p.LocalizeWithConfig(l, lc))

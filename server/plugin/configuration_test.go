@@ -4,20 +4,22 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store/mockstore"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func TestOnConfigurationChange(t *testing.T) {
 	command := &model.Command{
-		Trigger:          "poll",
-		AutoComplete:     true,
-		AutoCompleteDesc: "Create a poll",
-		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		Trigger:              "poll",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Create a poll",
+		AutoCompleteHint:     `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		AutocompleteIconData: "someIconData",
 	}
 
 	botPatch := &model.BotPatch{
@@ -36,14 +38,18 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
+					arg.ExperimentalUI = true
 				})
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
 				api.On("RegisterCommand", command).Return(nil)
 				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, nil)
+				api.On("PublishWebSocketEvent", "configuration_change", map[string]interface{}{
+					"experimentalui": true,
+				}, &model.WebsocketBroadcast{}).Return()
 				return api
 			},
-			Configuration:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfiguration: &configuration{Trigger: "poll"},
+			Configuration:         &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
+			ExpectedConfiguration: &configuration{Trigger: "poll", ExperimentalUI: true},
 			ShouldError:           false,
 		},
 		"Load and save successful, without old configuration": {
@@ -52,23 +58,27 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
+					arg.ExperimentalUI = true
 				})
 				api.On("RegisterCommand", command).Return(nil)
 				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, nil)
+				api.On("PublishWebSocketEvent", "configuration_change", map[string]interface{}{
+					"experimentalui": true,
+				}, &model.WebsocketBroadcast{}).Return()
 				return api
 			},
 			Configuration:         nil,
-			ExpectedConfiguration: &configuration{Trigger: "poll"},
+			ExpectedConfiguration: &configuration{Trigger: "poll", ExperimentalUI: true},
 			ShouldError:           false,
 		},
 		"LoadPluginConfiguration fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetConfig").Return(testutils.GetServerConfig())
-				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(errors.New("LoadPluginConfiguration failed"))
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(errors.New(""))
 				return api
 			},
-			Configuration:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			Configuration:         &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
 			ShouldError:           true,
 		},
 		"Load empty trigger": {
@@ -80,8 +90,8 @@ func TestOnConfigurationChange(t *testing.T) {
 				})
 				return api
 			},
-			Configuration:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			Configuration:         &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
 			ShouldError:           true,
 		},
 		"UnregisterCommand fails": {
@@ -91,11 +101,11 @@ func TestOnConfigurationChange(t *testing.T) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
 				})
-				api.On("UnregisterCommand", "", "oldTrigger").Return(errors.New("UnregisterCommand failed"))
+				api.On("UnregisterCommand", "", "oldTrigger").Return(errors.New(""))
 				return api
 			},
-			Configuration:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			Configuration:         &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
 			ShouldError:           true,
 		},
 		"RegisterCommand fails": {
@@ -106,11 +116,11 @@ func TestOnConfigurationChange(t *testing.T) {
 					arg.Trigger = "poll"
 				})
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
-				api.On("RegisterCommand", command).Return(errors.New("RegisterCommand failed"))
+				api.On("RegisterCommand", command).Return(errors.New(""))
 				return api
 			},
-			Configuration:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			Configuration:         &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
 			ShouldError:           true,
 		},
 		"patchBotDescription fails": {
@@ -125,8 +135,8 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, &model.AppError{})
 				return api
 			},
-			Configuration:         &configuration{Trigger: "oldTrigger"},
-			ExpectedConfiguration: &configuration{Trigger: "oldTrigger"},
+			Configuration:         &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
+			ExpectedConfiguration: &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
 			ShouldError:           true,
 		},
 	} {

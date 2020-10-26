@@ -9,6 +9,8 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 	"golang.org/x/text/language"
+
+	"github.com/matterpoll/matterpoll/server/poll"
 )
 
 // initBundle loads all localization files in i18n into a bundle and return this
@@ -55,18 +57,18 @@ func (p *MatterpollPlugin) getUserLocalizer(userID string) *i18n.Localizer {
 	return i18n.NewLocalizer(p.bundle, user.Locale)
 }
 
-// getServerLocalizer returns a localizer that localizes in the server default locale
+// getServerLocalizer returns a localizer that localizes in the server default client locale
 func (p *MatterpollPlugin) getServerLocalizer() *i18n.Localizer {
-	return i18n.NewLocalizer(p.bundle, *p.ServerConfig.LocalizationSettings.DefaultServerLocale)
+	return i18n.NewLocalizer(p.bundle, *p.ServerConfig.LocalizationSettings.DefaultClientLocale)
 }
 
 // LocalizeDefaultMessage localizer the provided message
 func (p *MatterpollPlugin) LocalizeDefaultMessage(l *i18n.Localizer, m *i18n.Message) string {
 	s, err := l.LocalizeMessage(m)
 	if err != nil {
-		p.API.LogWarn("Failed to localize message", "message ID", m.ID)
-		return ""
+		p.API.LogWarn("Failed to localize message", "message ID", m.ID, "error", err.Error())
 	}
+
 	return s
 }
 
@@ -74,8 +76,16 @@ func (p *MatterpollPlugin) LocalizeDefaultMessage(l *i18n.Localizer, m *i18n.Mes
 func (p *MatterpollPlugin) LocalizeWithConfig(l *i18n.Localizer, lc *i18n.LocalizeConfig) string {
 	s, err := l.Localize(lc)
 	if err != nil {
-		p.API.LogWarn("Failed to localize with config")
-		return ""
+		p.API.LogWarn("Failed to localize with config", "error", err.Error())
 	}
+
 	return s
+}
+
+// LocalizeErrorMessage localizer the provided error message
+func (p *MatterpollPlugin) LocalizeErrorMessage(l *i18n.Localizer, m *poll.ErrorMessage) string {
+	return p.LocalizeWithConfig(l, &i18n.LocalizeConfig{
+		DefaultMessage: m.Message,
+		TemplateData:   m.Data,
+	})
 }
