@@ -14,7 +14,7 @@ const manifestStr = `
 {
   "id": "com.github.matterpoll.matterpoll",
   "name": "Matterpoll",
-  "description": "Polling feature for Mattermost's custom slash command",
+  "description": "Create polls and surveys directly within Mattermost.",
   "homepage_url": "https://github.com/matterpoll/matterpoll",
   "support_url": "https://github.com/matterpoll/matterpoll/issues",
   "release_notes_url": "https://github.com/matterpoll/matterpoll/releases/tag/v1.3.0",
