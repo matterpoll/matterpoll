@@ -15,7 +15,7 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 In Mattermost, open **Main Menu > Plugin Marketplace** to install and configure Matterpoll.
 
 ## Settings
-You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
+After the plugin has downloaded and been installed, click the **Configure** button. Alternatively, you can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
 * **Trigger Word**: Change trigger word for poll command. (default `/poll`)
 * **Experimental UI**: Enable new experimental UI for poll posts:
