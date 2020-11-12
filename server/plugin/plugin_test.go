@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/blang/semver/v4"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
@@ -66,13 +65,8 @@ func TestPluginOnActivate(t *testing.T) {
 		ShouldError  bool
 	}{
 		// server version tests
-		"greater minor version than minimumServerVersion": {
+		"all fine": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(manifest.MinServerVersion)
-				err := m.IncrementMinor()
-				require.NoError(t, err)
-				api.On("GetServerVersion").Return(m.String())
-
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
@@ -85,51 +79,10 @@ func TestPluginOnActivate(t *testing.T) {
 				return helpers
 			},
 			ShouldError: false,
-		},
-		"same version as minimumServerVersion": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(manifest.MinServerVersion)
-
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("RegisterCommand", command).Return(nil)
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
-				return helpers
-			},
-			ShouldError: false,
-		},
-		"lesser minor version than minimumServerVersion": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(manifest.MinServerVersion)
-				if m.Minor == 0 {
-					m.Major--
-					m.Minor = 0
-					m.Patch = 0
-				} else {
-					m.Minor--
-					m.Patch = 0
-				}
-				api.On("GetServerVersion").Return(m.String())
-				return api
-			},
-			ShouldError: true,
-		},
-		"GetServerVersion not implemented, returns empty string": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return("")
-				return api
-			},
-			ShouldError: true,
 		},
 		// i18n bundle tests
 		"GetBundlePath fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 				api.On("GetBundlePath").Return("", errors.New(""))
 				return api
 			},
@@ -137,7 +90,6 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 		"i18n directory doesn't exist ": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(manifest.MinServerVersion)
 				api.On("GetBundlePath").Return("/tmp", nil)
 				return api
 			},
@@ -146,8 +98,6 @@ func TestPluginOnActivate(t *testing.T) {
 		// Bot tests
 		"EnsureBot fails ": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(manifest.MinServerVersion)
-
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
@@ -161,8 +111,6 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 		"patch bot description fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(manifest.MinServerVersion)
-
 				path, err := filepath.Abs("../..")
 				require.Nil(t, err)
 				api.On("GetBundlePath").Return(path, nil)
@@ -220,7 +168,6 @@ func TestPluginOnActivate(t *testing.T) {
 	}
 	t.Run("NewStore() fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("GetServerVersion").Return(manifest.MinServerVersion)
 		defer api.AssertExpectations(t)
 
 		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
@@ -246,7 +193,6 @@ func TestPluginOnActivate(t *testing.T) {
 	})
 	t.Run("SiteURL not set", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("GetServerVersion").Return(manifest.MinServerVersion)
 		defer api.AssertExpectations(t)
 
 		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
