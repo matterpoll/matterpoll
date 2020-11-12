@@ -26,7 +26,7 @@ export default class ActionView extends React.PureComponent {
      * In details, return true in the following cases
      * - '--public-add-option' is set
      * or
-     * - '--public-add-option' is NOT set AND has admin permission
+     * - '--public-add-option' is NOT set AND can manage the poll
      * @param {object} metadata metadata for poll
      * @return {boolean} which or not the button for add option display
      */
@@ -37,7 +37,7 @@ export default class ActionView extends React.PureComponent {
         if (metadata.setting_public_add_option === true) {
             return true;
         }
-        return metadata.admin_permission;
+        return metadata.can_manage_poll;
     }
 
     /**
@@ -87,7 +87,7 @@ export default class ActionView extends React.PureComponent {
                     );
                     break;
                 case ActionButtonType.MATTERPOLL_ADMIN_BUTTON:
-                    if (metadata.admin_permission) {
+                    if (metadata.can_manage_poll) {
                         adminContent.push(
                             <ActionButton
                                 key={action.id}

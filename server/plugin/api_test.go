@@ -660,7 +660,7 @@ func TestHandleVote(t *testing.T) {
 					"voted_answers":             []string{"Answer 1"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
-					"admin_permission":          true,
+					"can_manage_poll":           true,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -684,7 +684,7 @@ func TestHandleVote(t *testing.T) {
 					"voted_answers":             []string{"Answer 1"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
-					"admin_permission":          true,
+					"can_manage_poll":           true,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -711,7 +711,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"admin_permission":          false,
+					"can_manage_poll":           false,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
 					"voted_answers":             []string{"Answer 1"},
@@ -736,7 +736,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"admin_permission":          true,
+					"can_manage_poll":           true,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{"Answer 1", "Answer 2"},
@@ -781,7 +781,7 @@ func TestHandleVote(t *testing.T) {
 					"voted_answers":             []string{"Answer 2"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
-					"admin_permission":          true,
+					"can_manage_poll":           true,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -821,7 +821,7 @@ func TestHandleVote(t *testing.T) {
 			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "Something went wrong. Please try again later.",
 		},
-		"Valid request with vote, HasAdminPermission fails": {
+		"Valid request with vote, CanManagePoll fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetPost", "postID1").Return(post, nil)
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
@@ -832,7 +832,7 @@ func TestHandleVote(t *testing.T) {
 					"voted_answers":             []string{"Answer 2"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
-					"admin_permission":          false,
+					"can_manage_poll":           false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
 				return api
@@ -1080,7 +1080,7 @@ func TestHandleResetVotes(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"admin_permission":          true,
+					"can_manage_poll":           true,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{},
@@ -1103,7 +1103,7 @@ func TestHandleResetVotes(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"admin_permission":          true,
+					"can_manage_poll":           true,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{},
@@ -3066,10 +3066,10 @@ func TestHandlePollMetadata(t *testing.T) {
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedBody: (&poll.Metadata{
-				PollID:          testutils.GetPollID(),
-				UserID:          "userID1",
-				AdminPermission: true,
-				VotedAnswers:    []string{"Answer 1"},
+				PollID:        testutils.GetPollID(),
+				UserID:        "userID1",
+				CanManagePoll: true,
+				VotedAnswers:  []string{"Answer 1"},
 			}),
 		},
 		"Valid request without votes": {
@@ -3085,13 +3085,13 @@ func TestHandlePollMetadata(t *testing.T) {
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedBody: (&poll.Metadata{
-				PollID:          testutils.GetPollID(),
-				UserID:          "userID5",
-				AdminPermission: false,
-				VotedAnswers:    []string{},
+				PollID:        testutils.GetPollID(),
+				UserID:        "userID5",
+				CanManagePoll: false,
+				VotedAnswers:  []string{},
 			}),
 		},
-		"Valid request without votes, HasAdminPermission fails": {
+		"Valid request without votes, CanManagePoll fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID5").Return(nil, &model.AppError{})
 				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 5)...).Return().Maybe()
@@ -3105,10 +3105,10 @@ func TestHandlePollMetadata(t *testing.T) {
 			ShouldError:        false,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedBody: (&poll.Metadata{
-				PollID:          testutils.GetPollID(),
-				UserID:          "userID5",
-				AdminPermission: false,
-				VotedAnswers:    []string{},
+				PollID:        testutils.GetPollID(),
+				UserID:        "userID5",
+				CanManagePoll: false,
+				VotedAnswers:  []string{},
 			}),
 		},
 		"Valid request, PollStore.Get fails": {

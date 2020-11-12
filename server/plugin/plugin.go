@@ -164,8 +164,8 @@ func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (stri
 	return displayName, nil
 }
 
-// HasAdminPermission checks if a given user has the admin permission to end or delete a given poll
-func (p *MatterpollPlugin) HasAdminPermission(poll *poll.Poll, issuerID string) (bool, *model.AppError) {
+// CanManagePoll checks if a given user has the permission to manage i.e. end or delete a given poll
+func (p *MatterpollPlugin) CanManagePoll(poll *poll.Poll, issuerID string) (bool, *model.AppError) {
 	if issuerID == poll.Creator {
 		return true, nil
 	}
