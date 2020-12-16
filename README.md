@@ -52,6 +52,7 @@ The currently supported languages are:
 - Simplified Chinese
 - Spanish
 - Traditional Chinese
+- Russian
 
 
 ## Troubleshooting
