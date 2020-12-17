@@ -27,10 +27,10 @@ The localization process is defined below:
 - Japanese: [@kaakaa](https://github.com/kaakaa)
 - Korean: [@potatogim](https://github.com/potatogim)
 - Polish: [@burasuk](https://github.com/burasuk)
+- Russian: [@ChiefAbbot](https://github.com/ChiefAbbot)
 - Simplified Chinese: [@sharuru](https://github.com/sharuru)
 - Spanish: [@ernestoittig](https://github.com/ernestoittig)
 - Traditional Chinese: [@mouson](https://github.com/mouson)
-- Russian: [@ChiefAbbot](https://github.com/ChiefAbbot)
 
 ### Translation Process for Existing Languages
 
