@@ -49,10 +49,10 @@ The currently supported languages are:
 - Japanese
 - Korean
 - Polish
+- Russian
 - Simplified Chinese
 - Spanish
 - Traditional Chinese
-- Russian
 
 
 ## Troubleshooting
