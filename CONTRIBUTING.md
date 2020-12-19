@@ -22,7 +22,7 @@ The localization process is defined below:
 
 ### Translation Maintainers
 
-- France: [@ldidry](https://github.com/ldidry)
+- French: [@ldidry](https://github.com/ldidry)
 - German: [@hanzei](https://github.com/hanzei)
 - Japanese: [@kaakaa](https://github.com/kaakaa)
 - Korean: [@potatogim](https://github.com/potatogim)
