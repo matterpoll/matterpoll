@@ -44,7 +44,7 @@ Matterpoll supports localization of user specify messages. You can change langua
 
 The currently supported languages are:
 - English
-- France
+- French
 - German
 - Japanese
 - Korean
