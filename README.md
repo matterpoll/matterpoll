@@ -14,6 +14,10 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 
 In Mattermost, open **Main Menu > Plugin Marketplace** to install and configure Matterpoll.
 
+For offline/air gapped installations, you can obtain a .tar.gz from https://github.com/matterpoll/matterpoll/releases.
+In Mattermost, open **Main Menu > System Console > Plugins (BETA) > Plugin Management > Upload Plugin** to upload the .tar.gz.
+Upgrades can be performed by importing the lastest release and confirm overwriting of the duplicate plugin ID.
+
 ## Settings
 After the plugin has downloaded and been installed, click the **Configure** button. Alternatively, you can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
