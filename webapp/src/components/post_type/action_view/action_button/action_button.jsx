@@ -79,18 +79,23 @@ export default class ActionButton extends React.PureComponent {
             }
         } else {
             // This clause is for backward compatibility
-            if (this.props.hasVoted) {
-                customButtonStyle = {
-                    borderColor: changeOpacity(STATUS_COLORS['primary'], 0.3),
-                    backgroundColor: STATUS_COLORS['primary'],
-                    color: theme.centerChannelBg,
-                };
-            } else {
-                customButtonStyle = {
-                    borderColor: changeOpacity(theme.centerChannelColor, 0.3),
-                    backgroundColor: theme.centerChannelBg,
-                    color: STATUS_COLORS['primary'],
-                };
+            const primaryColor = STATUS_COLORS['primary'];
+            const centerChannelBgColor = theme.centerChannelBg;
+            const centerChannelColorColor = theme.centerChannelColor;
+            if (primaryColor && centerChannelBgColor && centerChannelColorColor) {
+                if (this.props.hasVoted) {
+                    customButtonStyle = {
+                        borderColor: changeOpacity(primaryColor, 0.3),
+                        backgroundColor: primaryColor,
+                        color: centerChannelBgColor,
+                    };
+                } else {
+                    customButtonStyle = {
+                        borderColor: changeOpacity(centerChannelColorColor, 0.3),
+                        backgroundColor: centerChannelBgColor,
+                        color: primaryColor,
+                    };
+                }
             }
         }
 

@@ -30,4 +30,59 @@ describe('components/action_button/ActionButton', () => {
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
+    test('without style with invalid theme should match snapshot', () => {
+        const newProps = baseProps;
+        newProps.theme = {};
+
+        const wrapper = shallow(<ActionButton {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('with default style should match snapshot', () => {
+        const newProps = baseProps;
+        newProps.action.style = 'default';
+
+        const wrapper = shallow(<ActionButton {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+    test('with default style with hasVoted should match snapshot', () => {
+        const newProps = baseProps;
+        newProps.action.style = 'default';
+        newProps.hasVoted = true;
+
+        const wrapper = shallow(<ActionButton {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    })
+
+    test('with primary style should match snapshot', () => {
+        const newProps = baseProps;
+        newProps.action.style = 'primary';
+
+        const wrapper = shallow(<ActionButton {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+    test('with danger style should match snapshot', () => {
+        const newProps = baseProps;
+        newProps.action.style = 'danger';
+
+        const wrapper = shallow(<ActionButton {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('with invalid style should match snapshot', () => {
+        const newProps = baseProps;
+        newProps.action.style = 'invalid_style_value';
+
+        const wrapper = shallow(<ActionButton {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('with invalid theme should match snapshot', () => {
+        const newProps = baseProps;
+        newProps.action.style = 'default';
+        newProps.theme = {};
+
+        const wrapper = shallow(<ActionButton {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
 });
