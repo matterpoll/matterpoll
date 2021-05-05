@@ -52,7 +52,7 @@ describe('components/action_button/ActionButton', () => {
 
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
-    })
+    });
 
     test('with primary style should match snapshot', () => {
         const newProps = baseProps;

@@ -79,7 +79,7 @@ export default class ActionButton extends React.PureComponent {
             }
         } else {
             // This clause is for backward compatibility
-            const primaryColor = STATUS_COLORS['primary'];
+            const primaryColor = STATUS_COLORS.primary;
             const centerChannelBgColor = theme.centerChannelBg;
             const centerChannelColorColor = theme.centerChannelColor;
             if (primaryColor && centerChannelBgColor && centerChannelColorColor) {
