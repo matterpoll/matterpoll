@@ -63,14 +63,14 @@ export default class ActionButton extends React.PureComponent {
             if (hexColor) {
                 if (this.props.hasVoted) {
                     customButtonStyle = {
-                        borderColor: changeOpacity(this.invertColor(hexColor), 0.25),
-                        backgroundColor: changeOpacity(this.invertColor(theme.centerChannelBg), 0.75),
+                        borderColor: changeOpacity(this.invertColor(hexColor), 0.3),
+                        backgroundColor: changeOpacity(this.invertColor(theme.centerChannelBg), 0.7),
                         color: this.invertColor(hexColor),
                         borderWidth: 2,
                     };
                 } else {
                     customButtonStyle = {
-                        borderColor: changeOpacity(hexColor, 0.25),
+                        borderColor: changeOpacity(hexColor, 0.3),
                         backgroundColor: theme.centerChannelBg,
                         color: hexColor,
                         borderWidth: 2,
