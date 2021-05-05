@@ -54,8 +54,8 @@ export default class ActionButton extends React.PureComponent {
         const message = PostUtils.messageHtmlToComponent(htmlFormattedText, false, {emoji: true});
 
         let customButtonStyle;
+        const STATUS_COLORS = this.getStatusColors(theme);
         if (action.style) {
-            const STATUS_COLORS = this.getStatusColors(theme);
             const hexColor =
                 STATUS_COLORS[action.style] ||
                 theme[action.style] ||
@@ -76,6 +76,21 @@ export default class ActionButton extends React.PureComponent {
                         borderWidth: 2,
                     };
                 }
+            }
+        } else {
+            // This clause is for backward compatibility
+            if (this.props.hasVoted) {
+                customButtonStyle = {
+                    borderColor: changeOpacity(STATUS_COLORS['primary'], 0.3),
+                    backgroundColor: STATUS_COLORS['primary'],
+                    color: theme.centerChannelBg,
+                };
+            } else {
+                customButtonStyle = {
+                    borderColor: changeOpacity(theme.centerChannelColor, 0.3),
+                    backgroundColor: theme.centerChannelBg,
+                    color: STATUS_COLORS['primary'],
+                };
             }
         }
 
