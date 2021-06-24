@@ -156,8 +156,8 @@
     "other": "无效的投票设定： {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
-    "hash": "sha1-a0649f6d7040b480c543e843e12cd14de97ef6d6",
-    "other": "可进行的投票次数必须为一个小于等于投票选项数的正整数。您设定的投票次数为 \"{{.MaxVotes}}\" ，投票选项数为 \"{{.Options}}\"。"
+    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
+    "other": "投票数必须为一个不大于投票选项的正数。您设定的投票数为 \"{{.MaxVotes}}\"，投票选项数为 \"{{.Options}}\"。"
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
