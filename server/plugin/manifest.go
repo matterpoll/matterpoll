@@ -34,21 +34,21 @@ const manifestStr = `
   },
   "settings_schema": {
     "header": "",
-    "footer": "* To report an issue, make a suggestion or a contribution, [check the repository](https://github.com/matterpoll/matterpoll).",
+    "footer": "* To report an issue, make a suggestion, or submit a contribution, [check the repository](https://github.com/matterpoll/matterpoll).",
     "settings": [
       {
         "key": "Trigger",
-        "display_name": "Trigger Word",
+        "display_name": "Trigger Word:",
         "type": "text",
-        "help_text": "Trigger Word must be unique, and cannot begin with a slash or contain any spaces.",
+        "help_text": "Trigger Word must be unique, cannot begin with a slash, and cannot contain any spaces.",
         "placeholder": "",
         "default": "poll"
       },
       {
         "key": "ExperimentalUI",
-        "display_name": "Experimental UI",
+        "display_name": "Experimental UI:",
         "type": "bool",
-        "help_text": "When true, Matterpoll will render poll posts with a rich UI. The rich UI is not available on mobile app.",
+        "help_text": "When true, Matterpoll will render poll posts with a rich UI. The rich UI is not available on the mobile app.",
         "placeholder": "",
         "default": false
       }
