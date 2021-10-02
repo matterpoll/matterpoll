@@ -67,7 +67,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 				},
 				PluralCount: p.Settings.MaxVotes,
 			}),
-			Type: model.POST_ACTION_TYPE_BUTTON,
+			Type:  model.POST_ACTION_TYPE_BUTTON,
 			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
