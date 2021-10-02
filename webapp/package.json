@@ -66,13 +66,14 @@
   },
   "dependencies": {
     "core-js": "3.6.5",
+    "invert-color": "2.0.0",
     "marked": "github:mattermost/marked#3a9d0a5bd6d735df1a716ab50f73d58a1d865bdb",
     "mattermost-redux": "5.27.0",
     "react": "16.13.1",
     "react-redux": "7.2.1",
     "redux": "4.0.5",
-    "typescript": "4.0.3",
     "superagent": "6.1.0",
+    "typescript": "4.0.3",
     "xregexp": "4.3.0"
   },
   "jest": {
@@ -113,7 +114,7 @@
       "jest-canvas-mock"
     ],
     "setupFilesAfterEnv": [
-      "<rootDir>/tests/setup.js"
+      "<rootDir>/tests/setup.tsx"
     ],
     "testURL": "http://localhost:8065"
   }
