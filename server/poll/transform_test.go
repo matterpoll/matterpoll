@@ -134,7 +134,7 @@ func TestPollToPostActions(t *testing.T) {
 					Id:    "resetVote",
 					Name:  "Reset your vote",
 					Type:  model.POST_ACTION_TYPE_BUTTON,
-          Style: "primary",
+					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
@@ -200,7 +200,7 @@ func TestPollToPostActions(t *testing.T) {
 					Id:    "resetVote",
 					Name:  "Reset your vote",
 					Type:  model.POST_ACTION_TYPE_BUTTON,
-          Style: "primary",
+					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
@@ -266,8 +266,8 @@ func TestPollToPostActions(t *testing.T) {
 					Id:    "resetVote",
 					Name:  "Reset your vote",
 					Type:  model.POST_ACTION_TYPE_BUTTON,
-          Style: "primary",
-          Integration: &model.PostActionIntegration{
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
