@@ -54,22 +54,26 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 		})
 	}
 
-	if p.Settings.MaxVotes > 1 {
-		actions = append(actions,
-			&model.PostAction{
-				Id: "resetVote",
-				Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+	actions = append(actions,
+		&model.PostAction{
+			Id: "resetVote",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
 					ID:    "poll.button.resetVotes",
-					Other: "Reset Votes",
-				}}),
-				Type:  model.POST_ACTION_TYPE_BUTTON,
-				Style: "primary",
-				Integration: &model.PostActionIntegration{
-					URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
+					One:   "Reset your vote",
+					Few:   "Reset your votes",
+					Many:  "Reset your votes",
+					Other: "Reset your votes",
 				},
+				PluralCount: p.Settings.MaxVotes,
+			}),
+			Type:  model.POST_ACTION_TYPE_BUTTON,
+			Style: "primary",
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
 			},
-		)
-	}
+		},
+	)
 	actions = append(actions,
 		&model.PostAction{
 			Id: "addOption",

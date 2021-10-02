@@ -31,7 +31,12 @@
   "poll.button.addOption": "Add Option",
   "poll.button.deletePoll": "Delete Poll",
   "poll.button.endPoll": "End Poll",
-  "poll.button.resetVotes": "Reset Votes",
+  "poll.button.resetVotes": {
+    "few": "Reset your votes",
+    "many": "Reset your votes",
+    "one": "Reset your vote",
+    "other": "Reset your votes"
+  },
   "poll.endPost.answer.heading": {
     "few": "{{.Answer}} ({{.Count}} votes)",
     "many": "{{.Answer}} ({{.Count}} votes)",

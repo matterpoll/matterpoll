@@ -131,6 +131,14 @@ func TestPollToPostActions(t *testing.T) {
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Id:    "resetVote",
+					Name:  "Reset your vote",
+					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
 					Id:    "addOption",
 					Name:  "Add Option",
 					Type:  model.POST_ACTION_TYPE_BUTTON,
@@ -189,6 +197,14 @@ func TestPollToPostActions(t *testing.T) {
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
+					Id:    "resetVote",
+					Name:  "Reset your vote",
+					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
 					Id:    "addOption",
 					Name:  "Add Option",
 					Type:  model.POST_ACTION_TYPE_BUTTON,
@@ -245,6 +261,14 @@ func TestPollToPostActions(t *testing.T) {
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "resetVote",
+					Name:  "Reset your vote",
+					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
 					},
 				}, {
 					Id:    "addOption",
@@ -306,7 +330,7 @@ func TestPollToPostActions(t *testing.T) {
 					},
 				}, {
 					Id:    "resetVote",
-					Name:  "Reset Votes",
+					Name:  "Reset your votes",
 					Type:  model.POST_ACTION_TYPE_BUTTON,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
