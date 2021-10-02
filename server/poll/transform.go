@@ -44,9 +44,10 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
 		actions = append(actions, &model.PostAction{
-			Id:   fmt.Sprintf("vote%v", i),
-			Name: p.getAnswerOptionName(o),
-			Type: model.POST_ACTION_TYPE_BUTTON,
+			Id:    fmt.Sprintf("vote%v", i),
+			Name:  p.getAnswerOptionName(o),
+			Type:  model.POST_ACTION_TYPE_BUTTON,
+			Style: "default",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/vote/%v", pluginID, p.ID, i),
 			},
@@ -61,7 +62,8 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 					ID:    "poll.button.resetVotes",
 					Other: "Reset Votes",
 				}}),
-				Type: model.POST_ACTION_TYPE_BUTTON,
+				Type:  model.POST_ACTION_TYPE_BUTTON,
+				Style: "primary",
 				Integration: &model.PostActionIntegration{
 					URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
 				},
@@ -75,19 +77,10 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 				ID:    "poll.button.addOption",
 				Other: "Add Option",
 			}}),
-			Type: model.POST_ACTION_TYPE_BUTTON,
+			Type:  model.POST_ACTION_TYPE_BUTTON,
+			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
-			},
-		}, &model.PostAction{
-			Id: "deletePoll",
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
-				ID:    "poll.button.deletePoll",
-				Other: "Delete Poll",
-			}}),
-			Type: MatterpollAdminButtonType,
-			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
 			},
 		}, &model.PostAction{
 			Id: "endPoll",
@@ -95,9 +88,21 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 				ID:    "poll.button.endPoll",
 				Other: "End Poll",
 			}}),
-			Type: MatterpollAdminButtonType,
+			Type:  MatterpollAdminButtonType,
+			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
+			},
+		}, &model.PostAction{
+			Id: "deletePoll",
+			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.deletePoll",
+				Other: "Delete Poll",
+			}}),
+			Type:  MatterpollAdminButtonType,
+			Style: "danger",
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
 			},
 		},
 	)
