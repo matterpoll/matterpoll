@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
