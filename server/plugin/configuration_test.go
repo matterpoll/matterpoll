@@ -34,7 +34,6 @@ func TestOnConfigurationChange(t *testing.T) {
 	}{
 		"Load and save successful, with old configuration": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"

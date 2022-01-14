@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -93,11 +93,11 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	creatorID := args.UserId
 	configuration := p.getConfiguration()
 
-	userLocalizer := p.getUserLocalizer(creatorID)
-	publicLocalizer := p.getServerLocalizer()
+	userLocalizer := p.bundle.GetUserLocalizer(creatorID)
+	publicLocalizer := p.bundle.GetServerLocalizer()
 
-	defaultYes := p.LocalizeDefaultMessage(publicLocalizer, commandDefaultYes)
-	defaultNo := p.LocalizeDefaultMessage(publicLocalizer, commandDefaultNo)
+	defaultYes := p.bundle.LocalizeDefaultMessage(publicLocalizer, commandDefaultYes)
+	defaultNo := p.bundle.LocalizeDefaultMessage(publicLocalizer, commandDefaultNo)
 
 	q, o, s := utils.ParseInput(args.Command, configuration.Trigger)
 	if q == "" {
@@ -110,35 +110,35 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 
 		if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
 			p.API.LogWarn("failed to open create poll dialog", "err", appErr.Error())
-			return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+			return p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 		}
 		return "", nil
 	}
 
 	if q == "help" {
-		msg := p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+		msg := p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextSimple,
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger, "Yes": defaultYes, "No": defaultNo},
 		}) + "\n"
-		msg += p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+		msg += p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextOptions,
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger},
 		}) + "\n"
-		msg += p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+		msg += p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextPollSettingIntroduction,
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger},
 		}) + "\n"
-		msg += "- `--anonymous`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
-		msg += "- `--progress`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
-		msg += "- `--public-add-option`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
-		msg += "- `--votes=X`: " + p.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
+		msg += "- `--anonymous`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
+		msg += "- `--progress`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
+		msg += "- `--public-add-option`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
+		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
 
 		return msg, nil
 	}
 
 	if len(o) == 1 {
 		return "", &model.AppError{
-			Id:         p.LocalizeDefaultMessage(userLocalizer, commandErrorinvalidNumberOfOptions),
+			Id:         p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorinvalidNumberOfOptions),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
 		}
@@ -147,10 +147,13 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	settings, errMsg := poll.NewSettingsFromStrings(s)
 	if errMsg != nil {
 		appErr := &model.AppError{
-			Id: p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+			Id: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
 				TemplateData: map[string]interface{}{
-					"Error": p.LocalizeErrorMessage(userLocalizer, errMsg),
+					"Error": p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+						DefaultMessage: errMsg.Message,
+						TemplateData:   errMsg.Data,
+					}),
 				}}),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
@@ -166,10 +169,13 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	}
 	if errMsg != nil {
 		appErr := &model.AppError{
-			Id: p.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+			Id: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
 				TemplateData: map[string]interface{}{
-					"Error": p.LocalizeErrorMessage(userLocalizer, errMsg),
+					"Error": p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
+						DefaultMessage: errMsg.Message,
+						TemplateData:   errMsg.Data,
+					}),
 				}}),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
@@ -180,7 +186,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(creatorID)
 	if appErr != nil {
 		p.API.LogWarn("failed to ConvertCreatorIDToDisplayName", "error", appErr.Error())
-		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+		return p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
 	actions := newPoll.ToPostActions(publicLocalizer, manifest.Id, displayName)
@@ -198,14 +204,14 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	rPost, appErr := p.API.CreatePost(post)
 	if appErr != nil {
 		p.API.LogWarn("failed to post poll post", "error", appErr.Error())
-		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+		return p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
 	newPoll.PostID = rPost.Id
 
 	if err := p.Store.Poll().Insert(newPoll); err != nil {
 		p.API.LogWarn("failed to save poll", "error", err.Error())
-		return p.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+		return p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
 	p.API.LogDebug("Created a new poll", "post", rPost.ToJson())
@@ -218,20 +224,20 @@ func (p *MatterpollPlugin) getCommand(trigger string) (*model.Command, error) {
 		return nil, errors.Wrap(err, "failed to get icon data")
 	}
 
-	localizer := p.getServerLocalizer()
+	localizer := p.bundle.GetServerLocalizer()
 
 	return &model.Command{
 		Trigger:              trigger,
 		AutoComplete:         true,
-		AutoCompleteDesc:     p.LocalizeDefaultMessage(localizer, commandAutoCompleteDesc),
-		AutoCompleteHint:     p.LocalizeDefaultMessage(localizer, commandAutoCompleteHint),
+		AutoCompleteDesc:     p.bundle.LocalizeDefaultMessage(localizer, commandAutoCompleteDesc),
+		AutoCompleteHint:     p.bundle.LocalizeDefaultMessage(localizer, commandAutoCompleteHint),
 		AutocompleteIconData: iconData,
 	}, nil
 }
 
 func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer) model.Dialog {
 	elements := []model.DialogElement{{
-		DisplayName: p.LocalizeDefaultMessage(l, &i18n.Message{
+		DisplayName: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
 			ID:    "dialog.createPoll.question",
 			Other: "Question",
 		}),
@@ -241,7 +247,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 	}}
 	for i := 1; i < 4; i++ {
 		elements = append(elements, model.DialogElement{
-			DisplayName: p.LocalizeWithConfig(l, &i18n.LocalizeConfig{
+			DisplayName: p.bundle.LocalizeWithConfig(l, &i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "dialog.createPoll.option",
 					Other: "Option {{ .Number }}",
@@ -262,7 +268,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Type:        "text",
 		SubType:     "number",
 		Default:     "1",
-		HelpText: p.LocalizeWithConfig(l, &i18n.LocalizeConfig{
+		HelpText: p.bundle.LocalizeWithConfig(l, &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "dialog.createPoll.setting.multi",
 				Other: "The number of options that an user can vote on.",
@@ -273,32 +279,32 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		DisplayName: "Anonymous",
 		Name:        "setting-anonymous",
 		Type:        "bool",
-		Placeholder: p.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymous),
+		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymous),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
 		DisplayName: "Progress",
 		Name:        "setting-progress",
 		Type:        "bool",
-		Placeholder: p.LocalizeDefaultMessage(l, commandHelpTextPollSettingProgress),
+		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingProgress),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
 		DisplayName: "Public Add Option",
 		Name:        "setting-public-add-option",
 		Type:        "bool",
-		Placeholder: p.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
+		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
 		Optional:    true,
 	})
 
 	dialog := model.Dialog{
 		CallbackId: rootID,
-		Title: p.LocalizeDefaultMessage(l, &i18n.Message{
+		Title: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
 			ID:    "dialog.create.title",
 			Other: "Create Poll",
 		}),
 		IconURL: fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
-		SubmitLabel: p.LocalizeDefaultMessage(l, &i18n.Message{
+		SubmitLabel: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
 			ID:    "dialog.create.submitLabel",
 			Other: "Create",
 		}),

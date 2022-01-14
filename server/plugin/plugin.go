@@ -1,13 +1,14 @@
 package plugin
 
 import (
+	"path/filepath"
 	"sync"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-plugin-api/experimental/command"
+	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -74,7 +75,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return errors.Wrap(err, "failed to create store")
 	}
 
-	p.bundle, err = p.initBundle()
+	p.bundle, err = i18n.InitBundle(p.API, filepath.Join("assets", "i18n"))
 	if err != nil {
 		return errors.Wrap(err, "failed to init localisation bundle")
 	}
@@ -129,8 +130,8 @@ func (p *MatterpollPlugin) isActivated() bool {
 
 // patchBotDescription updates the bot description based on the servers local
 func (p *MatterpollPlugin) patchBotDescription() error {
-	publicLocalizer := p.getServerLocalizer()
-	description := p.LocalizeDefaultMessage(publicLocalizer, botDescription)
+	publicLocalizer := p.bundle.GetServerLocalizer()
+	description := p.bundle.LocalizeDefaultMessage(publicLocalizer, botDescription)
 
 	// Update description with server local
 	botPatch := &model.BotPatch{
