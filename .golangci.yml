@@ -8,6 +8,9 @@ linters-settings:
       - "github.com/nicksnyder/go-i18n/v2/i18n"
     packages-with-error-message:
       - github.com/nicksnyder/go-i18n/v2/i18n: "use mattermost/mattermost-plugin-api/i18n instead"
+  forbidigo:
+    forbid:
+      - ^.*\.MustLocalize.*$
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -24,8 +27,6 @@ linters-settings:
       - fieldalignment
   misspell:
     locale: US
-  maligned:
-    suggest-new: true
 
 linters:
   disable-all: true
@@ -35,6 +36,7 @@ linters:
     - depguard
     - dogsled
     - errcheck
+    - forbidigo
     - goconst
     - gocritic
     - gofmt
@@ -44,11 +46,8 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - interfacer
-    - maligned
     - misspell
     - nakedret
-    - scopelint
     - staticcheck
     - structcheck
     - stylecheck
