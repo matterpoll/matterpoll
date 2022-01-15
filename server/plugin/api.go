@@ -280,7 +280,6 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 }
 
 func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
-	publicLocalizer := p.bundle.GetServerLocalizer()
 	creatorID := request.UserId
 
 	question, ok := request.Submission[questionKey].(string)
@@ -325,7 +324,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	actions := poll.ToPostActions(publicLocalizer, manifest.Id, displayName)
+	actions := poll.ToPostActions(p.bundle, manifest.Id, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: request.ChannelId,
@@ -383,8 +382,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
-	publicLocalizer := p.bundle.GetServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.Id, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
 
 	if poll.IsMultiVote() {
@@ -454,8 +452,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
-	publicLocalizer := p.bundle.GetServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.Id, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
 
 	return &i18n.LocalizeConfig{
@@ -565,8 +562,7 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 		return nil, response, nil
 	}
 
-	publicLocalizer := p.bundle.GetServerLocalizer()
-	model.ParseSlackAttachment(post, poll.ToPostActions(publicLocalizer, manifest.Id, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
 	}
@@ -632,7 +628,7 @@ func (p *MatterpollPlugin) handleEndPollConfirm(vars map[string]string, request 
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	post, appErr := poll.ToEndPollPost(p.bundle.GetServerLocalizer(), displayName, p.ConvertUserIDToDisplayName)
+	post, appErr := poll.ToEndPollPost(p.bundle, displayName, p.ConvertUserIDToDisplayName)
 	if appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get convert to end poll post")
 	}
