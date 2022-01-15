@@ -3,6 +3,11 @@ run:
   modules-download-mode: readonly
 
 linters-settings:
+  depguard:
+    packages:
+      - "github.com/nicksnyder/go-i18n/v2/i18n"
+    packages-with-error-message:
+      - github.com/nicksnyder/go-i18n/v2/i18n: "use mattermost/mattermost-plugin-api/i18n instead"
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -27,6 +32,7 @@ linters:
   enable:
     - bodyclose
     - deadcode
+    - depguard
     - dogsled
     - errcheck
     - goconst
