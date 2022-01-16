@@ -137,7 +137,7 @@ func TestPluginOnActivate(t *testing.T) {
 			patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 				return &mockstore.Store{}, nil
 			})
-			defer patch.Unpatch()
+			defer func() { require.NoError(t, patch.Unpatch()) }()
 
 			siteURL := testutils.GetSiteURL()
 			defaultClientLocale := "en"
@@ -173,7 +173,7 @@ func TestPluginOnActivate(t *testing.T) {
 		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
-		defer patch.Unpatch()
+		defer func() { require.NoError(t, patch.Unpatch()) }()
 
 		siteURL := testutils.GetSiteURL()
 		p := &MatterpollPlugin{
@@ -198,7 +198,7 @@ func TestPluginOnActivate(t *testing.T) {
 		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
-		defer patch.Unpatch()
+		defer func() { require.NoError(t, patch.Unpatch()) }()
 
 		p := &MatterpollPlugin{
 			ServerConfig: &model.Config{

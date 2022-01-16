@@ -18,8 +18,8 @@ func TestNewPoll(t *testing.T) {
 		assert := assert.New(t)
 		patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
 		patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-		defer patch1.Unpatch()
-		defer patch2.Unpatch()
+		defer func() { require.NoError(t, patch1.Unpatch()) }()
+		defer func() { require.NoError(t, patch2.Unpatch()) }()
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
@@ -47,8 +47,8 @@ func TestNewPoll(t *testing.T) {
 		assert := assert.New(t)
 		patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
 		patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-		defer patch1.Unpatch()
-		defer patch2.Unpatch()
+		defer func() { require.NoError(t, patch1.Unpatch()) }()
+		defer func() { require.NoError(t, patch2.Unpatch()) }()
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
