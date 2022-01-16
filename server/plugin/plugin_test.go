@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
@@ -13,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/undefinedlabs/go-mpatch"
 	"golang.org/x/text/language"
 
 	"github.com/matterpoll/matterpoll/server/store"
@@ -134,7 +134,7 @@ func TestPluginOnActivate(t *testing.T) {
 				defer helpers.AssertExpectations(t)
 			}
 
-			patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+			patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 				return &mockstore.Store{}, nil
 			})
 			defer patch.Unpatch()
@@ -170,7 +170,7 @@ func TestPluginOnActivate(t *testing.T) {
 		api := &plugintest.API{}
 		defer api.AssertExpectations(t)
 
-		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
 		defer patch.Unpatch()
@@ -195,7 +195,7 @@ func TestPluginOnActivate(t *testing.T) {
 		api := &plugintest.API{}
 		defer api.AssertExpectations(t)
 
-		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
 		defer patch.Unpatch()

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
+	"github.com/undefinedlabs/go-mpatch"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
@@ -391,8 +391,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 			p.configuration.Trigger = trigger
 
-			patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-			patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
+			patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
+			patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
 			defer patch1.Unpatch()
 			defer patch2.Unpatch()
 
