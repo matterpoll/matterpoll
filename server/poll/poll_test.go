@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	mpatch "github.com/undefinedlabs/go-mpatch"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
@@ -16,10 +16,10 @@ import (
 func TestNewPoll(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		assert := assert.New(t)
-		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-		patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
-		defer patch1.Unpatch()
-		defer patch2.Unpatch()
+		patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
+		patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
+		defer func() { require.NoError(t, patch1.Unpatch()) }()
+		defer func() { require.NoError(t, patch2.Unpatch()) }()
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
@@ -45,10 +45,10 @@ func TestNewPoll(t *testing.T) {
 
 	t.Run("error, invalid votes setting", func(t *testing.T) {
 		assert := assert.New(t)
-		patch1 := monkey.Patch(model.GetMillis, func() int64 { return 1234567890 })
-		patch2 := monkey.Patch(model.NewId, testutils.GetPollID)
-		defer patch1.Unpatch()
-		defer patch2.Unpatch()
+		patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
+		patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
+		defer func() { require.NoError(t, patch1.Unpatch()) }()
+		defer func() { require.NoError(t, patch2.Unpatch()) }()
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
