@@ -216,7 +216,7 @@ func TestHandleCreatePoll(t *testing.T) {
 	}
 	model.ParseSlackAttachment(expectedPostTwoOptions, pollWithTwoOptions.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe"))
 
-	pollWithSettings := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, PublicAddOption: true, MaxVotes: 3})
+	pollWithSettings := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, PublicAddOption: true, MaxVotes: 3, RankingView: true})
 	expectedPostWithSettings := &model.Post{
 		UserId:    testutils.GetBotUserID(),
 		ChannelId: channelID,
@@ -323,6 +323,7 @@ func TestHandleCreatePoll(t *testing.T) {
 					"setting-anonymous":         true,
 					"setting-progress":          true,
 					"setting-public-add-option": true,
+					"setting-view-ranking":      true,
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
@@ -1024,9 +1025,9 @@ func TestHandleResetVotes(t *testing.T) {
 		ID:      testutils.GetPollID(),
 		Creator: "userID1",
 		AnswerOptions: []*poll.AnswerOption{
-			{Answer: "Answer 1", Voter: []string{}},
-			{Answer: "Answer 2", Voter: []string{}},
-			{Answer: "Answer 3", Voter: []string{}},
+			{Answer: "Answer 1", Voter: []string{}, RankedVoters: []poll.RankedVoter{}},
+			{Answer: "Answer 2", Voter: []string{}, RankedVoters: []poll.RankedVoter{}},
+			{Answer: "Answer 3", Voter: []string{}, RankedVoters: []poll.RankedVoter{}},
 		},
 		Settings: poll.Settings{MaxVotes: 3},
 	}

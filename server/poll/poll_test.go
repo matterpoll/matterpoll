@@ -37,9 +37,9 @@ func TestNewPoll(t *testing.T) {
 		assert.Equal(int64(1234567890), p.CreatedAt)
 		assert.Equal(creator, p.Creator)
 		assert.Equal(question, p.Question)
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: []string{}}, p.AnswerOptions[0])
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: []string{}}, p.AnswerOptions[1])
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: []string{}}, p.AnswerOptions[2])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: []string{}, RankedVoters: []poll.RankedVoter{}}, p.AnswerOptions[0])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: []string{}, RankedVoters: []poll.RankedVoter{}}, p.AnswerOptions[1])
+		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: []string{}, RankedVoters: []poll.RankedVoter{}}, p.AnswerOptions[2])
 		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 3}, p.Settings)
 	})
 
@@ -169,12 +169,14 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-progress":          true,
 				"setting-public-add-option": true,
 				"setting-multi":             float64(4),
+				"setting-view-ranking":      true,
 			},
 			ExpectedSettings: poll.Settings{
 				Anonymous:       true,
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        4,
+				RankingView:     true,
 			},
 		},
 		"without votes settings": {

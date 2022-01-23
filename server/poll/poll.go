@@ -1,12 +1,14 @@
 package poll
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/chonla/roman-number-go"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -17,6 +19,7 @@ const (
 	SettingKeyAnonymous       = "anonymous"
 	SettingKeyProgress        = "progress"
 	SettingKeyPublicAddOption = "public-add-option"
+	SettingViewRanking        = "view-ranking"
 )
 
 // Poll stores all needed information for a poll
@@ -32,8 +35,14 @@ type Poll struct {
 
 // AnswerOption stores a possible answer and a list of user who voted for this
 type AnswerOption struct {
-	Answer string
-	Voter  []string
+	Answer       string
+	Voter        []string
+	RankedVoters []RankedVoter
+}
+
+type RankedVoter struct {
+	Voter string
+	Order int
 }
 
 // Settings stores possible settings for a poll
@@ -41,7 +50,8 @@ type Settings struct {
 	Anonymous       bool
 	Progress        bool
 	PublicAddOption bool
-	MaxVotes        int `json:"max_votes"`
+	MaxVotes        int  `json:"max_votes"`
+	RankingView     bool //indicate, that poll can be viewed in ranking mode. Previous created polls don't have structure RankedVoters
 }
 
 // ErrorMessage contains error messsage for a user that can be localized.
@@ -76,6 +86,8 @@ func NewPoll(creator, question string, answerOptions []string, settings Settings
 // NewSettingsFromStrings creates a new settings with the given parameter.
 func NewSettingsFromStrings(strs []string) (Settings, *ErrorMessage) {
 	settings := Settings{MaxVotes: 1}
+	viewRankingSetting := false
+
 	for _, str := range strs {
 		switch {
 		case str == SettingKeyAnonymous:
@@ -84,6 +96,8 @@ func NewSettingsFromStrings(strs []string) (Settings, *ErrorMessage) {
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
 			settings.PublicAddOption = true
+		case str == SettingViewRanking:
+			viewRankingSetting = true
 		case votesSettingPattern.MatchString(str):
 			i, errMsg := parseVotesSettings(str)
 			if errMsg != nil {
@@ -102,12 +116,18 @@ func NewSettingsFromStrings(strs []string) (Settings, *ErrorMessage) {
 			}
 		}
 	}
+	if settings.MaxVotes > 1 && viewRankingSetting {
+		//set ranking view only if it is multi vote
+		settings.RankingView = true
+	}
+
 	return settings, nil
 }
 
 // NewSettingsFromSubmission creates a new settings with the given parameter.
 func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 	settings := Settings{MaxVotes: 1}
+	viewRankingSetting := false
 	for k, v := range submission {
 		if k == "setting-multi" {
 			f, ok := v.(float64)
@@ -125,10 +145,17 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 					settings.Progress = true
 				case SettingKeyPublicAddOption:
 					settings.PublicAddOption = true
+				case SettingViewRanking:
+					viewRankingSetting = true
 				}
 			}
 		}
 	}
+	if settings.MaxVotes > 1 && viewRankingSetting {
+		//set ranking view only if it is multi vote
+		settings.RankingView = true
+	}
+
 	return settings
 }
 
@@ -183,6 +210,11 @@ func (p *Poll) IsMultiVote() bool {
 	return p.Settings.MaxVotes > 1
 }
 
+// IsRankingMode return true if poll is set to multi vote and can be viewed in ranking mode
+func (p *Poll) IsRankingMode() bool {
+	return p.IsMultiVote() && p.Settings.RankingView
+}
+
 // AddAnswerOption adds a new AnswerOption to a poll
 func (p *Poll) AddAnswerOption(newAnswerOption string) *ErrorMessage {
 	newAnswerOption = strings.TrimSpace(newAnswerOption)
@@ -208,8 +240,9 @@ func (p *Poll) AddAnswerOption(newAnswerOption string) *ErrorMessage {
 		}
 	}
 	ao := &AnswerOption{
-		Answer: newAnswerOption,
-		Voter:  []string{},
+		Answer:       newAnswerOption,
+		Voter:        []string{},
+		RankedVoters: []RankedVoter{},
 	}
 	p.AnswerOptions = append(p.AnswerOptions, ao)
 	return nil
@@ -235,11 +268,16 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 				}, nil
 			}
 		}
-		if p.Settings.MaxVotes <= len(votedAnswers) {
+		countVotedAnswers := len(votedAnswers)
+		if p.Settings.MaxVotes <= countVotedAnswers {
 			return &i18n.Message{
 				ID:    "poll.updateVote.maxVotes",
 				Other: "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
 			}, nil
+		}
+
+		if p.Settings.RankingView {
+			p.AnswerOptions[index].RankedVoters = append(p.AnswerOptions[index].RankedVoters, RankedVoter{Voter: userID, Order: countVotedAnswers + 1})
 		}
 	} else {
 		// Single Answer Mode
@@ -262,6 +300,9 @@ func (p *Poll) ResetVotes(userID string) {
 		for i := 0; i < len(o.Voter); i++ {
 			if userID == o.Voter[i] {
 				o.Voter = append(o.Voter[:i], o.Voter[i+1:]...)
+				if p.IsRankingMode() {
+					o.RankedVoters = append(o.RankedVoters[:i], o.RankedVoters[i+1:]...)
+				}
 			}
 		}
 	}
@@ -270,9 +311,34 @@ func (p *Poll) ResetVotes(userID string) {
 // getAnswerOptionName returns answer option name (with voter count if progress setting is available)
 func (p *Poll) getAnswerOptionName(o *AnswerOption) string {
 	if p.Settings.Progress {
-		return fmt.Sprintf("%s (%d)", o.Answer, len(o.Voter))
+		if p.IsRankingMode() {
+			return fmt.Sprintf("%s (%d) (%s)", o.Answer, len(o.RankedVoters), ToStringRankingAnswers(o.RankedVoters, p.Settings.MaxVotes))
+		} else {
+			return fmt.Sprintf("%s (%d)", o.Answer, len(o.Voter))
+		}
 	}
 	return o.Answer
+}
+
+func ToStringRankingAnswers(voters []RankedVoter, maxVotes int) string {
+	answerCounts := make([]int, maxVotes)
+	for i := 0; i < len(voters); i++ {
+		//order begins from 1, but array begins from index 0
+		currentAnswerIndex := voters[i].Order - 1
+		answerCounts[currentAnswerIndex]++
+	}
+
+	var buffer bytes.Buffer
+	for i := 0; i < maxVotes; i++ {
+		buffer.WriteString(roman.NewRoman().ToRoman(i + 1))
+		buffer.WriteString("-")
+		buffer.WriteString(strconv.Itoa(answerCounts[i]))
+		if i != maxVotes-1 {
+			buffer.WriteString(";")
+		}
+	}
+
+	return buffer.String()
 }
 
 // GetVotedAnswers collect voted answers by a user and returns it as string array.
@@ -350,6 +416,8 @@ func (p *Poll) Copy() *Poll {
 		if o.Voter != nil {
 			p2.AnswerOptions[i].Voter = make([]string, len(o.Voter))
 			copy(p2.AnswerOptions[i].Voter, o.Voter)
+			p2.AnswerOptions[i].RankedVoters = make([]RankedVoter, len(o.RankedVoters))
+			copy(p2.AnswerOptions[i].RankedVoters, o.RankedVoters)
 		}
 	}
 	return p2

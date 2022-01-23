@@ -81,6 +81,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Type:        "bool",
 				Placeholder: "Allow all users to add additional options",
 				Optional:    true,
+			}, {
+				DisplayName: "View Ranking Mode",
+				Name:        "setting-view-ranking",
+				Type:        "bool",
+				Placeholder: "View answers by its order if it is multi vote",
+				Optional:    true,
 			}},
 			SubmitLabel: "Create",
 		},

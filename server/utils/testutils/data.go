@@ -44,14 +44,17 @@ func GetPoll() *poll.Poll {
 		Creator:   "userID1",
 		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{{
-			Answer: "Answer 1",
-			Voter:  []string{},
+			Answer:       "Answer 1",
+			Voter:        []string{},
+			RankedVoters: []poll.RankedVoter{},
 		}, {
-			Answer: "Answer 2",
-			Voter:  []string{},
+			Answer:       "Answer 2",
+			Voter:        []string{},
+			RankedVoters: []poll.RankedVoter{},
 		}, {
-			Answer: "Answer 3",
-			Voter:  []string{},
+			Answer:       "Answer 3",
+			Voter:        []string{},
+			RankedVoters: []poll.RankedVoter{},
 		}},
 		Settings: poll.Settings{MaxVotes: 1},
 	}
@@ -80,14 +83,17 @@ func GetPollWithVotes() *poll.Poll {
 		Creator:   "userID1",
 		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{{
-			Answer: "Answer 1",
-			Voter:  []string{"userID1", "userID2", "userID3"},
+			Answer:       "Answer 1",
+			Voter:        []string{"userID1", "userID2", "userID3"},
+			RankedVoters: []poll.RankedVoter{},
 		}, {
-			Answer: "Answer 2",
-			Voter:  []string{"userID4"},
+			Answer:       "Answer 2",
+			Voter:        []string{"userID4"},
+			RankedVoters: []poll.RankedVoter{},
 		}, {
-			Answer: "Answer 3",
-			Voter:  []string{},
+			Answer:       "Answer 3",
+			Voter:        []string{},
+			RankedVoters: []poll.RankedVoter{},
 		}},
 		Settings: poll.Settings{MaxVotes: 1},
 	}
@@ -109,11 +115,13 @@ func GetPollTwoOptions() *poll.Poll {
 		Creator:   "userID1",
 		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{{
-			Answer: "Yes",
-			Voter:  []string{},
+			Answer:       "Yes",
+			Voter:        []string{},
+			RankedVoters: []poll.RankedVoter{},
 		}, {
-			Answer: "No",
-			Voter:  []string{},
+			Answer:       "No",
+			Voter:        []string{},
+			RankedVoters: []poll.RankedVoter{},
 		}},
 		Settings: poll.Settings{MaxVotes: 1},
 	}

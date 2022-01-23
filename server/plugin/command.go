@@ -65,6 +65,10 @@ var (
 		ID:    "command.help.text.pollSetting.multi-vote",
 		Other: "Allow users to vote for X options",
 	}
+	commandHelpTextPollSettingViewRanking = &i18n.Message{
+		ID:    "command.help.text.pollSetting.view-ranking",
+		Other: "View answers by its order if it is multi vote",
+	}
 
 	commandErrorGeneric = &i18n.Message{
 		ID:    "command.error.generic",
@@ -288,6 +292,13 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-public-add-option",
 		Type:        "bool",
 		Placeholder: p.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
+		Optional:    true,
+	})
+	elements = append(elements, model.DialogElement{
+		DisplayName: "View Ranking Mode",
+		Name:        "setting-view-ranking",
+		Type:        "bool",
+		Placeholder: p.LocalizeDefaultMessage(l, commandHelpTextPollSettingViewRanking),
 		Optional:    true,
 	})
 

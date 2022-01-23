@@ -2,6 +2,7 @@ package poll
 
 import (
 	"fmt"
+	"github.com/chonla/roman-number-go"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -159,38 +160,76 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 	for _, o := range p.AnswerOptions {
 		var voter string
 		if !p.Settings.Anonymous {
-			for i := 0; i < len(o.Voter); i++ {
-				displayName, err := convert(o.Voter[i])
-				if err != nil {
-					return nil, err
+			if p.IsRankingMode() {
+				for i := 0; i < len(o.RankedVoters); i++ {
+					displayName, err := convert(o.RankedVoters[i].Voter)
+					if err != nil {
+						return nil, err
+					}
+					if i+1 == len(o.RankedVoters) && len(o.RankedVoters) > 1 {
+						voter += " " + localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
+					} else if i != 0 {
+						voter += ", "
+					}
+					voter += displayName
+					voter += " " + "(" + roman.NewRoman().ToRoman(o.RankedVoters[i].Order) + ")"
 				}
-				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
-				} else if i != 0 {
-					voter += ", "
+			} else {
+				for i := 0; i < len(o.Voter); i++ {
+					displayName, err := convert(o.Voter[i])
+					if err != nil {
+						return nil, err
+					}
+					if i+1 == len(o.Voter) && len(o.Voter) > 1 {
+						voter += " " + localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
+					} else if i != 0 {
+						voter += ", "
+					}
+					voter += displayName
 				}
-				voter += displayName
 			}
 		}
 
-		fields = append(fields, &model.SlackAttachmentField{
-			Short: true,
-			Title: localizer.MustLocalize(&i18n.LocalizeConfig{
-				DefaultMessage: &i18n.Message{
-					ID:    "poll.endPost.answer.heading",
-					One:   "{{.Answer}} ({{.Count}} vote)",
-					Few:   "{{.Answer}} ({{.Count}} votes)",
-					Many:  "{{.Answer}} ({{.Count}} votes)",
-					Other: "{{.Answer}} ({{.Count}} votes)",
-				},
-				TemplateData: map[string]interface{}{
-					"Answer": o.Answer,
-					"Count":  len(o.Voter),
-				},
-				PluralCount: len(o.Voter),
-			}),
-			Value: voter,
-		})
+		if p.IsRankingMode() {
+			fields = append(fields, &model.SlackAttachmentField{
+				Short: true,
+				Title: localizer.MustLocalize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID:    "poll.endPost.answer.heading.ranking",
+						One:   "{{.Answer}} ({{.Count}} vote) ({{.Ranking}} order)",
+						Few:   "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
+						Many:  "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
+						Other: "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
+					},
+					TemplateData: map[string]interface{}{
+						"Answer":  o.Answer,
+						"Count":   len(o.RankedVoters),
+						"Ranking": ToStringRankingAnswers(o.RankedVoters, p.Settings.MaxVotes),
+					},
+					PluralCount: len(o.RankedVoters),
+				}),
+				Value: voter,
+			})
+		} else {
+			fields = append(fields, &model.SlackAttachmentField{
+				Short: true,
+				Title: localizer.MustLocalize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID:    "poll.endPost.answer.heading",
+						One:   "{{.Answer}} ({{.Count}} vote)",
+						Few:   "{{.Answer}} ({{.Count}} votes)",
+						Many:  "{{.Answer}} ({{.Count}} votes)",
+						Other: "{{.Answer}} ({{.Count}} votes)",
+					},
+					TemplateData: map[string]interface{}{
+						"Answer": o.Answer,
+						"Count":  len(o.Voter),
+					},
+					PluralCount: len(o.Voter),
+				}),
+				Value: voter,
+			})
+		}
 	}
 
 	attachments := []*model.SlackAttachment{{
