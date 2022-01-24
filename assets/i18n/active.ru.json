@@ -55,6 +55,10 @@
     "hash": "sha1-97f6e52cd7135ca4c73b79790a946ead7513cd33",
     "other": "Разрешить пользователям добавлять собственные варианты ответов."
   },
+  "command.help.text.pollSetting.view-ranking": {
+    "hash": "sha1-ee52ab3e544a57291e15d29fb3f12ddf85a4094a",
+    "other": "Ранжировать ответы по их порядку. Применяется, если число вариантов ответа, которое может выбрать пользователь, больше единицы"
+  },
   "command.help.text.simple": {
     "hash": "sha1-783c9e50cbbd9a11685f41524265201b2e97d369",
     "other": "Чтобы создать опрос с вариантами ответа \"{{.Yes}}\" и \"{{.No}}\" наберите `/{{.Trigger}} \"Текст вопроса\"`"
@@ -128,8 +132,11 @@
     "other": "Завершить опрос"
   },
   "poll.button.resetVotes": {
-    "hash": "sha1-5dde85fe02a747ab6a09cd15156c01d955c8ab56",
-    "other": "Удалить ответы"
+    "few": "Сбросить ваши голоса",
+    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
+    "many": "Сбросить ваши голоса",
+    "one": "Сбросить ваши голоса",
+    "other": "Сбросить ваши голоса"
   },
   "poll.endPost.answer.heading": {
     "few": "{{.Answer}} ({{.Count}} ответов)",
@@ -137,6 +144,13 @@
     "many": "{{.Answer}} ({{.Count}} ответов)",
     "one": "{{.Answer}} ({{.Count}} ответ)",
     "other": "{{.Answer}} ({{.Count}} ответов)"
+  },
+  "poll.endPost.answer.heading.ranking": {
+    "few": "{{.Answer}} ({{.Count}} кол-во) ({{.Ranking}} ранжирование)",
+    "hash": "sha1-8f7e8752977838e7eb856d257a493c86f60512f0",
+    "many": "{{.Answer}} ({{.Count}} кол-во) ({{.Ranking}} ранжирование)",
+    "one": "{{.Answer}} ({{.Count}} кол-во) ({{.Ranking}} ранжирование)",
+    "other": "{{.Answer}} ({{.Count}} кол-во) ({{.Ranking}} ранжирование)"
   },
   "poll.endPost.seperator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",

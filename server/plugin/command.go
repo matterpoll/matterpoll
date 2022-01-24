@@ -67,7 +67,7 @@ var (
 	}
 	commandHelpTextPollSettingViewRanking = &i18n.Message{
 		ID:    "command.help.text.pollSetting.view-ranking",
-		Other: "View answers by its order if it is multi vote",
+		Other: "View answers by its order. Accepted if users can vote for more than one option",
 	}
 
 	commandErrorGeneric = &i18n.Message{

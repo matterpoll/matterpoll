@@ -13,6 +13,7 @@
   "command.help.text.pollSetting.multi-vote": "Allow users to vote for X options",
   "command.help.text.pollSetting.progress": "During the poll, show how many votes each answer option got",
   "command.help.text.pollSetting.public-add-option": "Allow all users to add additional options",
+  "command.help.text.pollSetting.view-ranking": "View answers by its order. Accepted if users can vote for more than one option",
   "command.help.text.simple": "To create a poll with the answer options \"{{.Yes}}\" and \"{{.No}}\" type `/{{.Trigger}} \"Question\"`",
   "dialog.addOption.element.displayName": "Option",
   "dialog.addOption.submitLabel": "Add",
@@ -42,6 +43,12 @@
     "many": "{{.Answer}} ({{.Count}} votes)",
     "one": "{{.Answer}} ({{.Count}} vote)",
     "other": "{{.Answer}} ({{.Count}} votes)"
+  },
+  "poll.endPost.answer.heading.ranking": {
+    "few": "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
+    "many": "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
+    "one": "{{.Answer}} ({{.Count}} vote) ({{.Ranking}} order)",
+    "other": "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)"
   },
   "poll.endPost.seperator": "and",
   "poll.endPost.text": "This poll has ended. The results are:",
