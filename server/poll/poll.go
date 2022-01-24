@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/chonla/roman-number-go"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -330,8 +329,9 @@ func ToStringRankingAnswers(voters []RankedVoter, maxVotes int) string {
 
 	var buffer bytes.Buffer
 	for i := 0; i < maxVotes; i++ {
-		buffer.WriteString(roman.NewRoman().ToRoman(i + 1))
-		buffer.WriteString("-")
+		buffer.WriteString("№")
+		buffer.WriteString(strconv.Itoa(i + 1))
+		buffer.WriteString(":")
 		buffer.WriteString(strconv.Itoa(answerCounts[i]))
 		if i != maxVotes-1 {
 			buffer.WriteString(";")

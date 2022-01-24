@@ -45,10 +45,10 @@
     "other": "{{.Answer}} ({{.Count}} votes)"
   },
   "poll.endPost.answer.heading.ranking": {
-    "few": "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
-    "many": "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
-    "one": "{{.Answer}} ({{.Count}} vote) ({{.Ranking}} order)",
-    "other": "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)"
+    "few": "{{.Answer}} ({{.Count}} votes) (priority {{.Ranking}})",
+    "many": "{{.Answer}} ({{.Count}} votes) (priority {{.Ranking}})",
+    "one": "{{.Answer}} ({{.Count}} vote) (priority {{.Ranking}})",
+    "other": "{{.Answer}} ({{.Count}} votes) (priority {{.Ranking}})"
   },
   "poll.endPost.seperator": "and",
   "poll.endPost.text": "This poll has ended. The results are:",

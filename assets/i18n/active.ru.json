@@ -146,11 +146,11 @@
     "other": "{{.Answer}} ({{.Count}} ответов)"
   },
   "poll.endPost.answer.heading.ranking": {
-    "few": "{{.Answer}} ({{.Count}} кол-во) ({{.Ranking}} ранжирование)",
-    "hash": "sha1-8f7e8752977838e7eb856d257a493c86f60512f0",
-    "many": "{{.Answer}} ({{.Count}} кол-во) ({{.Ranking}} ранжирование)",
-    "one": "{{.Answer}} ({{.Count}} кол-во) ({{.Ranking}} ранжирование)",
-    "other": "{{.Answer}} ({{.Count}} кол-во) ({{.Ranking}} ранжирование)"
+    "few": "{{.Answer}} ({{.Count}} голосов) (приоритет {{.Ranking}})",
+    "hash": "sha1-fc26960ebee785324a8e2a809ce360f3fe3aee6b",
+    "many": "{{.Answer}} ({{.Count}} голосов) (приоритет {{.Ranking}})",
+    "one": "{{.Answer}} ({{.Count}} голос) (приоритет {{.Ranking}})",
+    "other": "{{.Answer}} ({{.Count}} голосов) (приоритет {{.Ranking}})"
   },
   "poll.endPost.seperator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",

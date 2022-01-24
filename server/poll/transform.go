@@ -2,7 +2,7 @@ package poll
 
 import (
 	"fmt"
-	"github.com/chonla/roman-number-go"
+	"strconv"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -172,7 +172,7 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 						voter += ", "
 					}
 					voter += displayName
-					voter += " " + "(" + roman.NewRoman().ToRoman(o.RankedVoters[i].Order) + ")"
+					voter += " " + "(№" + strconv.Itoa(o.RankedVoters[i].Order) + ")"
 				}
 			} else {
 				for i := 0; i < len(o.Voter); i++ {
@@ -196,10 +196,10 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 				Title: localizer.MustLocalize(&i18n.LocalizeConfig{
 					DefaultMessage: &i18n.Message{
 						ID:    "poll.endPost.answer.heading.ranking",
-						One:   "{{.Answer}} ({{.Count}} vote) ({{.Ranking}} order)",
-						Few:   "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
-						Many:  "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
-						Other: "{{.Answer}} ({{.Count}} votes) ({{.Ranking}} order)",
+						One:   "{{.Answer}} ({{.Count}} vote) (priority {{.Ranking}})",
+						Few:   "{{.Answer}} ({{.Count}} votes) (priority {{.Ranking}})",
+						Many:  "{{.Answer}} ({{.Count}} votes) (priority {{.Ranking}})",
+						Other: "{{.Answer}} ({{.Count}} votes) (priority {{.Ranking}})",
 					},
 					TemplateData: map[string]interface{}{
 						"Answer":  o.Answer,
