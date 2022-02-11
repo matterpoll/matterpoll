@@ -58,7 +58,7 @@
     "jest-junit": "11.1.0",
     "mattermost-webapp": "github:mattermost/mattermost-webapp#23f5f93d9f12a7e2b5623e5cee6814366abd9a0f",
     "redux-mock-store": "1.5.4",
-    "node-sass": "4.14.1",
+    "node-sass": "7.0.0",
     "sass-loader": "10.0.2",
     "style-loader": "1.2.1",
     "webpack": "4.44.2",
