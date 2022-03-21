@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
@@ -15,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/undefinedlabs/go-mpatch"
 
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
@@ -138,10 +138,10 @@ func TestPluginOnActivate(t *testing.T) {
 				defer helpers.AssertExpectations(t)
 			}
 
-			patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+			patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 				return &mockstore.Store{}, nil
 			})
-			defer patch.Unpatch()
+			defer func() { require.NoError(t, patch.Unpatch()) }()
 
 			siteURL := testutils.GetSiteURL()
 			defaultClientLocale := "en"
@@ -174,10 +174,10 @@ func TestPluginOnActivate(t *testing.T) {
 		api := &plugintest.API{}
 		defer api.AssertExpectations(t)
 
-		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
-		defer patch.Unpatch()
+		defer func() { require.NoError(t, patch.Unpatch()) }()
 
 		siteURL := testutils.GetSiteURL()
 		p := &MatterpollPlugin{
@@ -199,10 +199,10 @@ func TestPluginOnActivate(t *testing.T) {
 		api := &plugintest.API{}
 		defer api.AssertExpectations(t)
 
-		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
-		defer patch.Unpatch()
+		defer func() { require.NoError(t, patch.Unpatch()) }()
 
 		p := &MatterpollPlugin{
 			ServerConfig: &model.Config{
