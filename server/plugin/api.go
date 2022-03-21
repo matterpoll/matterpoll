@@ -311,10 +311,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 	poll, errMsg := poll.NewPoll(creatorID, question, answerOptions, settings)
 	if errMsg != nil {
 		response := &model.SubmitDialogResponse{
-			Error: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
-				DefaultMessage: errMsg.Message,
-				TemplateData:   errMsg.Data,
-			}),
+			Error: p.LocalizeErrorMessage(userLocalizer, errMsg),
 		}
 		return nil, response, nil
 	}
@@ -553,10 +550,7 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 	if errMsg := poll.AddAnswerOption(answerOption); errMsg != nil {
 		response := &model.SubmitDialogResponse{
 			Errors: map[string]string{
-				addOptionKey: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
-					DefaultMessage: errMsg.Message,
-					TemplateData:   errMsg.Data,
-				}),
+				addOptionKey: p.LocalizeErrorMessage(userLocalizer, errMsg),
 			},
 		}
 		return nil, response, nil

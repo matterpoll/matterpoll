@@ -150,10 +150,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 			Id: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
 				TemplateData: map[string]interface{}{
-					"Error": p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
-						DefaultMessage: errMsg.Message,
-						TemplateData:   errMsg.Data,
-					}),
+					"Error": p.LocalizeErrorMessage(userLocalizer, errMsg),
 				}}),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
@@ -172,10 +169,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 			Id: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
 				TemplateData: map[string]interface{}{
-					"Error": p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
-						DefaultMessage: errMsg.Message,
-						TemplateData:   errMsg.Data,
-					}),
+					"Error": p.LocalizeErrorMessage(userLocalizer, errMsg),
 				}}),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",

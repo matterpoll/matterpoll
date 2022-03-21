@@ -191,3 +191,11 @@ func (p *MatterpollPlugin) SendEphemeralPost(channelID, userID, rootID, message 
 	}
 	_ = p.API.SendEphemeralPost(userID, ephemeralPost)
 }
+
+// LocalizeErrorMessage localize the provided error message
+func (p *MatterpollPlugin) LocalizeErrorMessage(l *i18n.Localizer, m *poll.ErrorMessage) string {
+	return p.bundle.LocalizeWithConfig(l, &i18n.LocalizeConfig{
+		DefaultMessage: m.Message,
+		TemplateData:   m.Data,
+	})
+}
