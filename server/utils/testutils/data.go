@@ -24,12 +24,15 @@ func GetBotUserID() string {
 // GetServerConfig return a static server config.
 func GetServerConfig() *model.Config {
 	siteURL := GetSiteURL()
-	defaultClientLocale := "en"
+	localeEn := "en"
+	defaultServerLocale := localeEn
+	defaultClientLocale := localeEn
 	return &model.Config{
 		ServiceSettings: model.ServiceSettings{
 			SiteURL: &siteURL,
 		},
 		LocalizationSettings: model.LocalizationSettings{
+			DefaultServerLocale: &defaultServerLocale,
 			DefaultClientLocale: &defaultClientLocale,
 		},
 	}

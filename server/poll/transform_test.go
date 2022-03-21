@@ -79,7 +79,7 @@ func TestPollToEndPollPost(t *testing.T) {
 			expectedPost := &model.Post{}
 			model.ParseSlackAttachment(expectedPost, test.ExpectedAttachments)
 
-			post, err := test.Poll.ToEndPollPost(testutils.GetLocalizer(), "John Doe", converter)
+			post, err := test.Poll.ToEndPollPost(testutils.GetBundle(), "John Doe", converter)
 
 			require.Nil(t, err)
 			assert.Equal(t, expectedPost, post)
@@ -92,7 +92,7 @@ func TestPollToEndPollPost(t *testing.T) {
 		}
 		poll := testutils.GetPollWithVotes()
 
-		post, err := poll.ToEndPollPost(testutils.GetLocalizer(), "John Doe", converter)
+		post, err := poll.ToEndPollPost(testutils.GetBundle(), "John Doe", converter)
 
 		assert.NotNil(t, err)
 		require.Nil(t, post)
@@ -366,7 +366,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(testutils.GetLocalizer(), PluginID, authorName))
+			assert.Equal(t, test.ExpectedAttachments, test.Poll.ToPostActions(testutils.GetBundle(), PluginID, authorName))
 		})
 	}
 }

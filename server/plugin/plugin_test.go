@@ -2,18 +2,19 @@ package plugin
 
 import (
 	"errors"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/undefinedlabs/go-mpatch"
-	"golang.org/x/text/language"
 
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
@@ -33,7 +34,9 @@ func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) 
 
 	p.SetAPI(api)
 	p.botUserID = testutils.GetBotUserID()
-	p.bundle = i18n.NewBundle(language.English)
+	api.On("GetConfig").Return(testutils.GetServerConfig()).Maybe()
+	api.On("GetBundlePath").Return(".", nil)
+	p.bundle, _ = i18n.InitBundle(api, ".")
 	p.Store = store
 	p.router = p.InitAPI()
 	p.setActivated(true)
@@ -67,9 +70,6 @@ func TestPluginOnActivate(t *testing.T) {
 		// server version tests
 		"all fine": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
 				api.On("RegisterCommand", command).Return(nil)
 				return api
@@ -88,19 +88,9 @@ func TestPluginOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"i18n directory doesn't exist ": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetBundlePath").Return("/tmp", nil)
-				return api
-			},
-			ShouldError: true,
-		},
 		// Bot tests
 		"EnsureBot fails ": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
@@ -111,9 +101,6 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 		"patch bot description fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, &model.AppError{})
 				return api
 			},
@@ -125,7 +112,24 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
+			dir, err := ioutil.TempDir("", "")
+			require.NoError(t, err)
+
+			defer os.RemoveAll(dir)
+
+			// Create assets/i18n dir
+			i18nDir := filepath.Join(dir, "assets", "i18n")
+			err = os.MkdirAll(i18nDir, 0700)
+			require.NoError(t, err)
+
+			file := filepath.Join(i18nDir, "active.de.json")
+			content := []byte("{}")
+			err = ioutil.WriteFile(file, content, 0600)
+			require.NoError(t, err)
+
 			api := test.SetupAPI(&plugintest.API{})
+			api.On("GetBundlePath").Return(dir, nil)
+			api.On("GetConfig").Return(testutils.GetServerConfig()).Maybe()
 			defer api.AssertExpectations(t)
 
 			helpers := &plugintest.Helpers{}
@@ -157,7 +161,7 @@ func TestPluginOnActivate(t *testing.T) {
 			})
 			p.SetAPI(api)
 			p.SetHelpers(helpers)
-			err := p.OnActivate()
+			err = p.OnActivate()
 
 			if test.ShouldError {
 				assert.NotNil(t, err)

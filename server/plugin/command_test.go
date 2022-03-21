@@ -139,7 +139,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -167,7 +167,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(nil, &model.AppError{})
 				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
@@ -191,7 +191,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
+				actions := testutils.GetPoll().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -221,7 +221,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1})
-				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
+				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -252,7 +252,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 3})
-				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
+				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -283,7 +283,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, MaxVotes: 1})
-				actions := poll.ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
+				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -313,7 +313,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPoll().ToPostActions(testutils.GetLocalizer(), manifest.Id, "John Doe")
+				actions := testutils.GetPoll().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
