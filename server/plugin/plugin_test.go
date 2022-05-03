@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
@@ -19,6 +18,7 @@ import (
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
@@ -36,7 +36,7 @@ func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) 
 	p.botUserID = testutils.GetBotUserID()
 	api.On("GetConfig").Return(testutils.GetServerConfig()).Maybe()
 	api.On("GetBundlePath").Return(".", nil)
-	p.bundle, _ = i18n.InitBundle(api, ".")
+	p.bundle, _ = utils.InitBundle(api, ".")
 	p.Store = store
 	p.router = p.InitAPI()
 	p.setActivated(true)

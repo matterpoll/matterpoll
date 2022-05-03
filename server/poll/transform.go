@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/matterpoll/matterpoll/server/utils"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 const (
@@ -37,7 +38,7 @@ var (
 )
 
 // ToPostActions returns the poll as a message
-func (p *Poll) ToPostActions(bundle *i18n.Bundle, pluginID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) []*model.SlackAttachment {
 	localizer := bundle.GetServerLocalizer()
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
@@ -122,7 +123,7 @@ func (p *Poll) ToPostActions(bundle *i18n.Bundle, pluginID, authorName string) [
 
 // makeAdditionalText make descriptions about poll
 // This method returns markdown text, because it is used for SlackAttachment.Text field.
-func (p *Poll) makeAdditionalText(bundle *i18n.Bundle, numberOfVotes int) string {
+func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes int) string {
 	localizer := bundle.GetServerLocalizer()
 	var settingsText []string
 	if p.Settings.Anonymous {
@@ -154,7 +155,7 @@ func (p *Poll) makeAdditionalText(bundle *i18n.Bundle, numberOfVotes int) string
 }
 
 // ToEndPollPost returns the poll end message
-func (p *Poll) ToEndPollPost(bundle *i18n.Bundle, authorName string, convert IDToNameConverter) (*model.Post, *model.AppError) {
+func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert IDToNameConverter) (*model.Post, *model.AppError) {
 	localizer := bundle.GetServerLocalizer()
 	post := &model.Post{}
 	fields := []*model.SlackAttachmentField{}

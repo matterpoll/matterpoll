@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -150,7 +150,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 			Id: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
 				TemplateData: map[string]interface{}{
-					"Error": p.LocalizeErrorMessage(userLocalizer, errMsg),
+					"Error": p.bundle.LocalizeErrorMessage(userLocalizer, errMsg),
 				}}),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
@@ -169,7 +169,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 			Id: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
 				TemplateData: map[string]interface{}{
-					"Error": p.LocalizeErrorMessage(userLocalizer, errMsg),
+					"Error": p.bundle.LocalizeErrorMessage(userLocalizer, errMsg),
 				}}),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
