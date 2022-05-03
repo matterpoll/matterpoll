@@ -2,8 +2,9 @@ package testutils
 
 import (
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/utils"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+
+	"github.com/matterpoll/matterpoll/server/utils"
 )
 
 // GetLocalizer return an localizer with an empty bundle

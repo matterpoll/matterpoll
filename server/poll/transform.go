@@ -5,8 +5,9 @@ import (
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/matterpoll/matterpoll/server/utils"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+
+	"github.com/matterpoll/matterpoll/server/utils"
 )
 
 const (

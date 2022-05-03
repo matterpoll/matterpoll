@@ -8,13 +8,13 @@ import (
 	"github.com/mattermost/mattermost-plugin-api/experimental/command"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/matterpoll/matterpoll/server/utils"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 // MatterpollPlugin is the object to run the plugin
