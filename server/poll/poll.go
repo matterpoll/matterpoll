@@ -7,8 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+
+	"github.com/matterpoll/matterpoll/server/utils"
 )
 
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
@@ -44,15 +46,8 @@ type Settings struct {
 	MaxVotes        int `json:"max_votes"`
 }
 
-// ErrorMessage contains error messsage for a user that can be localized.
-// It should not be wrapped and instead always returned.
-type ErrorMessage struct {
-	Message *i18n.Message
-	Data    map[string]interface{}
-}
-
 // NewPoll creates a new poll with the given parameter.
-func NewPoll(creator, question string, answerOptions []string, settings Settings) (*Poll, *ErrorMessage) {
+func NewPoll(creator, question string, answerOptions []string, settings Settings) (*Poll, *utils.ErrorMessage) {
 	p := Poll{
 		ID:        model.NewId(),
 		CreatedAt: model.GetMillis(),
@@ -74,7 +69,7 @@ func NewPoll(creator, question string, answerOptions []string, settings Settings
 }
 
 // NewSettingsFromStrings creates a new settings with the given parameter.
-func NewSettingsFromStrings(strs []string) (Settings, *ErrorMessage) {
+func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 	settings := Settings{MaxVotes: 1}
 	for _, str := range strs {
 		switch {
@@ -91,7 +86,7 @@ func NewSettingsFromStrings(strs []string) (Settings, *ErrorMessage) {
 			}
 			settings.MaxVotes = i
 		default:
-			return settings, &ErrorMessage{
+			return settings, &utils.ErrorMessage{
 				Message: &i18n.Message{
 					ID:    "poll.newPoll.unrecognizedSetting",
 					Other: "Unrecognized poll setting: {{.Setting}}",
@@ -133,10 +128,10 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 }
 
 // parseVotesSettings parses setting for votes ("--votes=X")
-func parseVotesSettings(s string) (int, *ErrorMessage) {
+func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 	e := votesSettingPattern.FindStringSubmatch(s)
 	if len(e) != 2 {
-		return 0, &ErrorMessage{
+		return 0, &utils.ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.unexpectedError",
 				Other: "Unexpected error happens when parsing {{.Setting}}",
@@ -148,7 +143,7 @@ func parseVotesSettings(s string) (int, *ErrorMessage) {
 	}
 	i, err := strconv.Atoi(e[1])
 	if err != nil {
-		return 0, &ErrorMessage{
+		return 0, &utils.ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.invalidSetting",
 				Other: "Unexpected error happens when parsing {{.Setting}}",
@@ -162,9 +157,9 @@ func parseVotesSettings(s string) (int, *ErrorMessage) {
 }
 
 // validate checks if poll is valid
-func (p *Poll) validate() *ErrorMessage {
+func (p *Poll) validate() *utils.ErrorMessage {
 	if p.Settings.MaxVotes <= 0 || p.Settings.MaxVotes > len(p.AnswerOptions) {
-		return &ErrorMessage{
+		return &utils.ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.invalidSetting",
 				Other: `The number of votes must be a positive number and less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}".`,
@@ -184,10 +179,10 @@ func (p *Poll) IsMultiVote() bool {
 }
 
 // AddAnswerOption adds a new AnswerOption to a poll
-func (p *Poll) AddAnswerOption(newAnswerOption string) *ErrorMessage {
+func (p *Poll) AddAnswerOption(newAnswerOption string) *utils.ErrorMessage {
 	newAnswerOption = strings.TrimSpace(newAnswerOption)
 	if newAnswerOption == "" {
-		return &ErrorMessage{
+		return &utils.ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.addAnswerOption.empty",
 				Other: "Empty option not allowed",
@@ -196,7 +191,7 @@ func (p *Poll) AddAnswerOption(newAnswerOption string) *ErrorMessage {
 	}
 	for _, answerOption := range p.AnswerOptions {
 		if answerOption.Answer == newAnswerOption {
-			return &ErrorMessage{
+			return &utils.ErrorMessage{
 				Message: &i18n.Message{
 					ID:    "poll.addAnswerOption.duplicate",
 					Other: "Duplicate option: {{.Option}}",

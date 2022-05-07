@@ -6,21 +6,22 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-plugin-api/experimental/command"
-	"github.com/mattermost/mattermost-plugin-api/i18n"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
+	"github.com/matterpoll/matterpoll/server/utils"
 )
 
 // MatterpollPlugin is the object to run the plugin
 type MatterpollPlugin struct {
 	plugin.MattermostPlugin
 	botUserID string
-	bundle    *i18n.Bundle
+	bundle    *utils.Bundle
 	router    *mux.Router
 	Store     store.Store
 
@@ -75,7 +76,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 		return errors.Wrap(err, "failed to create store")
 	}
 
-	p.bundle, err = i18n.InitBundle(p.API, filepath.Join("assets", "i18n"))
+	p.bundle, err = utils.InitBundle(p.API, filepath.Join("assets", "i18n"))
 	if err != nil {
 		return errors.Wrap(err, "failed to init localisation bundle")
 	}
@@ -190,12 +191,4 @@ func (p *MatterpollPlugin) SendEphemeralPost(channelID, userID, rootID, message 
 		Message:   message,
 	}
 	_ = p.API.SendEphemeralPost(userID, ephemeralPost)
-}
-
-// LocalizeErrorMessage localize the provided error message
-func (p *MatterpollPlugin) LocalizeErrorMessage(l *i18n.Localizer, m *poll.ErrorMessage) string {
-	return p.bundle.LocalizeWithConfig(l, &i18n.LocalizeConfig{
-		DefaultMessage: m.Message,
-		TemplateData:   m.Data,
-	})
 }
