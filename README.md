@@ -12,10 +12,10 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 
 ## Installation
 
-In Mattermost, open **Main Menu > Plugin Marketplace** to install and configure Matterpoll.
+In Mattermost, open **Product Menu  > Marketplace** (**Main Menu > Marketplace** on Mattersmot v5) to install and configure Matterpoll.
 
 For offline/air gapped installations, you can obtain a `.tar.gz` from https://github.com/matterpoll/matterpoll/releases.
-In Mattermost, open **Main Menu > System Console > Plugins (BETA) > Plugin Management > Upload Plugin** to upload the .tar.gz.
+In Mattermost, open **System Console > Plugins > Plugin Management > Upload Plugin** to upload the .tar.gz.
 Upgrades can be performed by importing the lastest release and confirm overwriting of the duplicate plugin ID.
 
 ## Settings
@@ -44,7 +44,7 @@ Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" 
 
 ## Localization
 
-Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > General > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Account Settings > Display > Language**.
+Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > Site Configuration > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Settings > Display > Language** (**Account Settings > Display > Language** on Mattermost v5).
 
 The currently supported languages are:
 - English
@@ -63,7 +63,7 @@ The currently supported languages are:
 
 #### Pressing the poll buttons does nothing and creates a 400 error in the Mattermost log
 
-Make sure to set your [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url) properly.
+Make sure to set your [Site URL](https://docs.mattermost.com/configure/configuration-settings.html?highlight=site%20url#site-url) properly.
 For example, this error happens in case you set SiteURL starting with `http://`, in spite of running Mattermost server through https.
 
 
