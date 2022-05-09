@@ -128,8 +128,9 @@
     "other": "Terminer le sondage"
   },
   "poll.button.resetVotes": {
-    "hash": "sha1-5dde85fe02a747ab6a09cd15156c01d955c8ab56",
-    "other": "Réinitialiser les votes"
+    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
+    "one": "Réinitialiser votre vote",
+    "other": "Réinitialiser vos votes"
   },
   "poll.endPost.answer.heading": {
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
@@ -157,8 +158,8 @@
     "other": "Paramètre du sondage non reconnu : {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
-    "hash": "sha1-a0649f6d7040b480c543e843e12cd14de97ef6d6",
-    "other": "Le nombre de votes doit être un nombre positif et inférieur ou égal au nombre d’options. Vous avez spécifié \"{{.MaxVotes}}\", mais le nombre d’options est \"{{.Options}}\"."
+    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
+    "other": "Le nombre de votes doit être un nombre positif et inférieur ou égal au nombre d’options. Vous avez spécifié \"{{.MaxVotes}}\" mais le nombre d’options est \"{{.Options}}\"."
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
