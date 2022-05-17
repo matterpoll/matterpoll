@@ -136,6 +136,12 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes int) strin
 	if p.Settings.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
 	}
+	if p.Settings.PublicDeletePoll {
+		settingsText = append(settingsText, "public-delete-poll")
+	}
+	if p.Settings.PublicEndPoll {
+		settingsText = append(settingsText, "public-end-poll")
+	}
 	if p.Settings.MaxVotes > 1 {
 		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
 	}

@@ -577,12 +577,14 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
-	if appErr != nil {
-		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
-	}
-	if !canManagePoll {
-		return &i18n.LocalizeConfig{DefaultMessage: responseEndPollInvalidPermission}, nil, nil
+	if !poll.Settings.PublicEndPoll {
+		canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
+		if appErr != nil {
+			return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
+		}
+		if !canManagePoll {
+			return &i18n.LocalizeConfig{DefaultMessage: responseEndPollInvalidPermission}, nil, nil
+		}
 	}
 
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
@@ -677,12 +679,14 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
-	if appErr != nil {
-		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
-	}
-	if !canManagePoll {
-		return &i18n.LocalizeConfig{DefaultMessage: responseDeletePollInvalidPermission}, nil, nil
+	if !poll.Settings.PublicDeletePoll {
+		canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
+		if appErr != nil {
+			return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
+		}
+		if !canManagePoll {
+			return &i18n.LocalizeConfig{DefaultMessage: responseDeletePollInvalidPermission}, nil, nil
+		}
 	}
 
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
