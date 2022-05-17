@@ -216,7 +216,7 @@ func TestHandleCreatePoll(t *testing.T) {
 	}
 	model.ParseSlackAttachment(expectedPostTwoOptions, pollWithTwoOptions.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
 
-	pollWithSettings := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, PublicAddOption: true, MaxVotes: 3})
+	pollWithSettings := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, PublicAddOption: true, PublicDeletePoll: true, PublicEndPoll: true, MaxVotes: 3})
 	expectedPostWithSettings := &model.Post{
 		UserId:    testutils.GetBotUserID(),
 		ChannelId: channelID,
@@ -315,14 +315,16 @@ func TestHandleCreatePoll(t *testing.T) {
 				CallbackId: rootID,
 				ChannelId:  channelID,
 				Submission: map[string]interface{}{
-					"question":                  pollWithSettings.Question,
-					"option1":                   pollWithSettings.AnswerOptions[0].Answer,
-					"option2":                   pollWithSettings.AnswerOptions[1].Answer,
-					"option3":                   pollWithSettings.AnswerOptions[2].Answer,
-					"setting-multi":             3,
-					"setting-anonymous":         true,
-					"setting-progress":          true,
-					"setting-public-add-option": true,
+					"question":                   pollWithSettings.Question,
+					"option1":                    pollWithSettings.AnswerOptions[0].Answer,
+					"option2":                    pollWithSettings.AnswerOptions[1].Answer,
+					"option3":                    pollWithSettings.AnswerOptions[2].Answer,
+					"setting-multi":              3,
+					"setting-anonymous":          true,
+					"setting-progress":           true,
+					"setting-public-add-option":  true,
+					"setting-public-delete-poll": true,
+					"setting-public-end-poll":    true,
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
