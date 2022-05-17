@@ -655,11 +655,13 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"voted_answers":             []string{"Answer 1"},
-					"poll_id":                   testutils.GetPollID(),
-					"user_id":                   "userID1",
-					"can_manage_poll":           true,
-					"setting_public_add_option": false,
+					"voted_answers":              []string{"Answer 1"},
+					"poll_id":                    testutils.GetPollID(),
+					"user_id":                    "userID1",
+					"can_manage_poll":            true,
+					"setting_public_add_option":  false,
+					"setting_public_delete_poll": false,
+					"setting_public_end_poll":    false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
@@ -679,11 +681,13 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"voted_answers":             []string{"Answer 1"},
-					"poll_id":                   testutils.GetPollID(),
-					"user_id":                   "userID1",
-					"can_manage_poll":           true,
-					"setting_public_add_option": false,
+					"voted_answers":              []string{"Answer 1"},
+					"poll_id":                    testutils.GetPollID(),
+					"user_id":                    "userID1",
+					"can_manage_poll":            true,
+					"setting_public_add_option":  false,
+					"setting_public_delete_poll": false,
+					"setting_public_end_poll":    false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
@@ -709,11 +713,13 @@ func TestHandleVote(t *testing.T) {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"can_manage_poll":           false,
-					"poll_id":                   testutils.GetPollID(),
-					"user_id":                   "userID2",
-					"voted_answers":             []string{"Answer 1"},
-					"setting_public_add_option": false,
+					"can_manage_poll":            false,
+					"poll_id":                    testutils.GetPollID(),
+					"user_id":                    "userID2",
+					"voted_answers":              []string{"Answer 1"},
+					"setting_public_add_option":  false,
+					"setting_public_delete_poll": false,
+					"setting_public_end_poll":    false,
 				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
 				return api
 			},
@@ -734,11 +740,13 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"can_manage_poll":           true,
-					"poll_id":                   testutils.GetPollID(),
-					"user_id":                   "userID1",
-					"voted_answers":             []string{"Answer 1", "Answer 2"},
-					"setting_public_add_option": false,
+					"can_manage_poll":            true,
+					"poll_id":                    testutils.GetPollID(),
+					"user_id":                    "userID1",
+					"voted_answers":              []string{"Answer 1", "Answer 2"},
+					"setting_public_add_option":  false,
+					"setting_public_delete_poll": false,
+					"setting_public_end_poll":    false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
@@ -776,11 +784,13 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"voted_answers":             []string{"Answer 2"},
-					"poll_id":                   testutils.GetPollID(),
-					"user_id":                   "userID1",
-					"can_manage_poll":           true,
-					"setting_public_add_option": false,
+					"voted_answers":              []string{"Answer 2"},
+					"poll_id":                    testutils.GetPollID(),
+					"user_id":                    "userID1",
+					"can_manage_poll":            true,
+					"setting_public_add_option":  false,
+					"setting_public_delete_poll": false,
+					"setting_public_end_poll":    false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
@@ -827,11 +837,13 @@ func TestHandleVote(t *testing.T) {
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 7)...).Return().Maybe()
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"voted_answers":             []string{"Answer 2"},
-					"poll_id":                   testutils.GetPollID(),
-					"user_id":                   "userID2",
-					"can_manage_poll":           false,
-					"setting_public_add_option": false,
+					"voted_answers":              []string{"Answer 2"},
+					"poll_id":                    testutils.GetPollID(),
+					"user_id":                    "userID2",
+					"can_manage_poll":            false,
+					"setting_public_add_option":  false,
+					"setting_public_delete_poll": false,
+					"setting_public_end_poll":    false,
 				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
 				return api
 			},
@@ -1078,11 +1090,13 @@ func TestHandleResetVotes(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"can_manage_poll":           true,
-					"poll_id":                   testutils.GetPollID(),
-					"user_id":                   "userID1",
-					"voted_answers":             []string{},
-					"setting_public_add_option": false,
+					"can_manage_poll":            true,
+					"poll_id":                    testutils.GetPollID(),
+					"user_id":                    "userID1",
+					"voted_answers":              []string{},
+					"setting_public_add_option":  false,
+					"setting_public_delete_poll": false,
+					"setting_public_end_poll":    false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
@@ -1101,11 +1115,13 @@ func TestHandleResetVotes(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"can_manage_poll":           true,
-					"poll_id":                   testutils.GetPollID(),
-					"user_id":                   "userID1",
-					"voted_answers":             []string{},
-					"setting_public_add_option": false,
+					"can_manage_poll":            true,
+					"poll_id":                    testutils.GetPollID(),
+					"user_id":                    "userID1",
+					"voted_answers":              []string{},
+					"setting_public_add_option":  false,
+					"setting_public_delete_poll": false,
+					"setting_public_end_poll":    false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
 			},
