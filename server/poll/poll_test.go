@@ -236,6 +236,35 @@ func TestAddAnswerOption(t *testing.T) {
 	})
 }
 
+func TestValidateShowVoters(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Run("Validation pass", func(t *testing.T) {
+		p := testutils.GetPollWithVotes()
+
+		err := p.ValidateShowVotersOption()
+		assert.Nil(err)
+	})
+	t.Run("Validation fail because Anonymous and Show Voters are true", func(t *testing.T) {
+		p := testutils.GetPollWithSettings(poll.Settings{Anonymous: true, ShowVoters: true})
+
+		err := p.ValidateShowVotersOption()
+		assert.NotNil(err)
+	})
+	t.Run("Validation pass if only Anonymous is true", func(t *testing.T) {
+		p := testutils.GetPollWithSettings(poll.Settings{Anonymous: true})
+
+		err := p.ValidateShowVotersOption()
+		assert.Nil(err)
+	})
+	t.Run("Validation pass if only Show Voters is true", func(t *testing.T) {
+		p := testutils.GetPollWithSettings(poll.Settings{ShowVoters: true})
+
+		err := p.ValidateShowVotersOption()
+		assert.Nil(err)
+	})
+}
+
 func TestEncodeDecode(t *testing.T) {
 	p1 := testutils.GetPollWithVotes()
 	p2 := poll.DecodePollFromByte(p1.EncodeToByte())

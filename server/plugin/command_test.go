@@ -24,7 +24,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"- `--anonymous`: Don't show who voted for what when the poll ends\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
-		"- `--votes=X`: Allow users to vote for X options"
+		"- `--votes=X`: Allow users to vote for X options\n" +
+		"- `--show-voters`: Show extra informations on who voted for what during poll"
 	triggerID := model.NewId()
 	rootID := model.NewId()
 
@@ -82,9 +83,24 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Type:        "bool",
 				Placeholder: "Allow all users to add additional options",
 				Optional:    true,
+			}, {
+				DisplayName: "Show Voters",
+				Name:        "setting-show-voters",
+				Type:        "bool",
+				Placeholder: "Show extra informations on who voted for what during poll",
+				Optional:    true,
 			}},
 			SubmitLabel: "Create",
 		},
+	}
+
+	converter := func(userID string) (string, *model.AppError) {
+		switch userID {
+		case "userID1":
+			return "John Doe", nil
+		default:
+			return "", &model.AppError{}
+		}
 	}
 
 	for name, test := range map[string]struct {
@@ -299,6 +315,38 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --anonymous --progress", trigger),
 		},
+		"With 4 arguments and setting show voters": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
+
+				post := &model.Post{
+					UserId:    testutils.GetBotUserID(),
+					ChannelId: "channelID1",
+					RootId:    rootID,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
+				}
+				poll := testutils.GetPollWithSettings(poll.Settings{ShowVoters: true, MaxVotes: 1})
+				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				model.ParseSlackAttachment(post, actions)
+				post.AddProp("card", poll.ToCard(testutils.GetBundle(), converter))
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				poll := testutils.GetPollWithSettings(poll.Settings{ShowVoters: true, MaxVotes: 1})
+				store.PollStore.On("Insert", poll).Return(nil)
+				return store
+			},
+			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --show-voters", trigger),
+		},
 		"Store.Save fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
@@ -313,7 +361,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPoll().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				poll := testutils.GetPoll()
+				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -369,6 +418,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
 			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=abc", trigger),
+			ShouldError: true,
+		},
+		"Invalid multi setting, can't be Anonymous and Show Voters": {
+			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
+			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --anonymous --show-voters", trigger),
 			ShouldError: true,
 		},
 	} {
