@@ -3,6 +3,12 @@ version: 2.1
 orbs:
   plugin-ci: mattermost/plugin-ci@0.1.6
 
+commands:
+  use_https:
+    description: "Avoid to use git protocol to fetch dependencies from GitHub. ref: https://github.com/npm/cli/issues/4896"
+    steps:
+      - run: git config --global url."https://git@".insteadOf git://
+
 workflows:
   version: 2
   nightly:
@@ -14,9 +20,15 @@ workflows:
               only:
                 - master
     jobs:
-      - plugin-ci/lint
-      - plugin-ci/test
-      - plugin-ci/build
+      - plugin-ci/lint:
+          pre-steps:
+            - use_https
+      - plugin-ci/test:
+          pre-steps:
+            - use_https
+      - plugin-ci/build:
+          pre-steps:
+            - use_https
 
   ci:
     jobs:
@@ -24,14 +36,20 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+          pre-steps:
+            - use_https
       - plugin-ci/test:
           filters:
             tags:
               only: /^v.*/
+          pre-steps:
+            - use_https
       - plugin-ci/build:
           filters:
             tags:
               only: /^v.*/
+          pre-steps:
+            - use_https
       - plugin-ci/coverage:
           requires:
             - plugin-ci/test
