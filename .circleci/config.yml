@@ -53,6 +53,8 @@ workflows:
       - plugin-ci/coverage:
           requires:
             - plugin-ci/test
+          pre-steps:
+            - use_https
       - plugin-ci/deploy-release-github:
           filters:
             tags:
@@ -63,3 +65,5 @@ workflows:
             - plugin-ci/lint
             - plugin-ci/test
             - plugin-ci/build
+          pre-steps:
+            - use_https
