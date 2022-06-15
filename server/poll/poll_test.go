@@ -174,12 +174,14 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-progress":          true,
 				"setting-public-add-option": true,
 				"setting-multi":             float64(4),
+				"setting-show-voters":       true,
 			},
 			ExpectedSettings: poll.Settings{
 				Anonymous:       true,
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        4,
+				ShowVoters:      true,
 			},
 		},
 		"without votes settings": {
@@ -187,12 +189,14 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-anonymous":         false,
 				"setting-progress":          false,
 				"setting-public-add-option": false,
+				"setting-show-voters":       false,
 			},
 			ExpectedSettings: poll.Settings{
 				Anonymous:       false,
 				Progress:        false,
 				PublicAddOption: false,
 				MaxVotes:        1,
+				ShowVoters:      false,
 			},
 		},
 	} {
