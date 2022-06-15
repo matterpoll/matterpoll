@@ -92,26 +92,29 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				Progress:        false,
 				PublicAddOption: false,
 				MaxVotes:        1,
+				ShowVoters:      false,
 			},
 		},
 		"full settings": {
-			Strs:        []string{"anonymous", "progress", "public-add-option", "votes=4"},
+			Strs:        []string{"anonymous", "progress", "public-add-option", "votes=4", "show-voters"},
 			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:       true,
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        4,
+				ShowVoters:      true,
 			},
 		},
 		"without votes settings": {
-			Strs:        []string{"anonymous", "progress", "public-add-option"},
+			Strs:        []string{"anonymous", "progress", "public-add-option", "show-voters"},
 			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:       true,
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        1,
+				ShowVoters:      true,
 			},
 		},
 		"invalid votes setting": {
@@ -122,6 +125,7 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				Progress:        false,
 				PublicAddOption: false,
 				MaxVotes:        1,
+				ShowVoters:      false,
 			},
 		},
 		"invalid setting": {
@@ -132,6 +136,7 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        1,
+				ShowVoters:      false,
 			},
 		},
 	} {

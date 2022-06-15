@@ -413,6 +413,10 @@ func TestToCard(t *testing.T) {
 				"### Answer 3 (0 votes)" +
 				"\n\n",
 		},
+		"Normal poll, with error in voter name convert": {
+			Poll:             testutils.GetPollWithVoteUnknownUser(),
+			ExpectedMarkdown: "",
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, test.ExpectedMarkdown, test.Poll.ToCard(testutils.GetBundle(), converter))

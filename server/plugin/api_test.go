@@ -1131,7 +1131,7 @@ func TestHandleResetVotes(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
 
-	pollWithVotesWithShowVoters := &poll.Poll{
+	pollEmptyWithShowVoters := &poll.Poll{
 		ID:      testutils.GetPollID(),
 		Creator: "userID1",
 		AnswerOptions: []*poll.AnswerOption{
@@ -1141,6 +1141,11 @@ func TestHandleResetVotes(t *testing.T) {
 		},
 		Settings: poll.Settings{ShowVoters: true, MaxVotes: 3},
 	}
+
+	poll2WithVotesWithShowVoters := pollEmptyWithShowVoters.Copy()
+	msg, err := poll2WithVotesWithShowVoters.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
 
 	poll := &poll.Poll{
 		ID:      testutils.GetPollID(),
@@ -1152,11 +1157,16 @@ func TestHandleResetVotes(t *testing.T) {
 		},
 		Settings: poll.Settings{MaxVotes: 3},
 	}
+
 	expectedPost := &model.Post{}
 	model.ParseSlackAttachment(expectedPost, poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
 
+	expectedPostWithShowVoters := &model.Post{}
+	expectedPostWithShowVoters.AddProp("card", pollEmptyWithShowVoters.ToCard(testutils.GetBundle(), converter))
+	model.ParseSlackAttachment(expectedPostWithShowVoters, pollEmptyWithShowVoters.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
+
 	poll2WithVotes := poll.Copy()
-	msg, err := poll2WithVotes.UpdateVote("userID1", 0)
+	msg, err = poll2WithVotes.UpdateVote("userID1", 0)
 	require.Nil(t, msg)
 	require.Nil(t, err)
 
@@ -1175,14 +1185,6 @@ func TestHandleResetVotes(t *testing.T) {
 	msg, err = poll4WithVotes.UpdateVote("userID1", 0)
 	require.Nil(t, msg)
 	require.Nil(t, err)
-
-	msg, err = pollWithVotesWithShowVoters.UpdateVote("userID1", 0)
-	require.Nil(t, msg)
-	require.Nil(t, err)
-
-	expectedPostWithShowVoters := &model.Post{}
-	expectedPostWithShowVoters.AddProp("card", pollWithVotesWithShowVoters.ToCard(testutils.GetBundle(), converter))
-	model.ParseSlackAttachment(expectedPostWithShowVoters, pollWithVotesWithShowVoters.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -1244,13 +1246,13 @@ func TestHandleResetVotes(t *testing.T) {
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
-				store.PollStore.On("Get", testutils.GetPollID()).Return(poll2WithVotes.Copy(), nil)
-				store.PollStore.On("Update", poll2WithVotes, poll).Return(nil)
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll2WithVotesWithShowVoters.Copy(), nil)
+				store.PollStore.On("Update", poll2WithVotesWithShowVoters, pollEmptyWithShowVoters).Return(nil)
 				return store
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPostWithShowVoters},
 			ExpectedMsg:        "All votes are cleared. Your previous votes were [Answer 1].",
 		},
 		"Valid request, reset multi votes": {
@@ -1748,7 +1750,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 	expectedPost2 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
 
-	poll3In := testutils.GetPollWithVotesAndSettings(poll.Settings{MaxVotes: 2})
+	poll3In := testutils.GetPollWithVotesAndSettings(poll.Settings{ShowVoters: true, MaxVotes: 2})
 	poll3In.PostID = postID
 	poll3Out := poll3In.Copy()
 	err = poll3Out.AddAnswerOption("New Option")
@@ -1797,6 +1799,9 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				api.On("GetPost", postID).Return(expectedPost3, nil)
 				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
 				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
+				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
+				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
 				api.On("UpdatePost", expectedPost3).Return(expectedPost3, nil)
 				return api
 			},
