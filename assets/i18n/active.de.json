@@ -37,7 +37,7 @@
   },
   "command.help.text.pollSetting.anonymous": {
     "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
-    "other": "Nach Abschluss der Umfrage nicht anzeigen, wer für was gestimmt hat"
+    "other": "Nicht anzeigen, wer wofür gestimmt hat"
   },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
@@ -159,7 +159,7 @@
   },
   "poll.newPoll.votesettings.invalidSetting": {
     "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
-    "other": "Die Anzahl der Stimmen muss eine positive Zahl und kleiner oder gleich der Anzahl der Antworten sein. Du hast \"{{.MaxVotes}}\" angegeben, aber die Anzahl der Optionen ist \"{{.Options}}\".",
+    "other": "Die Anzahl der Stimmen muss eine positive Zahl und kleiner oder gleich der Anzahl der Antworten sein. Du hast \"{{.MaxVotes}}\" angegeben, aber die Anzahl der Optionen ist \"{{.Options}}\"."
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
@@ -179,7 +179,7 @@
   },
   "response.addOption.success": {
     "hash": "sha1-274a82da87d06380a636d43c8aa480f207c7928b",
-    "other": "Option erfolgreich hinzugefügt."
+    "other": "Antwort erfolgreich hinzugefügt."
   },
   "response.deletePoll.invalidPermission": {
     "hash": "sha1-97d4d7bd45a958bc6eea2bd33401a3bc5056cc1d",
