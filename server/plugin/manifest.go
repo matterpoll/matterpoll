@@ -17,10 +17,10 @@ const manifestStr = `
   "description": "Create polls and surveys directly within Mattermost.",
   "homepage_url": "https://github.com/matterpoll/matterpoll",
   "support_url": "https://github.com/matterpoll/matterpoll/issues",
-  "release_notes_url": "https://github.com/matterpoll/matterpoll/releases/tag/v1.4.0",
+  "release_notes_url": "https://github.com/matterpoll/matterpoll/releases/tag/v1.5.0",
   "icon_path": "assets/logo_dark.svg",
-  "version": "1.4.0",
-  "min_server_version": "5.20.0",
+  "version": "1.5.0",
+  "min_server_version": "5.37.0",
   "server": {
     "executables": {
       "linux-amd64": "server/dist/plugin-linux-amd64",
