@@ -128,8 +128,8 @@
     "other": "投票を終了する"
   },
   "poll.button.resetVotes": {
-    "hash": "sha1-5dde85fe02a747ab6a09cd15156c01d955c8ab56",
-    "other": "投票をリセットする"
+    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
+    "other": "あなたの投票をリセットする"
   },
   "poll.endPost.answer.heading": {
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",

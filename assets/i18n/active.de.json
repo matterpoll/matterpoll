@@ -1,7 +1,7 @@
 {
   "bot.description": {
     "hash": "sha1-a007d7390f1601bbdc83a397f619335ed591699f",
-    "other": "Umfragen Bot"
+    "other": "Umfrage-Bot"
   },
   "command.autoComplete.desc": {
     "hash": "sha1-1cd8e96070c8a1464138423657b6ffef691fab49",
@@ -25,39 +25,39 @@
   },
   "command.error.invalidInput": {
     "hash": "sha1-6ef073c836a398485967d7c10a085b611d272ddc",
-    "other": "Falsche Eingabe: {{.Error}}"
+    "other": "Ungültige Eingabe: {{.Error}}"
   },
   "command.error.invalidNumberOfOptions": {
     "hash": "sha1-31287872531872ed11e9ae69975afc1cd2ee09ae",
-    "other": "Du musst entweder keine Antwortmöglichkeit oder mindestens zwei angeben."
+    "other": "Du musst entweder keine Antwort oder mindestens zwei Antworten angeben."
   },
   "command.help.text.options": {
     "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
-    "other": "Du kannst Antwortmöglichkeit festlegen, indem du `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\"` eingibst"
+    "other": "Du kannst die Optionen durch Eingabe von `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\"` anpassen"
   },
   "command.help.text.pollSetting.anonymous": {
     "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
-    "other": "Verberge, wer für was gestimmt hat"
+    "other": "Nicht anzeigen, wer wofür gestimmt hat"
   },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
-    "other": "Umfrageeinstellungen ermöglichen weitere Anpassungen , z.B. `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\" --progress --anonymous`. Die möglichen Umfrageeinstellungen sind:"
+    "other": "Umfrage-Einstellungen ermöglichen weitere Anpassungen , z.B. `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\" --progress --anonymous`. Die möglichen Umfrageeinstellungen sind:"
   },
   "command.help.text.pollSetting.multi-vote": {
     "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
-    "other": "Erlaube Benutzenden für X verschiedene Antwortoptionen abzustimmen."
+    "other": "Erlaube den Nutzern, für X Antworten abzustimmen"
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
-    "other": "Zeige während der Umfrage an, welche Option wie viele Stimmen erhalten hat"
+    "other": "Zeige während der Umfrage an, welche Antwort wie viele Stimmen erhalten hat"
   },
   "command.help.text.pollSetting.public-add-option": {
     "hash": "sha1-97f6e52cd7135ca4c73b79790a946ead7513cd33",
-    "other": "Erlaube Benutzenden weitere Antwortoptionen hinzuzufügen"
+    "other": "Erlaube allen Nutzern, zusätzliche Antworten hinzuzufügen"
   },
   "command.help.text.simple": {
     "hash": "sha1-783c9e50cbbd9a11685f41524265201b2e97d369",
-    "other": "Um eine Umfrage mit den Antwortmöglichkeiten \"{{.Yes}}\" und \"{{.No}}\" zu erstellen, gibt `/{{.Trigger}} \"Frage\"` ein"
+    "other": "Um eine Umfrage mit den Antwortmöglichkeiten \"{{.Yes}}\" und \"{{.No}}\" zu erstellen, gib `/{{.Trigger}} \"Frage\"` ein"
   },
   "dialog.addOption.element.displayName": {
     "hash": "sha1-e31d972229de381b461860014dd710856361917a",
@@ -89,7 +89,7 @@
   },
   "dialog.createPoll.setting.multi": {
     "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
-    "other": "Die Anzahl der Stimmen, die jeder Benutzenden hat."
+    "other": "Die Anzahl der Stimmen, die ein Nutzer hat."
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -97,7 +97,7 @@
   },
   "dialog.delete.title": {
     "hash": "sha1-ce46cb787a610361503ef26f2b542a1872919716",
-    "other": "Bestätige Löschung von Umfrage"
+    "other": "Löschen der Umfrage bestätigen"
   },
   "dialog.end.submitLabel": {
     "hash": "sha1-a2bb9d34b8a1a79665858d354585cf147e0dee4e",
@@ -105,7 +105,7 @@
   },
   "dialog.end.title": {
     "hash": "sha1-e54c9d4f934f84ae6bfb7abf59fae282f68d810c",
-    "other": "Bestätige Beendigung von Umfrage"
+    "other": "Umfrageende bestätigen"
   },
   "poll.addAnswerOption.duplicate": {
     "hash": "sha1-f2e20be1db21bba56adc08d288db5275a7c193d0",
@@ -113,11 +113,11 @@
   },
   "poll.addAnswerOption.empty": {
     "hash": "sha1-12db9817b0feafe98b4b809dceefdde8399f4147",
-    "other": "Die Antwortoptionen darf nicht leer sein"
+    "other": "Leere Antworten sind nicht erlaubt"
   },
   "poll.button.addOption": {
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
-    "other": "Antwortoption hinzufügen"
+    "other": "Antwort hinzufügen"
   },
   "poll.button.deletePoll": {
     "hash": "sha1-390ff4fdd0cfef6ef35fbf067a605aa3ea87ecca",
@@ -128,8 +128,9 @@
     "other": "Umfrage beenden"
   },
   "poll.button.resetVotes": {
-    "hash": "sha1-5dde85fe02a747ab6a09cd15156c01d955c8ab56",
-    "other": "Stimmen zurücksetzen"
+    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
+    "one": "Deine Stimme zurücksetzen",
+    "other": "Deine Stimmen zurücksetzen"
   },
   "poll.endPost.answer.heading": {
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
@@ -157,8 +158,8 @@
     "other": "Unbekannte Umfrageeinstellung: {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
-    "hash": "sha1-a0649f6d7040b480c543e843e12cd14de97ef6d6",
-    "other": "Die Anzahl der Stimmen musss eine positive Zahl kleiner gleich der Anzahl der Antwortoptionen sein. Gewählt wurde \"{{.MaxVotes}}\", aber die Anzahl der Antwortoptionen ist \"{{.Options}}\"."
+    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
+    "other": "Die Anzahl der Stimmen muss eine positive Zahl und kleiner oder gleich der Anzahl der Antworten sein. Du hast \"{{.MaxVotes}}\" angegeben, aber die Anzahl der Optionen ist \"{{.Options}}\"."
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
@@ -166,35 +167,35 @@
   },
   "poll.updateVote.alreadyVoted": {
     "hash": "sha1-c73a2717c594b9f0da1b70e9c7ff0027e5aa1eb2",
-    "other": "Du hast bereits für diese Antwortoptionen abgestimmt."
+    "other": "Du hast bereits für diese Antwort gestimmt."
   },
   "poll.updateVote.maxVotes": {
     "hash": "sha1-7804621555aa16cac819fa2a31c7521f1758de8f",
-    "other": "Du kannst nicht Antwortoptionen abstimmen, weil du keine Stimmen mehr hast. Klicke auf \"Stimmen Zurücksetzen \", um alle deine Stimmen zurückzusetzen."
+    "other": "Du kannst nicht für diese Option stimmen, weil du keine Stimmen mehr hast. Nutze den Zurücksetzen-Button, um deine Stimmen zurückzusetzen."
   },
   "response.addOption.invalidPermission": {
     "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
-    "other": "Nur der Ersteller einer Umfrage und System Administration dürfen Antwortoption hinzufügen."
+    "other": "Nur der Ersteller einer Umfrage und Systemadministratoren können Antworten hinzufügen."
   },
   "response.addOption.success": {
     "hash": "sha1-274a82da87d06380a636d43c8aa480f207c7928b",
-    "other": "Antwortoption hinzugefügt."
+    "other": "Antwort erfolgreich hinzugefügt."
   },
   "response.deletePoll.invalidPermission": {
     "hash": "sha1-97d4d7bd45a958bc6eea2bd33401a3bc5056cc1d",
-    "other": "Nur der Ersteller einer Umfrage und System Administration dürfen diese löschen."
+    "other": "Nur der Ersteller einer Umfrage und Systemadministratoren dürfen diese löschen."
   },
   "response.deletePoll.success": {
     "hash": "sha1-cb754e0331888691ff5e4179b22155fc6df1ac1d",
-    "other": "Umfrage gelöscht."
+    "other": "Umfrage erfolgreich gelöscht."
   },
   "response.endPoll.invalidPermission": {
     "hash": "sha1-6fec2172c9fbcf6944812318684b19ebda485a82",
-    "other": "Nur der Ersteller einer Umfrage und System Administration dürfen diese beenden."
+    "other": "Nur der Ersteller einer Umfrage und Systemadministratoren dürfen diese beenden."
   },
   "response.endPoll.successfully": {
     "hash": "sha1-a4fba46ee42d558010f595fec2e1e451cf3d4d73",
-    "other": "Die Umfrage **{{.Question}}** wurde beendet and die ursprüngliche Nachricht aktualisiert. Klicke [here]({{.Link}}) um direkt dort hin zu springen."
+    "other": "Die Umfrage **{{.Question}}** wurde beendet und die ursprüngliche Nachricht aktualisiert. Klicke [here]({{.Link}}) um direkt zu ihr zu gelangen."
   },
   "response.resetVotes.noVotes": {
     "hash": "sha1-18b17380e0289d021b70c7111bab1dca0d563b30",
@@ -215,6 +216,6 @@
   },
   "response.vote.updated": {
     "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
-    "other": "Deine Stimme wurde aktualisiert."
+    "other": "Deine Abstimmung wurde geändert."
   }
 }
