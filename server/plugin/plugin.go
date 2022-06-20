@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/mux"
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-plugin-api/experimental/command"
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/plugin"
@@ -85,12 +86,10 @@ func (p *MatterpollPlugin) OnActivate() error {
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 	}
-	options := []plugin.EnsureBotOption{
-		plugin.ProfileImagePath("assets/logo_dark-bg.png"),
-	}
-	botUserID, appErr := p.Helpers.EnsureBot(bot, options...)
-	if appErr != nil {
-		return errors.Wrap(appErr, "failed to ensure bot user")
+	pluginAPI := pluginapi.NewClient(p.API, p.Driver)
+	botUserID, err := pluginAPI.Bot.EnsureBot(bot, pluginapi.ProfileImagePath("assets/logo_dark-bg.png"))
+	if err != nil {
+		return errors.Wrap(err, "failed to ensure bot user")
 	}
 	p.botUserID = botUserID
 
