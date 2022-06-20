@@ -562,7 +562,10 @@ func TestHandleCreatePoll(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.SubmitDialogResponseFromJson(result.Body)
+
+			var response *model.SubmitDialogResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
@@ -2081,7 +2084,10 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.SubmitDialogResponseFromJson(result.Body)
+
+			var response *model.SubmitDialogResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
@@ -2660,7 +2666,10 @@ func TestHandleEndPollConfirm(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.SubmitDialogResponseFromJson(result.Body)
+
+			var response *model.SubmitDialogResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
@@ -3240,7 +3249,10 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.SubmitDialogResponseFromJson(result.Body)
+
+			var response *model.SubmitDialogResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
