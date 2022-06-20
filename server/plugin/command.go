@@ -65,10 +65,6 @@ var (
 		ID:    "command.help.text.pollSetting.multi-vote",
 		Other: "Allow users to vote for X options",
 	}
-	commandHelpTextPollSettingShowVoters = &i18n.Message{
-		ID:    "command.help.text.pollSetting.show-voters",
-		Other: "Show extra informations on who voted for what during poll",
-	}
 
 	commandErrorGeneric = &i18n.Message{
 		ID:    "command.error.generic",
@@ -135,8 +131,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		msg += "- `--anonymous`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
 		msg += "- `--progress`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
 		msg += "- `--public-add-option`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
-		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote) + "\n"
-		msg += "- `--show-voters`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingShowVoters)
+		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
 
 		return msg, nil
 	}
@@ -199,7 +194,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		},
 	}
 	model.ParseSlackAttachment(post, actions)
-	if newPoll.Settings.ShowVoters {
+	if newPoll.Settings.Progress {
 		post.AddProp("card", newPoll.ToCard(p.bundle, p.ConvertCreatorIDToDisplayName))
 	}
 
@@ -298,14 +293,6 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
 		Optional:    true,
 	})
-	elements = append(elements, model.DialogElement{
-		DisplayName: "Show Voters",
-		Name:        "setting-show-voters",
-		Type:        "bool",
-		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingShowVoters),
-		Optional:    true,
-	})
-
 	dialog := model.Dialog{
 		CallbackId: rootID,
 		Title: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{

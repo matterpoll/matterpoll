@@ -16,10 +16,9 @@ import (
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
 
 const (
-	SettingKeyAnonymous        = "anonymous"
-	SettingKeyProgress         = "progress"
-	SettingKeyPublicAddOption  = "public-add-option"
-	SettingKeyPublicShowVoters = "show-voters"
+	SettingKeyAnonymous       = "anonymous"
+	SettingKeyProgress        = "progress"
+	SettingKeyPublicAddOption = "public-add-option"
 )
 
 // Poll stores all needed information for a poll
@@ -45,7 +44,6 @@ type Settings struct {
 	Progress        bool
 	PublicAddOption bool
 	MaxVotes        int `json:"max_votes"`
-	ShowVoters      bool
 }
 
 // NewPoll creates a new poll with the given parameter.
@@ -61,10 +59,6 @@ func NewPoll(creator, question string, answerOptions []string, settings Settings
 		if errMsg := p.AddAnswerOption(answerOption); errMsg != nil {
 			return nil, errMsg
 		}
-	}
-
-	if errMsg := p.ValidateShowVotersOption(); errMsg != nil {
-		return nil, errMsg
 	}
 
 	if errMsg := p.validate(); errMsg != nil {
@@ -85,8 +79,6 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
 			settings.PublicAddOption = true
-		case str == SettingKeyPublicShowVoters:
-			settings.ShowVoters = true
 		case votesSettingPattern.MatchString(str):
 			i, errMsg := parseVotesSettings(str)
 			if errMsg != nil {
@@ -128,8 +120,6 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 					settings.Progress = true
 				case SettingKeyPublicAddOption:
 					settings.PublicAddOption = true
-				case SettingKeyPublicShowVoters:
-					settings.ShowVoters = true
 				}
 			}
 		}
@@ -217,18 +207,6 @@ func (p *Poll) AddAnswerOption(newAnswerOption string) *utils.ErrorMessage {
 		Voter:  []string{},
 	}
 	p.AnswerOptions = append(p.AnswerOptions, ao)
-	return nil
-}
-
-func (p *Poll) ValidateShowVotersOption() *utils.ErrorMessage {
-	if p.Settings.Anonymous && p.Settings.ShowVoters {
-		return &utils.ErrorMessage{
-			Message: &i18n.Message{
-				ID:    "poll.validateShowVotersOption.error",
-				Other: "Poll can't be Anonymous and Show Voters",
-			},
-		}
-	}
 	return nil
 }
 

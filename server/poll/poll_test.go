@@ -92,29 +92,26 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				Progress:        false,
 				PublicAddOption: false,
 				MaxVotes:        1,
-				ShowVoters:      false,
 			},
 		},
 		"full settings": {
-			Strs:        []string{"anonymous", "progress", "public-add-option", "votes=4", "show-voters"},
+			Strs:        []string{"anonymous", "progress", "public-add-option", "votes=4"},
 			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:       true,
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        4,
-				ShowVoters:      true,
 			},
 		},
 		"without votes settings": {
-			Strs:        []string{"anonymous", "progress", "public-add-option", "show-voters"},
+			Strs:        []string{"anonymous", "progress", "public-add-option"},
 			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:       true,
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        1,
-				ShowVoters:      true,
 			},
 		},
 		"invalid votes setting": {
@@ -125,7 +122,6 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				Progress:        false,
 				PublicAddOption: false,
 				MaxVotes:        1,
-				ShowVoters:      false,
 			},
 		},
 		"invalid setting": {
@@ -136,7 +132,6 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        1,
-				ShowVoters:      false,
 			},
 		},
 	} {
@@ -174,14 +169,12 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-progress":          true,
 				"setting-public-add-option": true,
 				"setting-multi":             float64(4),
-				"setting-show-voters":       true,
 			},
 			ExpectedSettings: poll.Settings{
 				Anonymous:       true,
 				Progress:        true,
 				PublicAddOption: true,
 				MaxVotes:        4,
-				ShowVoters:      true,
 			},
 		},
 		"without votes settings": {
@@ -189,14 +182,12 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-anonymous":         false,
 				"setting-progress":          false,
 				"setting-public-add-option": false,
-				"setting-show-voters":       false,
 			},
 			ExpectedSettings: poll.Settings{
 				Anonymous:       false,
 				Progress:        false,
 				PublicAddOption: false,
 				MaxVotes:        1,
-				ShowVoters:      false,
 			},
 		},
 	} {
@@ -242,35 +233,6 @@ func TestAddAnswerOption(t *testing.T) {
 
 		err := p.AddAnswerOption("  ")
 		assert.NotNil(err)
-	})
-}
-
-func TestValidateShowVoters(t *testing.T) {
-	assert := assert.New(t)
-
-	t.Run("Validation pass", func(t *testing.T) {
-		p := testutils.GetPollWithVotes()
-
-		err := p.ValidateShowVotersOption()
-		assert.Nil(err)
-	})
-	t.Run("Validation fail because Anonymous and Show Voters are true", func(t *testing.T) {
-		p := testutils.GetPollWithSettings(poll.Settings{Anonymous: true, ShowVoters: true})
-
-		err := p.ValidateShowVotersOption()
-		assert.NotNil(err)
-	})
-	t.Run("Validation pass if only Anonymous is true", func(t *testing.T) {
-		p := testutils.GetPollWithSettings(poll.Settings{Anonymous: true})
-
-		err := p.ValidateShowVotersOption()
-		assert.Nil(err)
-	})
-	t.Run("Validation pass if only Show Voters is true", func(t *testing.T) {
-		p := testutils.GetPollWithSettings(poll.Settings{ShowVoters: true})
-
-		err := p.ValidateShowVotersOption()
-		assert.Nil(err)
 	})
 }
 

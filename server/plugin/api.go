@@ -333,7 +333,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 	}
 
 	model.ParseSlackAttachment(post, actions)
-	if poll.Settings.ShowVoters {
+	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertCreatorIDToDisplayName))
 	}
 
@@ -385,7 +385,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	post := &model.Post{}
 	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
-	if poll.Settings.ShowVoters {
+	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertCreatorIDToDisplayName))
 	}
 
@@ -458,7 +458,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	post := &model.Post{}
 	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
-	if poll.Settings.ShowVoters {
+	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertCreatorIDToDisplayName))
 	}
 
@@ -567,7 +567,7 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 	}
 
 	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
-	if poll.Settings.ShowVoters {
+	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertCreatorIDToDisplayName))
 	}
 

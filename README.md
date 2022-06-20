@@ -41,7 +41,6 @@ Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" 
 - `--progress`: During the poll, show how many votes each answer option got
 - `--public-add-option`: Allow all users to add additional options
 - `--votes=X`: Allow users to vote for X options
-- `--show-voters`: Show extra informations on who voted for what during poll
 
 ## Localization
 
