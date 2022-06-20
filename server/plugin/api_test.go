@@ -1471,7 +1471,7 @@ func TestHandleAddOption(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID2").Return(&model.User{
 					Username: "user2",
-					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
+					Roles:    model.SystemAdminRoleId + " " + model.SystemUserRoleId,
 				}, nil)
 				api.On("OpenInteractiveDialog", dialogRequest).Return(nil)
 				return api
@@ -2202,7 +2202,7 @@ func TestHandleEndPoll(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID2").Return(&model.User{
 					Username: "user2",
-					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
+					Roles:    model.SystemAdminRoleId + " " + model.SystemUserRoleId,
 				}, nil)
 				api.On("OpenInteractiveDialog", dialog).Return(nil)
 				return api
@@ -2244,7 +2244,7 @@ func TestHandleEndPoll(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetPost", "postID1").Return(post, nil)
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
-				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SystemUserRoleId}, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
@@ -2819,7 +2819,7 @@ func TestHandleDeletePoll(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID2").Return(&model.User{
 					Username: "user2",
-					Roles:    model.SYSTEM_ADMIN_ROLE_ID + " " + model.SYSTEM_USER_ROLE_ID,
+					Roles:    model.SystemAdminRoleId + " " + model.SystemUserRoleId,
 				}, nil)
 				api.On("OpenInteractiveDialog", dialog).Return(nil)
 				return api
@@ -2861,7 +2861,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetPost", "postID1").Return(post, nil)
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
-				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SYSTEM_USER_ROLE_ID}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SystemUserRoleId}, nil)
 				return api
 			},
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {

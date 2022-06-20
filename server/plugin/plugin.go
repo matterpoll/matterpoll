@@ -176,7 +176,7 @@ func (p *MatterpollPlugin) CanManagePoll(poll *poll.Poll, issuerID string) (bool
 	if appErr != nil {
 		return false, appErr
 	}
-	if user.IsInRole(model.SYSTEM_ADMIN_ROLE_ID) {
+	if user.IsInRole(model.SystemAdminRoleId) {
 		return true, nil
 	}
 	return false, nil
