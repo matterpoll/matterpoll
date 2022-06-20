@@ -211,7 +211,12 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		return p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
-	p.API.LogDebug("Created a new poll", "post", rPost.ToJson())
+	rPostJSON, err := rPost.ToJSON()
+	if err != nil {
+		p.API.LogWarn("failed to convert post to json", "error", err.Error())
+		return p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+	}
+	p.API.LogDebug("Created a new poll", "post", rPostJSON)
 	return "", nil
 }
 

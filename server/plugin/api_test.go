@@ -188,7 +188,9 @@ func TestHandleCreatePoll(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := "/api/v1/polls/create"
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
@@ -546,7 +548,9 @@ func TestHandleCreatePoll(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := "/api/v1/polls/create"
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
@@ -592,7 +596,9 @@ func TestHandleVote(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/vote/0", testutils.GetPollID())
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
@@ -1024,7 +1030,9 @@ func TestHandleVote(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := fmt.Sprintf("/api/v1/polls/%s/vote/%d", testutils.GetPollID(), test.VoteIndex)
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
@@ -1077,7 +1085,9 @@ func TestHandleResetVotes(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/votes/reset", testutils.GetPollID())
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
@@ -1318,7 +1328,9 @@ func TestHandleResetVotes(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := fmt.Sprintf("/api/v1/polls/%s/votes/reset", testutils.GetPollID())
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
@@ -1362,7 +1374,9 @@ func TestHandleAddOption(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID())
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
@@ -1625,7 +1639,9 @@ func TestHandleAddOption(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := fmt.Sprintf("/api/v1/polls/%s/option/add/request", testutils.GetPollID())
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
@@ -1677,7 +1693,9 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID())
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
@@ -2049,7 +2067,9 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := fmt.Sprintf("/api/v1/polls/%s/option/add", testutils.GetPollID())
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
@@ -2084,7 +2104,9 @@ func TestHandleEndPoll(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID())
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
@@ -2343,7 +2365,9 @@ func TestHandleEndPoll(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := fmt.Sprintf("/api/v1/polls/%s/end", testutils.GetPollID())
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
@@ -2380,7 +2404,9 @@ func TestHandleEndPollConfirm(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/end/confirm", testutils.GetPollID())
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
@@ -2620,7 +2646,9 @@ func TestHandleEndPollConfirm(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := fmt.Sprintf("/api/v1/polls/%s/end/confirm", testutils.GetPollID())
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
@@ -2688,7 +2716,9 @@ func TestHandleDeletePoll(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 
@@ -2946,7 +2976,9 @@ func TestHandleDeletePoll(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := fmt.Sprintf("/api/v1/polls/%s/delete", testutils.GetPollID())
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
@@ -2983,7 +3015,9 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		url := fmt.Sprintf("/api/v1/polls/%s/delete/confirm", testutils.GetPollID())
-		body := bytes.NewReader(request.ToJson())
+		b, err := json.Marshal(request)
+		require.Nil(t, err)
+		body := bytes.NewReader(b)
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
@@ -3192,7 +3226,9 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			url := fmt.Sprintf("/api/v1/polls/%s/delete/confirm", testutils.GetPollID())
-			body := bytes.NewReader(test.Request.ToJson())
+			b, err := json.Marshal(test.Request)
+			require.Nil(t, err)
+			body := bytes.NewReader(b)
 			r := httptest.NewRequest(http.MethodPost, url, body)
 			if test.Request != nil {
 				r.Header.Add("Mattermost-User-ID", test.Request.UserId)
