@@ -231,7 +231,7 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 	s := fmt.Sprintf("# %s\n", p.Question)
 
 	creatorName, _ := convert(p.Creator)
-	s += fmt.Sprintf(localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+	s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
 
 	const comma = ", "
 	for _, o := range p.AnswerOptions {
@@ -243,7 +243,7 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 					return ""
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeperator}) + " "
+					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeperator}) + " "
 				} else if i != 0 {
 					voter += comma
 				}
