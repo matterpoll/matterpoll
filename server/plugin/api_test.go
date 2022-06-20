@@ -173,7 +173,7 @@ func TestHandleCreatePoll(t *testing.T) {
 	converter := func(userID string) (string, *model.AppError) {
 		switch userID {
 		case "userID1":
-			return "John Doe", nil
+			return "@jhDoe", nil
 		default:
 			return "", &model.AppError{}
 		}
@@ -308,7 +308,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		"Valid request with settings": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 
 				rPost := expectedPostWithSettings.Clone()
 				rPost.Id = "postID1"
@@ -575,9 +575,9 @@ func TestHandleVote(t *testing.T) {
 	converter := func(userID string) (string, *model.AppError) {
 		switch userID {
 		case "userID1":
-			return "John Doe", nil
+			return "@jhDoe", nil
 		case "userID2":
-			return "John Doe", nil
+			return "@jhDoe2", nil
 		default:
 			return "", &model.AppError{}
 		}
@@ -832,7 +832,7 @@ func TestHandleVote(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetPost", "postID1").Return(post, nil)
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
 					"voted_answers":             []string{"Answer 2 (1)"},
 					"poll_id":                   testutils.GetPollID(),
@@ -1060,9 +1060,9 @@ func TestHandleResetVotes(t *testing.T) {
 	converter := func(userID string) (string, *model.AppError) {
 		switch userID {
 		case "userID1":
-			return "John Doe", nil
+			return "@jhDoe", nil
 		case "userID2":
-			return "John Doe", nil
+			return "@jhDoe2", nil
 		default:
 			return "", &model.AppError{}
 		}
@@ -1192,7 +1192,7 @@ func TestHandleResetVotes(t *testing.T) {
 		"Valid request, reset 1 vote, with Settings Progress to true": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
 					"can_manage_poll":           true,
 					"poll_id":                   testutils.GetPollID(),
@@ -1656,13 +1656,13 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 	converter := func(userID string) (string, *model.AppError) {
 		switch userID {
 		case "userID1":
-			return "John Doe", nil
+			return "@jhDoe", nil
 		case "userID2":
-			return "John2 Doe2", nil
+			return "@jhDoe2", nil
 		case "userID3":
-			return "John3 Doe3", nil
+			return "@jhDoe3", nil
 		case "userID4":
-			return "John4 Doe4", nil
+			return "@jhDoe4", nil
 		default:
 			return "", &model.AppError{}
 		}
@@ -1755,10 +1755,10 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetPost", postID).Return(expectedPost3, nil)
 				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
-				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
-				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
-				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "jhDoe2"}, nil)
+				api.On("GetUser", "userID3").Return(&model.User{Username: "jhDoe3"}, nil)
+				api.On("GetUser", "userID4").Return(&model.User{Username: "jhDoe4"}, nil)
 				api.On("UpdatePost", expectedPost3).Return(expectedPost3, nil)
 				return api
 			},
