@@ -1047,7 +1047,10 @@ func TestHandleVote(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.PostActionIntegrationResponseFromJson(result.Body)
+
+			var response *model.PostActionIntegrationResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -1345,7 +1348,10 @@ func TestHandleResetVotes(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.PostActionIntegrationResponseFromJson(result.Body)
+
+			var response *model.PostActionIntegrationResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -1656,7 +1662,10 @@ func TestHandleAddOption(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.PostActionIntegrationResponseFromJson(result.Body)
+
+			var response *model.PostActionIntegrationResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -2385,7 +2394,10 @@ func TestHandleEndPoll(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.PostActionIntegrationResponseFromJson(result.Body)
+
+			var response *model.PostActionIntegrationResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -2999,7 +3011,10 @@ func TestHandleDeletePoll(t *testing.T) {
 			result := w.Result()
 			require.NotNil(t, result)
 			defer result.Body.Close()
-			response := model.PostActionIntegrationResponseFromJson(result.Body)
+
+			var response *model.PostActionIntegrationResponse
+			err = json.NewDecoder(result.Body).Decode(&response)
+			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
