@@ -71,7 +71,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 		actions = append(actions, &model.PostAction{
 			Id:    fmt.Sprintf("vote%v", i),
 			Name:  p.getAnswerOptionName(o),
-			Type:  model.POST_ACTION_TYPE_BUTTON,
+			Type:  model.PostActionTypeButton,
 			Style: "default",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/vote/%v", pluginID, p.ID, i),
@@ -92,7 +92,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 				},
 				PluralCount: p.Settings.MaxVotes,
 			}),
-			Type:  model.POST_ACTION_TYPE_BUTTON,
+			Type:  model.PostActionTypeButton,
 			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
@@ -106,7 +106,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 				ID:    "poll.button.addOption",
 				Other: "Add Option",
 			}}),
-			Type:  model.POST_ACTION_TYPE_BUTTON,
+			Type:  model.PostActionTypeButton,
 			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),

@@ -2657,7 +2657,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 					RootId:    "postID1",
 					Message: "The poll **Question** has ended and the original post has been updated. " +
 						"You can jump to it by pressing [here](https://example.org/_redirect/pl/postID1).",
-					Type: model.POST_DEFAULT,
+					Type: model.PostTypeDefault,
 				}).Return(nil, nil)
 				return api
 			},

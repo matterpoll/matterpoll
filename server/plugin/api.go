@@ -674,7 +674,7 @@ func (p *MatterpollPlugin) postEndPollAnnouncement(channelID, postID, question s
 				"Question": question,
 				"Link":     fmt.Sprintf("%s/_redirect/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, postID),
 			}}),
-		Type: model.POST_DEFAULT,
+		Type: model.PostTypeDefault,
 	}
 
 	if _, err := p.API.CreatePost(endPost); err != nil {
