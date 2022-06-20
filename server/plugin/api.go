@@ -136,8 +136,8 @@ func checkAuthenticity(next http.Handler) http.Handler {
 
 func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postActionHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		request := model.PostActionIntegrationRequestFromJson(r.Body)
-		if request == nil {
+		var request *model.PostActionIntegrationRequest
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			p.API.LogWarn("failed to decode PostActionIntegrationRequest")
 			http.Error(w, "invalid request", http.StatusBadRequest)
 			return
