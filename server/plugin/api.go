@@ -177,7 +177,7 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 			}
 		}
 
-		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PERMISSION_READ_CHANNEL) {
+		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PermissionReadChannel) {
 			http.Error(w, "not authorized", http.StatusUnauthorized)
 			return
 		}
@@ -253,7 +253,7 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 			}
 		}
 
-		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PERMISSION_READ_CHANNEL) {
+		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PermissionReadChannel) {
 			http.Error(w, "not authorized", http.StatusUnauthorized)
 			return
 		}
