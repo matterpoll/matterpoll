@@ -209,8 +209,8 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 
 func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		request := model.SubmitDialogRequestFromJson(r.Body)
-		if request == nil {
+		var request *model.SubmitDialogRequest
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			p.API.LogWarn("failed to decode SubmitDialogRequest")
 			http.Error(w, "invalid request", http.StatusBadRequest)
 			return
