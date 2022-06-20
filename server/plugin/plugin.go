@@ -150,7 +150,7 @@ func (p *MatterpollPlugin) ConvertUserIDToDisplayName(userID string) (string, *m
 	if err != nil {
 		return "", err
 	}
-	displayName := user.GetDisplayName(model.SHOW_USERNAME)
+	displayName := user.GetDisplayName(model.ShowUsername)
 	displayName = "@" + displayName
 	return displayName, nil
 }
@@ -161,7 +161,7 @@ func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (stri
 	if err != nil {
 		return "", err
 	}
-	displayName := user.GetDisplayName(model.SHOW_NICKNAME_FULLNAME)
+	displayName := user.GetDisplayName(model.ShowNicknameFullName)
 	return displayName, nil
 }
 
