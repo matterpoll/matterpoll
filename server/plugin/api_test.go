@@ -564,12 +564,12 @@ func TestHandleCreatePoll(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
-			var response *model.SubmitDialogResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
-
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
+			var response *model.SubmitDialogResponse
+			_ = json.NewDecoder(result.Body).Decode(&response)
 			assert.Equal(test.ExpectedResponse, response)
+
 			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
@@ -1050,8 +1050,7 @@ func TestHandleVote(t *testing.T) {
 			defer result.Body.Close()
 
 			var response *model.PostActionIntegrationResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
+			_ = json.NewDecoder(result.Body).Decode(&response)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -1351,8 +1350,7 @@ func TestHandleResetVotes(t *testing.T) {
 			defer result.Body.Close()
 
 			var response *model.PostActionIntegrationResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
+			_ = json.NewDecoder(result.Body).Decode(&response)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -1665,8 +1663,7 @@ func TestHandleAddOption(t *testing.T) {
 			defer result.Body.Close()
 
 			var response *model.PostActionIntegrationResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
+			_ = json.NewDecoder(result.Body).Decode(&response)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -2096,8 +2093,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			defer result.Body.Close()
 
 			var response *model.SubmitDialogResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
+			_ = json.NewDecoder(result.Body).Decode(&response)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
@@ -2397,8 +2393,7 @@ func TestHandleEndPoll(t *testing.T) {
 			defer result.Body.Close()
 
 			var response *model.PostActionIntegrationResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
+			_ = json.NewDecoder(result.Body).Decode(&response)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -2681,8 +2676,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 			defer result.Body.Close()
 
 			var response *model.SubmitDialogResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
+			_ = json.NewDecoder(result.Body).Decode(&response)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
@@ -3014,8 +3008,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			defer result.Body.Close()
 
 			var response *model.PostActionIntegrationResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
+			_ = json.NewDecoder(result.Body).Decode(&response)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
@@ -3267,8 +3260,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			defer result.Body.Close()
 
 			var response *model.SubmitDialogResponse
-			err = json.NewDecoder(result.Body).Decode(&response)
-			require.Nil(t, err)
+			_ = json.NewDecoder(result.Body).Decode(&response)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
