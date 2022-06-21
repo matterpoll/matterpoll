@@ -90,7 +90,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 	converter := func(userID string) (string, *model.AppError) {
 		switch userID {
 		case "userID1":
-			return "John Doe", nil
+			return "@jhDoe", nil
 		default:
 			return "", &model.AppError{}
 		}
@@ -217,7 +217,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"With 4 arguments and setting progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{
@@ -280,7 +280,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"With 4 arguments and setting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{

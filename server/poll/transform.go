@@ -251,7 +251,7 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 			}
 		}
 
-		s += "### " + localizer.MustLocalize(&i18n.LocalizeConfig{
+		s += "### " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: rhsCardPollAnswerHeading,
 			TemplateData: map[string]interface{}{
 				"Answer": o.Answer,

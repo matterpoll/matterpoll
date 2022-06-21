@@ -195,7 +195,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	}
 	model.ParseSlackAttachment(post, actions)
 	if newPoll.Settings.Progress {
-		post.AddProp("card", newPoll.ToCard(p.bundle, p.ConvertCreatorIDToDisplayName))
+		post.AddProp("card", newPoll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
 	}
 
 	rPost, appErr := p.API.CreatePost(post)
