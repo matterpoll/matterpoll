@@ -12,6 +12,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
+	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
@@ -72,7 +73,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 	}
 
 	var err error
-	p.Store, err = kvstore.NewStore(p.API, manifest.Version)
+	p.Store, err = kvstore.NewStore(p.API, root.Manifest.Version)
 	if err != nil {
 		return errors.Wrap(err, "failed to create store")
 	}

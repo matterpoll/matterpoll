@@ -9,6 +9,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
+	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils"
 )
@@ -104,7 +105,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 		dialog := model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
-			URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.Id),
+			URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", root.Manifest.Id),
 			Dialog:    p.getCreatePollDialog(siteURL, args.RootId, userLocalizer),
 		}
 
@@ -183,7 +184,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		return p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
 	}
 
-	actions := newPoll.ToPostActions(p.bundle, manifest.Id, displayName)
+	actions := newPoll.ToPostActions(p.bundle, root.Manifest.Id, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: args.ChannelId,
@@ -304,7 +305,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 			ID:    "dialog.create.title",
 			Other: "Create Poll",
 		}),
-		IconURL: fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
+		IconURL: fmt.Sprintf(responseIconURL, siteURL, root.Manifest.Id),
 		SubmitLabel: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
 			ID:    "dialog.create.submitLabel",
 			Other: "Create",

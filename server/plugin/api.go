@@ -15,6 +15,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
+	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
 )
 
@@ -97,7 +98,7 @@ func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r
 }
 
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
-	_, _ = io.WriteString(w, "Thanks for using Matterpoll v"+manifest.Version+"\n")
+	_, _ = io.WriteString(w, "Thanks for using Matterpoll v"+root.Manifest.Version+"\n")
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
@@ -321,7 +322,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
-	actions := poll.ToPostActions(p.bundle, manifest.Id, displayName)
+	actions := poll.ToPostActions(p.bundle, root.Manifest.Id, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: request.ChannelId,
@@ -383,7 +384,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
-	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
 	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
@@ -456,7 +457,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
-	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
 	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
@@ -493,13 +494,13 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", manifest.Id, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add", root.Manifest.Id, pollID),
 		Dialog: model.Dialog{
 			Title: p.bundle.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.addOption.title",
 				Other: "Add Option",
 			}),
-			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, root.Manifest.Id),
 			CallbackId: request.PostId,
 			SubmitLabel: p.bundle.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.addOption.submitLabel",
@@ -566,7 +567,7 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 		return nil, response, nil
 	}
 
-	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, manifest.Id, displayName))
+	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
 	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
 	}
@@ -602,13 +603,13 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", manifest.Id, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end/confirm", root.Manifest.Id, pollID),
 		Dialog: model.Dialog{
 			Title: p.bundle.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.end.title",
 				Other: "Confirm Poll End",
 			}),
-			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, root.Manifest.Id),
 			CallbackId: request.PostId,
 			SubmitLabel: p.bundle.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.end.submitLabel",
@@ -702,13 +703,13 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
 	dialog := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", manifest.Id, pollID),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete/confirm", root.Manifest.Id, pollID),
 		Dialog: model.Dialog{
 			Title: p.bundle.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.delete.title",
 				Other: "Confirm Poll Delete",
 			}),
-			IconURL:    fmt.Sprintf(responseIconURL, siteURL, manifest.Id),
+			IconURL:    fmt.Sprintf(responseIconURL, siteURL, root.Manifest.Id),
 			CallbackId: request.PostId,
 			SubmitLabel: p.bundle.LocalizeDefaultMessage(userLocalizer, &i18n.Message{
 				ID:    "dialog.delete.submitLabel",
