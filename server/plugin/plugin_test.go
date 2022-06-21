@@ -5,13 +5,14 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/undefinedlabs/go-mpatch"
 
@@ -49,11 +50,6 @@ func getIconDataMock() (string, error) {
 }
 
 func TestPluginOnActivate(t *testing.T) {
-	bot := &model.Bot{
-		Username:    botUserName,
-		DisplayName: botDisplayName,
-	}
-
 	command := &model.Command{
 		Trigger:              "poll",
 		AutoComplete:         true,
@@ -63,9 +59,9 @@ func TestPluginOnActivate(t *testing.T) {
 	}
 
 	for name, test := range map[string]struct {
-		SetupAPI     func(*plugintest.API) *plugintest.API
-		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
-		ShouldError  bool
+		SetupAPI       func(*plugintest.API) *plugintest.API
+		SetupPluginAPI func(*pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch)
+		ShouldError    bool
 	}{
 		// server version tests
 		"all fine": {
@@ -74,9 +70,13 @@ func TestPluginOnActivate(t *testing.T) {
 				api.On("RegisterCommand", command).Return(nil)
 				return api
 			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
-				return helpers
+			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
+				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
+					return testutils.GetBotUserID(), nil
+				})
+				require.NoError(t, err)
+
+				return client, []*mpatch.Patch{p1}
 			},
 			ShouldError: false,
 		},
@@ -86,6 +86,14 @@ func TestPluginOnActivate(t *testing.T) {
 				api.On("GetBundlePath").Return("", errors.New(""))
 				return api
 			},
+			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
+				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
+					return testutils.GetBotUserID(), nil
+				})
+				require.NoError(t, err)
+
+				return client, []*mpatch.Patch{p1}
+			},
 			ShouldError: true,
 		},
 		// Bot tests
@@ -93,9 +101,13 @@ func TestPluginOnActivate(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				return api
 			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return("", &model.AppError{})
-				return helpers
+			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
+				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
+					return "", errors.New("")
+				})
+				require.NoError(t, err)
+
+				return client, []*mpatch.Patch{p1}
 			},
 			ShouldError: true,
 		},
@@ -104,9 +116,13 @@ func TestPluginOnActivate(t *testing.T) {
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, &model.AppError{})
 				return api
 			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot, mock.AnythingOfType("plugin.EnsureBotOption")).Return(testutils.GetBotUserID(), nil)
-				return helpers
+			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
+				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
+					return testutils.GetBotUserID(), nil
+				})
+				require.NoError(t, err)
+
+				return client, []*mpatch.Patch{p1}
 			},
 			ShouldError: true,
 		},
@@ -132,16 +148,26 @@ func TestPluginOnActivate(t *testing.T) {
 			api.On("GetConfig").Return(testutils.GetServerConfig()).Maybe()
 			defer api.AssertExpectations(t)
 
-			helpers := &plugintest.Helpers{}
-			if test.SetupHelpers != nil {
-				helpers = test.SetupHelpers(helpers)
-				defer helpers.AssertExpectations(t)
-			}
-
-			patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+			patch1, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 				return &mockstore.Store{}, nil
 			})
-			defer func() { require.NoError(t, patch.Unpatch()) }()
+			defer func() { require.NoError(t, patch1.Unpatch()) }()
+
+			// Setup pluginapi client
+			mClient := pluginapi.NewClient(api, &plugintest.Driver{})
+			patch2, err := mpatch.PatchMethod(
+				pluginapi.NewClient,
+				func(plugin.API, plugin.Driver) *pluginapi.Client { return mClient },
+			)
+			require.NoError(t, err)
+			defer func() { require.NoError(t, patch2.Unpatch()) }()
+
+			if test.SetupPluginAPI != nil {
+				_, patches := test.SetupPluginAPI(mClient)
+				for _, p := range patches {
+					defer func() { require.NoError(t, p.Unpatch()) }()
+				}
+			}
 
 			siteURL := testutils.GetSiteURL()
 			defaultClientLocale := "en"
@@ -160,7 +186,6 @@ func TestPluginOnActivate(t *testing.T) {
 				Trigger: "poll",
 			})
 			p.SetAPI(api)
-			p.SetHelpers(helpers)
 			err = p.OnActivate()
 
 			if test.ShouldError {
