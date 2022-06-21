@@ -7,7 +7,7 @@
     "release_notes_url": "https://github.com/matterpoll/matterpoll/releases/tag/v1.5.0",
     "icon_path": "assets/logo_dark.svg",
     "version": "1.5.0",
-    "min_server_version": "5.37.0",
+    "min_server_version": "6.3.0",
     "server": {
         "executables": {
             "linux-amd64": "server/dist/plugin-linux-amd64",
