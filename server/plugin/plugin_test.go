@@ -165,7 +165,7 @@ func TestPluginOnActivate(t *testing.T) {
 			if test.SetupPluginAPI != nil {
 				_, patches := test.SetupPluginAPI(mClient)
 				for _, p := range patches {
-					defer func() { require.NoError(t, p.Unpatch()) }()
+					defer func(patch *mpatch.Patch) { require.NoError(t, patch.Unpatch()) }(p)
 				}
 			}
 

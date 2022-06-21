@@ -1,7 +1,7 @@
 package root
 
 import (
-	_ "embed"
+	_ "embed" // Need to embed plugin.json
 	"encoding/json"
 	"strings"
 

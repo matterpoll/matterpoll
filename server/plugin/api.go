@@ -138,8 +138,8 @@ func checkAuthenticity(next http.Handler) http.Handler {
 func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postActionHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var request *model.PostActionIntegrationRequest
-		err := json.NewDecoder(r.Body).Decode(&request)
-		if err != nil || request == nil {
+		decodeErr := json.NewDecoder(r.Body).Decode(&request)
+		if decodeErr != nil || request == nil {
 			p.API.LogWarn("failed to decode PostActionIntegrationRequest")
 			http.Error(w, "invalid request", http.StatusBadRequest)
 			return
@@ -212,8 +212,8 @@ func (p *MatterpollPlugin) handlePostActionIntegrationRequest(handler postAction
 func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var request *model.SubmitDialogRequest
-		err := json.NewDecoder(r.Body).Decode(&request)
-		if err != nil || request == nil {
+		decodeErr := json.NewDecoder(r.Body).Decode(&request)
+		if decodeErr != nil || request == nil {
 			p.API.LogWarn("failed to decode SubmitDialogRequest")
 			http.Error(w, "invalid request", http.StatusBadRequest)
 			return
