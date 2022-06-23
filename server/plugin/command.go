@@ -105,7 +105,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		dialog := model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.Id),
-			Dialog:    p.getCreatePollDialog(siteURL, args.RootId, userLocalizer),
+			Dialog:    p.getCreatePollDialog(siteURL, args.ChannelId, args.RootId, userLocalizer),
 		}
 
 		if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
@@ -229,7 +229,7 @@ func (p *MatterpollPlugin) getCommand(trigger string) (*model.Command, error) {
 	}, nil
 }
 
-func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer) model.Dialog {
+func (p *MatterpollPlugin) getCreatePollDialog(siteURL, channelID string, rootID string, l *i18n.Localizer) model.Dialog {
 	elements := []model.DialogElement{{
 		DisplayName: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
 			ID:    "dialog.createPoll.question",
@@ -303,6 +303,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 			Other: "Create",
 		}),
 		Elements: elements,
+		State:    fmt.Sprintf("%s_%s", channelID, rootID),
 	}
 
 	return dialog

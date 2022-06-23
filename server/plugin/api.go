@@ -222,6 +222,14 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 		}
 
 		var rootID string
+		var channelID string
+		splittedState := strings.Split(request.State, "_")
+		if len(splittedState) == 2 {
+			channelID = splittedState[0]
+			rootID = splittedState[1]
+		} else {
+			channelID = request.ChannelId
+		}
 
 		vars := mux.Vars(r)
 		pollID := vars["id"]
@@ -253,7 +261,7 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 			}
 		}
 
-		if !p.API.HasPermissionToChannel(request.UserId, request.ChannelId, model.PERMISSION_READ_CHANNEL) {
+		if !p.API.HasPermissionToChannel(request.UserId, channelID, model.PERMISSION_READ_CHANNEL) {
 			http.Error(w, "not authorized", http.StatusUnauthorized)
 			return
 		}
@@ -265,7 +273,7 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 
 		if msg != nil {
 			userLocalizer := p.bundle.GetUserLocalizer(request.UserId)
-			p.SendEphemeralPost(request.ChannelId, request.UserId, rootID, p.bundle.LocalizeDefaultMessage(userLocalizer, msg))
+			p.SendEphemeralPost(channelID, request.UserId, rootID, p.bundle.LocalizeDefaultMessage(userLocalizer, msg))
 		}
 
 		if response != nil {
@@ -280,6 +288,17 @@ func (p *MatterpollPlugin) handleSubmitDialogRequest(handler submitDialogHandler
 }
 
 func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
+	var rootID string
+	var channelID string
+	splittedState := strings.Split(request.State, "_")
+	if len(splittedState) == 2 {
+		channelID = splittedState[0]
+		rootID = splittedState[1]
+	} else {
+		channelID = request.ChannelId
+		rootID = request.CallbackId
+	}
+
 	creatorID := request.UserId
 
 	question, ok := request.Submission[questionKey].(string)
@@ -324,8 +343,8 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 	actions := poll.ToPostActions(p.bundle, manifest.Id, displayName)
 	post := &model.Post{
 		UserId:    p.botUserID,
-		ChannelId: request.ChannelId,
-		RootId:    request.CallbackId,
+		ChannelId: channelID,
+		RootId:    rootID,
 		Type:      MatterpollPostType,
 		Props: map[string]interface{}{
 			"poll_id": poll.ID,
