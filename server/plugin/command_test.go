@@ -34,6 +34,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		Dialog: model.Dialog{
 			CallbackId: rootID,
 			Title:      "Create Poll",
+			State:      fmt.Sprintf("channelID1_%s", rootID),
 			IconURL:    fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.Id),
 			Elements: []model.DialogElement{{
 				DisplayName: "Question",
