@@ -53,7 +53,7 @@ export default class MatterPollPlugin {
         const callsAction = (teamId, channelId, rootId) => clientExecuteCommand(store.dispatch, store.getState, '/poll', teamId, channelId, rootId);
 
         if (registry.registerCallsDropdownMenuAction) {
-            registry.registerCallsDropdownMenuAction('Create a poll', callsAction);
+            registry.registerCallsDropdownMenuAction('Create a poll', 'chart-bar', callsAction);
         } else {
             store.dispatch({
                 type: 'RECEIVED_PLUGIN_COMPONENT',
@@ -63,6 +63,7 @@ export default class MatterPollPlugin {
                     pluginId,
                     text: 'Create a poll',
                     action: callsAction,
+                    icon: 'chart-bar',
                 },
             });
         }
