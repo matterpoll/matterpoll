@@ -87,6 +87,15 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 	}
 
+	converter := func(userID string) (string, *model.AppError) {
+		switch userID {
+		case "userID1":
+			return "@jhDoe", nil
+		default:
+			return "", &model.AppError{}
+		}
+	}
+
 	for name, test := range map[string]struct {
 		SetupAPI     func(*plugintest.API) *plugintest.API
 		SetupStore   func(*mockstore.Store) *mockstore.Store
@@ -208,7 +217,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"With 4 arguments and setting progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{
@@ -223,6 +232,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1})
 				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
+				post.AddProp("card", poll.ToCard(testutils.GetBundle(), converter))
 
 				rPost := post.Clone()
 				rPost.Id = "postID1"
@@ -270,7 +280,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		},
 		"With 4 arguments and setting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
 
 				post := &model.Post{
@@ -285,6 +295,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, MaxVotes: 1})
 				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
+				post.AddProp("card", poll.ToCard(testutils.GetBundle(), converter))
 
 				rPost := post.Clone()
 				rPost.Id = "postID1"
@@ -313,7 +324,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPoll().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				poll := testutils.GetPoll()
+				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()

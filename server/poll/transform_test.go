@@ -370,3 +370,56 @@ func TestPollToPostActions(t *testing.T) {
 		})
 	}
 }
+
+func TestToCard(t *testing.T) {
+	converter := func(userID string) (string, *model.AppError) {
+		switch userID {
+		case "userID1":
+			return "@user1", nil
+		case "userID2":
+			return "@user2", nil
+		case "userID3":
+			return "@user3", nil
+		case "userID4":
+			return "@user4", nil
+		default:
+			return "", &model.AppError{}
+		}
+	}
+
+	for name, test := range map[string]struct {
+		Poll             *poll.Poll
+		ExpectedMarkdown string
+	}{
+		"Normal poll": {
+			Poll: testutils.GetPollWithVotes(),
+			ExpectedMarkdown: "# Question\n" +
+				"Created by @user1\n" +
+				"### Answer 1 (3 votes)" +
+				"\n@user1, @user2 and @user3\n" +
+				"### Answer 2 (1 vote)" +
+				"\n@user4\n" +
+				"### Answer 3 (0 votes)" +
+				"\n\n",
+		},
+		"Anonymous poll": {
+			Poll: testutils.GetPollWithVotesAndSettings(poll.Settings{Anonymous: true}),
+			ExpectedMarkdown: "# Question\n" +
+				"Created by @user1\n" +
+				"### Answer 1 (3 votes)" +
+				"\n\n" +
+				"### Answer 2 (1 vote)" +
+				"\n\n" +
+				"### Answer 3 (0 votes)" +
+				"\n\n",
+		},
+		"Normal poll, with error in voter name convert": {
+			Poll:             testutils.GetPollWithVoteUnknownUser(),
+			ExpectedMarkdown: "",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, test.ExpectedMarkdown, test.Poll.ToCard(testutils.GetBundle(), converter))
+		})
+	}
+}

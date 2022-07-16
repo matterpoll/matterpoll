@@ -194,6 +194,9 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		},
 	}
 	model.ParseSlackAttachment(post, actions)
+	if newPoll.Settings.Progress {
+		post.AddProp("card", newPoll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
+	}
 
 	rPost, appErr := p.API.CreatePost(post)
 	if appErr != nil {
@@ -290,7 +293,6 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
 		Optional:    true,
 	})
-
 	dialog := model.Dialog{
 		CallbackId: rootID,
 		Title: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{

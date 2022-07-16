@@ -67,5 +67,13 @@
     "one": "Your vote has been counted. You have {{.Remains}} vote left.",
     "other": "Your vote has been counted. You have {{.Remains}} votes left."
   },
-  "response.vote.updated": "Your vote has been updated."
+  "response.vote.updated": "Your vote has been updated.",
+  "rhs.card.poll.answer.heading": {
+    "few": "{{.Answer}} ({{.Count}} votes)",
+    "many": "{{.Answer}} ({{.Count}} votes)",
+    "one": "{{.Answer}} ({{.Count}} vote)",
+    "other": "{{.Answer}} ({{.Count}} votes)"
+  },
+  "rhs.card.poll.createdBy": "Create by",
+  "rhs.card.poll.voter.seperator": "and"
 }

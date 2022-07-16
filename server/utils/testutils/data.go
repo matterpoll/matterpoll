@@ -96,6 +96,28 @@ func GetPollWithVotes() *poll.Poll {
 	}
 }
 
+// GetPollWithVoteUnknownUser returns a Poll with three Options, one unknown voter and no Poll Settings.
+func GetPollWithVoteUnknownUser() *poll.Poll {
+	return &poll.Poll{
+		ID:        GetPollID(),
+		PostID:    "postID1",
+		CreatedAt: 1234567890,
+		Creator:   "userID1",
+		Question:  "Question",
+		AnswerOptions: []*poll.AnswerOption{{
+			Answer: "Answer 1",
+			Voter:  []string{"unknowUser"},
+		}, {
+			Answer: "Answer 2",
+			Voter:  []string{},
+		}, {
+			Answer: "Answer 3",
+			Voter:  []string{},
+		}},
+		Settings: poll.Settings{MaxVotes: 1},
+	}
+}
+
 // GetPollWithVotesAndSettings returns a Poll with three Options, some votes and given Poll Settings.
 func GetPollWithVotesAndSettings(settings poll.Settings) *poll.Poll {
 	poll := GetPollWithVotes()
