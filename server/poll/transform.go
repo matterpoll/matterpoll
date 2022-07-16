@@ -36,6 +36,28 @@ var (
 		ID:    "poll.endPost.seperator",
 		Other: "and",
 	}
+	pollEndPostAnswerHeading = &i18n.Message{
+		ID:    "poll.endPost.answer.heading",
+		One:   "{{.Answer}} ({{.Count}} vote)",
+		Few:   "{{.Answer}} ({{.Count}} votes)",
+		Many:  "{{.Answer}} ({{.Count}} votes)",
+		Other: "{{.Answer}} ({{.Count}} votes)",
+	}
+	rhsCardPollVoterSeperator = &i18n.Message{
+		ID:    "rhs.card.poll.voter.seperator",
+		Other: "and",
+	}
+	rhsCardPollCreatedBy = &i18n.Message{
+		ID:    "rhs.card.poll.createdBy",
+		Other: "Created by",
+	}
+	rhsCardPollAnswerHeading = &i18n.Message{
+		ID:    "rhs.card.poll.answer.heading",
+		One:   "{{.Answer}} ({{.Count}} vote)",
+		Few:   "{{.Answer}} ({{.Count}} votes)",
+		Many:  "{{.Answer}} ({{.Count}} votes)",
+		Other: "{{.Answer}} ({{.Count}} votes)",
+	}
 )
 
 // ToPostActions returns the poll as a message
@@ -181,13 +203,7 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 		fields = append(fields, &model.SlackAttachmentField{
 			Short: true,
 			Title: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
-				DefaultMessage: &i18n.Message{
-					ID:    "poll.endPost.answer.heading",
-					One:   "{{.Answer}} ({{.Count}} vote)",
-					Few:   "{{.Answer}} ({{.Count}} votes)",
-					Many:  "{{.Answer}} ({{.Count}} votes)",
-					Other: "{{.Answer}} ({{.Count}} votes)",
-				},
+				DefaultMessage: pollEndPostAnswerHeading,
 				TemplateData: map[string]interface{}{
 					"Answer": o.Answer,
 					"Count":  len(o.Voter),
@@ -207,4 +223,42 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 	model.ParseSlackAttachment(post, attachments)
 
 	return post, nil
+}
+
+// ToCard return the poll for rhs card
+func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
+	localizer := bundle.GetServerLocalizer()
+	s := fmt.Sprintf("# %s\n", p.Question)
+
+	creatorName, _ := convert(p.Creator)
+	s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+
+	const comma = ", "
+	for _, o := range p.AnswerOptions {
+		var voter string
+		if !p.Settings.Anonymous {
+			for i := 0; i < len(o.Voter); i++ {
+				displayName, err := convert(o.Voter[i])
+				if err != nil {
+					return ""
+				}
+				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
+					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeperator}) + " "
+				} else if i != 0 {
+					voter += comma
+				}
+				voter += displayName
+			}
+		}
+
+		s += "### " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
+			DefaultMessage: rhsCardPollAnswerHeading,
+			TemplateData: map[string]interface{}{
+				"Answer": o.Answer,
+				"Count":  len(o.Voter),
+			},
+			PluralCount: len(o.Voter),
+		}) + "\n" + voter + "\n"
+	}
+	return s
 }

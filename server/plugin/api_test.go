@@ -170,6 +170,15 @@ func TestHandlePluginConfiguration(t *testing.T) {
 }
 
 func TestHandleCreatePoll(t *testing.T) {
+	converter := func(userID string) (string, *model.AppError) {
+		switch userID {
+		case "userID1":
+			return "@jhDoe", nil
+		default:
+			return "", &model.AppError{}
+		}
+	}
+
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
@@ -226,6 +235,7 @@ func TestHandleCreatePoll(t *testing.T) {
 			"poll_id": testutils.GetPollID(),
 		},
 	}
+	expectedPostWithSettings.AddProp("card", pollWithSettings.ToCard(testutils.GetBundle(), converter))
 	model.ParseSlackAttachment(expectedPostWithSettings, pollWithSettings.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
 
 	for name, test := range map[string]struct {
@@ -298,7 +308,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		"Valid request with settings": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
-				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 
 				rPost := expectedPostWithSettings.Clone()
 				rPost.Id = "postID1"
@@ -562,6 +572,17 @@ func TestHandleCreatePoll(t *testing.T) {
 }
 
 func TestHandleVote(t *testing.T) {
+	converter := func(userID string) (string, *model.AppError) {
+		switch userID {
+		case "userID1":
+			return "@jhDoe", nil
+		case "userID2":
+			return "@jhDoe2", nil
+		default:
+			return "", &model.AppError{}
+		}
+	}
+
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
@@ -635,6 +656,18 @@ func TestHandleVote(t *testing.T) {
 	require.Nil(t, err)
 	expectedPost6 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost6, poll6Out.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
+
+	poll7In := testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1})
+	msg, err = poll7In.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	poll7Out := poll7In.Copy()
+	msg, err = poll7Out.UpdateVote("userID1", 1)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	expectedPost7 := &model.Post{}
+	expectedPost7.AddProp("card", poll7Out.ToCard(testutils.GetBundle(), converter))
+	model.ParseSlackAttachment(expectedPost7, poll7Out.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
 
 	post := &model.Post{
 		ChannelId: "channelID1",
@@ -793,6 +826,31 @@ func TestHandleVote(t *testing.T) {
 			VoteIndex:          1,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost2},
+			ExpectedMsg:        "Your vote has been updated.",
+		},
+		"Valid request with vote, with Progress setting true": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"voted_answers":             []string{"Answer 2 (1)"},
+					"poll_id":                   testutils.GetPollID(),
+					"user_id":                   "userID1",
+					"can_manage_poll":           true,
+					"setting_public_add_option": false,
+				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll7In.Copy(), nil)
+				store.PollStore.On("Update", poll7In, poll7Out).Return(nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			VoteIndex:          1,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost7},
 			ExpectedMsg:        "Your vote has been updated.",
 		},
 		"Valid request, PollStore.Save fails": {
@@ -988,6 +1046,7 @@ func TestHandleVote(t *testing.T) {
 				require.NotNil(t, response)
 				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
 				if test.ExpectedResponse.Update != nil {
+					assert.Equal(test.ExpectedResponse.Update.Props["card"], response.Update.Props["card"])
 					assert.Equal(test.ExpectedResponse.Update.Attachments(), response.Update.Attachments())
 				}
 			} else {
@@ -998,6 +1057,17 @@ func TestHandleVote(t *testing.T) {
 }
 
 func TestHandleResetVotes(t *testing.T) {
+	converter := func(userID string) (string, *model.AppError) {
+		switch userID {
+		case "userID1":
+			return "@jhDoe", nil
+		case "userID2":
+			return "@jhDoe2", nil
+		default:
+			return "", &model.AppError{}
+		}
+	}
+
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
@@ -1018,6 +1088,22 @@ func TestHandleResetVotes(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
 
+	pollEmptyWithProgress := &poll.Poll{
+		ID:      testutils.GetPollID(),
+		Creator: "userID1",
+		AnswerOptions: []*poll.AnswerOption{
+			{Answer: "Answer 1", Voter: []string{}},
+			{Answer: "Answer 2", Voter: []string{}},
+			{Answer: "Answer 3", Voter: []string{}},
+		},
+		Settings: poll.Settings{Progress: true, MaxVotes: 3},
+	}
+
+	poll2WithVotesWithProgress := pollEmptyWithProgress.Copy()
+	msg, err := poll2WithVotesWithProgress.UpdateVote("userID1", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+
 	poll := &poll.Poll{
 		ID:      testutils.GetPollID(),
 		Creator: "userID1",
@@ -1029,8 +1115,15 @@ func TestHandleResetVotes(t *testing.T) {
 		Settings: poll.Settings{MaxVotes: 3},
 	}
 
+	expectedPost := &model.Post{}
+	model.ParseSlackAttachment(expectedPost, poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
+
+	expectedPostWithProgress := &model.Post{}
+	expectedPostWithProgress.AddProp("card", pollEmptyWithProgress.ToCard(testutils.GetBundle(), converter))
+	model.ParseSlackAttachment(expectedPostWithProgress, pollEmptyWithProgress.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
+
 	poll2WithVotes := poll.Copy()
-	msg, err := poll2WithVotes.UpdateVote("userID1", 0)
+	msg, err = poll2WithVotes.UpdateVote("userID1", 0)
 	require.Nil(t, msg)
 	require.Nil(t, err)
 
@@ -1093,7 +1186,30 @@ func TestHandleResetVotes(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost},
+			ExpectedMsg:        "All votes are cleared. Your previous votes were [Answer 1].",
+		},
+		"Valid request, reset 1 vote, with Settings Progress to true": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PERMISSION_READ_CHANNEL).Return(true)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"can_manage_poll":           true,
+					"poll_id":                   testutils.GetPollID(),
+					"user_id":                   "userID1",
+					"voted_answers":             []string{},
+					"setting_public_add_option": false,
+				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll2WithVotesWithProgress.Copy(), nil)
+				store.PollStore.On("Update", poll2WithVotesWithProgress, pollEmptyWithProgress).Return(nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPostWithProgress},
 			ExpectedMsg:        "All votes are cleared. Your previous votes were [Answer 1].",
 		},
 		"Valid request, reset multi votes": {
@@ -1116,7 +1232,7 @@ func TestHandleResetVotes(t *testing.T) {
 			},
 			Request:            &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"},
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedResponse:   &model.PostActionIntegrationResponse{},
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost},
 			ExpectedMsg:        "All votes are cleared. Your previous votes were [Answer 1, Answer 2, Answer 3].",
 		},
 		"Failed to get poll": {
@@ -1224,6 +1340,7 @@ func TestHandleResetVotes(t *testing.T) {
 				require.NotNil(t, response)
 				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
 				if test.ExpectedResponse.Update != nil {
+					assert.Equal(test.ExpectedResponse.Update.Props["card"], response.Update.Props["card"])
 					assert.Equal(test.ExpectedResponse.Update.Attachments(), response.Update.Attachments())
 				}
 			} else {
@@ -1536,6 +1653,21 @@ func TestHandleAddOption(t *testing.T) {
 }
 
 func TestHandleAddOptionConfirm(t *testing.T) {
+	converter := func(userID string) (string, *model.AppError) {
+		switch userID {
+		case "userID1":
+			return "@jhDoe", nil
+		case "userID2":
+			return "@jhDoe2", nil
+		case "userID3":
+			return "@jhDoe3", nil
+		case "userID4":
+			return "@jhDoe4", nil
+		default:
+			return "", &model.AppError{}
+		}
+	}
+
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
@@ -1575,6 +1707,17 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 	expectedPost2 := &model.Post{}
 	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
 
+	poll3In := testutils.GetPollWithVotesAndSettings(poll.Settings{Progress: true, MaxVotes: 2})
+	poll3In.PostID = postID
+	poll3Out := poll3In.Copy()
+	err = poll3Out.AddAnswerOption("New Option")
+	require.Nil(t, err)
+	expectedPost3 := &model.Post{
+		ChannelId: channelID,
+	}
+	expectedPost3.AddProp("card", poll3Out.ToCard(testutils.GetBundle(), converter))
+	model.ParseSlackAttachment(expectedPost3, poll3Out.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe"))
+
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
@@ -1602,6 +1745,35 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				ChannelId:  channelID,
 				Submission: map[string]interface{}{
 					"answerOption": "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Successfully added the option.",
+		},
+		"Valid request, with Progress settings": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost3, nil)
+				api.On("HasPermissionToChannel", userID, channelID, model.PERMISSION_READ_CHANNEL).Return(true)
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "jhDoe2"}, nil)
+				api.On("GetUser", "userID3").Return(&model.User{Username: "jhDoe3"}, nil)
+				api.On("GetUser", "userID4").Return(&model.User{Username: "jhDoe4"}, nil)
+				api.On("UpdatePost", expectedPost3).Return(expectedPost3, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll3In.Copy(), nil)
+				store.PollStore.On("Update", poll3In, poll3Out).Return(nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]interface{}{
+					"answerOption":      "New Option",
+					"settings-progress": true,
 				},
 			},
 			ExpectedStatusCode: http.StatusOK,
