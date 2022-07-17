@@ -567,7 +567,9 @@ func TestHandleCreatePoll(t *testing.T) {
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
 			var response *model.SubmitDialogResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
+
 			assert.Equal(test.ExpectedResponse, response)
 
 			if test.ExpectedResponse != nil {
@@ -1049,10 +1051,12 @@ func TestHandleVote(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
 			var response *model.PostActionIntegrationResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
 
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
@@ -1349,10 +1353,12 @@ func TestHandleResetVotes(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
 			var response *model.PostActionIntegrationResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
 
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
@@ -1662,10 +1668,12 @@ func TestHandleAddOption(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
 			var response *model.PostActionIntegrationResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
 
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
@@ -2092,10 +2100,12 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
 			var response *model.SubmitDialogResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
 
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
 			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
@@ -2392,10 +2402,12 @@ func TestHandleEndPoll(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
 			var response *model.PostActionIntegrationResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
 
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
@@ -2675,10 +2687,12 @@ func TestHandleEndPollConfirm(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
 			var response *model.SubmitDialogResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
 
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
 			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
@@ -3007,10 +3021,12 @@ func TestHandleDeletePoll(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
 			var response *model.PostActionIntegrationResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
 
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
 					"Content-Type": []string{"application/json"},
@@ -3259,10 +3275,12 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
+			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
+
 			var response *model.SubmitDialogResponse
+			// Don't check if the response typed error is nil in order to do additional assertions.
 			_ = json.NewDecoder(result.Body).Decode(&response)
 
-			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			assert.Equal(test.ExpectedResponse, response)
 			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
