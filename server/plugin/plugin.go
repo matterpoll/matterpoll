@@ -162,8 +162,13 @@ func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (stri
 	if err != nil {
 		return "", err
 	}
-	displayName := user.GetDisplayName(model.SHOW_NICKNAME_FULLNAME)
-	return displayName, nil
+	setting := p.ServerConfig.PrivacySettings.ShowFullName
+	// Need to check if settings value if nil pointer, because PrivacySettings.ShowFullName
+	// can be nil pointe when ShowFullName setting is false.
+	if setting == nil || !*setting {
+		return user.GetDisplayName(model.SHOW_USERNAME), nil
+	}
+	return user.GetDisplayName(model.SHOW_NICKNAME_FULLNAME), nil
 }
 
 // CanManagePoll checks if a given user has the permission to manage i.e. end or delete a given poll

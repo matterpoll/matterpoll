@@ -227,3 +227,66 @@ func TestPluginOnDeactivate(t *testing.T) {
 	err := p.OnDeactivate()
 	assert.Nil(t, err)
 }
+
+func TestConvertCreatorIDToDisplayName(t *testing.T) {
+	user := &model.User{
+		Id:        "userID1",
+		Username:  "user1",
+		FirstName: "John",
+		LastName:  "Doe",
+	}
+	for name, test := range map[string]struct {
+		UserID              string
+		SettingShowFullName bool
+		SetupAPI            func(*plugintest.API) *plugintest.API
+		ShouldError         bool
+		ExpectedName        string
+	}{
+		"all fine, ShowFullName is true": {
+			UserID:              user.Id,
+			SettingShowFullName: true,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", user.Id).Return(user, nil)
+				return api
+			},
+			ShouldError:  false,
+			ExpectedName: user.GetFullName(),
+		},
+		"all fine, ShowFullName is false": {
+			UserID:              user.Id,
+			SettingShowFullName: false,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", user.Id).Return(user, nil)
+				return api
+			},
+			ShouldError:  false,
+			ExpectedName: user.Username,
+		},
+		"GetUser fails": {
+			UserID:              user.Id,
+			SettingShowFullName: true,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", user.Id).Return(nil, &model.AppError{})
+				return api
+			},
+			ShouldError: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			api := test.SetupAPI(&plugintest.API{})
+			defer api.AssertExpectations(t)
+
+			p := setupTestPlugin(t, api, &mockstore.Store{})
+			p.ServerConfig.PrivacySettings.ShowFullName = &test.SettingShowFullName
+
+			name, err := p.ConvertCreatorIDToDisplayName(test.UserID)
+
+			if test.ShouldError {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, test.ExpectedName, name)
+			}
+		})
+	}
+}

@@ -27,6 +27,7 @@ func GetServerConfig() *model.Config {
 	localeEn := "en"
 	defaultServerLocale := localeEn
 	defaultClientLocale := localeEn
+	showFullName := true
 	return &model.Config{
 		ServiceSettings: model.ServiceSettings{
 			SiteURL: &siteURL,
@@ -34,6 +35,9 @@ func GetServerConfig() *model.Config {
 		LocalizationSettings: model.LocalizationSettings{
 			DefaultServerLocale: &defaultServerLocale,
 			DefaultClientLocale: &defaultClientLocale,
+		},
+		PrivacySettings: model.PrivacySettings{
+			ShowFullName: &showFullName,
 		},
 	}
 }
