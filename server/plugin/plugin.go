@@ -163,8 +163,8 @@ func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (stri
 		return "", err
 	}
 	setting := p.ServerConfig.PrivacySettings.ShowFullName
-	// Need to check if settings value if nil pointer, because PrivacySettings.ShowFullName
-	// can be nil pointe when ShowFullName setting is false.
+	// Need to check if settings value is nil pointer, because PrivacySettings.ShowFullName
+	// can be nil pointer when ShowFullName setting is false.
 	if setting == nil || !*setting {
 		return user.GetDisplayName(model.SHOW_USERNAME), nil
 	}
