@@ -16,9 +16,11 @@ import (
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
 
 const (
-	SettingKeyAnonymous       = "anonymous"
-	SettingKeyProgress        = "progress"
-	SettingKeyPublicAddOption = "public-add-option"
+	SettingKeyAnonymous        = "anonymous"
+	SettingKeyProgress         = "progress"
+	SettingKeyPublicAddOption  = "public-add-option"
+	SettingKeyPublicDeletePoll = "public-delete-poll"
+	SettingKeyPublicEndPoll    = "public-end-poll"
 )
 
 // Poll stores all needed information for a poll
@@ -40,10 +42,12 @@ type AnswerOption struct {
 
 // Settings stores possible settings for a poll
 type Settings struct {
-	Anonymous       bool
-	Progress        bool
-	PublicAddOption bool
-	MaxVotes        int `json:"max_votes"`
+	Anonymous        bool
+	Progress         bool
+	PublicAddOption  bool
+	PublicDeletePoll bool
+	PublicEndPoll    bool
+	MaxVotes         int `json:"max_votes"`
 }
 
 // NewPoll creates a new poll with the given parameter.
@@ -79,6 +83,10 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
 			settings.PublicAddOption = true
+		case str == SettingKeyPublicDeletePoll:
+			settings.PublicDeletePoll = true
+		case str == SettingKeyPublicEndPoll:
+			settings.PublicEndPoll = true
 		case votesSettingPattern.MatchString(str):
 			i, errMsg := parseVotesSettings(str)
 			if errMsg != nil {
@@ -120,6 +128,10 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 					settings.Progress = true
 				case SettingKeyPublicAddOption:
 					settings.PublicAddOption = true
+				case SettingKeyPublicDeletePoll:
+					settings.PublicDeletePoll = true
+				case SettingKeyPublicEndPoll:
+					settings.PublicEndPoll = true
 				}
 			}
 		}
@@ -295,11 +307,13 @@ func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
 		}
 	}
 	return &Metadata{
-		PollID:                 p.ID,
-		UserID:                 userID,
-		CanManagePoll:          permission,
-		VotedAnswers:           votedAnswers,
-		SettingPublicAddOption: p.Settings.PublicAddOption,
+		PollID:                  p.ID,
+		UserID:                  userID,
+		CanManagePoll:           permission,
+		VotedAnswers:            votedAnswers,
+		SettingPublicAddOption:  p.Settings.PublicAddOption,
+		SettingPublicDeletePoll: p.Settings.PublicDeletePoll,
+		SettingPublicEndPoll:    p.Settings.PublicEndPoll,
 	}
 }
 

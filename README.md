@@ -40,6 +40,8 @@ Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" 
 - `--anonymous`: Don't show who voted for what at the end
 - `--progress`: During the poll, show how many votes each answer option got
 - `--public-add-option`: Allow all users to add additional options
+- `--public-delete-poll`: Allow any user to delete the poll
+- `--public-end-poll`: Allow any user to end the poll
 - `--votes=X`: Allow users to vote for X options
 
 ## Localization
