@@ -50,8 +50,8 @@ export default class ActionView extends React.PureComponent {
         if (this.isAddOptionAction(action) || !metadata.voted_answers) {
             return false;
         }
-        const name = metadata.setting_progress ? action.name.replace(/ \([0-9]+\)$/, "") : action.name;
-        return metadata.voted_answers.indexOf(name) >= 0;
+        const name = metadata.setting_progress ? action.name?.replace(/ \([0-9]+\)$/, '') : action.name;
+        return metadata.voted_answers?.indexOf(name) >= 0;
     }
 
     isAddOptionAction(action) {
