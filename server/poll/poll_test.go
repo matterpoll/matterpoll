@@ -691,7 +691,7 @@ func TestGetMetadata(t *testing.T) {
 				CanManagePoll: true,
 				VotedAnswers:  []string{},
 			}},
-		"Settings": {
+		"With all settings": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),
 				AnswerOptions: []*poll.AnswerOption{
