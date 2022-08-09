@@ -68,9 +68,13 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
+		answer := o.Answer
+		if p.Settings.Progress {
+			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
+		}
 		actions = append(actions, &model.PostAction{
 			Id:    fmt.Sprintf("vote%v", i),
-			Name:  p.getAnswerOptionName(o),
+			Name:  answer,
 			Type:  model.POST_ACTION_TYPE_BUTTON,
 			Style: "default",
 			Integration: &model.PostActionIntegration{
