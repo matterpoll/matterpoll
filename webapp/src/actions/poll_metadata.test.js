@@ -30,34 +30,39 @@ describe('test', () => {
             data: mockSuccessResponse,
         };
 
-        store.dispatch(fetchPollMetadata(siteUrl, pollId))
-            .then(() => {
+        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
+            then(() => {
                 const actions = store.getActions();
                 expect(actions[0]).toEqual(expected);
-            })
-            .catch((err) => { throw err });
+            }).
+            catch((err) => {
+                throw err;
+            });
     });
     it('fail, pollId is undefined', () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = undefined; // eslint-disable-line no-undefined
 
-        store.dispatch(fetchPollMetadata(siteUrl, pollId))
-            .then(() => {
+        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
+            then(() => {
                 const actions = store.getActions();
                 expect(actions.length).toEqual(0);
-            })
-            .catch((err) => { throw err });
-
+            }).
+            catch((err) => {
+                throw err;
+            });
     });
     it('fail, pollId is empty', () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = '';
 
-        store.dispatch(fetchPollMetadata(siteUrl, pollId))
-            .then(() => {
+        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
+            then(() => {
                 const actions = store.getActions();
                 expect(actions.length).toEqual(0);
-            })
-            .catch((err) => { throw err });
+            }).
+            catch((err) => {
+                throw err;
+            });
     });
 });

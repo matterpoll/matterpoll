@@ -29,6 +29,7 @@ export const fetchPollMetadata = (siteUrl, pollId) => async (dispatch) => {
             data: await resp.json(),
         });
     } catch (err) {
-        return;
+        //eslint-disable-next-line no-console
+        console.log('failed to fetch metadata: ', err);
     }
 };
