@@ -7,6 +7,7 @@ const initialState = {
         user_id: 'user_id1',
         poll_id: 'poll_id1',
         can_manage_poll: false,
+        setting_progress: false,
         setting_public_add_option: false,
     },
 };
@@ -15,6 +16,7 @@ const additionalState = {
     user_id: 'user_id1',
     poll_id: 'poll_id2',
     can_manage_poll: true,
+    setting_progress: false,
     setting_public_add_option: false,
 };
 
@@ -36,6 +38,7 @@ describe('vote reducers', () => {
                         user_id: 'user_id1',
                         poll_id: 'poll_id2',
                         can_manage_poll: true,
+                        setting_progress: false,
                         setting_public_add_option: false,
                     },
                 },
@@ -59,6 +62,7 @@ describe('vote reducers', () => {
                         user_id: 'user_id1',
                         poll_id: 'poll_id1',
                         can_manage_poll: false,
+                        setting_progress: false,
                         setting_public_add_option: false,
                     },
                 },
@@ -76,6 +80,7 @@ describe('vote reducers', () => {
                         user_id: 'user_id1',
                         poll_id: '',
                         can_manage_poll: false,
+                        setting_progress: false,
                         setting_public_add_option: false,
                     },
                 },

@@ -283,6 +283,7 @@ func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
 		UserID:                 userID,
 		CanManagePoll:          permission,
 		VotedAnswers:           p.GetVotedAnswers(userID),
+		SettingProgress:        p.Settings.Progress,
 		SettingPublicAddOption: p.Settings.PublicAddOption,
 	}
 }

@@ -9,6 +9,7 @@ export const websocketHasVoted = (data) => async (dispatch) => {
             user_id: data.user_id,
             poll_id: data.poll_id,
             can_manage_poll: data.can_manage_poll,
+            setting_progress: data.setting_progress,
             setting_public_add_option: data.setting_public_add_option,
         },
     });

@@ -691,6 +691,31 @@ func TestGetMetadata(t *testing.T) {
 				CanManagePoll: true,
 				VotedAnswers:  []string{},
 			}},
+		"Settings": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"b"}},
+					{Answer: "Answer 3", Voter: []string{"b"}},
+				},
+				Settings: poll.Settings{
+					Anonymous:       true,
+					Progress:        true,
+					PublicAddOption: true,
+					MaxVotes:        3,
+				},
+			},
+			UserID:     "c",
+			Permission: true,
+			ExpectedResponse: &poll.Metadata{
+				PollID:                 testutils.GetPollID(),
+				UserID:                 "c",
+				CanManagePoll:          true,
+				VotedAnswers:           []string{},
+				SettingProgress:        true,
+				SettingPublicAddOption: true,
+			}},
 		"Invalid userID": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),

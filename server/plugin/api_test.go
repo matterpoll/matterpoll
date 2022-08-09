@@ -692,6 +692,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"can_manage_poll":           true,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -716,6 +717,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"can_manage_poll":           true,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -746,6 +748,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
 					"voted_answers":             []string{"Answer 1"},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
 				return api
@@ -771,6 +774,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{"Answer 1", "Answer 2"},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -813,6 +817,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"can_manage_poll":           true,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -838,6 +843,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"can_manage_poll":           true,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -889,6 +895,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
 					"can_manage_poll":           false,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
 				return api
@@ -1175,6 +1182,7 @@ func TestHandleResetVotes(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -1198,6 +1206,7 @@ func TestHandleResetVotes(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -1221,6 +1230,7 @@ func TestHandleResetVotes(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
