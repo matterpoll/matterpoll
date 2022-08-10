@@ -1,13 +1,11 @@
 import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 
 import ActionTypes from 'action_types';
 
 import {fetchPollMetadata} from './poll_metadata';
 
-const promisifyMiddleware = () => (next) => (action) => {
-    return new Promise((resolve) => resolve(next(action)));
-};
-const middlewares = [promisifyMiddleware];
+const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
 
 describe('test', () => {
@@ -17,7 +15,7 @@ describe('test', () => {
     beforeEach(() => {
         const mockJsonPromise = Promise.resolve(mockSuccessResponse);
         const mockFetchPromise = Promise.resolve({
-            json: () => Promise.resolve(mockJsonPromise),
+            json: () => mockJsonPromise,
         });
         global.fetch = jest.fn().mockImplementation(() => mockFetchPromise);
 
@@ -36,6 +34,9 @@ describe('test', () => {
             then(() => {
                 const actions = store.getActions();
                 expect(actions[0]).toEqual(expected);
+            }).
+            catch((err) => {
+                throw err;
             });
     });
     it('fail, pollId is undefined', () => {
@@ -46,6 +47,9 @@ describe('test', () => {
             then(() => {
                 const actions = store.getActions();
                 expect(actions.length).toEqual(0);
+            }).
+            catch((err) => {
+                throw err;
             });
     });
     it('fail, pollId is empty', () => {
@@ -56,6 +60,9 @@ describe('test', () => {
             then(() => {
                 const actions = store.getActions();
                 expect(actions.length).toEqual(0);
+            }).
+            catch((err) => {
+                throw err;
             });
     });
 });
