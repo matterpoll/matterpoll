@@ -704,6 +704,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"can_manage_poll":           true,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -728,6 +729,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"can_manage_poll":           true,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -758,6 +760,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
 					"voted_answers":             []string{"Answer 1"},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
 				return api
@@ -783,6 +786,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{"Answer 1", "Answer 2"},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -825,6 +829,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"can_manage_poll":           true,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -846,10 +851,11 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
 				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
-					"voted_answers":             []string{"Answer 2 (1)"},
+					"voted_answers":             []string{"Answer 2"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"can_manage_poll":           true,
+					"setting_progress":          true,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -901,6 +907,7 @@ func TestHandleVote(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
 					"can_manage_poll":           false,
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
 				return api
@@ -1195,6 +1202,7 @@ func TestHandleResetVotes(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -1218,6 +1226,7 @@ func TestHandleResetVotes(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{},
+					"setting_progress":          true,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api
@@ -1241,6 +1250,7 @@ func TestHandleResetVotes(t *testing.T) {
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
 					"voted_answers":             []string{},
+					"setting_progress":          false,
 					"setting_public_add_option": false,
 				}, &model.WebsocketBroadcast{UserId: "userID1"}).Return()
 				return api

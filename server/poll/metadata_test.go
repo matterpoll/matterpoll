@@ -13,6 +13,7 @@ func TestToMap(t *testing.T) {
 		PollID:                 "pollID",
 		UserID:                 "userID",
 		CanManagePoll:          true,
+		SettingProgress:        true,
 		SettingPublicAddOption: true,
 	}
 
@@ -21,6 +22,7 @@ func TestToMap(t *testing.T) {
 		"poll_id":                   "pollID",
 		"user_id":                   "userID",
 		"can_manage_poll":           true,
+		"setting_progress":          true,
 		"setting_public_add_option": true,
 	}
 	assert.Equal(t, expectedMap, m.ToMap())
