@@ -674,27 +674,6 @@ func TestGetMetadata(t *testing.T) {
 				VotedAnswers:  []string{"Answer 2", "Answer 3"},
 			},
 		},
-		"Voted two Answers, with progress option": {
-			Poll: poll.Poll{
-				ID: testutils.GetPollID(),
-				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1", Voter: []string{"a"}},
-					{Answer: "Answer 2", Voter: []string{"a", "b"}},
-					{Answer: "Answer 3", Voter: []string{"b"}},
-				},
-				Settings: poll.Settings{
-					Progress: true,
-				},
-			},
-			UserID:     "b",
-			Permission: true,
-			ExpectedResponse: &poll.Metadata{
-				PollID:        testutils.GetPollID(),
-				UserID:        "b",
-				CanManagePoll: true,
-				VotedAnswers:  []string{"Answer 2 (2)", "Answer 3 (1)"},
-			},
-		},
 		"Voted no Answers": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),
@@ -711,6 +690,31 @@ func TestGetMetadata(t *testing.T) {
 				UserID:        "c",
 				CanManagePoll: true,
 				VotedAnswers:  []string{},
+			}},
+		"With all settings": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"b"}},
+					{Answer: "Answer 3", Voter: []string{"b"}},
+				},
+				Settings: poll.Settings{
+					Anonymous:       true,
+					Progress:        true,
+					PublicAddOption: true,
+					MaxVotes:        3,
+				},
+			},
+			UserID:     "c",
+			Permission: true,
+			ExpectedResponse: &poll.Metadata{
+				PollID:                 testutils.GetPollID(),
+				UserID:                 "c",
+				CanManagePoll:          true,
+				VotedAnswers:           []string{},
+				SettingProgress:        true,
+				SettingPublicAddOption: true,
 			}},
 		"Invalid userID": {
 			Poll: poll.Poll{

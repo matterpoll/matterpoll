@@ -19,6 +19,7 @@ describe('components/post_type/action_view/ActionView', () => {
                 {id: 'action_id1', name: 'answer1', type: ActionButtonType.BUTTON},
                 {id: 'action_id2', name: 'answer2', type: ActionButtonType.BUTTON},
                 {id: 'action_id3', name: 'answer3', type: ActionButtonType.BUTTON},
+                {id: 'resetVote', name: 'Reset your vote', type: ActionButtonType.BUTTON},
                 {id: 'addOption', name: 'Add option', type: ActionButtonType.BUTTON},
                 {id: 'deletePoll', name: 'Delete Poll', type: ActionButtonType.MATTERPOLL_ADMIN_BUTTON},
                 {id: 'endPoll', name: 'End Poll', type: ActionButtonType.MATTERPOLL_ADMIN_BUTTON},
@@ -30,6 +31,7 @@ describe('components/post_type/action_view/ActionView', () => {
                 poll_id: samplePollId,
                 user_id: 'user_id1',
                 can_manage_poll: false,
+                setting_progress: false,
                 setting_public_add_option: false,
             },
         },
@@ -67,6 +69,7 @@ describe('components/post_type/action_view/ActionView', () => {
                     poll_id: samplePollId,
                     user_id: 'user_id1',
                     can_manage_poll: false,
+                    setting_progress: false,
                     setting_public_add_option: false,
                 },
             },
@@ -83,7 +86,32 @@ describe('components/post_type/action_view/ActionView', () => {
                     poll_id: samplePollId,
                     user_id: 'user_id1',
                     can_manage_poll: false,
+                    setting_progress: false,
                     setting_public_add_option: true,
+                },
+            },
+        };
+        const wrapper = shallow(<ActionView {...newProps}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+    test('should match snapshot with setting_progress', () => {
+        const newProps = {
+            ...baseProps,
+            attachment: {
+                actions: [
+                    {id: 'action_id1', name: 'answer1 (1)', type: ActionButtonType.BUTTON},
+                    {id: 'action_id2', name: 'answer2 (12)', type: ActionButtonType.BUTTON},
+                    {id: 'action_id3', name: 'answer3', type: ActionButtonType.BUTTON},
+                ],
+            },
+            pollMetadata: {
+                samplepollid1: {
+                    voted_answers: ['answer1', 'answer3'],
+                    poll_id: samplePollId,
+                    user_id: 'user_id1',
+                    can_manage_poll: false,
+                    setting_progress: true,
+                    setting_public_add_option: false,
                 },
             },
         };

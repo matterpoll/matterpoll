@@ -6,6 +6,7 @@ type Metadata struct {
 	PollID                 string   `json:"poll_id"`
 	UserID                 string   `json:"user_id"`
 	CanManagePoll          bool     `json:"can_manage_poll"` // CanManagePoll will be true if the user with "UserID" can manage the poll with "PollID", otherwise false.
+	SettingProgress        bool     `json:"setting_progress"`
 	SettingPublicAddOption bool     `json:"setting_public_add_option"`
 }
 
@@ -16,6 +17,7 @@ func (m *Metadata) ToMap() map[string]interface{} {
 		"poll_id":                   m.PollID,
 		"user_id":                   m.UserID,
 		"can_manage_poll":           m.CanManagePoll,
+		"setting_progress":          m.SettingProgress,
 		"setting_public_add_option": m.SettingPublicAddOption,
 	}
 }
