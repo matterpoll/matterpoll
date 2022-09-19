@@ -5,12 +5,14 @@ import (
 	"sync"
 
 	"github.com/gorilla/mux"
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-plugin-api/experimental/command"
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
 
+	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
@@ -71,7 +73,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 	}
 
 	var err error
-	p.Store, err = kvstore.NewStore(p.API, manifest.Version)
+	p.Store, err = kvstore.NewStore(p.API, root.Manifest.Version)
 	if err != nil {
 		return errors.Wrap(err, "failed to create store")
 	}
@@ -85,12 +87,10 @@ func (p *MatterpollPlugin) OnActivate() error {
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 	}
-	options := []plugin.EnsureBotOption{
-		plugin.ProfileImagePath("assets/logo_dark-bg.png"),
-	}
-	botUserID, appErr := p.Helpers.EnsureBot(bot, options...)
-	if appErr != nil {
-		return errors.Wrap(appErr, "failed to ensure bot user")
+	pluginAPI := pluginapi.NewClient(p.API, p.Driver)
+	botUserID, err := pluginAPI.Bot.EnsureBot(bot, pluginapi.ProfileImagePath("assets/logo_dark-bg.png"))
+	if err != nil {
+		return errors.Wrap(err, "failed to ensure bot user")
 	}
 	p.botUserID = botUserID
 
@@ -151,7 +151,7 @@ func (p *MatterpollPlugin) ConvertUserIDToDisplayName(userID string) (string, *m
 	if err != nil {
 		return "", err
 	}
-	displayName := user.GetDisplayName(model.SHOW_USERNAME)
+	displayName := user.GetDisplayName(model.ShowUsername)
 	displayName = "@" + displayName
 	return displayName, nil
 }
@@ -166,9 +166,9 @@ func (p *MatterpollPlugin) ConvertCreatorIDToDisplayName(creatorID string) (stri
 	// Need to check if settings value is nil pointer, because PrivacySettings.ShowFullName
 	// can be nil pointer when ShowFullName setting is false.
 	if setting == nil || !*setting {
-		return user.GetDisplayName(model.SHOW_USERNAME), nil
+		return user.GetDisplayName(model.ShowUsername), nil
 	}
-	return user.GetDisplayName(model.SHOW_NICKNAME_FULLNAME), nil
+	return user.GetDisplayName(model.ShowNicknameFullName), nil
 }
 
 // CanManagePoll checks if a given user has the permission to manage i.e. end or delete a given poll
@@ -181,7 +181,7 @@ func (p *MatterpollPlugin) CanManagePoll(poll *poll.Poll, issuerID string) (bool
 	if appErr != nil {
 		return false, appErr
 	}
-	if user.IsInRole(model.SYSTEM_ADMIN_ROLE_ID) {
+	if user.IsInRole(model.SystemAdminRoleId) {
 		return true, nil
 	}
 	return false, nil

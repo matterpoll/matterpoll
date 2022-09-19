@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/undefinedlabs/go-mpatch"
 
+	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
@@ -30,11 +31,11 @@ func TestPluginExecuteCommand(t *testing.T) {
 
 	createPollDialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
-		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", manifest.Id),
+		URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", root.Manifest.Id),
 		Dialog: model.Dialog{
 			CallbackId: rootID,
 			Title:      "Create Poll",
-			IconURL:    fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), manifest.Id),
+			IconURL:    fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), root.Manifest.Id),
 			Elements: []model.DialogElement{{
 				DisplayName: "Question",
 				Name:        "question",
@@ -148,7 +149,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -176,7 +177,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				actions := testutils.GetPollTwoOptions().ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				api.On("CreatePost", post).Return(nil, &model.AppError{})
 				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return()
@@ -200,7 +201,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 						"poll_id": testutils.GetPollID(),
 					},
 				}
-				actions := testutils.GetPoll().ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				actions := testutils.GetPoll().ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -230,7 +231,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1})
-				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				actions := poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				post.AddProp("card", poll.ToCard(testutils.GetBundle(), converter))
 
@@ -262,7 +263,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 3})
-				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				actions := poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()
@@ -293,7 +294,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, MaxVotes: 1})
-				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				actions := poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 				post.AddProp("card", poll.ToCard(testutils.GetBundle(), converter))
 
@@ -325,7 +326,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 					},
 				}
 				poll := testutils.GetPoll()
-				actions := poll.ToPostActions(testutils.GetBundle(), manifest.Id, "John Doe")
+				actions := poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
 				model.ParseSlackAttachment(post, actions)
 
 				rPost := post.Clone()

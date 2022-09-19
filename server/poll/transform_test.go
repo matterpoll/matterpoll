@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -117,7 +117,7 @@ func TestPollToPostActions(t *testing.T) {
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Yes",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -125,7 +125,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "vote1",
 					Name:  "No",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -133,7 +133,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "resetVote",
 					Name:  "Reset your vote",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -141,7 +141,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "addOption",
 					Name:  "Add Option",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -175,7 +175,7 @@ func TestPollToPostActions(t *testing.T) {
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Answer 1 (0)",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -183,7 +183,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "vote1",
 					Name:  "Answer 2 (0)",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -191,7 +191,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "vote2",
 					Name:  "Answer 3 (0)",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -199,7 +199,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "resetVote",
 					Name:  "Reset your vote",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -207,7 +207,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "addOption",
 					Name:  "Add Option",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -241,7 +241,7 @@ func TestPollToPostActions(t *testing.T) {
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Answer 1",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -249,7 +249,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "vote1",
 					Name:  "Answer 2",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -257,7 +257,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "vote2",
 					Name:  "Answer 3",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -265,7 +265,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "resetVote",
 					Name:  "Reset your vote",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -273,7 +273,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "addOption",
 					Name:  "Add Option",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -307,7 +307,7 @@ func TestPollToPostActions(t *testing.T) {
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Answer 1",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -315,7 +315,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "vote1",
 					Name:  "Answer 2",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -323,7 +323,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "vote2",
 					Name:  "Answer 3",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "default",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -331,7 +331,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "resetVote",
 					Name:  "Reset your votes",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -339,7 +339,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "addOption",
 					Name:  "Add Option",
-					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
