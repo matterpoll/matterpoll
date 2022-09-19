@@ -164,9 +164,11 @@ func TestPluginOnActivate(t *testing.T) {
 
 			if test.SetupPluginAPI != nil {
 				_, patches := test.SetupPluginAPI(mClient)
-				for _, p := range patches {
-					defer func(patch *mpatch.Patch) { require.NoError(t, patch.Unpatch()) }(p)
-				}
+				t.Cleanup(func() {
+					for _, p := range patches {
+						require.NoError(t, p.Unpatch())
+					}
+				})
 			}
 
 			siteURL := testutils.GetSiteURL()
