@@ -10,8 +10,6 @@ linters-settings:
     simplify: true
   goimports:
     local-prefixes: github.com/matterpoll/matterpoll
-  golint:
-    min-confidence: 0.0
   govet:
     check-shadowing: true
     enable-all: true
@@ -24,28 +22,25 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - dogsled
     - errcheck
     - goconst
     - gocritic
     - gofmt
     - goimports
-    - golint
     - gosec
     - gosimple
     - govet
     - ineffassign
     - misspell
     - nakedret
+    - revive
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
 
 issues:
