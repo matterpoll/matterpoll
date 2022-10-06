@@ -14,9 +14,9 @@ workflows:
               only:
                 - master
     jobs:
-      - plugin-ci/lint:
-      - plugin-ci/test:
-      - plugin-ci/build:
+      - plugin-ci/lint
+      - plugin-ci/test
+      - plugin-ci/build
 
   ci:
     jobs:
