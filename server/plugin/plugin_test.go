@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -128,7 +127,7 @@ func TestPluginOnActivate(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			dir, err := ioutil.TempDir("", "")
+			dir, err := os.MkdirTemp("", "")
 			require.NoError(t, err)
 
 			defer os.RemoveAll(dir)
@@ -140,7 +139,7 @@ func TestPluginOnActivate(t *testing.T) {
 
 			file := filepath.Join(i18nDir, "active.de.json")
 			content := []byte("{}")
-			err = ioutil.WriteFile(file, content, 0600)
+			err = os.WriteFile(file, content, 0600)
 			require.NoError(t, err)
 
 			api := test.SetupAPI(&plugintest.API{})

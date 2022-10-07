@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -60,7 +60,7 @@ func TestServeHTTP(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
-			bodyBytes, err := ioutil.ReadAll(result.Body)
+			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
 			bodyString := string(bodyBytes)
 
@@ -112,7 +112,7 @@ func TestServeFile(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
-			bodyBytes, err := ioutil.ReadAll(result.Body)
+			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
@@ -155,7 +155,7 @@ func TestHandlePluginConfiguration(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
-			bodyBytes, err := ioutil.ReadAll(result.Body)
+			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
@@ -3396,7 +3396,7 @@ func TestHandlePollMetadata(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
-			bodyBytes, err := ioutil.ReadAll(result.Body)
+			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
