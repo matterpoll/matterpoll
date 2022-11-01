@@ -3,6 +3,9 @@ run:
   modules-download-mode: readonly
 
 linters-settings:
+  forbidigo:
+    forbid:
+      - '^.*\.MustLocalize.*(# MustLocalize may cause panic such as #252, use one of localize functions in utils package instead)?'
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -24,6 +27,7 @@ linters:
     - bodyclose
     - dogsled
     - errcheck
+    - forbidigo
     - goconst
     - gocritic
     - gofmt
