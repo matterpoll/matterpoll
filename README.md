@@ -38,7 +38,7 @@ If you want to define all answer options by yourself, type `/poll "Is Matterpoll
 
 Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" "Of course" "In any case" "Definitely" --progress --anonymous`. The available Poll Settings are:
 - `--anonymous`: Don't show who voted for what at the end
-- `--progress`: During the poll, show how many votes each answer option got
+- `--progress`: During the poll, show how many votes each answer option got and, in post card, show who voted for which answers ([#431](https://github.com/matterpoll/matterpoll/pull/431))
 - `--public-add-option`: Allow all users to add additional options
 - `--votes=X`: Allow users to vote for X options
 
