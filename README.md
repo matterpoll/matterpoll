@@ -38,13 +38,13 @@ If you want to define all answer options by yourself, type `/poll "Is Matterpoll
 
 Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" "Of course" "In any case" "Definitely" --progress --anonymous`. The available Poll Settings are:
 - `--anonymous`: Don't show who voted for what at the end
-- `--progress`: During the poll, show how many votes each answer option got
+- `--progress`: During the poll, show how many votes each answer option got and, in post card, show who voted for which answers ([#431](https://github.com/matterpoll/matterpoll/pull/431))
 - `--public-add-option`: Allow all users to add additional options
 - `--votes=X`: Allow users to vote for X options
 
 ## Localization
 
-Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > Site Configuration > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Settings > Display > Language** (**Account Settings > Display > Language** on Mattermost v5).
+Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > Site Configuration > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Settings > Display > Language**.
 
 The currently supported languages are:
 - English

@@ -24,6 +24,7 @@ func getUpgrades() []*upgrade {
 		{toVersion: "1.3.0", upgradeFunc: nil},
 		{toVersion: "1.4.0", upgradeFunc: upgradeTo14},
 		{toVersion: "1.5.0", upgradeFunc: nil},
+		{toVersion: "1.6.0", upgradeFunc: nil},
 	}
 }
 

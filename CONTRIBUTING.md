@@ -12,7 +12,7 @@ If you think you found a bug, [please use the GitHub issue tracker](https://gith
 
 Matterpoll supports localization to various languages. We as maintainers rely on contributors to help with the translations.
 
-Matterpoll uses [go-i18n](https://github.com/nicksnyder/go-i18n) as library and tool to manage translation. The CLI tool `goi18n` is required to manage translation. You can install it by running `env GO111MODULE=off go get -u github.com/nicksnyder/go-i18n/v2/goi18n`.
+Matterpoll uses [go-i18n](https://github.com/nicksnyder/go-i18n) as library and tool to manage translation. The CLI tool `goi18n` is required to manage translation. You can install it by running `go install -v github.com/nicksnyder/go-i18n/v2/goi18n@latest`.
 
 The localization process is defined below:
 - During development, new translation strings may be added or existing ones updated.
