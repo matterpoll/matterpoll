@@ -98,7 +98,12 @@
       "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "identity-obj-proxy",
       "^.+\\.(css|less|scss)$": "identity-obj-proxy",
       "^.*i18n.*\\.(json)$": "<rootDir>/tests/i18n_mock.json",
-      "^bundle-loader\\?lazy\\!(.*)$": "$1"
+      "^bundle-loader\\?lazy\\!(.*)$": "$1",
+      "^reselect": "<rootDir>/node_modules/mattermost-webapp/packages/reselect/src",
+      "^mattermost-redux(.*)$": "<rootDir>/node_modules/mattermost-webapp/packages/mattermost-redux/src$1",
+      "^@mattermost/(types)/(.*)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src/$2",
+      "^@mattermost/(client)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src",
+      "^@mattermost/(components)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src"
     },
     "moduleDirectories": [
       "",
