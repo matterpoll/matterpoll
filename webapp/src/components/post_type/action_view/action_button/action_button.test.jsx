@@ -1,7 +1,7 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import {Constants} from 'mattermost-webapp/utils/constants';
+import Preferences from 'mattermost-redux/constants/preferences'
 
 import ActionButton from 'components/post_type/action_view/action_button/action_button';
 
@@ -12,7 +12,7 @@ describe('components/action_button/ActionButton', () => {
             id: 'action_id1',
             name: 'action_name',
         },
-        theme: Constants.THEMES.default,
+        theme: Preferences.THEMES.default,
         hasVoted: false,
         actions: {
             voteAnswer: jest.fn(),
