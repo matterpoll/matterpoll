@@ -6,6 +6,7 @@
       "@/*": ["src/*"],
       "@mattermost/types/*": ["../node_modules/mattermost-webapp/packages/types/src/*"],
       "mattermost-redux/*": ["../node_modules/mattermost-webapp/packages/mattermost-redux/src/*"],
+      "reselect/*": ["../node_modules/mattermost-webapp/packages/reselect/src/*"],
     },
     "lib": [
       "dom",

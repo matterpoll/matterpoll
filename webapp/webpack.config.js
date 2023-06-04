@@ -38,6 +38,7 @@ const config = {
             '@': path.resolve(__dirname, 'src'),
             '@mattermost/types': path.resolve(__dirname, 'node_modules/mattermost-webapp/packages/types/src'),
             'mattermost-redux': path.resolve(__dirname, 'node_modules/mattermost-webapp/packages/mattermost-redux/src'),
+            reselect: path.resolve(__dirname, 'node_modules/mattermost-webapp/packages/reselect/src'),
         },
         modules: [
             'src',
