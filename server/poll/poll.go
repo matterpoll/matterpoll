@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -19,6 +20,7 @@ const (
 	SettingKeyAnonymous       = "anonymous"
 	SettingKeyProgress        = "progress"
 	SettingKeyPublicAddOption = "public-add-option"
+	SettingPollDuration       = "time.Duration.Hours()"
 )
 
 // Poll stores all needed information for a poll
@@ -43,6 +45,7 @@ type Settings struct {
 	Anonymous       bool
 	Progress        bool
 	PublicAddOption bool
+	PollDuration    time.Duration
 	MaxVotes        int `json:"max_votes"`
 }
 
@@ -79,6 +82,8 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
 			settings.PublicAddOption = true
+		case str == SettingPollDuration:
+			settings.PollDuration.Hours()
 		case votesSettingPattern.MatchString(str):
 			i, errMsg := parseVotesSettings(str)
 			if errMsg != nil {
@@ -285,6 +290,7 @@ func (p *Poll) GetMetadata(userID string, permission bool) *Metadata {
 		VotedAnswers:           p.GetVotedAnswers(userID),
 		SettingProgress:        p.Settings.Progress,
 		SettingPublicAddOption: p.Settings.PublicAddOption,
+		SettingPollDuration:    p.Settings.PollDuration,
 	}
 }
 

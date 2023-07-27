@@ -3,6 +3,7 @@ package poll_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/stretchr/testify/assert"
@@ -23,12 +24,14 @@ func TestNewPoll(t *testing.T) {
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
+		hours := int(48)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
 		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{
 			Anonymous:       true,
 			Progress:        true,
 			PublicAddOption: true,
 			MaxVotes:        3,
+			PollDuration:    time.Duration(hours) * time.Hour,
 		})
 
 		require.Nil(t, err)

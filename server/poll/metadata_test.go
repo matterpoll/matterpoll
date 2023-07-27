@@ -24,6 +24,7 @@ func TestToMap(t *testing.T) {
 		"can_manage_poll":           true,
 		"setting_progress":          true,
 		"setting_public_add_option": true,
+		"setting_poll_duration":     0,
 	}
 	assert.Equal(t, expectedMap, m.ToMap())
 }
