@@ -3,9 +3,6 @@ dist/
 # Mac
 .DS_Store
 
-# VSCode
-.vscode/
-
 # Jetbrains
 .idea/
 
