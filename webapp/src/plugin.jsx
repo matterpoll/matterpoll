@@ -1,8 +1,8 @@
-import {configurationChange, fetchPluginConfiguration} from 'actions/config';
-import {websocketHasVoted} from 'actions/poll_metadata';
+import {configurationChange, fetchPluginConfiguration} from '@/actions/config';
+import {websocketHasVoted} from '@/actions/poll_metadata';
 
-import {id as pluginId} from './manifest';
-import reducer from './reducers';
+import {id as pluginId} from '@/manifest';
+import reducer from '@/reducers';
 
 export default class MatterPollPlugin {
     async initialize(registry, store) {

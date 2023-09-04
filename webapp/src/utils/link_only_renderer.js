@@ -1,4 +1,4 @@
-import RemoveMarkdown from './remove_markdown';
+import RemoveMarkdown from '@/utils/remove_markdown';
 
 function getScheme(url) {
     const match = (/([a-z0-9+.-]+):/i).exec(url);

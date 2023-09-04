@@ -103,7 +103,8 @@
       "^mattermost-redux(.*)$": "<rootDir>/node_modules/mattermost-webapp/packages/mattermost-redux/src$1",
       "^@mattermost/(types)/(.*)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src/$2",
       "^@mattermost/(client)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src",
-      "^@mattermost/(components)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src"
+      "^@mattermost/(components)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src",
+      "^@/(.*)$": "<rootDir>/src/$1"
     },
     "moduleDirectories": [
       "",

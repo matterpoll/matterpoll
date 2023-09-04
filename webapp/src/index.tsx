@@ -1,5 +1,5 @@
-import MatterPollPlugin from './plugin';
-import manifest from './manifest';
+import MatterPollPlugin from '@/plugin';
+import manifest from '@/manifest';
 
 declare global {
     interface Window {

@@ -1,6 +1,6 @@
 import request from 'superagent';
 
-import {id as pluginId} from '../manifest';
+import {id as pluginId} from '@/manifest';
 
 export default class Client {
     constructor() {

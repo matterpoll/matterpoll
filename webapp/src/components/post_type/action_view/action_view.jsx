@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import {ActionButtonType} from 'utils/constants';
 
-import ActionButton from './action_button';
+import ActionButton from '@/components/post_type/action_view/action_button';
 
 export default class ActionView extends React.PureComponent {
     static propTypes = {

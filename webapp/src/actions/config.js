@@ -1,9 +1,9 @@
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
 
-import ActionTypes from 'action_types';
-import PostType from 'components/post_type';
-import Client from 'client';
-import {postTypeComponent} from 'selector';
+import ActionTypes from '@/action_types';
+import PostType from '@/components/post_type';
+import Client from '@/client';
+import {postTypeComponent} from '@/selector';
 
 export const configurationChange = (registry, store, data) => async (dispatch) => {
     let registeredComponentId = postTypeComponent(store.getState()) ? postTypeComponent(store.getState()).id : '';
