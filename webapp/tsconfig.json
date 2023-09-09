@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@mattermost/types/*": ["../node_modules/mattermost-webapp/packages/types/src/*"],
-      "mattermost-redux/*": ["../node_modules/mattermost-webapp/packages/mattermost-redux/src/*"],
-      "reselect/*": ["../node_modules/mattermost-webapp/packages/reselect/src/*"],
+      "@mattermost/types/*": ["node_modules/@mattermost/types/lib/*"],
+      "mattermost-redux/*": ["node_modules/mattermost-webapp/packages/mattermost-redux/src/*"],
+      "reselect": ["node_modules/mattermost-webapp/packages/reselect/src"],
     },
     "lib": [
       "dom",
@@ -26,7 +26,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "experimentalDecorators": true,
-    "jsx": "react"
+    "jsx": "react",
+    "useUnknownInCatchVariables": false
   },
   "include": [
     "src",

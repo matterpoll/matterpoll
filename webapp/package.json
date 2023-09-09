@@ -31,6 +31,7 @@
     "@testing-library/jest-dom": "5.16.5",
     "@types/enzyme": "3.10.11",
     "@types/jest": "27.4.0",
+    "@types/lodash": "4.14.198",
     "@types/node": "17.0.2",
     "@types/react": "16.14.26",
     "@types/react-dom": "16.9.19",
@@ -38,6 +39,7 @@
     "@types/react-redux": "7.1.22",
     "@types/react-router-dom": "5.1.5",
     "@types/react-transition-group": "4.4.0",
+    "@types/shallow-equals": "1.0.0",
     "@typescript-eslint/eslint-plugin": "5.10.1",
     "@typescript-eslint/parser": "5.10.1",
     "babel-eslint": "10.1.0",
@@ -75,6 +77,7 @@
     "webpack-cli": "5.0.1"
   },
   "dependencies": {
+    "@mattermost/types": "6.7.0-0",
     "core-js": "3.22.8",
     "invert-color": "2.0.0",
     "marked": "github:mattermost/marked#2ef7f28cc7718e3f551c4ce9ea75fdd7580c2008",
@@ -97,7 +100,7 @@
     ],
     "clearMocks": true,
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}"
+      "src/**/*.{js,jsx}"
     ],
     "coverageReporters": [
       "lcov",
@@ -109,10 +112,8 @@
       "^.*i18n.*\\.(json)$": "<rootDir>/tests/i18n_mock.json",
       "^bundle-loader\\?lazy\\!(.*)$": "$1",
       "^reselect": "<rootDir>/node_modules/mattermost-webapp/packages/reselect/src",
-      "^mattermost-redux(.*)$": "<rootDir>/node_modules/mattermost-webapp/packages/mattermost-redux/src$1",
-      "^@mattermost/(types)/(.*)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src/$2",
-      "^@mattermost/(client)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src",
-      "^@mattermost/(components)$": "<rootDir>/node_modules/mattermost-webapp/packages/$1/src",
+      "^@mattermost/types/(.*)$": "<rootDir>/node_modules/@mattermost/types/lib/$1",
+      "^mattermost-redux/(.*)$": "<rootDir>/node_modules/mattermost-webapp/packages/mattermost-redux/src/$1",
       "^@/(.*)$": "<rootDir>/src/$1"
     },
     "moduleDirectories": [

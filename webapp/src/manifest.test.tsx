@@ -1,3 +1,5 @@
+import {expect, test} from '@jest/globals';
+
 import manifest, {id, version} from '@/manifest';
 
 test('Plugin manifest, id and version are defined', () => {

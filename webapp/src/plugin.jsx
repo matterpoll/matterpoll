@@ -34,7 +34,7 @@ export default class MatterPollPlugin {
         if (data && data.experimentalui) {
             store.dispatch(configurationChange(registry, store, data));
         }
-    }
+    };
 
     uninitialize() {
         //eslint-disable-next-line no-console

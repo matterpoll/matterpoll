@@ -1,9 +1,9 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import {ActionButtonType} from 'utils/constants';
+import {ActionButtonType} from '@/utils/constants';
 
-import ActionView from 'components/post_type/action_view/action_view';
+import ActionView from '@/components/post_type/action_view/action_view';
 
 describe('components/post_type/action_view/ActionView', () => {
     const samplePollId = 'samplepollid1';

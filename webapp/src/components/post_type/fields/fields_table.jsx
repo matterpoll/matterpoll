@@ -7,7 +7,8 @@ export default class FieldsTable extends React.PureComponent {
     static propTypes = {
         attachment: PropTypes.object.isRequired,
         options: PropTypes.object,
-    }
+    };
+
     render() {
         const fields = this.props.attachment.fields;
         if (!fields || !fields.length) {

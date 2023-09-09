@@ -15,13 +15,13 @@ export default class PostType extends React.PureComponent {
 
         options: PropTypes.object,
         postTypeComponentId: PropTypes.string,
-    }
+    };
 
     static defaultProps = {
         options: {
             atMentions: true,
         },
-    }
+    };
 
     render() {
         const {post} = this.props;
