@@ -57,7 +57,7 @@ func TestNewPoll(t *testing.T) {
 			Anonymous:       true,
 			Progress:        true,
 			PublicAddOption: true,
-			MaxVotes:        4,
+			MaxVotes:        4, // invalid settings
 		})
 
 		assert.Nil(p)
@@ -200,6 +200,43 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 	}
 }
 
+func TestIsMultiVote(t *testing.T) {
+	assert := assert.New(t)
+	for name, test := range map[string]struct {
+		Poll     poll.Poll
+		Expected bool
+	}{
+		"single vote": {
+			Poll: poll.Poll{
+				ID:            testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{{Answer: "Answer 1"}, {Answer: "Answer 2"}},
+				Settings:      poll.Settings{MaxVotes: 1},
+			},
+			Expected: false,
+		},
+		"multi vote": {
+			Poll: poll.Poll{
+				ID:            testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{{Answer: "Answer 1"}, {Answer: "Answer 2"}},
+				Settings:      poll.Settings{MaxVotes: 2},
+			},
+			Expected: true,
+		},
+		"multi vote 0": {
+			Poll: poll.Poll{
+				ID:            testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{{Answer: "Answer 1"}, {Answer: "Answer 2"}},
+				Settings:      poll.Settings{MaxVotes: 0},
+			},
+			Expected: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(test.Expected, test.Poll.IsMultiVote())
+		})
+	}
+}
+
 func TestAddAnswerOption(t *testing.T) {
 	assert := assert.New(t)
 
@@ -264,6 +301,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "a",
 			Index:  -1,
@@ -274,6 +312,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         true,
 			ReturnMessage: false,
@@ -286,6 +325,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "a",
 			Index:  2,
@@ -296,6 +336,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         true,
 			ReturnMessage: false,
@@ -308,6 +349,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "",
 			Index:  1,
@@ -318,6 +360,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         true,
 			ReturnMessage: false,
@@ -330,6 +373,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "a",
 			Index:  0,
@@ -340,6 +384,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         false,
 			ReturnMessage: false,
@@ -352,6 +397,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "a",
 			Index:  1,
@@ -363,6 +409,7 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 2",
 						Voter: []string{"a"}},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         false,
 			ReturnMessage: false,
@@ -509,6 +556,30 @@ func TestUpdateVote(t *testing.T) {
 				Settings: poll.Settings{MaxVotes: 2},
 			},
 			Error:         true,
+			ReturnMessage: false,
+		},
+		"Multi votes setting (--votes=0), third vote": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 0},
+			},
+			UserID: "a",
+			Index:  2,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3", Voter: []string{"a"}},
+				},
+				Settings: poll.Settings{MaxVotes: 0},
+			},
+			Error:         false,
 			ReturnMessage: false,
 		},
 	} {

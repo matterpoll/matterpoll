@@ -279,6 +279,37 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=3", trigger),
 		},
+		"With 4 arguments and multi setting (--votes=0)": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
+
+				post := &model.Post{
+					UserId:    testutils.GetBotUserID(),
+					ChannelId: "channelID1",
+					RootId:    rootID,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
+				}
+				poll := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0})
+				actions := poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
+				model.ParseSlackAttachment(post, actions)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				poll := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0})
+				store.PollStore.On("Insert", poll).Return(nil)
+				return store
+			},
+			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=0", trigger),
+		},
 		"With 4 arguments and setting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
@@ -369,7 +400,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"Invalid multi setting, invalid number": {
 			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
-			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=0", trigger),
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=-1", trigger),
 			ShouldError: true,
 		},
 		"Invalid multi setting, exceed number": {

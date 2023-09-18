@@ -392,8 +392,17 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
 	}
 
+	// Multi Answer Mode
 	if poll.IsMultiVote() {
-		// Multi Answer Mode
+		if poll.Settings.MaxVotes == 0 {
+			return &i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "response.vote.multi.updatedWithAllVotesOption",
+					Other: "Your vote has been counted. You can vote for all options.",
+				},
+			}, post, nil
+		}
+
 		votedAnswers := poll.GetVotedAnswers(userID)
 		remains := poll.Settings.MaxVotes - len(votedAnswers)
 		return &i18n.LocalizeConfig{
