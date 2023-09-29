@@ -25,7 +25,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"- `--anonymous`: Don't show who voted for what when the poll ends\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
-		"- `--votes=X`: Allow users to vote for X options"
+		"- `--votes=X`: Allow users to vote for X options. Default is 1. If X is 0, users can vote for all options even after adding options."
 	triggerID := model.NewId()
 	rootID := model.NewId()
 
@@ -63,7 +63,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Type:        "text",
 				SubType:     "number",
 				Default:     "1",
-				HelpText:    "The number of options that an user can vote on.",
+				HelpText:    "The number of options that an user can vote on. 0 is meaning that users can vote for all options even after adding options.",
 				Optional:    false,
 			}, {
 				DisplayName: "Anonymous",

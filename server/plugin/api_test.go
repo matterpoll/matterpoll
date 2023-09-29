@@ -852,7 +852,7 @@ func TestHandleVote(t *testing.T) {
 			VoteIndex:          0,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost8},
-			ExpectedMsg:        "Your vote has been counted. You can vote for all options.",
+			ExpectedMsg:        "Your vote has been counted. You have 2 votes left.",
 		},
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
