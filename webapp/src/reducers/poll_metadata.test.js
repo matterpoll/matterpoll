@@ -1,5 +1,5 @@
-import ActionTypes from 'action_types';
-import {pollMetadata} from 'reducers/poll_metadata';
+import ActionTypes from '@/action_types';
+import {pollMetadata} from '@/reducers/poll_metadata';
 
 const initialState = {
     poll_id1: {

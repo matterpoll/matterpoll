@@ -1,6 +1,6 @@
 import request from 'superagent';
 
-import {id as pluginId} from '../manifest';
+import {id as pluginId} from '@/manifest';
 
 export default class Client {
     constructor() {
@@ -9,7 +9,7 @@ export default class Client {
 
     getPluginConfiguration = async () => {
         return this.doGet(`${this.url}/configuration`);
-    }
+    };
 
     doGet = async (url, body, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
@@ -21,7 +21,7 @@ export default class Client {
             accept('application/json');
 
         return response.body;
-    }
+    };
 
     doPost = async (url, body, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
@@ -35,7 +35,7 @@ export default class Client {
             accept('application/json');
 
         return response.body;
-    }
+    };
 
     doDelete = async (url, body, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
@@ -49,7 +49,7 @@ export default class Client {
             accept('application/json');
 
         return response.body;
-    }
+    };
 
     doPut = async (url, body, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
@@ -63,5 +63,5 @@ export default class Client {
             accept('application/json');
 
         return response.body;
-    }
+    };
 }

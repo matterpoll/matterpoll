@@ -16,7 +16,7 @@ export default class ActionButton extends React.PureComponent {
         actions: PropTypes.shape({
             voteAnswer: PropTypes.func.isRequired,
         }).isRequired,
-    }
+    };
 
     getStatusColors = (theme) => {
         return {
@@ -27,11 +27,11 @@ export default class ActionButton extends React.PureComponent {
             primary: theme.buttonBg,
             success: theme.onlineIndicator,
         };
-    }
+    };
 
     invertColor = (color) => {
         return color.match('^#(?:[0-9a-fA-F]{3}){1,2}$') ? invert(color) : color;
-    }
+    };
 
     handleAction = (e) => {
         e.preventDefault();

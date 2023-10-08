@@ -68,8 +68,8 @@ exports[`components/action_button/ActionButton without style should match snapsh
   style={
     Object {
       "backgroundColor": "#ffffff",
-      "borderColor": "rgba(61,60,64,0.3)",
-      "color": "#166de0",
+      "borderColor": "rgba(63,67,80,0.3)",
+      "color": "#1c58d9",
     }
   }
 >
@@ -84,8 +84,8 @@ exports[`components/action_button/ActionButton without style with hasVoted shoul
   onClick={[Function]}
   style={
     Object {
-      "backgroundColor": "#166de0",
-      "borderColor": "rgba(22,109,224,0.3)",
+      "backgroundColor": "#1c58d9",
+      "borderColor": "rgba(28,88,217,0.3)",
       "color": "#ffffff",
     }
   }

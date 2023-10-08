@@ -1,5 +1,5 @@
-import {id as pluginId} from 'manifest';
-import ActionTypes from 'action_types';
+import {id as pluginId} from '@/manifest';
+import ActionTypes from '@/action_types';
 
 export const websocketHasVoted = (data) => async (dispatch) => {
     return dispatch({

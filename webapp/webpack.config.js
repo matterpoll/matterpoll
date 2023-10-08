@@ -5,12 +5,7 @@ const path = require('path');
 const PLUGIN_ID = require('../plugin.json').id;
 
 const NPM_TARGET = process.env.npm_lifecycle_event; //eslint-disable-line no-process-env
-let mode = 'production';
-let devtool = '';
-if (NPM_TARGET === 'debug' || NPM_TARGET === 'debug:watch') {
-    mode = 'development';
-    devtool = 'source-map';
-}
+const isDev = NPM_TARGET === 'debug' || NPM_TARGET === 'debug:watch';
 
 const plugins = [];
 if (NPM_TARGET === 'build:watch' || NPM_TARGET === 'debug:watch') {
@@ -34,11 +29,17 @@ if (NPM_TARGET === 'build:watch' || NPM_TARGET === 'debug:watch') {
     });
 }
 
-module.exports = {
+const config = {
     entry: [
         './src/index.tsx',
     ],
     resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+            '@mattermost/types': path.resolve(__dirname, 'node_modules/@mattermost/types/lib'),
+            'mattermost-redux': path.resolve(__dirname, 'node_modules/mattermost-webapp/packages/mattermost-redux/src'),
+            reselect: path.resolve(__dirname, 'node_modules/mattermost-webapp/packages/reselect/src'),
+        },
         modules: [
             'src',
             'node_modules',
@@ -50,7 +51,7 @@ module.exports = {
         rules: [
             {
                 test: /\.(js|jsx|ts|tsx)$/,
-                exclude: /node_modules/,
+                exclude: /node_modules\/(?!(mattermost-webapp)\/).*/,
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -94,7 +95,12 @@ module.exports = {
         publicPath: '/',
         filename: 'main.js',
     },
-    devtool,
-    mode,
+    mode: (isDev) ? 'eval-source-map' : 'production',
     plugins,
 };
+
+if (isDev) {
+    Object.assign(config, {devtool: 'eval-source-map'});
+}
+
+module.exports = config;

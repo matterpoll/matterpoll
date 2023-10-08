@@ -1,7 +1,7 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import PostType from 'components/post_type/post_type';
+import PostType from '@/components/post_type/post_type';
 
 describe('components/post_type/PostType', () => {
     const baseProps = {

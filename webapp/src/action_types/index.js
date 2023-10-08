@@ -1,4 +1,4 @@
-import {id as pluginId} from 'manifest';
+import {id as pluginId} from '@/manifest';
 
 export default {
     VOTE_ANSWER: pluginId + '_vote_answer',

@@ -1,4 +1,4 @@
-import LinkOnlyRenderer from './link_only_renderer';
+import LinkOnlyRenderer from '@/utils/link_only_renderer';
 
 describe('LinkOnlyRenderer', () => {
     it('success', () => {

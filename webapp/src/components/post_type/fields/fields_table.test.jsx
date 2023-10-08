@@ -1,7 +1,7 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import FieldsTable from 'components/post_type/fields/fields_table';
+import FieldsTable from '@/components/post_type/fields/fields_table';
 
 describe('components/post_type/fields/FiledsTable', () => {
     const baseProps = {

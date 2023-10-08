@@ -1,5 +1,5 @@
-import ActionTypes from 'action_types';
-import {postTypeComponent} from 'reducers/post_type';
+import ActionTypes from '@/action_types';
+import {postTypeComponent} from '@/reducers/post_type';
 
 describe('post_type reducers', () => {
     test('no action', () => expect(postTypeComponent(undefined, {})).toEqual({})); // eslint-disable-line no-undefined

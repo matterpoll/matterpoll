@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {ActionButtonType} from 'utils/constants';
+import {ActionButtonType} from '@/utils/constants';
 
-import ActionButton from './action_button';
+import ActionButton from '@/components/post_type/action_view/action_button';
 
 export default class ActionView extends React.PureComponent {
     static propTypes = {
@@ -15,7 +15,7 @@ export default class ActionView extends React.PureComponent {
         actions: PropTypes.shape({
             fetchPollMetadata: PropTypes.func.isRequired,
         }).isRequired,
-    }
+    };
 
     componentDidMount() {
         this.props.actions.fetchPollMetadata(this.props.siteUrl, this.props.post.props.poll_id);
