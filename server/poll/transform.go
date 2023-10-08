@@ -162,7 +162,12 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes int) strin
 	if p.Settings.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
 	}
-	if p.Settings.MaxVotes > 1 {
+	switch p.Settings.MaxVotes {
+	case 0:
+		settingsText = append(settingsText, "votes=all")
+	case 1:
+		break
+	default:
 		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
 	}
 
