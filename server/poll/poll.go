@@ -145,7 +145,7 @@ func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 	if err != nil {
 		return 0, &utils.ErrorMessage{
 			Message: &i18n.Message{
-				ID:    "poll.newPoll.votesettings.invalidSetting",
+				ID:    "poll.newPoll.votesettings.unexpectedError",
 				Other: "Unexpected error happens when parsing {{.Setting}}",
 			},
 			Data: map[string]interface{}{
