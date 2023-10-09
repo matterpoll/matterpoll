@@ -48,7 +48,7 @@
   "poll.message.pollSettings": "**Poll Settings**: {{.Settings}}",
   "poll.message.totalVotes": "**Total votes**: {{.TotalVotes}}",
   "poll.newPoll.unrecognizedSetting": "Unrecognized poll setting: {{.Setting}}",
-  "poll.newPoll.votesettings.invalidSetting": "The number of votes must be a positive number and less than or equal to the number of options. You specified \"{{.MaxVotes}}\", but the number of options is \"{{.Options}}\".",
+  "poll.newPoll.votesettings.invalidSetting": "The number of votes must be 0 or a positive number, and must be less than or equal to the number of options. You specified \"{{.MaxVotes}}\", but the number of options is \"{{.Options}}\".",
   "poll.newPoll.votesettings.unexpectedError": "Unexpected error happens when parsing {{.Setting}}",
   "poll.updateVote.alreadyVoted": "You've already voted for this option.",
   "poll.updateVote.maxVotes": "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
