@@ -12,14 +12,12 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 
 ## Installation
 
-In Mattermost, open **Product Menu  > Marketplace** (**Main Menu > Marketplace** on Mattermost v5) to install and configure Matterpoll.
-
-For offline/air gapped installations, you can obtain a `.tar.gz` from https://github.com/matterpoll/matterpoll/releases.
-In Mattermost, open **System Console > Plugins > Plugin Management > Upload Plugin** to upload the .tar.gz.
-Upgrades can be performed by importing the lastest release and confirm overwriting of the duplicate plugin ID.
+1. Download `com.github.matterpoll.matterpoll-x.y.z.tar.gz` from https://github.com/matterpoll/matterpoll/releases.
+2. Upload `com.github.matterpoll.matterpoll-x.y.z.tar.gz` file through **System Console > Plugins > Plugin Management > Upload Plugin** in Mattermost and enable the plugin.
+   * Upgrades can be performed by uploading the lastest release and confirm overwriting of the duplicate plugin ID.
 
 ## Settings
-After the plugin has downloaded and been installed, click the **Configure** button. Alternatively, you can configure Matterpoll from **System Console > Plugins > Matterpoll**.
+You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
 * **Trigger Word**: Change trigger word for poll command. (default `/poll`)
 * **Experimental UI**: Enable new experimental UI for poll posts:
