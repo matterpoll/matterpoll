@@ -16,6 +16,7 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 2. Upload `com.github.matterpoll.matterpoll-x.y.z.tar.gz` file through **System Console > Plugins > Plugin Management > Upload Plugin** in Mattermost and enable the plugin.
    * Upgrades can be performed by uploading the lastest release and confirm overwriting of the duplicate plugin ID.
 
+
 ## Settings
 You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
@@ -64,6 +65,9 @@ The currently supported languages are:
 Make sure to set your [Site URL](https://docs.mattermost.com/configure/configuration-settings.html?highlight=site%20url#site-url) properly.
 For example, this error happens in case you set SiteURL starting with `http://`, in spite of running Mattermost server through https.
 
+#### Plugin upload causes "Received invalid response from the server."
+
+Ensure that the "Maximum File Size" (System Console > File Storage) is set to be larger than the `com.github.matterpoll.matterpoll-x.y.z.tar.gz` file.
 
 ## Contributing
 
