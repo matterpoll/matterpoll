@@ -89,10 +89,10 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 			Name: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "poll.button.resetVotes",
-					One:   "Reset your vote",
-					Few:   "Reset your votes",
-					Many:  "Reset your votes",
-					Other: "Reset your votes",
+					One:   "Reset Your Vote",
+					Few:   "Reset Your Votes",
+					Many:  "Reset Your Votes",
+					Other: "Reset Your Votes",
 				},
 				PluralCount: p.Settings.MaxVotes,
 			}),
