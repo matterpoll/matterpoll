@@ -19,7 +19,7 @@ describe('components/post_type/action_view/ActionView', () => {
                 {id: 'action_id1', name: 'answer1', type: ActionButtonType.BUTTON},
                 {id: 'action_id2', name: 'answer2', type: ActionButtonType.BUTTON},
                 {id: 'action_id3', name: 'answer3', type: ActionButtonType.BUTTON},
-                {id: 'resetVote', name: 'Reset your vote', type: ActionButtonType.BUTTON},
+                {id: 'resetVote', name: 'Reset Your Vote', type: ActionButtonType.BUTTON},
                 {id: 'addOption', name: 'Add option', type: ActionButtonType.BUTTON},
                 {id: 'deletePoll', name: 'Delete Poll', type: ActionButtonType.MATTERPOLL_ADMIN_BUTTON},
                 {id: 'endPoll', name: 'End Poll', type: ActionButtonType.MATTERPOLL_ADMIN_BUTTON},
