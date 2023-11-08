@@ -25,6 +25,8 @@ You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
   - Change button color of voted answers
   - Hide poll management buttons (Add Option / Delete Poll / End Poll) from users who don't have permission
 
+Note: **Experimental UI** is not supported in Mattermost Mobile due to its limited support for plugin extension ([ref](https://github.com/mattermost/mattermost-mobile/issues/3883#issuecomment-1148519369)).
+
 ## Usage
 
 `/poll "Is Matterpoll great?"` creates a poll with the answer options "Yes" and "No". You can also leave out the double quotes and just type `/poll Is Matterpoll great?`.
