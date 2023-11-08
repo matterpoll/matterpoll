@@ -45,7 +45,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot 1`] =
       action={
         Object {
           "id": "resetVote",
-          "name": "Reset your vote",
+          "name": "Reset Your Vote",
           "type": "button",
         }
       }
@@ -165,7 +165,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot with 
       action={
         Object {
           "id": "resetVote",
-          "name": "Reset your vote",
+          "name": "Reset Your Vote",
           "type": "button",
         }
       }
@@ -312,7 +312,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot witho
       action={
         Object {
           "id": "resetVote",
-          "name": "Reset your vote",
+          "name": "Reset Your Vote",
           "type": "button",
         }
       }
@@ -372,7 +372,7 @@ exports[`components/post_type/action_view/ActionView should match snapshot witho
       action={
         Object {
           "id": "resetVote",
-          "name": "Reset your vote",
+          "name": "Reset Your Vote",
           "type": "button",
         }
       }
