@@ -104,17 +104,20 @@ func TestPollToPostActions(t *testing.T) {
 	authorName := "John Doe"
 	currentAPIVersion := "v1"
 
+	// single voter, multi votes
 	pollWithMulti := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 3})
-	pollWithMulti.AnswerOptions = []*poll.AnswerOption{{
-		Answer: "Answer 1",
-		Voter:  []string{"userID1", "userID2", "userID3"},
-	}, {
-		Answer: "Answer 2",
-		Voter:  []string{"userID1", "userID2"},
-	}, {
-		Answer: "Answer 3",
-		Voter:  []string{"userID1"},
-	}}
+	pollWithMulti.AnswerOptions = []*poll.AnswerOption{
+		{Answer: "Answer 1", Voter: []string{"userID1"}},
+		{Answer: "Answer 2", Voter: []string{"userID1"}},
+		{Answer: "Answer 3", Voter: []string{"userID1"}},
+	}
+	// multi voters, multi votes
+	pollWithMulti2 := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 3})
+	pollWithMulti2.AnswerOptions = []*poll.AnswerOption{
+		{Answer: "Answer 1", Voter: []string{"userID1", "userID2", "userID3"}},
+		{Answer: "Answer 2", Voter: []string{"userID1", "userID2"}},
+		{Answer: "Answer 3", Voter: []string{"userID1"}},
+	}
 
 	for name, test := range map[string]struct {
 		Poll                *poll.Poll
@@ -311,11 +314,11 @@ func TestPollToPostActions(t *testing.T) {
 			}},
 		},
 		"Multipile questions, settings: votes=3": {
-			Poll: testutils.GetPollWithSettings(poll.Settings{MaxVotes: 3}),
+			Poll: pollWithMulti,
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n**Poll Settings**: votes=3\n**Total votes**: 0 (0 voters)",
+				Text:       "---\n**Poll Settings**: votes=3\n**Total votes**: 3 (1 voter)",
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Answer 1",
@@ -376,8 +379,8 @@ func TestPollToPostActions(t *testing.T) {
 				},
 			}},
 		},
-		"Multipile questions, settings: votes=3, voted": {
-			Poll: pollWithMulti,
+		"Multipile questions, settings: votes=3, multiple voters": {
+			Poll: pollWithMulti2,
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",

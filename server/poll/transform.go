@@ -191,6 +191,7 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 				"TotalVotes":  numberOfVotes,
 				"TotalVoters": numberOfVoters,
 			},
+			PluralCount: numberOfVoters,
 		}))
 	} else {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
