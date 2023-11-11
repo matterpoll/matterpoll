@@ -51,6 +51,8 @@ func (s *PollStore) Insert(poll *poll.Poll) error {
 
 // Save stores a poll in the KV Store. Overwrittes any existing poll with the same id.
 func (s *PollStore) Save(poll *poll.Poll) error {
+	//nolint:revive // Ignore linter error here, because "model.AppError(nil) != nil" always returns true.
+	// ref: https://github.com/mattermost/mattermost-plugin-api/blob/master/error.go#L14
 	if err := s.api.KVSet(pollPrefix+poll.ID, poll.EncodeToByte()); err != nil {
 		return err
 	}
@@ -78,6 +80,8 @@ func (s *PollStore) Update(prev *poll.Poll, new *poll.Poll) error {
 
 // Delete deletes a poll from the KV Store.
 func (s *PollStore) Delete(poll *poll.Poll) error {
+	//nolint:revive // Ignore linter error here, because "model.AppError(nil) != nil" always returns true.
+	// ref: https://github.com/mattermost/mattermost-plugin-api/blob/master/error.go#L14
 	if err := s.api.KVDelete(pollPrefix + poll.ID); err != nil {
 		return err
 	}
