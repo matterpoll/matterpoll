@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import styled, {css} from 'styled-components';
 
 import {changeOpacity} from 'mattermost-redux/utils/theme_utils';
 import invert from 'invert-color';
@@ -20,17 +21,13 @@ export default class ActionButton extends React.PureComponent {
 
     getStatusColors = (theme) => {
         return {
-            good: '#00c100',
-            warning: '#dede01',
+            good: '#339970',
+            warning: '#CC8F00',
             danger: theme.errorTextColor,
             default: theme.centerChannelColor,
             primary: theme.buttonBg,
-            success: theme.onlineIndicator,
+            success: '#339970',
         };
-    };
-
-    invertColor = (color) => {
-        return color.match('^#(?:[0-9a-fA-F]{3}){1,2}$') ? invert(color) : color;
     };
 
     handleAction = (e) => {
@@ -52,63 +49,40 @@ export default class ActionButton extends React.PureComponent {
             autoLinkedUrlSchemes: [],
         });
         const message = PostUtils.messageHtmlToComponent(htmlFormattedText, false, {emoji: true});
-
-        let customButtonStyle;
-        const STATUS_COLORS = this.getStatusColors(theme);
+        let hexColor;
         if (action.style) {
-            const hexColor =
+            const STATUS_COLORS = this.getStatusColors(theme);
+            hexColor =
                 STATUS_COLORS[action.style] ||
                 theme[action.style] ||
                 (action.style.match('^#(?:[0-9a-fA-F]{3}){1,2}$') && action.style);
-            if (hexColor) {
-                if (this.props.hasVoted) {
-                    customButtonStyle = {
-                        borderColor: changeOpacity(this.invertColor(hexColor), 0.3),
-                        backgroundColor: changeOpacity(this.invertColor(theme.centerChannelBg), 0.7),
-                        color: this.invertColor(hexColor),
-                        borderWidth: 2,
-                    };
-                } else {
-                    customButtonStyle = {
-                        borderColor: changeOpacity(hexColor, 0.3),
-                        backgroundColor: theme.centerChannelBg,
-                        color: hexColor,
-                        borderWidth: 2,
-                    };
-                }
-            }
-        } else {
-            // This clause is for backward compatibility
-            const primaryColor = STATUS_COLORS.primary;
-            const centerChannelBgColor = theme.centerChannelBg;
-            const centerChannelColorColor = theme.centerChannelColor;
-            if (primaryColor && centerChannelBgColor && centerChannelColorColor) {
-                if (this.props.hasVoted) {
-                    customButtonStyle = {
-                        borderColor: changeOpacity(primaryColor, 0.3),
-                        backgroundColor: primaryColor,
-                        color: centerChannelBgColor,
-                    };
-                } else {
-                    customButtonStyle = {
-                        borderColor: changeOpacity(centerChannelColorColor, 0.3),
-                        backgroundColor: centerChannelBgColor,
-                        color: primaryColor,
-                    };
-                }
-            }
         }
 
         return (
-            <button
+            <ActionBtn
                 data-action-id={action.id}
                 data-action-cookie={action.cookie}
                 key={action.id}
                 onClick={this.handleAction}
-                style={customButtonStyle}
+                className='btn btn-sm'
+                hexColor={hexColor}
+                isVoted={this.props.hasVoted}
             >
                 {message}
-            </button>
+            </ActionBtn>
         );
     }
 }
+
+const ActionBtn = styled.button`
+    ${({hexColor, isVoted}) => hexColor && css`
+        background-color: ${changeOpacity(hexColor, isVoted ? 0.92 : 0.08)} !important;
+        color: ${isVoted ? invert(hexColor) : hexColor} !important;
+        &:hover {
+            background-color: ${changeOpacity(hexColor, isVoted ? 0.88 : 0.12)} !important;
+        }
+        &:active {
+            background-color: ${changeOpacity(hexColor, isVoted ? 0.84 : 0.16)} !important;
+        }
+    `}
+`;
