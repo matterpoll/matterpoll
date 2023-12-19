@@ -3,10 +3,10 @@ import {bindActionCreators} from 'redux';
 
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
-import {fetchPollMetadata} from 'actions/poll_metadata';
-import {pollMetadata} from 'selector';
+import {fetchPollMetadata} from '@/actions/poll_metadata';
+import {pollMetadata} from '@/selector';
 
-import ActionView from './action_view';
+import ActionView from '@/components/post_type/action_view/action_view';
 
 function mapStateToProps(state) {
     const config = getConfig(state);

@@ -1,26 +1,30 @@
-import ActionTypes from 'action_types';
-import {pollMetadata} from 'reducers/poll_metadata';
+import ActionTypes from '@/action_types';
+import {pollMetadata} from '@/reducers/poll_metadata';
 
 const initialState = {
     poll_id1: {
+        voted_answers: ['answer1'],
         user_id: 'user_id1',
         poll_id: 'poll_id1',
-        admin_permission: false,
-        voted_answers: ['answer1'],
+        can_manage_poll: false,
+        setting_progress: false,
+        setting_public_add_option: false,
     },
 };
 const additionalState = {
+    voted_answers: [],
     user_id: 'user_id1',
     poll_id: 'poll_id2',
-    admin_permission: true,
-    voted_answers: [],
+    can_manage_poll: true,
+    setting_progress: false,
+    setting_public_add_option: false,
 };
 
 describe('vote reducers', () => {
     test('no action', () => expect(pollMetadata(undefined, {})).toEqual({})); // eslint-disable-line no-undefined
     test('no action with initial state', () => {
         expect(
-            pollMetadata(initialState, {})
+            pollMetadata(initialState, {}),
         ).toEqual(initialState);
     });
     test('action to add new poll', () => {
@@ -30,10 +34,12 @@ describe('vote reducers', () => {
                 {
                     type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
+                        voted_answers: [],
                         user_id: 'user_id1',
                         poll_id: 'poll_id2',
-                        admin_permission: true,
-                        voted_answers: [],
+                        can_manage_poll: true,
+                        setting_progress: false,
+                        setting_public_add_option: false,
                     },
                 },
             ),
@@ -42,8 +48,31 @@ describe('vote reducers', () => {
             poll_id2: additionalState,
         });
     });
+
+    test('action to add new settings', () => {
+        const expected = JSON.parse(JSON.stringify(initialState));
+        expected.poll_id1.setting_progress = true;
+        expected.poll_id1.setting_public_add_option = true;
+
+        expect(
+            pollMetadata(
+                initialState,
+                {
+                    type: ActionTypes.FETCH_POLL_METADATA,
+                    data: {
+                        voted_answers: ['answer1'],
+                        user_id: 'user_id1',
+                        poll_id: 'poll_id1',
+                        can_manage_poll: false,
+                        setting_progress: true,
+                        setting_public_add_option: true,
+                    },
+                },
+            ),
+        ).toEqual(expected);
+    });
     test('action to add new answer', () => {
-        const expected = initialState;
+        const expected = JSON.parse(JSON.stringify(initialState));
         expected.poll_id1.voted_answers = ['answer1', 'answer2'];
 
         expect(
@@ -52,10 +81,12 @@ describe('vote reducers', () => {
                 {
                     type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
+                        voted_answers: ['answer1', 'answer2'],
                         user_id: 'user_id1',
                         poll_id: 'poll_id1',
-                        admin_permission: false,
-                        voted_answers: ['answer1', 'answer2'],
+                        can_manage_poll: false,
+                        setting_progress: false,
+                        setting_public_add_option: false,
                     },
                 },
             ),
@@ -68,10 +99,12 @@ describe('vote reducers', () => {
                 {
                     type: ActionTypes.FETCH_POLL_METADATA,
                     data: {
+                        voted_answers: ['answer1', 'answer2'],
                         user_id: 'user_id1',
                         poll_id: '',
-                        admin_permission: false,
-                        voted_answers: ['answer1', 'answer2'],
+                        can_manage_poll: false,
+                        setting_progress: false,
+                        setting_public_add_option: false,
                     },
                 },
             ),

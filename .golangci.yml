@@ -3,6 +3,9 @@ run:
   modules-download-mode: readonly
 
 linters-settings:
+  forbidigo:
+    forbid:
+      - '^.*\.MustLocalize.*(# MustLocalize may cause panic such as #252, use one of localize functions in utils package instead)?'
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -10,45 +13,38 @@ linters-settings:
     simplify: true
   goimports:
     local-prefixes: github.com/matterpoll/matterpoll
-  golint:
-    min-confidence: 0.0
   govet:
     check-shadowing: true
     enable-all: true
+    disable:
+      - fieldalignment
   misspell:
     locale: US
-  maligned:
-    suggest-new: true
-  
+
 linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - dogsled
     - errcheck
+    - forbidigo
     - goconst
     - gocritic
     - gofmt
     - goimports
-    - golint
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
-    - maligned
     - misspell
     - nakedret
-    - scopelint
+    - revive
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
 
 issues:

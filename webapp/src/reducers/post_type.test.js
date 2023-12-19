@@ -1,11 +1,11 @@
-import ActionTypes from 'action_types';
-import {postTypeComponent} from 'reducers/post_type';
+import ActionTypes from '@/action_types';
+import {postTypeComponent} from '@/reducers/post_type';
 
 describe('post_type reducers', () => {
     test('no action', () => expect(postTypeComponent(undefined, {})).toEqual({})); // eslint-disable-line no-undefined
     test('no action with initial state', () => {
         expect(
-            postTypeComponent({id: 'component_id'}, {})
+            postTypeComponent({id: 'component_id'}, {}),
         ).toEqual({id: 'component_id'});
     });
     test('action type without data', () => {
@@ -26,14 +26,14 @@ describe('post_type reducers', () => {
         expect(
             postTypeComponent(
                 {id: 'component_id'},
-                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: {postTypeComponentId: 'new_component_id'}})
+                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: {postTypeComponentId: 'new_component_id'}}),
         ).toEqual({id: 'new_component_id'});
     });
     test('action with empty id', () => {
         expect(
             postTypeComponent(
                 {id: 'component_id'},
-                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: {postTypeComponentId: ''}})
+                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: {postTypeComponentId: ''}}),
         ).toEqual({id: ''});
     });
 });

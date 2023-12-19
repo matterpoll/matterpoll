@@ -3,8 +3,8 @@ package kvstore
 import (
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -90,7 +90,8 @@ func TestPollStoreUpdate(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		oldPoll := testutils.GetPoll()
 		newPoll := oldPoll.Copy()
-		err := newPoll.UpdateVote(model.NewId(), 0)
+		msg, err := newPoll.UpdateVote(model.NewId(), 0)
+		require.Nil(t, msg)
 		require.NoError(t, err)
 		opt := model.PluginKVSetOptions{
 			Atomic:   true,
@@ -108,7 +109,8 @@ func TestPollStoreUpdate(t *testing.T) {
 	t.Run("KVSetWithOptions() fails", func(t *testing.T) {
 		oldPoll := testutils.GetPoll()
 		newPoll := oldPoll.Copy()
-		err := newPoll.UpdateVote(model.NewId(), 0)
+		msg, err := newPoll.UpdateVote(model.NewId(), 0)
+		require.Nil(t, msg)
 		require.NoError(t, err)
 		opt := model.PluginKVSetOptions{
 			Atomic:   true,
@@ -126,7 +128,8 @@ func TestPollStoreUpdate(t *testing.T) {
 	t.Run("db compare fails fails", func(t *testing.T) {
 		oldPoll := testutils.GetPoll()
 		newPoll := oldPoll.Copy()
-		err := newPoll.UpdateVote(model.NewId(), 0)
+		msg, err := newPoll.UpdateVote(model.NewId(), 0)
+		require.Nil(t, msg)
 		require.NoError(t, err)
 		opt := model.PluginKVSetOptions{
 			Atomic:   true,

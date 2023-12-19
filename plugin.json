@@ -1,37 +1,42 @@
 {
-  "id": "com.github.matterpoll.matterpoll",
-  "name": "Matterpoll",
-  "description": "Polling feature for Mattermost's custom slash command",
-  "homepage_url": "https://github.com/matterpoll/matterpoll",
-  "support_url": "https://github.com/matterpoll/matterpoll/issues",
-  "release_notes_url": "https://github.com/matterpoll/matterpoll/releases/tag/v1.3.0",
-  "icon_path": "assets/logo_dark.svg",
-  "version": "1.3.0",
-  "min_server_version": "5.20.0",
-  "server": {
-    "executables": {
-      "linux-amd64": "server/dist/plugin-linux-amd64",
-      "darwin-amd64": "server/dist/plugin-darwin-amd64",
-      "windows-amd64": "server/dist/plugin-windows-amd64.exe"
+    "id": "com.github.matterpoll.matterpoll",
+    "name": "Matterpoll",
+    "description": "Create polls and surveys directly within Mattermost.",
+    "homepage_url": "https://github.com/matterpoll/matterpoll",
+    "support_url": "https://github.com/matterpoll/matterpoll/issues",
+    "release_notes_url": "https://github.com/matterpoll/matterpoll/releases/tag/v1.6.1",
+    "icon_path": "assets/logo_dark.svg",
+    "version": "1.6.1",
+    "min_server_version": "6.3.0",
+    "server": {
+        "executables": {
+            "linux-amd64": "server/dist/plugin-linux-amd64",
+            "linux-arm64": "server/dist/plugin-linux-arm64",
+            "darwin-amd64": "server/dist/plugin-darwin-amd64",
+            "darwin-arm64": "server/dist/plugin-darwin-arm64",
+            "windows-amd64": "server/dist/plugin-windows-amd64.exe"
+        }
+    },
+    "webapp": {
+        "bundle_path": "webapp/dist/main.js"
+    },
+    "settings_schema": {
+        "settings": [
+            {
+                "key": "Trigger",
+                "display_name": "Trigger Word:",
+                "type": "text",
+                "help_text": "Trigger Word must be unique, cannot begin with a slash, and cannot contain any spaces.",
+                "default": "poll"
+            },
+            {
+                "key": "ExperimentalUI",
+                "display_name": "Experimental UI:",
+                "type": "bool",
+                "help_text": "When true, Matterpoll will render poll posts with a rich UI. The rich UI is not available on the mobile app.",
+                "default": false
+            }
+        ],
+        "footer": "* To report an issue, make a suggestion, or submit a contribution, [check the repository](https://github.com/matterpoll/matterpoll)."
     }
-  },
-  "webapp": {
-    "bundle_path": "webapp/dist/main.js"
-  },
-  "settings_schema": {
-    "settings": [{
-      "key": "Trigger",
-      "display_name": "Trigger Word",
-      "type": "text",
-      "help_text": "Trigger Word must be unique, and cannot begin with a slash or contain any spaces.",
-      "default": "poll"
-    },{
-      "key": "ExperimentalUI",
-      "display_name": "Experimental UI",
-      "type": "bool",
-      "help_text": "When true, Matterpoll will render poll posts with a rich UI. The rich UI is not available on mobile app.",
-      "default": false
-    }],
-    "footer": "* To report an issue, make a suggestion or a contribution, [check the repository](https://github.com/matterpoll/matterpoll)."
-  }
 }

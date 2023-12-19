@@ -1,7 +1,7 @@
 package testutils
 
 import (
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 )
@@ -24,13 +24,20 @@ func GetBotUserID() string {
 // GetServerConfig return a static server config.
 func GetServerConfig() *model.Config {
 	siteURL := GetSiteURL()
-	defaultClientLocale := "en"
+	localeEn := "en"
+	defaultServerLocale := localeEn
+	defaultClientLocale := localeEn
+	showFullName := true
 	return &model.Config{
 		ServiceSettings: model.ServiceSettings{
 			SiteURL: &siteURL,
 		},
 		LocalizationSettings: model.LocalizationSettings{
+			DefaultServerLocale: &defaultServerLocale,
 			DefaultClientLocale: &defaultClientLocale,
+		},
+		PrivacySettings: model.PrivacySettings{
+			ShowFullName: &showFullName,
 		},
 	}
 }
@@ -39,6 +46,7 @@ func GetServerConfig() *model.Config {
 func GetPoll() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
+		PostID:    "postID1",
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
@@ -52,7 +60,15 @@ func GetPoll() *poll.Poll {
 			Answer: "Answer 3",
 			Voter:  []string{},
 		}},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
+}
+
+// GetPollWithoutPostID returns a Poll with three Options, without PostID.
+func GetPollWithoutPostID() *poll.Poll {
+	poll := GetPoll().Copy()
+	poll.PostID = ""
+	return poll
 }
 
 // GetPollWithSettings returns a Poll with three Options, no votes and given Poll Settings.
@@ -66,6 +82,7 @@ func GetPollWithSettings(settings poll.Settings) *poll.Poll {
 func GetPollWithVotes() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
+		PostID:    "postID1",
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
@@ -79,6 +96,29 @@ func GetPollWithVotes() *poll.Poll {
 			Answer: "Answer 3",
 			Voter:  []string{},
 		}},
+		Settings: poll.Settings{MaxVotes: 1},
+	}
+}
+
+// GetPollWithVoteUnknownUser returns a Poll with three Options, one unknown voter and no Poll Settings.
+func GetPollWithVoteUnknownUser() *poll.Poll {
+	return &poll.Poll{
+		ID:        GetPollID(),
+		PostID:    "postID1",
+		CreatedAt: 1234567890,
+		Creator:   "userID1",
+		Question:  "Question",
+		AnswerOptions: []*poll.AnswerOption{{
+			Answer: "Answer 1",
+			Voter:  []string{"unknowUser"},
+		}, {
+			Answer: "Answer 2",
+			Voter:  []string{},
+		}, {
+			Answer: "Answer 3",
+			Voter:  []string{},
+		}},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
 }
 
@@ -93,6 +133,7 @@ func GetPollWithVotesAndSettings(settings poll.Settings) *poll.Poll {
 func GetPollTwoOptions() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
+		PostID:    "postID1",
 		CreatedAt: 1234567890,
 		Creator:   "userID1",
 		Question:  "Question",
@@ -103,5 +144,6 @@ func GetPollTwoOptions() *poll.Poll {
 			Answer: "No",
 			Voter:  []string{},
 		}},
+		Settings: poll.Settings{MaxVotes: 1},
 	}
 }

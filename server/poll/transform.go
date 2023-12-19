@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+
+	"github.com/matterpoll/matterpoll/server/utils"
 )
 
 const (
@@ -17,19 +19,6 @@ const (
 type IDToNameConverter func(userID string) (string, *model.AppError)
 
 var (
-	pollButtonAddOption = &i18n.Message{
-		ID:    "poll.button.addOption",
-		Other: "Add Option",
-	}
-	pollButtonDeletePoll = &i18n.Message{
-		ID:    "poll.button.deletePoll",
-		Other: "Delete Poll",
-	}
-	pollButtonEndPoll = &i18n.Message{
-		ID:    "poll.button.endPoll",
-		Other: "End Poll",
-	}
-
 	pollMessageSettings = &i18n.Message{
 		ID:    "poll.message.pollSettings",
 		Other: "**Poll Settings**: {{.Settings}}",
@@ -50,12 +39,30 @@ var (
 	pollEndPostAnswerHeading = &i18n.Message{
 		ID:    "poll.endPost.answer.heading",
 		One:   "{{.Answer}} ({{.Count}} vote)",
+		Few:   "{{.Answer}} ({{.Count}} votes)",
+		Many:  "{{.Answer}} ({{.Count}} votes)",
+		Other: "{{.Answer}} ({{.Count}} votes)",
+	}
+	rhsCardPollVoterSeperator = &i18n.Message{
+		ID:    "rhs.card.poll.voter.seperator",
+		Other: "and",
+	}
+	rhsCardPollCreatedBy = &i18n.Message{
+		ID:    "rhs.card.poll.createdBy",
+		Other: "Created by",
+	}
+	rhsCardPollAnswerHeading = &i18n.Message{
+		ID:    "rhs.card.poll.answer.heading",
+		One:   "{{.Answer}} ({{.Count}} vote)",
+		Few:   "{{.Answer}} ({{.Count}} votes)",
+		Many:  "{{.Answer}} ({{.Count}} votes)",
 		Other: "{{.Answer}} ({{.Count}} votes)",
 	}
 )
 
 // ToPostActions returns the poll as a message
-func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) []*model.SlackAttachment {
+	localizer := bundle.GetServerLocalizer()
 	numberOfVotes := 0
 	actions := []*model.PostAction{}
 
@@ -66,9 +73,10 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
 		}
 		actions = append(actions, &model.PostAction{
-			Id:   fmt.Sprintf("vote%v", i),
-			Name: answer,
-			Type: model.POST_ACTION_TYPE_BUTTON,
+			Id:    fmt.Sprintf("vote%v", i),
+			Name:  answer,
+			Type:  model.PostActionTypeButton,
+			Style: "default",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/vote/%v", pluginID, p.ID, i),
 			},
@@ -77,25 +85,57 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 
 	actions = append(actions,
 		&model.PostAction{
-			Id:   "addOption",
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonAddOption}),
-			Type: model.POST_ACTION_TYPE_BUTTON,
+			Id: "resetVote",
+			Name: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "poll.button.resetVotes",
+					One:   "Reset Your Vote",
+					Few:   "Reset Your Votes",
+					Many:  "Reset Your Votes",
+					Other: "Reset Your Votes",
+				},
+				PluralCount: p.Settings.MaxVotes,
+			}),
+			Type:  model.PostActionTypeButton,
+			Style: "primary",
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/votes/reset", pluginID, p.ID),
+			},
+		},
+	)
+	actions = append(actions,
+		&model.PostAction{
+			Id: "addOption",
+			Name: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.addOption",
+				Other: "Add Option",
+			}}),
+			Type:  model.PostActionTypeButton,
+			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/option/add/request", pluginID, p.ID),
 			},
 		}, &model.PostAction{
-			Id:   "deletePoll",
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonDeletePoll}),
-			Type: MatterpollAdminButtonType,
-			Integration: &model.PostActionIntegration{
-				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
-			},
-		}, &model.PostAction{
-			Id:   "endPoll",
-			Name: localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollButtonEndPoll}),
-			Type: MatterpollAdminButtonType,
+			Id: "endPoll",
+			Name: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.endPoll",
+				Other: "End Poll",
+			}}),
+			Type:  MatterpollAdminButtonType,
+			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
+			},
+		}, &model.PostAction{
+			Id: "deletePoll",
+			Name: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: &i18n.Message{
+				ID:    "poll.button.deletePoll",
+				Other: "Delete Poll",
+			}}),
+			Type:  MatterpollAdminButtonType,
+			Style: "danger",
+			Integration: &model.PostActionIntegration{
+				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
 			},
 		},
 	)
@@ -103,14 +143,15 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       p.makeAdditionalText(localizer, numberOfVotes),
+		Text:       p.makeAdditionalText(bundle, numberOfVotes),
 		Actions:    actions,
 	}}
 }
 
 // makeAdditionalText make descriptions about poll
 // This method returns markdown text, because it is used for SlackAttachment.Text field.
-func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) string {
+func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes int) string {
+	localizer := bundle.GetServerLocalizer()
 	var settingsText []string
 	if p.Settings.Anonymous {
 		settingsText = append(settingsText, "anonymous")
@@ -121,16 +162,19 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 	if p.Settings.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
 	}
+	if p.Settings.MaxVotes > 1 {
+		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
+	}
 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {
-		lines = append(lines, localizer.MustLocalize(&i18n.LocalizeConfig{
+		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
 			TemplateData:   map[string]interface{}{"Settings": strings.Join(settingsText, ", ")},
 		}))
 	}
 
-	lines = append(lines, localizer.MustLocalize(&i18n.LocalizeConfig{
+	lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 		DefaultMessage: pollMessageTotalVotes,
 		TemplateData:   map[string]interface{}{"TotalVotes": numberOfVotes},
 	}))
@@ -138,7 +182,8 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 }
 
 // ToEndPollPost returns the poll end message
-func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, convert IDToNameConverter) (*model.Post, *model.AppError) {
+func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert IDToNameConverter) (*model.Post, *model.AppError) {
+	localizer := bundle.GetServerLocalizer()
 	post := &model.Post{}
 	fields := []*model.SlackAttachmentField{}
 
@@ -151,7 +196,7 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 					return nil, err
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
+					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
 				} else if i != 0 {
 					voter += ", "
 				}
@@ -161,7 +206,7 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 
 		fields = append(fields, &model.SlackAttachmentField{
 			Short: true,
-			Title: localizer.MustLocalize(&i18n.LocalizeConfig{
+			Title: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 				DefaultMessage: pollEndPostAnswerHeading,
 				TemplateData: map[string]interface{}{
 					"Answer": o.Answer,
@@ -176,10 +221,48 @@ func (p *Poll) ToEndPollPost(localizer *i18n.Localizer, authorName string, conve
 	attachments := []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: pollEndPostText}),
+		Text:       bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostText}),
 		Fields:     fields,
 	}}
 	model.ParseSlackAttachment(post, attachments)
 
 	return post, nil
+}
+
+// ToCard return the poll for rhs card
+func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
+	localizer := bundle.GetServerLocalizer()
+	s := fmt.Sprintf("# %s\n", p.Question)
+
+	creatorName, _ := convert(p.Creator)
+	s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+
+	const comma = ", "
+	for _, o := range p.AnswerOptions {
+		var voter string
+		if !p.Settings.Anonymous {
+			for i := 0; i < len(o.Voter); i++ {
+				displayName, err := convert(o.Voter[i])
+				if err != nil {
+					return ""
+				}
+				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
+					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeperator}) + " "
+				} else if i != 0 {
+					voter += comma
+				}
+				voter += displayName
+			}
+		}
+
+		s += "### " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
+			DefaultMessage: rhsCardPollAnswerHeading,
+			TemplateData: map[string]interface{}{
+				"Answer": o.Answer,
+				"Count":  len(o.Voter),
+			},
+			PluralCount: len(o.Voter),
+		}) + "\n" + voter + "\n"
+	}
+	return s
 }

@@ -1,4 +1,4 @@
-import ActionTypes from 'action_types';
+import ActionTypes from '@/action_types';
 
 export const postTypeComponent = (state = {}, action) => {
     switch (action.type) {

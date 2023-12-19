@@ -3,8 +3,8 @@ package kvstore
 import (
 	"errors"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 )
@@ -44,6 +44,15 @@ func (s *PollStore) Insert(poll *poll.Poll) error {
 
 	if !ok {
 		return errors.New("poll already exists in database")
+	}
+
+	return nil
+}
+
+// Save stores a poll in the KV Store. Overwrittes any existing poll with the same id.
+func (s *PollStore) Save(poll *poll.Poll) error {
+	if err := s.api.KVSet(pollPrefix+poll.ID, poll.EncodeToByte()); err != nil {
+		return err
 	}
 
 	return nil

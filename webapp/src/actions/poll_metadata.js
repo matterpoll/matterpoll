@@ -1,14 +1,16 @@
-import {id as pluginId} from 'manifest';
-import ActionTypes from 'action_types';
+import {id as pluginId} from '@/manifest';
+import ActionTypes from '@/action_types';
 
 export const websocketHasVoted = (data) => async (dispatch) => {
     return dispatch({
         type: ActionTypes.FETCH_POLL_METADATA,
         data: {
+            voted_answers: data.voted_answers,
             user_id: data.user_id,
             poll_id: data.poll_id,
-            admin_permission: data.admin_permission,
-            voted_answers: data.voted_answers,
+            can_manage_poll: data.can_manage_poll,
+            setting_progress: data.setting_progress,
+            setting_public_add_option: data.setting_public_add_option,
         },
     });
 };
@@ -21,10 +23,14 @@ export const fetchPollMetadata = (siteUrl, pollId) => async (dispatch) => {
     let url = siteUrl.replace(/\/?$/, '');
     url = `${url}/plugins/${pluginId}/api/v1/polls/${pollId}/metadata`;
 
-    fetch(url).then((r) => r.json()).then((r) => {
+    try {
+        const resp = await fetch(url);
         dispatch({
             type: ActionTypes.FETCH_POLL_METADATA,
-            data: r,
+            data: await resp.json(),
         });
-    });
+    } catch (err) {
+        //eslint-disable-next-line no-console
+        console.log('failed to fetch metadata: ', err);
+    }
 };

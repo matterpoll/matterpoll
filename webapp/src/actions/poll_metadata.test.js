@@ -1,13 +1,11 @@
 import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 
-import ActionTypes from 'action_types';
+import ActionTypes from '@/action_types';
 
-import {fetchPollMetadata} from './poll_metadata';
+import {fetchPollMetadata} from '@/actions/poll_metadata';
 
-const promisifyMiddleware = () => (next) => (action) => {
-    return new Promise((resolve) => resolve(next(action)));
-};
-const middlewares = [promisifyMiddleware];
+const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
 
 describe('test', () => {
@@ -17,7 +15,7 @@ describe('test', () => {
     beforeEach(() => {
         const mockJsonPromise = Promise.resolve(mockSuccessResponse);
         const mockFetchPromise = Promise.resolve({
-            json: () => Promise.resolve(mockJsonPromise),
+            json: () => mockJsonPromise,
         });
         global.fetch = jest.fn().mockImplementation(() => mockFetchPromise);
 
@@ -32,30 +30,26 @@ describe('test', () => {
             data: mockSuccessResponse,
         };
 
-        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
-            then(() => {
-                const actions = store.getActions();
-                expect(actions[0]).toEqual(expected);
-            });
+        await store.dispatch(fetchPollMetadata(siteUrl, pollId));
+        const actions = store.getActions();
+        expect(actions[0]).toEqual(expected);
     });
-    it('fail, pollId is undefined', () => {
+
+    it('fail, pollId is undefined', async () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = undefined; // eslint-disable-line no-undefined
 
-        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
-            then(() => {
-                const actions = store.getActions();
-                expect(actions.length).toEqual(0);
-            });
+        await store.dispatch(fetchPollMetadata(siteUrl, pollId));
+        const actions = store.getActions();
+        expect(actions.length).toEqual(0);
     });
-    it('fail, pollId is empty', () => {
+
+    it('fail, pollId is empty', async () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = '';
 
-        store.dispatch(fetchPollMetadata(siteUrl, pollId)).
-            then(() => {
-                const actions = store.getActions();
-                expect(actions.length).toEqual(0);
-            });
+        await store.dispatch(fetchPollMetadata(siteUrl, pollId));
+        const actions = store.getActions();
+        expect(actions.length).toEqual(0);
     });
 });
