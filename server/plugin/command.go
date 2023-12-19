@@ -161,9 +161,9 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 
 	var newPoll *poll.Poll
 	if len(o) == 0 {
-		newPoll, errMsg = poll.NewPoll(creatorID, q, []string{defaultYes, defaultNo}, settings)
+		newPoll, errMsg = p.pf.NewPoll(creatorID, q, []string{defaultYes, defaultNo}, settings)
 	} else {
-		newPoll, errMsg = poll.NewPoll(creatorID, q, o, settings)
+		newPoll, errMsg = p.pf.NewPoll(creatorID, q, o, settings)
 	}
 	if errMsg != nil {
 		appErr := &model.AppError{

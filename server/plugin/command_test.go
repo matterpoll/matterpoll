@@ -8,8 +8,6 @@ import (
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/undefinedlabs/go-mpatch"
 
 	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -405,10 +403,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 			p := setupTestPlugin(t, api, store)
 			p.configuration.Trigger = trigger
 
-			patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
-			patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-			defer func() { require.NoError(t, patch1.Unpatch()) }()
-			defer func() { require.NoError(t, patch2.Unpatch()) }()
+			p.pf.SetNewID(testutils.GetPollID)
+			p.pf.SetMillis(testutils.GetMillis)
 
 			r, err := p.ExecuteCommand(nil, &model.CommandArgs{
 				Command:   test.Command,

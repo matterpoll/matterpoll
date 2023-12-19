@@ -7,7 +7,6 @@ import (
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	mpatch "github.com/undefinedlabs/go-mpatch"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
@@ -16,15 +15,15 @@ import (
 func TestNewPoll(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		assert := assert.New(t)
-		patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
-		patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-		defer func() { require.NoError(t, patch1.Unpatch()) }()
-		defer func() { require.NoError(t, patch2.Unpatch()) }()
+
+		var pf poll.Factory
+		pf.SetMillis(testutils.GetMillis)
+		pf.SetNewID(testutils.GetPollID)
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{
+		p, err := pf.NewPoll(creator, question, answerOptions, poll.Settings{
 			Anonymous:       true,
 			Progress:        true,
 			PublicAddOption: true,
@@ -34,7 +33,7 @@ func TestNewPoll(t *testing.T) {
 		require.Nil(t, err)
 		require.NotNil(t, p)
 		assert.Equal(testutils.GetPollID(), p.ID)
-		assert.Equal(int64(1234567890), p.CreatedAt)
+		assert.Equal(testutils.GetMillis(), p.CreatedAt)
 		assert.Equal(creator, p.Creator)
 		assert.Equal(question, p.Question)
 		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: []string{}}, p.AnswerOptions[0])
@@ -45,15 +44,13 @@ func TestNewPoll(t *testing.T) {
 
 	t.Run("error, invalid votes setting", func(t *testing.T) {
 		assert := assert.New(t)
-		patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
-		patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-		defer func() { require.NoError(t, patch1.Unpatch()) }()
-		defer func() { require.NoError(t, patch2.Unpatch()) }()
+
+		var pf poll.Factory
 
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{
+		p, err := pf.NewPoll(creator, question, answerOptions, poll.Settings{
 			Anonymous:       true,
 			Progress:        true,
 			PublicAddOption: true,
@@ -67,11 +64,13 @@ func TestNewPoll(t *testing.T) {
 	t.Run("error, duplicate option", func(t *testing.T) {
 		assert := assert.New(t)
 
+		var pf poll.Factory
+
 		creator := model.NewRandomString(10)
 		question := model.NewRandomString(10)
 		option := model.NewRandomString(10)
 		answerOptions := []string{option, model.NewRandomString(10), option}
-		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{MaxVotes: 1})
+		p, err := pf.NewPoll(creator, question, answerOptions, poll.Settings{MaxVotes: 1})
 
 		assert.Nil(p)
 		assert.NotNil(err)

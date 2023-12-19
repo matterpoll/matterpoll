@@ -311,7 +311,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 	userLocalizer := p.bundle.GetUserLocalizer(creatorID)
 
 	settings := poll.NewSettingsFromSubmission(request.Submission)
-	poll, errMsg := poll.NewPoll(creatorID, question, answerOptions, settings)
+	poll, errMsg := p.pf.NewPoll(creatorID, question, answerOptions, settings)
 	if errMsg != nil {
 		response := &model.SubmitDialogResponse{
 			Error: p.bundle.LocalizeErrorMessage(userLocalizer, errMsg),
