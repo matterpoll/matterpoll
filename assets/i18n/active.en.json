@@ -74,6 +74,6 @@
     "one": "{{.Answer}} ({{.Count}} vote)",
     "other": "{{.Answer}} ({{.Count}} votes)"
   },
-  "rhs.card.poll.createdBy": "Create by",
+  "rhs.card.poll.createdBy": "Created by",
   "rhs.card.poll.voter.seperator": "and"
 }
