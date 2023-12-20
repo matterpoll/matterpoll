@@ -132,7 +132,7 @@ func TestPollToPostActions(t *testing.T) {
 					},
 				}, {
 					Id:    "resetVote",
-					Name:  "Reset your vote",
+					Name:  "Reset Your Vote",
 					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
@@ -198,7 +198,7 @@ func TestPollToPostActions(t *testing.T) {
 					},
 				}, {
 					Id:    "resetVote",
-					Name:  "Reset your vote",
+					Name:  "Reset Your Vote",
 					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
@@ -264,7 +264,7 @@ func TestPollToPostActions(t *testing.T) {
 					},
 				}, {
 					Id:    "resetVote",
-					Name:  "Reset your vote",
+					Name:  "Reset Your Vote",
 					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
@@ -330,7 +330,7 @@ func TestPollToPostActions(t *testing.T) {
 					},
 				}, {
 					Id:    "resetVote",
-					Name:  "Reset your votes",
+					Name:  "Reset Your Votes",
 					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{

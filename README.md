@@ -12,19 +12,20 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 
 ## Installation
 
-In Mattermost, open **Product Menu  > Marketplace** (**Main Menu > Marketplace** on Mattermost v5) to install and configure Matterpoll.
+1. Download `com.github.matterpoll.matterpoll-x.y.z.tar.gz` from https://github.com/matterpoll/matterpoll/releases.
+2. Upload `com.github.matterpoll.matterpoll-x.y.z.tar.gz` file through **System Console > Plugins > Plugin Management > Upload Plugin** in Mattermost and enable the plugin.
+   * Upgrades can be performed by uploading the lastest release and confirm overwriting of the duplicate plugin ID.
 
-For offline/air gapped installations, you can obtain a `.tar.gz` from https://github.com/matterpoll/matterpoll/releases.
-In Mattermost, open **System Console > Plugins > Plugin Management > Upload Plugin** to upload the .tar.gz.
-Upgrades can be performed by importing the lastest release and confirm overwriting of the duplicate plugin ID.
 
 ## Settings
-After the plugin has downloaded and been installed, click the **Configure** button. Alternatively, you can configure Matterpoll from **System Console > Plugins > Matterpoll**.
+You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
 * **Trigger Word**: Change trigger word for poll command. (default `/poll`)
 * **Experimental UI**: Enable new experimental UI for poll posts:
   - Change button color of voted answers
   - Hide poll management buttons (Add Option / Delete Poll / End Poll) from users who don't have permission
+
+Note: **Experimental UI** is not supported in Mattermost Mobile due to its limited support for plugin extension ([ref](https://github.com/mattermost/mattermost-mobile/issues/3883#issuecomment-1148519369)).
 
 ## Usage
 
@@ -66,6 +67,9 @@ The currently supported languages are:
 Make sure to set your [Site URL](https://docs.mattermost.com/configure/configuration-settings.html?highlight=site%20url#site-url) properly.
 For example, this error happens in case you set SiteURL starting with `http://`, in spite of running Mattermost server through https.
 
+#### Plugin upload causes "Received invalid response from the server."
+
+Ensure that the "Maximum File Size" (System Console > File Storage) is set to be larger than the `com.github.matterpoll.matterpoll-x.y.z.tar.gz` file.
 
 ## Contributing
 
