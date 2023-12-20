@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/blang/semver/v4 v4.0.0
-	github.com/deckarep/golang-set/v2 v2.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/mattermost/mattermost-plugin-api v0.0.27
 	github.com/mattermost/mattermost-server/v6 v6.5.2

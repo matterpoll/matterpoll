@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 
@@ -72,12 +71,14 @@ var (
 func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) []*model.SlackAttachment {
 	localizer := bundle.GetServerLocalizer()
 	numberOfVotes := 0
-	voters := mapset.NewSet[string]()
+	voters := make(map[string]struct{})
 	actions := []*model.PostAction{}
 
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
-		voters.Append(o.Voter...)
+		for _, v := range o.Voter {
+			voters[v] = struct{}{}
+		}
 		answer := o.Answer
 		if p.Settings.Progress {
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
@@ -153,7 +154,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       p.makeAdditionalText(bundle, numberOfVotes, len(voters.ToSlice())),
+		Text:       p.makeAdditionalText(bundle, numberOfVotes, len(voters)),
 		Actions:    actions,
 	}}
 }
