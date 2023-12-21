@@ -18,10 +18,12 @@ describe('components/action_button/ActionButton', () => {
             voteAnswer: jest.fn(),
         },
     };
+
     test('without style should match snapshot', () => {
         const wrapper = shallow(<ActionButton {...baseProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
+
     test('without style with hasVoted should match snapshot', () => {
         const newProps = {
             ...baseProps,
@@ -30,57 +32,92 @@ describe('components/action_button/ActionButton', () => {
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
+
     test('without style with invalid theme should match snapshot', () => {
-        const newProps = baseProps;
-        newProps.theme = {};
+        const newProps = {
+            ...baseProps,
+            theme: {},
+        };
 
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
 
     test('with default style should match snapshot', () => {
-        const newProps = baseProps;
-        newProps.action.style = 'default';
+        const newProps = {
+            ...baseProps,
+            action: {
+                ...baseProps.action,
+                style: 'default',
+            },
+        };
 
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
+
     test('with default style with hasVoted should match snapshot', () => {
-        const newProps = baseProps;
-        newProps.action.style = 'default';
-        newProps.hasVoted = true;
+        const newProps = {
+            ...baseProps,
+            action: {
+                ...baseProps.action,
+                style: 'default',
+            },
+            hasVoted: true,
+        };
 
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
 
     test('with primary style should match snapshot', () => {
-        const newProps = baseProps;
-        newProps.action.style = 'primary';
+        const newProps = {
+            ...baseProps,
+            action: {
+                ...baseProps.action,
+                style: 'primary',
+            },
+        };
 
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
+
     test('with danger style should match snapshot', () => {
-        const newProps = baseProps;
-        newProps.action.style = 'danger';
+        const newProps = {
+            ...baseProps,
+            action: {
+                ...baseProps.action,
+                style: 'danger',
+            },
+        };
 
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
 
     test('with invalid style should match snapshot', () => {
-        const newProps = baseProps;
-        newProps.action.style = 'invalid_style_value';
+        const newProps = {
+            ...baseProps,
+            action: {
+                ...baseProps.action,
+                style: 'invalid_style_value',
+            },
+        };
 
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
     });
 
     test('with invalid theme should match snapshot', () => {
-        const newProps = baseProps;
-        newProps.action.style = 'default';
-        newProps.theme = {};
+        const newProps = {
+            ...baseProps,
+            theme: {},
+            action: {
+                ...baseProps.action,
+                style: 'default',
+            },
+        };
 
         const wrapper = shallow(<ActionButton {...newProps}/>);
         expect(wrapper).toMatchSnapshot();
