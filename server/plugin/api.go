@@ -24,6 +24,8 @@ const (
 
 	addOptionKey = "answerOption"
 	questionKey  = "question"
+
+	infoMessage = "Thanks for using Matterpoll v"
 )
 
 type (
@@ -98,7 +100,7 @@ func (p *MatterpollPlugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r
 }
 
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
-	_, _ = io.WriteString(w, "Thanks for using Matterpoll v"+root.Manifest.Version+"\n")
+	_, _ = io.WriteString(w, infoMessage+root.Manifest.Version+"\n")
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
