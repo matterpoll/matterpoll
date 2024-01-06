@@ -82,7 +82,7 @@ var (
 )
 
 // ExecuteCommand parses a given input and creates a poll if the input is correct
-func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+func (p *MatterpollPlugin) ExecuteCommand(_ *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	msg, appErr := p.executeCommand(args)
 	if msg != "" {
 		p.SendEphemeralPost(args.ChannelId, args.UserId, args.RootId, msg)

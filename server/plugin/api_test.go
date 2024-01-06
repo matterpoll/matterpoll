@@ -35,7 +35,7 @@ func TestServeHTTP(t *testing.T) {
 			RequestURL:         "/",
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedHeader:     http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}},
-			ExpectedbodyString: "Thanks for using Matterpoll v" + root.Manifest.Version + "\n",
+			ExpectedbodyString: infoMessage + root.Manifest.Version + "\n",
 		},
 		"InvalidRequestURL": {
 			RequestURL:         "/not_found",
