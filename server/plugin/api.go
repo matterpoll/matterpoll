@@ -24,6 +24,8 @@ const (
 
 	addOptionKey = "answerOption"
 	questionKey  = "question"
+
+	infoMessage = "Thanks for using Matterpoll v"
 )
 
 type (
@@ -92,13 +94,13 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	return r
 }
 
-func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.API.LogDebug("New request:", "Host", r.Host, "RequestURI", r.RequestURI, "Method", r.Method)
 	p.router.ServeHTTP(w, r)
 }
 
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
-	_, _ = io.WriteString(w, "Thanks for using Matterpoll v"+root.Manifest.Version+"\n")
+	_, _ = io.WriteString(w, infoMessage+root.Manifest.Version+"\n")
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +115,7 @@ func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join(bundlePath, "assets", iconFilename))
 }
 
-func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, _ *http.Request) {
 	configuration := p.getConfiguration()
 
 	w.Header().Set("Content-Type", "application/json")

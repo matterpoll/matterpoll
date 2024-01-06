@@ -303,7 +303,8 @@ func TestConvertCreatorIDToDisplayName(t *testing.T) {
 			defer api.AssertExpectations(t)
 
 			p := setupTestPlugin(t, api, &mockstore.Store{})
-			p.ServerConfig.PrivacySettings.ShowFullName = &test.SettingShowFullName
+			fn := test.SettingShowFullName
+			p.ServerConfig.PrivacySettings.ShowFullName = &fn
 
 			name, err := p.ConvertCreatorIDToDisplayName(test.UserID)
 
