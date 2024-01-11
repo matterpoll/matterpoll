@@ -5,8 +5,6 @@
     "paths": {
       "@/*": ["src/*"],
       "@mattermost/types/*": ["node_modules/@mattermost/types/lib/*"],
-      "mattermost-redux/*": ["node_modules/mattermost-webapp/packages/mattermost-redux/src/*"],
-      "reselect": ["node_modules/mattermost-webapp/packages/reselect/src"],
     },
     "lib": [
       "dom",

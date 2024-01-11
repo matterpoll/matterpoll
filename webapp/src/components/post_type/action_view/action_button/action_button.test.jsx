@@ -12,7 +12,7 @@ describe('components/action_button/ActionButton', () => {
             id: 'action_id1',
             name: 'action_name',
         },
-        theme: Preferences.THEMES.denim,
+        theme: Preferences.THEMES.mattermostDark,
         hasVoted: false,
         actions: {
             voteAnswer: jest.fn(),
