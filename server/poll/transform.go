@@ -181,10 +181,9 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 
 	lines := []string{"---"}
 
-	if p.Settings.Progress {
-		lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVotes)...)
+	if p.Settings.Progress && p.Settings.ShowProgressBars {
+		lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVotes, p.Settings.ProgressBarLength)...)
 	}
-
 	if len(settingsText) > 0 {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
@@ -223,7 +222,7 @@ func progressBarStr(progress float64, width float64) string {
 	return line
 }
 
-func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes int) []string {
+func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes, MAX_BAR_CHAR_LENGTH int) []string {
 	lines := make([]string, 0)
 
 	for _, n := range answerOptions {
@@ -234,8 +233,8 @@ func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes int) []st
 		} else {
 			progress = 0
 		}
-
-		lines = append(lines, fmt.Sprintf("`%s`\t%s\t`%3d %%`", progressBarStr(progress, 32), n.Answer, int(progress*100.0)))
+		lines = append(lines, fmt.Sprintf("%s:", n.Answer))
+		lines = append(lines, fmt.Sprintf("`%s`\t%3d %%", progressBarStr(progress, float64(MAX_BAR_CHAR_LENGTH)), int(progress*100.0)))
 	}
 	return lines
 }
