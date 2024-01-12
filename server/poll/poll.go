@@ -40,10 +40,12 @@ type AnswerOption struct {
 
 // Settings stores possible settings for a poll
 type Settings struct {
-	Anonymous       bool
-	Progress        bool
-	PublicAddOption bool
-	MaxVotes        int `json:"max_votes"`
+	Anonymous         bool
+	Progress          bool
+	PublicAddOption   bool
+	MaxVotes          int  `json:"max_votes"`
+	ShowProgressBars  bool //indecate if progressbars should be shown
+	ProgressBarLength int  //indecate the lengths of a progressbar
 }
 
 // NewPoll creates a new poll with the given parameter.

@@ -2,6 +2,7 @@ package poll
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v6/model"
@@ -83,6 +84,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 		if p.Settings.Progress {
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
 		}
+
 		actions = append(actions, &model.PostAction{
 			Id:    fmt.Sprintf("vote%v", i),
 			Name:  answer,
@@ -178,6 +180,10 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 	}
 
 	lines := []string{"---"}
+
+	if p.Settings.Progress && p.Settings.ShowProgressBars {
+		lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVotes, p.Settings.ProgressBarLength)...)
+	}
 	if len(settingsText) > 0 {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
@@ -201,6 +207,36 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 		}))
 	}
 	return strings.Join(lines, "\n")
+}
+
+func progressBarStr(progress float64, width float64) string {
+	progress = math.Min(1.0, math.Max(0, progress))
+	wholeWidth := math.Floor(progress * width)
+	line := ""
+	for i := 0.0; i < wholeWidth; i++ {
+		line += "█"
+	}
+	for i := 0.0; i < (width - wholeWidth); i++ {
+		line += "░"
+	}
+	return line
+}
+
+func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes, MAX_BAR_CHAR_LENGTH int) []string {
+	lines := make([]string, 0)
+
+	for _, n := range answerOptions {
+		v := len(n.Voter)
+		var progress float64
+		if numberOfVotes > 0 {
+			progress = float64(v) / float64(numberOfVotes)
+		} else {
+			progress = 0
+		}
+		lines = append(lines, fmt.Sprintf("%s:", n.Answer))
+		lines = append(lines, fmt.Sprintf("`%s`\t%3d %%", progressBarStr(progress, float64(MAX_BAR_CHAR_LENGTH)), int(progress*100.0)))
+	}
+	return lines
 }
 
 // ToEndPollPost returns the poll end message
