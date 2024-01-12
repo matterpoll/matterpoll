@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import LinkOnlyRenderer from 'utils/link_only_renderer';
+import LinkOnlyRenderer from '@/utils/link_only_renderer';
 
-import ActionView from './action_view';
-import FieldsTable from './fields/fields_table';
+import ActionView from '@/components/post_type/action_view';
+import FieldsTable from '@/components/post_type/fields/fields_table';
 
 const {formatText, messageHtmlToComponent} = window.PostUtils;
 
@@ -15,13 +15,13 @@ export default class PostType extends React.PureComponent {
 
         options: PropTypes.object,
         postTypeComponentId: PropTypes.string,
-    }
+    };
 
     static defaultProps = {
         options: {
             atMentions: true,
         },
-    }
+    };
 
     render() {
         const {post} = this.props;
@@ -35,7 +35,7 @@ export default class PostType extends React.PureComponent {
                     key={'attachment__author-name'}
                 >
                     {attachment.author_name}
-                </span>
+                </span>,
             );
         }
 

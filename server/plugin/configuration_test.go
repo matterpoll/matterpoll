@@ -4,20 +4,22 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
-	"github.com/matterpoll/matterpoll/server/store/mockstore"
-	"github.com/matterpoll/matterpoll/server/utils/testutils"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
 func TestOnConfigurationChange(t *testing.T) {
 	command := &model.Command{
-		Trigger:          "poll",
-		AutoComplete:     true,
-		AutoCompleteDesc: "Create a poll",
-		AutoCompleteHint: `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		Trigger:              "poll",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Create a poll",
+		AutoCompleteHint:     `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		AutocompleteIconData: "someIconData",
 	}
 
 	botPatch := &model.BotPatch{
@@ -32,7 +34,6 @@ func TestOnConfigurationChange(t *testing.T) {
 	}{
 		"Load and save successful, with old configuration": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetConfig").Return(testutils.GetServerConfig())
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*plugin.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"

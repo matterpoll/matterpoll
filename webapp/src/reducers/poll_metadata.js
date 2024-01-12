@@ -1,8 +1,8 @@
-import ActionTypes from 'action_types';
+import ActionTypes from '@/action_types';
 
-export const votedAnswers = (state = {}, action) => {
+export const pollMetadata = (state = {}, action) => {
     switch (action.type) {
-    case ActionTypes.FETCH_VOTED_ANSWERS:
+    case ActionTypes.FETCH_POLL_METADATA:
         if (action.data) {
             const nextState = {...state};
             if (!action.data.poll_id) {

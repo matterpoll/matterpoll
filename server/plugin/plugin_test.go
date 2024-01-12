@@ -2,28 +2,30 @@ package plugin
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
-	"bou.ke/monkey"
-	"github.com/blang/semver"
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
-	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
+	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/undefinedlabs/go-mpatch"
+
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
+	"github.com/matterpoll/matterpoll/server/utils"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-	"golang.org/x/text/language"
 )
 
 func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin { //nolint:interfacer
 	p := &MatterpollPlugin{
 		ServerConfig: testutils.GetServerConfig(),
+		getIconData:  getIconDataMock,
 	}
 	p.setConfiguration(&configuration{
 		Trigger:        "poll",
@@ -32,7 +34,9 @@ func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) 
 
 	p.SetAPI(api)
 	p.botUserID = testutils.GetBotUserID()
-	p.bundle = i18n.NewBundle(language.English)
+	api.On("GetConfig").Return(testutils.GetServerConfig()).Maybe()
+	api.On("GetBundlePath").Return(".", nil)
+	p.bundle, _ = utils.InitBundle(api, ".")
 	p.Store = store
 	p.router = p.InitAPI()
 	p.setActivated(true)
@@ -40,158 +44,131 @@ func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) 
 	return p
 }
 
+func getIconDataMock() (string, error) {
+	return "someIconData", nil
+}
+
 func TestPluginOnActivate(t *testing.T) {
-	bot := &model.Bot{
-		Username:    botUserName,
-		DisplayName: botDisplayName,
+	command := &model.Command{
+		Trigger:              "poll",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Create a poll",
+		AutoCompleteHint:     `"[Question]" "[Answer 1]" "[Answer 2]"...`,
+		AutocompleteIconData: "someIconData",
 	}
+
 	for name, test := range map[string]struct {
-		SetupAPI     func(*plugintest.API) *plugintest.API
-		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
-		ShouldError  bool
+		SetupAPI       func(*plugintest.API) *plugintest.API
+		SetupPluginAPI func(*pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch)
+		ShouldError    bool
 	}{
 		// server version tests
-		"greater minor version than minimumServerVersion": {
+		"all fine": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(minimumServerVersion)
-				err := m.IncrementMinor()
+				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
+				api.On("RegisterCommand", command).Return(nil)
+				return api
+			},
+			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
+				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
+					return testutils.GetBotUserID(), nil
+				})
 				require.NoError(t, err)
-				api.On("GetServerVersion").Return(m.String())
 
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
-				return helpers
+				return client, []*mpatch.Patch{p1}
 			},
 			ShouldError: false,
-		},
-		"same version as minimumServerVersion": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(nil)
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
-				return helpers
-			},
-			ShouldError: false,
-		},
-		"lesser minor version than minimumServerVersion": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				m := semver.MustParse(minimumServerVersion)
-				if m.Minor == 0 {
-					m.Major--
-					m.Minor = 0
-					m.Patch = 0
-				} else {
-					m.Minor--
-					m.Patch = 0
-				}
-				api.On("GetServerVersion").Return(m.String())
-				return api
-			},
-			ShouldError: true,
-		},
-		"GetServerVersion not implemented, returns empty string": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return("")
-				return api
-			},
-			ShouldError: true,
 		},
 		// i18n bundle tests
 		"GetBundlePath fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("GetBundlePath").Return("", errors.New(""))
 				return api
 			},
-			ShouldError: true,
-		},
-		"i18n directory doesn't exist ": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-				api.On("GetBundlePath").Return("/tmp", nil)
-				return api
+			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
+				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
+					return testutils.GetBotUserID(), nil
+				})
+				require.NoError(t, err)
+
+				return client, []*mpatch.Patch{p1}
 			},
 			ShouldError: true,
 		},
 		// Bot tests
 		"EnsureBot fails ": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
 				return api
 			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return("", &model.AppError{})
-				return helpers
+			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
+				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
+					return "", errors.New("")
+				})
+				require.NoError(t, err)
+
+				return client, []*mpatch.Patch{p1}
 			},
 			ShouldError: true,
 		},
 		"patch bot description fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
 				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, &model.AppError{})
 				return api
 			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
-				return helpers
-			},
-			ShouldError: true,
-		},
-		"SetProfileImage fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
+			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
+				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
+					return testutils.GetBotUserID(), nil
+				})
+				require.NoError(t, err)
 
-				path, err := filepath.Abs("../..")
-				require.Nil(t, err)
-				api.On("GetBundlePath").Return(path, nil)
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("SetProfileImage", testutils.GetBotUserID(), mock.Anything).Return(&model.AppError{})
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				helpers.On("EnsureBot", bot).Return(testutils.GetBotUserID(), nil)
-				return helpers
+				return client, []*mpatch.Patch{p1}
 			},
 			ShouldError: true,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
+			dir, err := os.MkdirTemp("", "")
+			require.NoError(t, err)
+
+			defer os.RemoveAll(dir)
+
+			// Create assets/i18n dir
+			i18nDir := filepath.Join(dir, "assets", "i18n")
+			err = os.MkdirAll(i18nDir, 0700)
+			require.NoError(t, err)
+
+			file := filepath.Join(i18nDir, "active.de.json")
+			content := []byte("{}")
+			err = os.WriteFile(file, content, 0600)
+			require.NoError(t, err)
+
 			api := test.SetupAPI(&plugintest.API{})
+			api.On("GetBundlePath").Return(dir, nil)
+			api.On("GetConfig").Return(testutils.GetServerConfig()).Maybe()
 			defer api.AssertExpectations(t)
 
-			helpers := &plugintest.Helpers{}
-			if test.SetupHelpers != nil {
-				helpers = test.SetupHelpers(helpers)
-				defer helpers.AssertExpectations(t)
-			}
-
-			patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+			patch1, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 				return &mockstore.Store{}, nil
 			})
-			defer patch.Unpatch()
+			defer func() { require.NoError(t, patch1.Unpatch()) }()
+
+			// Setup pluginapi client
+			mClient := pluginapi.NewClient(api, &plugintest.Driver{})
+			patch2, err := mpatch.PatchMethod(
+				pluginapi.NewClient,
+				func(plugin.API, plugin.Driver) *pluginapi.Client { return mClient },
+			)
+			require.NoError(t, err)
+			defer func() { require.NoError(t, patch2.Unpatch()) }()
+
+			if test.SetupPluginAPI != nil {
+				_, patches := test.SetupPluginAPI(mClient)
+				t.Cleanup(func() {
+					for _, p := range patches {
+						require.NoError(t, p.Unpatch())
+					}
+				})
+			}
 
 			siteURL := testutils.GetSiteURL()
 			defaultClientLocale := "en"
@@ -204,13 +181,13 @@ func TestPluginOnActivate(t *testing.T) {
 						SiteURL: &siteURL,
 					},
 				},
+				getIconData: getIconDataMock,
 			}
 			p.setConfiguration(&configuration{
 				Trigger: "poll",
 			})
 			p.SetAPI(api)
-			p.SetHelpers(helpers)
-			err := p.OnActivate()
+			err = p.OnActivate()
 
 			if test.ShouldError {
 				assert.NotNil(t, err)
@@ -221,13 +198,12 @@ func TestPluginOnActivate(t *testing.T) {
 	}
 	t.Run("NewStore() fails", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("GetServerVersion").Return(minimumServerVersion)
 		defer api.AssertExpectations(t)
 
-		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
-		defer patch.Unpatch()
+		defer func() { require.NoError(t, patch.Unpatch()) }()
 
 		siteURL := testutils.GetSiteURL()
 		p := &MatterpollPlugin{
@@ -247,13 +223,12 @@ func TestPluginOnActivate(t *testing.T) {
 	})
 	t.Run("SiteURL not set", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("GetServerVersion").Return(minimumServerVersion)
 		defer api.AssertExpectations(t)
 
-		patch := monkey.Patch(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
+		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
 			return nil, &model.AppError{}
 		})
-		defer patch.Unpatch()
+		defer func() { require.NoError(t, patch.Unpatch()) }()
 
 		p := &MatterpollPlugin{
 			ServerConfig: &model.Config{
@@ -279,10 +254,66 @@ func TestPluginOnDeactivate(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func GetMockArgumentsWithType(typeString string, num int) []interface{} {
-	ret := make([]interface{}, num)
-	for i := 0; i < len(ret); i++ {
-		ret[i] = mock.AnythingOfTypeArgument(typeString)
+func TestConvertCreatorIDToDisplayName(t *testing.T) {
+	user := &model.User{
+		Id:        "userID1",
+		Username:  "user1",
+		FirstName: "John",
+		LastName:  "Doe",
 	}
-	return ret
+	for name, test := range map[string]struct {
+		UserID              string
+		SettingShowFullName bool
+		SetupAPI            func(*plugintest.API) *plugintest.API
+		ShouldError         bool
+		ExpectedName        string
+	}{
+		"all fine, ShowFullName is true": {
+			UserID:              user.Id,
+			SettingShowFullName: true,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", user.Id).Return(user, nil)
+				return api
+			},
+			ShouldError:  false,
+			ExpectedName: user.GetFullName(),
+		},
+		"all fine, ShowFullName is false": {
+			UserID:              user.Id,
+			SettingShowFullName: false,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", user.Id).Return(user, nil)
+				return api
+			},
+			ShouldError:  false,
+			ExpectedName: user.Username,
+		},
+		"GetUser fails": {
+			UserID:              user.Id,
+			SettingShowFullName: true,
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", user.Id).Return(nil, &model.AppError{})
+				return api
+			},
+			ShouldError: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			api := test.SetupAPI(&plugintest.API{})
+			defer api.AssertExpectations(t)
+
+			p := setupTestPlugin(t, api, &mockstore.Store{})
+			fn := test.SettingShowFullName
+			p.ServerConfig.PrivacySettings.ShowFullName = &fn
+
+			name, err := p.ConvertCreatorIDToDisplayName(test.UserID)
+
+			if test.ShouldError {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, test.ExpectedName, name)
+			}
+		})
+	}
 }

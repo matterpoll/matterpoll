@@ -3,13 +3,13 @@ package kvstore
 import (
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
-	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
+	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 )
 
-const latestVersion = "1.3.0"
+const latestVersion = "1.6.1"
 
 func setupTestStore(api plugin.API) *Store {
 	store := Store{

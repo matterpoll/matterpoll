@@ -1,45 +1,115 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`components/action_button/ActionButton should match snapshot 1`] = `
-<ButtonToolbar
-  bsClass="btn-toolbar"
-  style={
-    Object {
-      "marginLeft": 0,
-    }
-  }
+exports[`components/action_button/ActionButton with danger style should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  hexColor="#ff6461"
+  isVoted={false}
+  key="action_id1"
+  onClick={[Function]}
 >
-  <Button
-    active={false}
-    block={false}
-    bsClass="btn"
-    bsStyle="default"
-    data-action-id="action_id1"
-    disabled={false}
-    key="action_id1"
-    onClick={[Function]}
-  />
-</ButtonToolbar>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
 `;
 
-exports[`components/action_button/ActionButton should match snapshot with hasVoted 1`] = `
-<ButtonToolbar
-  bsClass="btn-toolbar"
-  style={
-    Object {
-      "marginLeft": 0,
-    }
-  }
+exports[`components/action_button/ActionButton with default style should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  hexColor="#dddddd"
+  isVoted={false}
+  key="action_id1"
+  onClick={[Function]}
 >
-  <Button
-    active={false}
-    block={false}
-    bsClass="btn"
-    bsStyle="primary"
-    data-action-id="action_id1"
-    disabled={false}
-    key="action_id1"
-    onClick={[Function]}
-  />
-</ButtonToolbar>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
+`;
+
+exports[`components/action_button/ActionButton with default style with hasVoted should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  hexColor="#dddddd"
+  isVoted={true}
+  key="action_id1"
+  onClick={[Function]}
+>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
+`;
+
+exports[`components/action_button/ActionButton with invalid style should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  hexColor={null}
+  isVoted={false}
+  key="action_id1"
+  onClick={[Function]}
+>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
+`;
+
+exports[`components/action_button/ActionButton with invalid theme should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  hexColor={null}
+  isVoted={false}
+  key="action_id1"
+  onClick={[Function]}
+>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
+`;
+
+exports[`components/action_button/ActionButton with primary style should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  hexColor="#4cbba4"
+  isVoted={false}
+  key="action_id1"
+  onClick={[Function]}
+>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
+`;
+
+exports[`components/action_button/ActionButton without style should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  isVoted={false}
+  key="action_id1"
+  onClick={[Function]}
+>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
+`;
+
+exports[`components/action_button/ActionButton without style with hasVoted should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  isVoted={true}
+  key="action_id1"
+  onClick={[Function]}
+>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
+`;
+
+exports[`components/action_button/ActionButton without style with invalid theme should match snapshot 1`] = `
+<styled.button
+  className="btn btn-sm"
+  data-action-id="action_id1"
+  isVoted={false}
+  key="action_id1"
+  onClick={[Function]}
+>
+  mockMessageHtmlToComponent(mockFormatText(action_name))
+</styled.button>
 `;

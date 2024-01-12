@@ -36,12 +36,16 @@
     "other": "`/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`のように入力することで、回答をカスタマイズすることができます。"
   },
   "command.help.text.pollSetting.anonymous": {
-    "hash": "sha1-fb98b7ba3c20091f6ea79a47ee43122d14e3f50a",
-    "other": "誰がどこに回答したのか表示しない"
+    "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
+    "other": "投票を終了した時に誰がどこに投票したかを表示しない"
   },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "投票に関する設定を行うこともできます。例: `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. 利用可能な設定:"
+  },
+  "command.help.text.pollSetting.multi-vote": {
+    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
+    "other": "X個の回答に投票できるようにする"
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -66,6 +70,26 @@
   "dialog.addOption.title": {
     "hash": "sha1-05448f4011e4f488f6cef7cfaac5e2364528b304",
     "other": "回答を追加する"
+  },
+  "dialog.create.submitLabel": {
+    "hash": "sha1-6e157c5da4410b7e9de85f5c93026b9176e69064",
+    "other": "作成"
+  },
+  "dialog.create.title": {
+    "hash": "sha1-c643db620cf4120486a230ec3e8635d822bba294",
+    "other": "投票を作成する"
+  },
+  "dialog.createPoll.option": {
+    "hash": "sha1-790c56f066138f17e25e3bc55141bafb55eae14b",
+    "other": "回答 {{ .Number }}"
+  },
+  "dialog.createPoll.question": {
+    "hash": "sha1-002ff598115d84595ffeee6219cb5c03d3a1d4a6",
+    "other": "質問"
+  },
+  "dialog.createPoll.setting.multi": {
+    "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
+    "other": "ユーザーが投票できる回答の数です。"
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -103,6 +127,10 @@
     "hash": "sha1-60ddde386bd7190fa3da2ba13f97e3caa625d3e6",
     "other": "投票を終了する"
   },
+  "poll.button.resetVotes": {
+    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
+    "other": "あなたの投票をリセットする"
+  },
   "poll.endPost.answer.heading": {
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
     "other": "{{.Answer}} (投票数 {{.Count}})"
@@ -127,6 +155,22 @@
     "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
     "other": "無効な投票設定です: {{.Setting}}"
   },
+  "poll.newPoll.votesettings.invalidSetting": {
+    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
+    "other": "投票数は正の数であり、かつオプションの数以下でなくてはなりません。 あなたは \"{{.MaxVotes}}\" を指定しましたが、回答の数は \"{{.Options}}\" です。"
+  },
+  "poll.newPoll.votesettings.unexpectedError": {
+    "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
+    "other": "設定 {{.Setting}} を解析する際に予期せぬエラーが発生しました。"
+  },
+  "poll.updateVote.alreadyVoted": {
+    "hash": "sha1-c73a2717c594b9f0da1b70e9c7ff0027e5aa1eb2",
+    "other": "この回答には投票済みです。"
+  },
+  "poll.updateVote.maxVotes": {
+    "hash": "sha1-7804621555aa16cac819fa2a31c7521f1758de8f",
+    "other": "投票数の上限に達しているため、この回答に投票できません。リセットボタンから投票をリセットしてください。"
+  },
   "response.addOption.invalidPermission": {
     "hash": "sha1-eb74073a478570ac636c47871075938350adec37",
     "other": "投票の作成者とシステム管理者のみが回答を追加できます。"
@@ -148,15 +192,39 @@
     "other": "投票の作成者とシステム管理者のみが投票を終了できます。"
   },
   "response.endPoll.successfully": {
-    "hash": "sha1-1b6815bb2d4e133557649a1d5b0a20bb2a969560",
-    "other": "投票 **{{.Question}}** が終了し、元の投稿が更新されています。[このリンク]({{.Link}})をクリックして、結果を確認しましょう."
+    "hash": "sha1-a4fba46ee42d558010f595fec2e1e451cf3d4d73",
+    "other": "投票 **{{.Question}}** が終了し、元の投稿が更新されました。[ここをクリックすることで]({{.Link}})投票結果へ移動できます。"
+  },
+  "response.resetVotes.noVotes": {
+    "hash": "sha1-18b17380e0289d021b70c7111bab1dca0d563b30",
+    "other": "リセットする投票がありません。"
+  },
+  "response.resetVotes.success": {
+    "hash": "sha1-fd557010c26787d3aeece2745511dab764cb09c7",
+    "other": "すべての投票がクリアされました。リセット前に投票していたのは [{{.ClearedVotes}}] です。"
   },
   "response.vote.counted": {
     "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
     "other": "投票が完了しました。"
   },
+  "response.vote.multi.updated": {
+    "hash": "sha1-213785e569b994863b96b984772e9497f8629bbc",
+    "other": "投票がカウントされました。あなたの残りの投票数は {{.Remains}} です。"
+  },
   "response.vote.updated": {
     "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
     "other": "投票が更新されました。"
+  },
+  "rhs.card.poll.answer.heading": {
+    "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
+    "other": "{{.Answer}} ({{.Count}}票)"
+  },
+  "rhs.card.poll.createdBy": {
+    "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
+    "other": "作成者 "
+  },
+  "rhs.card.poll.voter.seperator": {
+    "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
+    "other": "と"
   }
 }

@@ -8,14 +8,20 @@
   "command.error.invalidInput": "Invalid input: {{.Error}}",
   "command.error.invalidNumberOfOptions": "You must provide either no answer or at least two answers.",
   "command.help.text.options": "You can customize the options by typing `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`",
-  "command.help.text.pollSetting.anonymous": "Don't show who voted for what",
+  "command.help.text.pollSetting.anonymous": "Don't show who voted for what when the poll ends",
   "command.help.text.pollSetting.introduction": "Poll Settings provider further customization, e.g. `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:",
+  "command.help.text.pollSetting.multi-vote": "Allow users to vote for X options",
   "command.help.text.pollSetting.progress": "During the poll, show how many votes each answer option got",
   "command.help.text.pollSetting.public-add-option": "Allow all users to add additional options",
   "command.help.text.simple": "To create a poll with the answer options \"{{.Yes}}\" and \"{{.No}}\" type `/{{.Trigger}} \"Question\"`",
   "dialog.addOption.element.displayName": "Option",
   "dialog.addOption.submitLabel": "Add",
   "dialog.addOption.title": "Add Option",
+  "dialog.create.submitLabel": "Create",
+  "dialog.create.title": "Create Poll",
+  "dialog.createPoll.option": "Option {{ .Number }}",
+  "dialog.createPoll.question": "Question",
+  "dialog.createPoll.setting.multi": "The number of options that an user can vote on.",
   "dialog.delete.submitLabel": "Delete",
   "dialog.delete.title": "Confirm Poll Delete",
   "dialog.end.submitLabel": "End",
@@ -25,7 +31,15 @@
   "poll.button.addOption": "Add Option",
   "poll.button.deletePoll": "Delete Poll",
   "poll.button.endPoll": "End Poll",
+  "poll.button.resetVotes": {
+    "few": "Reset Your Votes",
+    "many": "Reset Your Votes",
+    "one": "Reset Your Vote",
+    "other": "Reset Your Votes"
+  },
   "poll.endPost.answer.heading": {
+    "few": "{{.Answer}} ({{.Count}} votes)",
+    "many": "{{.Answer}} ({{.Count}} votes)",
     "one": "{{.Answer}} ({{.Count}} vote)",
     "other": "{{.Answer}} ({{.Count}} votes)"
   },
@@ -33,13 +47,39 @@
   "poll.endPost.text": "This poll has ended. The results are:",
   "poll.message.pollSettings": "**Poll Settings**: {{.Settings}}",
   "poll.message.totalVotes": "**Total votes**: {{.TotalVotes}}",
+  "poll.message.totalVotesMulti": {
+    "few": "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+    "many": "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+    "one": "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voter)",
+    "other": "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)"
+  },
   "poll.newPoll.unrecognizedSetting": "Unrecognized poll setting: {{.Setting}}",
+  "poll.newPoll.votesettings.invalidSetting": "The number of votes must be a positive number and less than or equal to the number of options. You specified \"{{.MaxVotes}}\", but the number of options is \"{{.Options}}\".",
+  "poll.newPoll.votesettings.unexpectedError": "Unexpected error happens when parsing {{.Setting}}",
+  "poll.updateVote.alreadyVoted": "You've already voted for this option.",
+  "poll.updateVote.maxVotes": "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
   "response.addOption.invalidPermission": "Only the creator of a poll and System Admins are allowed to add options.",
   "response.addOption.success": "Successfully added the option.",
   "response.deletePoll.invalidPermission": "Only the creator of a poll and System Admins are allowed to delete it.",
   "response.deletePoll.success": "Successfully deleted the poll.",
   "response.endPoll.invalidPermission": "Only the creator of a poll and System Admins are allowed to end it.",
   "response.endPoll.successfully": "The poll **{{.Question}}** has ended and the original post has been updated. You can jump to it by pressing [here]({{.Link}}).",
+  "response.resetVotes.noVotes": "There are no votes to reset.",
+  "response.resetVotes.success": "All votes are cleared. Your previous votes were [{{.ClearedVotes}}].",
   "response.vote.counted": "Your vote has been counted.",
-  "response.vote.updated": "Your vote has been updated."
+  "response.vote.multi.updated": {
+    "few": "Your vote has been counted. You have {{.Remains}} votes left.",
+    "many": "Your vote has been counted. You have {{.Remains}} votes left.",
+    "one": "Your vote has been counted. You have {{.Remains}} vote left.",
+    "other": "Your vote has been counted. You have {{.Remains}} votes left."
+  },
+  "response.vote.updated": "Your vote has been updated.",
+  "rhs.card.poll.answer.heading": {
+    "few": "{{.Answer}} ({{.Count}} votes)",
+    "many": "{{.Answer}} ({{.Count}} votes)",
+    "one": "{{.Answer}} ({{.Count}} vote)",
+    "other": "{{.Answer}} ({{.Count}} votes)"
+  },
+  "rhs.card.poll.createdBy": "Created by",
+  "rhs.card.poll.voter.seperator": "and"
 }
