@@ -9,8 +9,10 @@ import (
 // configuration, as well as values computed from the configuration. Any public fields will be
 // deserialized from the Mattermost server configuration in OnConfigurationChange.
 type configuration struct {
-	Trigger        string `json:"trigger"`
-	ExperimentalUI bool   `json:"experimentalui"`
+	Trigger           string `json:"trigger"`
+	ExperimentalUI    bool   `json:"experimentalui"`
+	ShowProgressBars  bool   `json:"showprogressbars"`
+	ProgressBarLength int    `json:"progressbarlength"`
 }
 
 // OnConfigurationChange loads the plugin configuration, validates it and saves it.
@@ -25,6 +27,11 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 
 	if configuration.Trigger == "" {
 		return errors.New("empty trigger not allowed")
+	}
+
+	if configuration.ShowProgressBars &&
+		(configuration.ProgressBarLength < 10 || configuration.ProgressBarLength > 100) {
+		return errors.New("Progress Bar Length should be between 10 and 100")
 	}
 
 	// This require a loaded i18n bundle

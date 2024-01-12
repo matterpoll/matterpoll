@@ -158,6 +158,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		}
 		return "", appErr
 	}
+	settings = p.applyConfiguration(settings)
 
 	var newPoll *poll.Poll
 	if len(o) == 0 {
