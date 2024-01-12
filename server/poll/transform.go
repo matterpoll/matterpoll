@@ -2,6 +2,7 @@ package poll
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -60,6 +61,7 @@ func (p *Poll) ToPostActions(localizer *i18n.Localizer, pluginID, authorName str
 		if p.Settings.Progress {
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
 		}
+
 		actions = append(actions, &model.PostAction{
 			Name: answer,
 			Type: model.POST_ACTION_TYPE_BUTTON,
@@ -113,6 +115,11 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 	}
 
 	lines := []string{"---"}
+
+	if p.Settings.Progress {
+		lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVotes)...)
+	}
+
 	if len(settingsText) > 0 {
 		lines = append(lines, localizer.MustLocalize(&i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
@@ -125,6 +132,36 @@ func (p *Poll) makeAdditionalText(localizer *i18n.Localizer, numberOfVotes int) 
 		TemplateData:   map[string]interface{}{"TotalVotes": numberOfVotes},
 	}))
 	return strings.Join(lines, "\n")
+}
+
+func progressBarStr(progress float64, width float64) string {
+	progress = math.Min(1.0, math.Max(0, progress))
+	wholeWidth := math.Floor(progress * width)
+	line := ""
+	for i := 0.0; i < wholeWidth; i++ {
+		line += "█"
+	}
+	for i := 0.0; i < (width - wholeWidth); i++ {
+		line += "░"
+	}
+	return line
+}
+
+func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes int) []string {
+	lines := make([]string, 0)
+
+	for _, n := range answerOptions {
+		v := len(n.Voter)
+		var progress float64
+		if numberOfVotes > 0 {
+			progress = float64(v) / float64(numberOfVotes)
+		} else {
+			progress = 0
+		}
+
+		lines = append(lines, fmt.Sprintf("`%s`\t%s\t`%3d %%`", progressBarStr(progress, 32), n.Answer, int(progress*100.0)))
+	}
+	return lines
 }
 
 // ToEndPollPost returns the poll end message
