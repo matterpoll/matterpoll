@@ -11,6 +11,11 @@ func GetPollID() string {
 	return "1234567890abcdefghij"
 }
 
+// GetPollID returns a number of milliseconds in unix time.
+func GetMillis() int64 {
+	return 1234567890
+}
+
 // GetSiteURL returns a static Site URL.
 func GetSiteURL() string {
 	return "https://example.org"
@@ -47,7 +52,7 @@ func GetPoll() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
 		PostID:    "postID1",
-		CreatedAt: 1234567890,
+		CreatedAt: GetMillis(),
 		Creator:   "userID1",
 		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{{
@@ -83,7 +88,7 @@ func GetPollWithVotes() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
 		PostID:    "postID1",
-		CreatedAt: 1234567890,
+		CreatedAt: GetMillis(),
 		Creator:   "userID1",
 		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{{
@@ -105,7 +110,7 @@ func GetPollWithVoteUnknownUser() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
 		PostID:    "postID1",
-		CreatedAt: 1234567890,
+		CreatedAt: GetMillis(),
 		Creator:   "userID1",
 		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{{
@@ -134,7 +139,7 @@ func GetPollTwoOptions() *poll.Poll {
 	return &poll.Poll{
 		ID:        GetPollID(),
 		PostID:    "postID1",
-		CreatedAt: 1234567890,
+		CreatedAt: GetMillis(),
 		Creator:   "userID1",
 		Question:  "Question",
 		AnswerOptions: []*poll.AnswerOption{{
