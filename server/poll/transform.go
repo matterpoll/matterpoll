@@ -27,6 +27,13 @@ var (
 		ID:    "poll.message.totalVotes",
 		Other: "**Total votes**: {{.TotalVotes}}",
 	}
+	pollMessageTotalVotesMultiSetting = &i18n.Message{
+		ID:    "poll.message.totalVotesMulti",
+		One:   "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voter)",
+		Few:   "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+		Many:  "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+		Other: "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+	}
 
 	pollEndPostText = &i18n.Message{
 		ID:    "poll.endPost.text",
@@ -64,10 +71,14 @@ var (
 func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) []*model.SlackAttachment {
 	localizer := bundle.GetServerLocalizer()
 	numberOfVotes := 0
+	voters := make(map[string]struct{})
 	actions := []*model.PostAction{}
 
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
+		for _, v := range o.Voter {
+			voters[v] = struct{}{}
+		}
 		answer := o.Answer
 		if p.Settings.Progress {
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
@@ -143,14 +154,14 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       p.makeAdditionalText(bundle, numberOfVotes),
+		Text:       p.makeAdditionalText(bundle, numberOfVotes, len(voters)),
 		Actions:    actions,
 	}}
 }
 
 // makeAdditionalText make descriptions about poll
 // This method returns markdown text, because it is used for SlackAttachment.Text field.
-func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes int) string {
+func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfVoters int) string {
 	localizer := bundle.GetServerLocalizer()
 	var settingsText []string
 	if p.Settings.Anonymous {
@@ -179,10 +190,21 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes int) strin
 		}))
 	}
 
-	lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
-		DefaultMessage: pollMessageTotalVotes,
-		TemplateData:   map[string]interface{}{"TotalVotes": numberOfVotes},
-	}))
+	if p.IsMultiVote() {
+		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
+			DefaultMessage: pollMessageTotalVotesMultiSetting,
+			TemplateData: map[string]interface{}{
+				"TotalVotes":  numberOfVotes,
+				"TotalVoters": numberOfVoters,
+			},
+			PluralCount: numberOfVoters,
+		}))
+	} else {
+		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
+			DefaultMessage: pollMessageTotalVotes,
+			TemplateData:   map[string]interface{}{"TotalVotes": numberOfVotes},
+		}))
+	}
 	return strings.Join(lines, "\n")
 }
 

@@ -47,6 +47,12 @@
   "poll.endPost.text": "This poll has ended. The results are:",
   "poll.message.pollSettings": "**Poll Settings**: {{.Settings}}",
   "poll.message.totalVotes": "**Total votes**: {{.TotalVotes}}",
+  "poll.message.totalVotesMulti": {
+    "few": "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+    "many": "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+    "one": "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voter)",
+    "other": "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)"
+  },
   "poll.newPoll.unrecognizedSetting": "Unrecognized poll setting: {{.Setting}}",
   "poll.newPoll.votesettings.invalidSetting": "The number of votes must be 0 or a positive number, and must be less than or equal to the number of options. You specified \"{{.MaxVotes}}\", but the number of options is \"{{.Options}}\".",
   "poll.newPoll.votesettings.unexpectedError": "Unexpected error happens when parsing {{.Setting}}",
