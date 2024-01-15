@@ -450,7 +450,7 @@ func TestPollToPostActions(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n**Poll Settings**: votes=all\n**Total votes**: 0",
+				Text:       "---\n**Poll Settings**: votes=all\n**Total votes**: 0 (0 voters)",
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Answer 1",
