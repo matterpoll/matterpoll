@@ -78,6 +78,13 @@ func GetPollWithSettings(settings poll.Settings) *poll.Poll {
 	return poll
 }
 
+// GetPollTwoOptionsWithSettings returns a Poll with two Options, "Yes" and "No", no votes and given Poll Settings.
+func GetPollTwoOptionsWithSettings(settings poll.Settings) *poll.Poll {
+	poll := GetPollTwoOptions()
+	poll.Settings = settings
+	return poll
+}
+
 // GetPollWithVotes returns a Poll with three Options, some votes and no Poll Settings.
 func GetPollWithVotes() *poll.Poll {
 	return &poll.Poll{

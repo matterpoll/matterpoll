@@ -151,6 +151,10 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 		},
 	)
 
+	if p.Settings.AnonymousCreator {
+		authorName = ""
+	}
+
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
@@ -166,6 +170,9 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 	var settingsText []string
 	if p.Settings.Anonymous {
 		settingsText = append(settingsText, "anonymous")
+	}
+	if p.Settings.AnonymousCreator {
+		settingsText = append(settingsText, "anonymous-creator")
 	}
 	if p.Settings.Progress {
 		settingsText = append(settingsText, "progress")
@@ -240,12 +247,17 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 		})
 	}
 
+	if p.Settings.AnonymousCreator {
+		authorName = ""
+	}
+
 	attachments := []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
 		Text:       bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostText}),
 		Fields:     fields,
 	}}
+
 	model.ParseSlackAttachment(post, attachments)
 
 	return post, nil

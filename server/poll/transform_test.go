@@ -74,6 +74,27 @@ func TestPollToEndPollPost(t *testing.T) {
 				}},
 			}},
 		},
+		"Anonymous creator poll": {
+			Poll: testutils.GetPollWithVotesAndSettings(poll.Settings{AnonymousCreator: true}),
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "",
+				Title:      "Question",
+				Text:       "This poll has ended. The results are:",
+				Fields: []*model.SlackAttachmentField{{
+					Title: "Answer 1 (3 votes)",
+					Value: "@user1, @user2 and @user3",
+					Short: true,
+				}, {
+					Title: "Answer 2 (1 vote)",
+					Value: "@user4",
+					Short: true,
+				}, {
+					Title: "Answer 3 (0 votes)",
+					Value: "",
+					Short: true,
+				}},
+			}},
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			expectedPost := &model.Post{}
@@ -253,6 +274,72 @@ func TestPollToPostActions(t *testing.T) {
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: anonymous, public-add-option\n**Total votes**: 0",
+				Actions: []*model.PostAction{{
+					Id:    "vote0",
+					Name:  "Answer 1",
+					Type:  model.PostActionTypeButton,
+					Style: "default",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "vote1",
+					Name:  "Answer 2",
+					Type:  model.PostActionTypeButton,
+					Style: "default",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "vote2",
+					Name:  "Answer 3",
+					Type:  model.PostActionTypeButton,
+					Style: "default",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "resetVote",
+					Name:  "Reset Your Vote",
+					Type:  model.PostActionTypeButton,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "addOption",
+					Name:  "Add Option",
+					Type:  model.PostActionTypeButton,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "endPoll",
+					Name:  "End Poll",
+					Type:  poll.MatterpollAdminButtonType,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "deletePoll",
+					Name:  "Delete Poll",
+					Type:  poll.MatterpollAdminButtonType,
+					Style: "danger",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				},
+				},
+			}},
+		},
+		"Multipile questions, settings: anonymous, anonymous-creator": {
+			Poll: testutils.GetPollWithSettings(poll.Settings{Anonymous: true, AnonymousCreator: true, MaxVotes: 1}),
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "",
+				Title:      "Question",
+				Text:       "---\n**Poll Settings**: anonymous, anonymous-creator\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Answer 1",
