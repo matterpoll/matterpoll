@@ -810,3 +810,48 @@ func TestPollCopy(t *testing.T) {
 		assert.Equal(testutils.GetPoll(), p2)
 	})
 }
+
+func TestSettingsString(t *testing.T) {
+	t.Run("anonymous", func(t *testing.T) {
+		s := poll.Settings{Anonymous: true}
+		str := s.String()
+
+		assert.Equal(t, str, "anonymous")
+	})
+	t.Run("anonymous-creator", func(t *testing.T) {
+		s := poll.Settings{AnonymousCreator: true}
+		str := s.String()
+
+		assert.Equal(t, str, "anonymous-creator")
+	})
+	t.Run("progress", func(t *testing.T) {
+		s := poll.Settings{Progress: true}
+		str := s.String()
+
+		assert.Equal(t, str, "progress")
+	})
+	t.Run("public-add-option", func(t *testing.T) {
+		s := poll.Settings{PublicAddOption: true}
+		str := s.String()
+
+		assert.Equal(t, str, "public-add-option")
+	})
+	t.Run("default votes", func(t *testing.T) {
+		s := poll.Settings{MaxVotes: 1}
+		str := s.String()
+
+		assert.Equal(t, str, "")
+	})
+	t.Run("votes", func(t *testing.T) {
+		s := poll.Settings{MaxVotes: 2}
+		str := s.String()
+
+		assert.Equal(t, str, "votes=2")
+	})
+	t.Run("all", func(t *testing.T) {
+		s := poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MaxVotes: 2}
+		str := s.String()
+
+		assert.Equal(t, str, "anonymous, anonymous-creator, progress, public-add-option, votes=2")
+	})
+}

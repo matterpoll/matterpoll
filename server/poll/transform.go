@@ -167,28 +167,13 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 // This method returns markdown text, because it is used for SlackAttachment.Text field.
 func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfVoters int) string {
 	localizer := bundle.GetServerLocalizer()
-	var settingsText []string
-	if p.Settings.Anonymous {
-		settingsText = append(settingsText, "anonymous")
-	}
-	if p.Settings.AnonymousCreator {
-		settingsText = append(settingsText, "anonymous-creator")
-	}
-	if p.Settings.Progress {
-		settingsText = append(settingsText, "progress")
-	}
-	if p.Settings.PublicAddOption {
-		settingsText = append(settingsText, "public-add-option")
-	}
-	if p.Settings.MaxVotes > 1 {
-		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
-	}
+	settingsText := p.Settings.String()
 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
-			TemplateData:   map[string]interface{}{"Settings": strings.Join(settingsText, ", ")},
+			TemplateData:   map[string]interface{}{"Settings": settingsText},
 		}))
 	}
 

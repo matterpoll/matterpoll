@@ -340,3 +340,24 @@ func (p *Poll) Copy() *Poll {
 	}
 	return p2
 }
+
+func (s Settings) String() string {
+	var settingsText []string
+	if s.Anonymous {
+		settingsText = append(settingsText, "anonymous")
+	}
+	if s.AnonymousCreator {
+		settingsText = append(settingsText, "anonymous-creator")
+	}
+	if s.Progress {
+		settingsText = append(settingsText, "progress")
+	}
+	if s.PublicAddOption {
+		settingsText = append(settingsText, "public-add-option")
+	}
+	if s.MaxVotes > 1 {
+		settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
+	}
+
+	return strings.Join(settingsText, ", ")
+}
