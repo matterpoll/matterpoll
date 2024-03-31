@@ -581,6 +581,16 @@ func TestToCard(t *testing.T) {
 				"### Answer 3 (0 votes)" +
 				"\n\n",
 		},
+		"Anonymous creator poll": {
+			Poll: testutils.GetPollWithVotesAndSettings(poll.Settings{AnonymousCreator: true}),
+			ExpectedMarkdown: "# Question\n" +
+				"### Answer 1 (3 votes)" +
+				"\n@user1, @user2 and @user3\n" +
+				"### Answer 2 (1 vote)" +
+				"\n@user4\n" +
+				"### Answer 3 (0 votes)" +
+				"\n\n",
+		},
 		"Normal poll, with error in voter name convert": {
 			Poll:             testutils.GetPollWithVoteUnknownUser(),
 			ExpectedMarkdown: "",

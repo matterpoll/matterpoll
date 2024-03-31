@@ -253,8 +253,10 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 	localizer := bundle.GetServerLocalizer()
 	s := fmt.Sprintf("# %s\n", p.Question)
 
-	creatorName, _ := convert(p.Creator)
-	s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+	if !p.Settings.AnonymousCreator {
+		creatorName, _ := convert(p.Creator)
+		s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+	}
 
 	const comma = ", "
 	for _, o := range p.AnswerOptions {
