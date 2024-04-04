@@ -20,6 +20,7 @@ const (
 	SettingKeyAnonymousCreator = "anonymous-creator"
 	SettingKeyProgress         = "progress"
 	SettingKeyPublicAddOption  = "public-add-option"
+	SettingKeyMultipleVotes    = "multiple-votes"
 )
 
 // Poll stores all needed information for a poll
@@ -46,6 +47,7 @@ type Settings struct {
 	Progress         bool
 	PublicAddOption  bool
 	MaxVotes         int `json:"max_votes"`
+	MultipleVotes    bool
 }
 
 // NewPoll creates a new poll with the given parameter.
@@ -83,6 +85,8 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
 			settings.PublicAddOption = true
+		case str == SettingKeyMultipleVotes:
+			settings.MultipleVotes = true
 		case votesSettingPattern.MatchString(str):
 			i, errMsg := parseVotesSettings(str)
 			if errMsg != nil {
@@ -126,6 +130,8 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 					settings.Progress = true
 				case SettingKeyPublicAddOption:
 					settings.PublicAddOption = true
+				case SettingKeyMultipleVotes:
+					settings.MultipleVotes = true
 				}
 			}
 		}
@@ -228,12 +234,14 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 	if p.IsMultiVote() {
 		// Multi Answer Mode
 		votedAnswers := p.GetVotedAnswers(userID)
-		for _, answer := range votedAnswers {
-			if answer == p.AnswerOptions[index].Answer {
-				return &i18n.Message{
-					ID:    "poll.updateVote.alreadyVoted",
-					Other: "You've already voted for this option.",
-				}, nil
+		if !p.Settings.MultipleVotes {
+			for _, answer := range votedAnswers {
+				if answer == p.AnswerOptions[index].Answer {
+					return &i18n.Message{
+						ID:    "poll.updateVote.alreadyVoted",
+						Other: "You've already voted for this option.",
+					}, nil
+				}
 			}
 		}
 		if p.Settings.MaxVotes <= len(votedAnswers) {
@@ -344,16 +352,19 @@ func (p *Poll) Copy() *Poll {
 func (s Settings) String() string {
 	var settingsText []string
 	if s.Anonymous {
-		settingsText = append(settingsText, "anonymous")
+		settingsText = append(settingsText, SettingKeyAnonymous)
 	}
 	if s.AnonymousCreator {
-		settingsText = append(settingsText, "anonymous-creator")
+		settingsText = append(settingsText, SettingKeyAnonymousCreator)
 	}
 	if s.Progress {
-		settingsText = append(settingsText, "progress")
+		settingsText = append(settingsText, SettingKeyProgress)
 	}
 	if s.PublicAddOption {
-		settingsText = append(settingsText, "public-add-option")
+		settingsText = append(settingsText, SettingKeyPublicAddOption)
+	}
+	if s.MultipleVotes {
+		settingsText = append(settingsText, SettingKeyMultipleVotes)
 	}
 	if s.MaxVotes > 1 {
 		settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))

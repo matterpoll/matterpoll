@@ -26,7 +26,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"- `--anonymous-creator`: Don't show author of the poll\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
-		"- `--votes=X`: Allow users to vote for X options"
+		"- `--votes=X`: Allow users to vote for X options\n" +
+		"- `--multiple-votes`: Allow users to vote multiple times for the same option"
 	triggerID := model.NewId()
 	rootID := model.NewId()
 
@@ -89,6 +90,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Name:        "setting-public-add-option",
 				Type:        "bool",
 				Placeholder: "Allow all users to add additional options",
+				Optional:    true,
+			}, {
+				DisplayName: "Multiple Votes",
+				Name:        "setting-multiple-votes",
+				Type:        "bool",
+				Placeholder: "Allow users to vote multiple times for the same option",
 				Optional:    true,
 			}},
 			SubmitLabel: "Create",

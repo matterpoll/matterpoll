@@ -66,6 +66,10 @@ var (
 		ID:    "command.help.text.pollSetting.public-add-option",
 		Other: "Allow all users to add additional options",
 	}
+	commandHelpTextPollSettingMultipleVotes = &i18n.Message{
+		ID:    "command.help.text.pollSetting.multiple-votes",
+		Other: "Allow users to vote multiple times for the same option",
+	}
 	commandHelpTextPollSettingMultiVote = &i18n.Message{
 		ID:    "command.help.text.pollSetting.multi-vote",
 		Other: "Allow users to vote for X options",
@@ -137,7 +141,8 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		msg += "- `--anonymous-creator`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymousCreator) + "\n"
 		msg += "- `--progress`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
 		msg += "- `--public-add-option`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
-		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
+		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote) + "\n"
+		msg += "- `--multiple-votes`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultipleVotes)
 
 		return msg, nil
 	}
@@ -306,6 +311,13 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-public-add-option",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
+		Optional:    true,
+	})
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Multiple Votes",
+		Name:        "setting-multiple-votes",
+		Type:        "bool",
+		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingMultipleVotes),
 		Optional:    true,
 	})
 	dialog := model.Dialog{

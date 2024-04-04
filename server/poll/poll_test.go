@@ -96,13 +96,14 @@ func TestNewSettingsFromStrings(t *testing.T) {
 			},
 		},
 		"full settings": {
-			Strs:        []string{"anonymous", "anonymous-creator", "progress", "public-add-option", "votes=4"},
+			Strs:        []string{"anonymous", "anonymous-creator", "progress", "public-add-option", "multiple-votes", "votes=4"},
 			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:        true,
 				AnonymousCreator: true,
 				Progress:         true,
 				PublicAddOption:  true,
+				MultipleVotes:    true,
 				MaxVotes:         4,
 			},
 		},
@@ -114,6 +115,7 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         true,
 				PublicAddOption:  true,
+				MultipleVotes:    false,
 				MaxVotes:         1,
 			},
 		},
@@ -125,6 +127,7 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         false,
 				PublicAddOption:  false,
+				MultipleVotes:    false,
 				MaxVotes:         1,
 			},
 		},
@@ -136,6 +139,7 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         true,
 				PublicAddOption:  true,
+				MultipleVotes:    false,
 				MaxVotes:         1,
 			},
 		},
@@ -166,6 +170,7 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         false,
 				PublicAddOption:  false,
+				MultipleVotes:    false,
 				MaxVotes:         1,
 			},
 		},
@@ -175,6 +180,7 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-anonymous-creator": true,
 				"setting-progress":          true,
 				"setting-public-add-option": true,
+				"setting-multiple-votes":    true,
 				"setting-multi":             float64(4),
 			},
 			ExpectedSettings: poll.Settings{
@@ -182,6 +188,7 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				AnonymousCreator: true,
 				Progress:         true,
 				PublicAddOption:  true,
+				MultipleVotes:    true,
 				MaxVotes:         4,
 			},
 		},
@@ -196,6 +203,7 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         false,
 				PublicAddOption:  false,
+				MultipleVotes:    false,
 				MaxVotes:         1,
 			},
 		},
@@ -420,6 +428,30 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 3"},
 				},
 				Settings: poll.Settings{MaxVotes: 2},
+			},
+			Error:         false,
+			ReturnMessage: false,
+		},
+		"Multi votes setting, allow multiple votes": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2, MultipleVotes: true},
+			},
+			UserID: "a",
+			Index:  0,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a", "a"}},
+					{Answer: "Answer 2"},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 2, MultipleVotes: true},
 			},
 			Error:         false,
 			ReturnMessage: false,
@@ -836,6 +868,12 @@ func TestSettingsString(t *testing.T) {
 
 		assert.Equal(t, str, "public-add-option")
 	})
+	t.Run("multiple-votes", func(t *testing.T) {
+		s := poll.Settings{MultipleVotes: true}
+		str := s.String()
+
+		assert.Equal(t, str, "multiple-votes")
+	})
 	t.Run("default votes", func(t *testing.T) {
 		s := poll.Settings{MaxVotes: 1}
 		str := s.String()
@@ -849,9 +887,9 @@ func TestSettingsString(t *testing.T) {
 		assert.Equal(t, str, "votes=2")
 	})
 	t.Run("all", func(t *testing.T) {
-		s := poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MaxVotes: 2}
+		s := poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MultipleVotes: true, MaxVotes: 2}
 		str := s.String()
 
-		assert.Equal(t, str, "anonymous, anonymous-creator, progress, public-add-option, votes=2")
+		assert.Equal(t, str, "anonymous, anonymous-creator, progress, public-add-option, multiple-votes, votes=2")
 	})
 }
