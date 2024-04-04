@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
+<div>
+  <strong>
+    Default settings
+  </strong>
+  <DefaultSetting
+    label="Don't show who voted for what when the poll ends"
+    name="anonymous"
+    onChange={[Function]}
+    title="Anonymous"
+    value={false}
+  />
+  <DefaultSetting
+    label="Don't show author of the poll"
+    name="anonymousCreator"
+    onChange={[Function]}
+    title="Anonymous Creator"
+    value={true}
+  />
+  <DefaultSetting
+    label="During the poll, show how many votes each answer option got"
+    name="progress"
+    onChange={[Function]}
+    title="Progress"
+    value={false}
+  />
+  <DefaultSetting
+    label="Allow all users to add additional options"
+    name="publicAddOption"
+    onChange={[Function]}
+    title="Public Add Option"
+    value={true}
+  />
+</div>
+`;
+
+exports[`components/admin_settings/DefaultSettings should match snapshot with all false options 1`] = `
+<div>
+  <strong>
+    Default settings
+  </strong>
+  <DefaultSetting
+    label="Don't show who voted for what when the poll ends"
+    name="anonymous"
+    onChange={[Function]}
+    title="Anonymous"
+    value={false}
+  />
+  <DefaultSetting
+    label="Don't show author of the poll"
+    name="anonymousCreator"
+    onChange={[Function]}
+    title="Anonymous Creator"
+    value={false}
+  />
+  <DefaultSetting
+    label="During the poll, show how many votes each answer option got"
+    name="progress"
+    onChange={[Function]}
+    title="Progress"
+    value={false}
+  />
+  <DefaultSetting
+    label="Allow all users to add additional options"
+    name="publicAddOption"
+    onChange={[Function]}
+    title="Public Add Option"
+    value={false}
+  />
+</div>
+`;
+
+exports[`components/admin_settings/DefaultSettings should match snapshot with all true options 1`] = `
+<div>
+  <strong>
+    Default settings
+  </strong>
+  <DefaultSetting
+    label="Don't show who voted for what when the poll ends"
+    name="anonymous"
+    onChange={[Function]}
+    title="Anonymous"
+    value={true}
+  />
+  <DefaultSetting
+    label="Don't show author of the poll"
+    name="anonymousCreator"
+    onChange={[Function]}
+    title="Anonymous Creator"
+    value={true}
+  />
+  <DefaultSetting
+    label="During the poll, show how many votes each answer option got"
+    name="progress"
+    onChange={[Function]}
+    title="Progress"
+    value={true}
+  />
+  <DefaultSetting
+    label="Allow all users to add additional options"
+    name="publicAddOption"
+    onChange={[Function]}
+    title="Public Add Option"
+    value={true}
+  />
+</div>
+`;

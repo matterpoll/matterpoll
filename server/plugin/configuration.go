@@ -9,11 +9,9 @@ import (
 // configuration, as well as values computed from the configuration. Any public fields will be
 // deserialized from the Mattermost server configuration in OnConfigurationChange.
 type configuration struct {
-	Trigger                string `json:"trigger"`
-	ExperimentalUI         bool   `json:"experimentalui"`
-	DefaultAnonymous       bool   `json:"default_anonymous"`
-	DefaultProgress        bool   `json:"default_progress"`
-	DefaultPublicAddOption bool   `json:"default_public_add_option"`
+	Trigger         string          `json:"trigger"`
+	ExperimentalUI  bool            `json:"experimentalui"`
+	DefaultSettings map[string]bool `json:"default_settings"`
 }
 
 // OnConfigurationChange loads the plugin configuration, validates it and saves it.

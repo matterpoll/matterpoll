@@ -37,25 +37,10 @@
                 "default": false
             },
             {
-                "key": "default_anonymous",
-                "display_name": "DefaultAnonymous",
-                "type": "bool",
-                "help_text": "When true, the 'Anonymous' checkbox will be pre-selected in the poll creation dialog",
-                "default": false
-            },
-            {
-                "key": "default_progress",
-                "display_name": "Default Progress",
-                "type": "bool",
-                "help_text": "When true, the 'Progress' checkbox will be pre-selected in the poll creation dialog",
-                "default": false
-            },
-            {
-                "key": "default_public_add_option",
-                "display_name": "Default Public Add Option",
-                "type": "bool",
-                "help_text": "When true, the 'Public Add Option' checkbox will be pre-selected in the poll creation dialog",
-                "default": false
+                "key": "default_settings",
+                "display_name": "Default Settings",
+                "type": "custom",
+                "help_text": "Settings will be pre-selected in 'Create Poll' dialog."
             }
         ],
         "footer": "* To report an issue, make a suggestion, or submit a contribution, [check the repository](https://github.com/matterpoll/matterpoll)."
