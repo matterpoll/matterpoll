@@ -153,6 +153,10 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 		},
 	)
 
+	if p.Settings.AnonymousCreator {
+		authorName = ""
+	}
+
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
@@ -165,26 +169,14 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 // This method returns markdown text, because it is used for SlackAttachment.Text field.
 func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfVoters int) string {
 	localizer := bundle.GetServerLocalizer()
-	var settingsText []string
-	if p.Settings.Anonymous {
-		settingsText = append(settingsText, "anonymous")
-	}
-	if p.Settings.Progress {
-		settingsText = append(settingsText, "progress")
-	}
-	if p.Settings.PublicAddOption {
-		settingsText = append(settingsText, "public-add-option")
-	}
-	if p.Settings.MaxVotes > 1 {
-		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
-	}
+	settingsText := p.Settings.String()
 
 	lines := []string{"---"}
 
 	if len(settingsText) > 0 {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
-			TemplateData:   map[string]interface{}{"Settings": strings.Join(settingsText, ", ")},
+			TemplateData:   map[string]interface{}{"Settings": settingsText},
 		}))
 	}
 
@@ -281,12 +273,17 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 		})
 	}
 
+	if p.Settings.AnonymousCreator {
+		authorName = ""
+	}
+
 	attachments := []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
 		Text:       bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostText}),
 		Fields:     fields,
 	}}
+
 	model.ParseSlackAttachment(post, attachments)
 
 	return post, nil
@@ -297,8 +294,10 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 	localizer := bundle.GetServerLocalizer()
 	s := fmt.Sprintf("# %s\n", p.Question)
 
-	creatorName, _ := convert(p.Creator)
-	s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+	if !p.Settings.AnonymousCreator {
+		creatorName, _ := convert(p.Creator)
+		s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+	}
 
 	const comma = ", "
 	for _, o := range p.AnswerOptions {

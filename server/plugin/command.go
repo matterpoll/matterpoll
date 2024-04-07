@@ -54,6 +54,10 @@ var (
 		ID:    "command.help.text.pollSetting.anonymous",
 		Other: "Don't show who voted for what when the poll ends",
 	}
+	commandHelpTextPollSettingAnonymousCreator = &i18n.Message{
+		ID:    "command.help.text.pollSetting.anonymous-creator",
+		Other: "Don't show author of the poll",
+	}
 	commandHelpTextPollSettingProgress = &i18n.Message{
 		ID:    "command.help.text.pollSetting.progress",
 		Other: "During the poll, show how many votes each answer option got",
@@ -130,6 +134,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger},
 		}) + "\n"
 		msg += "- `--anonymous`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
+		msg += "- `--anonymous-creator`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymousCreator) + "\n"
 		msg += "- `--progress`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
 		msg += "- `--public-add-option`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
 		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
@@ -281,6 +286,13 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-anonymous",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymous),
+		Optional:    true,
+	})
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Anonymous creator",
+		Name:        "setting-anonymous-creator",
+		Type:        "bool",
+		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymousCreator),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
