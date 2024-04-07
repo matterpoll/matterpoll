@@ -41,7 +41,7 @@
                 "display_name": "Show Progress Bars?",
                 "type": "bool",
                 "help_text": "When true, Matterpoll will generate progressbars when using the `--progress` settings.",
-                "default":true
+                "default":false
             },
             {
                 "key": "ProgressBarLength",

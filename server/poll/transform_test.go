@@ -120,29 +120,30 @@ func TestPollToEndPollPost(t *testing.T) {
 		require.Nil(t, post)
 	})
 }
-func TestPollWithProgress(t *testing.T) {
+
+func TestPollWithProgressBar(t *testing.T) {
 	PluginID := "com.github.matterpoll.matterpoll"
 	authorName := "John Doe"
-	//currentAPIVersion := "v1"
+	testLength := 100
 
 	for name, test := range map[string]struct {
 		Poll *poll.Poll
 	}{
 		"Test1": {
-			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true}),
+			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true, ShowProgressBars: true, ProgressBarLength: testLength}),
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			err := test.Poll.UpdateVote(testutils.GetBotUserID(), 1)
+			_, err := test.Poll.UpdateVote(testutils.GetBotUserID(), 1)
 			require.Nil(t, err)
 
-			err = test.Poll.UpdateVote("bar", 1)
+			_, err = test.Poll.UpdateVote("bar", 1)
 			require.Nil(t, err)
 
-			err = test.Poll.UpdateVote("foo", 0)
+			_, err = test.Poll.UpdateVote("foo", 0)
 			require.Nil(t, err)
 
-			post := test.Poll.ToPostActions(testutils.GetLocalizer(), PluginID, authorName)
+			post := test.Poll.ToPostActions(testutils.GetBundle(), PluginID, authorName)
 			require.NotNil(t, post)
 
 			postText := post[0].Text
@@ -153,17 +154,19 @@ func TestPollWithProgress(t *testing.T) {
 			require.Contains(t, postText, fmt.Sprintf("%3d %%", 0))
 
 			//check if the progressbars are correctly generated
-			lines := strings.Split(postText, "\n")
+			lines := strings.SplitAfter(postText, "Answer 1:\n")
+			lines = strings.Split(lines[1], "\n")
+
 			require.GreaterOrEqual(t, len(lines), 4)
 
-			filled := strings.Count(lines[1], "█")
+			filled := strings.Count(lines[0], "█")
 
 			filled += strings.Count(lines[2], "█")
 
-			filled += strings.Count(lines[3], "█")
+			filled += strings.Count(lines[4], "█")
 
 			//This value should be close to the total length of a progress bar (32 chars), it might be a little less due to rounding errors
-			require.GreaterOrEqual(t, filled, 31)
+			require.GreaterOrEqual(t, filled, testLength-1)
 		})
 	}
 }
@@ -255,7 +258,7 @@ func TestPollToPostActions(t *testing.T) {
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
-				Text:       "---\n`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`\tAnswer 1\t`  0 %`\n`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`\tAnswer 2\t`  0 %`\n`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`\tAnswer 3\t`  0 %`\n**Poll Settings**: progress\n**Total votes**: 0",
+				Text:       "---\n**Poll Settings**: progress\n**Total votes**: 0",
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Answer 1 (0)",
