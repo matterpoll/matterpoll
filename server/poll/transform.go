@@ -181,9 +181,6 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 
 	lines := []string{"---"}
 
-	if p.Settings.Progress && p.Settings.ShowProgressBars {
-		lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVotes, p.Settings.ProgressBarLength)...)
-	}
 	if len(settingsText) > 0 {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
@@ -205,6 +202,14 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 			DefaultMessage: pollMessageTotalVotes,
 			TemplateData:   map[string]interface{}{"TotalVotes": numberOfVotes},
 		}))
+	}
+
+	if p.Settings.Progress && p.Settings.ShowProgressBars {
+		if p.IsMultiVote() {
+			lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVotes, p.Settings.ProgressBarLength)...)
+		} else {
+			lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVoters, p.Settings.ProgressBarLength)...)
+		}
 	}
 	return strings.Join(lines, "\n")
 }
