@@ -36,7 +36,7 @@ export default class DefaultSettings extends React.Component {
     render() {
         return (
             <div>
-                <strong>{'Default settings'}</strong>
+                <strong>{'Default Settings'}</strong>
 
                 <DefaultSetting
                     name={'anonymous'}
