@@ -3,7 +3,7 @@
 exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
 <div>
   <strong>
-    Default settings
+    Default Settings
   </strong>
   <DefaultSetting
     label="Don't show who voted for what when the poll ends"
@@ -39,7 +39,7 @@ exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
 exports[`components/admin_settings/DefaultSettings should match snapshot with all false options 1`] = `
 <div>
   <strong>
-    Default settings
+    Default Settings
   </strong>
   <DefaultSetting
     label="Don't show who voted for what when the poll ends"
@@ -75,7 +75,7 @@ exports[`components/admin_settings/DefaultSettings should match snapshot with al
 exports[`components/admin_settings/DefaultSettings should match snapshot with all true options 1`] = `
 <div>
   <strong>
-    Default settings
+    Default Settings
   </strong>
   <DefaultSetting
     label="Don't show who voted for what when the poll ends"
