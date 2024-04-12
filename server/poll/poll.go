@@ -355,8 +355,13 @@ func (s Settings) String() string {
 	if s.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
 	}
-	if s.MaxVotes > 1 {
-		settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
+	if s.MaxVotes != 1 {
+		switch s.MaxVotes {
+		case 0:
+			settingsText = append(settingsText, "votes=all")
+		default:
+			settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
+		}
 	}
 
 	return strings.Join(settingsText, ", ")
