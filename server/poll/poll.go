@@ -46,8 +46,8 @@ type Settings struct {
 	Progress           bool
 	PublicAddOption    bool
 	MaxVotes           int  `json:"max_votes"`
-	ShowProgressBars  bool //indecate if progressbars should be shown
-	ProgressBarLength int  //indecate the lengths of a progressbar
+	ShowProgressBars  bool // indicate if progressbars should be shown
+	ProgressBarLength int  // indicate the lengths of a progressbar
 }
 
 // NewPoll creates a new poll with the given parameter.
