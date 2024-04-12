@@ -220,7 +220,7 @@ func progressBarStr(progress float64, width float64) string {
 	return line
 }
 
-func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes, MAX_BAR_CHAR_LENGTH int) []string {
+func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes, maxBarCharLength int) []string {
 	lines := make([]string, 0)
 
 	for _, n := range answerOptions {
@@ -232,7 +232,7 @@ func generateProgressBars(answerOptions []*AnswerOption, numberOfVotes, MAX_BAR_
 			progress = 0
 		}
 		lines = append(lines, fmt.Sprintf("%s:", n.Answer))
-		lines = append(lines, fmt.Sprintf("`%s`\t%3d %%", progressBarStr(progress, float64(MAX_BAR_CHAR_LENGTH)), int(progress*100.0)))
+		lines = append(lines, fmt.Sprintf("`%s`\t%3d %%", progressBarStr(progress, float64(maxBarCharLength)), int(progress*100.0)))
 	}
 	return lines
 }
