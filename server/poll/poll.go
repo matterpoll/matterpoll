@@ -16,9 +16,10 @@ import (
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
 
 const (
-	SettingKeyAnonymous       = "anonymous"
-	SettingKeyProgress        = "progress"
-	SettingKeyPublicAddOption = "public-add-option"
+	SettingKeyAnonymous        = "anonymous"
+	SettingKeyAnonymousCreator = "anonymous-creator"
+	SettingKeyProgress         = "progress"
+	SettingKeyPublicAddOption  = "public-add-option"
 )
 
 // Poll stores all needed information for a poll
@@ -40,10 +41,11 @@ type AnswerOption struct {
 
 // Settings stores possible settings for a poll
 type Settings struct {
-	Anonymous       bool
-	Progress        bool
-	PublicAddOption bool
-	MaxVotes        int `json:"max_votes"`
+	Anonymous        bool
+	AnonymousCreator bool
+	Progress         bool
+	PublicAddOption  bool
+	MaxVotes         int `json:"max_votes"`
 }
 
 // NewPoll creates a new poll with the given parameter.
@@ -75,6 +77,8 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 		switch {
 		case str == SettingKeyAnonymous:
 			settings.Anonymous = true
+		case str == SettingKeyAnonymousCreator:
+			settings.AnonymousCreator = true
 		case str == SettingKeyProgress:
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
@@ -116,6 +120,8 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 				switch s {
 				case SettingKeyAnonymous:
 					settings.Anonymous = true
+				case SettingKeyAnonymousCreator:
+					settings.AnonymousCreator = true
 				case SettingKeyProgress:
 					settings.Progress = true
 				case SettingKeyPublicAddOption:
@@ -333,4 +339,25 @@ func (p *Poll) Copy() *Poll {
 		}
 	}
 	return p2
+}
+
+func (s Settings) String() string {
+	var settingsText []string
+	if s.Anonymous {
+		settingsText = append(settingsText, "anonymous")
+	}
+	if s.AnonymousCreator {
+		settingsText = append(settingsText, "anonymous-creator")
+	}
+	if s.Progress {
+		settingsText = append(settingsText, "progress")
+	}
+	if s.PublicAddOption {
+		settingsText = append(settingsText, "public-add-option")
+	}
+	if s.MaxVotes > 1 {
+		settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
+	}
+
+	return strings.Join(settingsText, ", ")
 }

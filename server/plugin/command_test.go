@@ -23,6 +23,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"You can customize the options by typing `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
 		"Poll Settings provider further customization, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
 		"- `--anonymous`: Don't show who voted for what when the poll ends\n" +
+		"- `--anonymous-creator`: Don't show author of the poll\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
 		"- `--votes=X`: Allow users to vote for X options. Default is 1. If X is 0, users have an unlimited amount of votes."
@@ -70,6 +71,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Name:        "setting-anonymous",
 				Type:        "bool",
 				Placeholder: "Don't show who voted for what when the poll ends",
+				Optional:    true,
+			}, {
+				DisplayName: "Anonymous creator",
+				Name:        "setting-anonymous-creator",
+				Type:        "bool",
+				Placeholder: "Don't show author of the poll",
 				Optional:    true,
 			}, {
 				DisplayName: "Progress",
@@ -163,6 +170,37 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return store
 			},
 			Command: fmt.Sprintf("/%s \"Question\"", trigger),
+		},
+		"Just question and setting anonymous creator": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
+
+				post := &model.Post{
+					UserId:    testutils.GetBotUserID(),
+					ChannelId: "channelID1",
+					RootId:    rootID,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
+				}
+				poll := testutils.GetPollTwoOptionsWithSettings(poll.Settings{AnonymousCreator: true, MaxVotes: 1})
+				actions := poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "")
+				model.ParseSlackAttachment(post, actions)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				poll := testutils.GetPollTwoOptionsWithSettings(poll.Settings{AnonymousCreator: true, MaxVotes: 1})
+				store.PollStore.On("Insert", poll).Return(nil)
+				return store
+			},
+			Command: fmt.Sprintf("/%s \"Question\" --anonymous-creator", trigger),
 		},
 		"Just question, CreatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
