@@ -4,7 +4,7 @@ exports[`components/action_button/ActionButton with danger style should match sn
 <styled.button
   className="btn btn-sm"
   data-action-id="action_id1"
-  hexColor="#ff6461"
+  hexColor="#d24b4e"
   isVoted={false}
   key="action_id1"
   onClick={[Function]}
@@ -17,7 +17,7 @@ exports[`components/action_button/ActionButton with default style should match s
 <styled.button
   className="btn btn-sm"
   data-action-id="action_id1"
-  hexColor="#dddddd"
+  hexColor="#3f4350"
   isVoted={false}
   key="action_id1"
   onClick={[Function]}
@@ -30,7 +30,7 @@ exports[`components/action_button/ActionButton with default style with hasVoted 
 <styled.button
   className="btn btn-sm"
   data-action-id="action_id1"
-  hexColor="#dddddd"
+  hexColor="#3f4350"
   isVoted={true}
   key="action_id1"
   onClick={[Function]}
@@ -69,7 +69,7 @@ exports[`components/action_button/ActionButton with primary style should match s
 <styled.button
   className="btn btn-sm"
   data-action-id="action_id1"
-  hexColor="#4cbba4"
+  hexColor="#1c58d9"
   isVoted={false}
   key="action_id1"
   onClick={[Function]}
