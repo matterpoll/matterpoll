@@ -148,12 +148,12 @@ func TestPollWithProgressBar(t *testing.T) {
 
 			postText := post[0].Text
 			require.GreaterOrEqual(t, len(post), 1)
-			//check if the correct percentages are visible
+			// check if the correct percentages are visible
 			require.Contains(t, postText, fmt.Sprintf("%3d %%", 33))
 			require.Contains(t, postText, fmt.Sprintf("%3d %%", 66))
 			require.Contains(t, postText, fmt.Sprintf("%3d %%", 0))
 
-			//check if the progressbars are correctly generated
+			// check if the progressbars are correctly generated
 			lines := strings.SplitAfter(postText, "Answer 1:\n")
 			lines = strings.Split(lines[1], "\n")
 
@@ -165,7 +165,7 @@ func TestPollWithProgressBar(t *testing.T) {
 
 			filled += strings.Count(lines[4], "█")
 
-			//This value should be close to the total length of a progress bar (32 chars), it might be a little less due to rounding errors
+			// This value should be close to the total length of a progress bar (32 chars), it might be a little less due to rounding errors
 			require.GreaterOrEqual(t, filled, testLength-1)
 		})
 	}
