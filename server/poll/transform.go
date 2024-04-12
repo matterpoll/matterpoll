@@ -197,7 +197,7 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 	}
 
 	if p.Settings.Progress && p.Settings.ShowProgressBars {
-		lines = append(lines, "---")
+		lines = append(lines, "\n---")
 		if p.IsMultiVote() {
 			lines = append(lines, generateProgressBars(p.AnswerOptions, numberOfVotes, p.Settings.ProgressBarLength)...)
 		} else {
