@@ -894,52 +894,46 @@ func TestPollCopy(t *testing.T) {
 }
 
 func TestSettingsString(t *testing.T) {
-	t.Run("anonymous", func(t *testing.T) {
-		s := poll.Settings{Anonymous: true, MaxVotes: 1}
-		str := s.String()
-
-		assert.Equal(t, str, "anonymous")
-	})
-	t.Run("anonymous-creator", func(t *testing.T) {
-		s := poll.Settings{AnonymousCreator: true, MaxVotes: 1}
-		str := s.String()
-
-		assert.Equal(t, str, "anonymous-creator")
-	})
-	t.Run("progress", func(t *testing.T) {
-		s := poll.Settings{Progress: true, MaxVotes: 1}
-		str := s.String()
-
-		assert.Equal(t, str, "progress")
-	})
-	t.Run("public-add-option", func(t *testing.T) {
-		s := poll.Settings{PublicAddOption: true, MaxVotes: 1}
-		str := s.String()
-
-		assert.Equal(t, str, "public-add-option")
-	})
-	t.Run("default votes", func(t *testing.T) {
-		s := poll.Settings{MaxVotes: 1}
-		str := s.String()
-
-		assert.Equal(t, str, "")
-	})
-	t.Run("votes", func(t *testing.T) {
-		s := poll.Settings{MaxVotes: 2}
-		str := s.String()
-
-		assert.Equal(t, str, "votes=2")
-	})
-	t.Run("all votes", func(t *testing.T) {
-		s := poll.Settings{MaxVotes: 0}
-		str := s.String()
-
-		assert.Equal(t, str, "votes=all")
-	})
-	t.Run("all", func(t *testing.T) {
-		s := poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MaxVotes: 2}
-		str := s.String()
-
-		assert.Equal(t, str, "anonymous, anonymous-creator, progress, public-add-option, votes=2")
-	})
+	assert := assert.New(t)
+	for name, test := range map[string]struct {
+		Settings poll.Settings
+		Expected string
+	}{
+		"anonymous": {
+			Settings: poll.Settings{Anonymous: true, MaxVotes: 1},
+			Expected: "anonymous",
+		},
+		"anonymous-creator": {
+			Settings: poll.Settings{AnonymousCreator: true, MaxVotes: 1},
+			Expected: "anonymous-creator",
+		},
+		"progress": {
+			Settings: poll.Settings{Progress: true, MaxVotes: 1},
+			Expected: "progress",
+		},
+		"public-add-option": {
+			Settings: poll.Settings{PublicAddOption: true, MaxVotes: 1},
+			Expected: "public-add-option",
+		},
+		"default votes": {
+			Settings: poll.Settings{MaxVotes: 1},
+			Expected: "",
+		},
+		"votes": {
+			Settings: poll.Settings{MaxVotes: 2},
+			Expected: "votes=2",
+		},
+		"all votes": {
+			Settings: poll.Settings{MaxVotes: 0},
+			Expected: "votes=all",
+		},
+		"all": {
+			Settings: poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MaxVotes: 2},
+			Expected: "anonymous, anonymous-creator, progress, public-add-option, votes=2",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(test.Expected, test.Settings.String())
+		})
+	}
 }
