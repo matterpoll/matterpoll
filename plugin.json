@@ -47,7 +47,7 @@
                 "key": "ProgressBarLength",
                 "display_name": "Progress Bar Length:",
                 "type": "number",
-                "help_text": "If you have ShowProgressBars enabled, you can set the maximum characters used to display the bar. This may affect how mobile users see the bar. For small screens set it to something below 32.",
+                "help_text": "If you have ShowProgressBars enabled, you can set the maximum characters used to display the bar. Must be 10~100. This may affect how mobile users see the bar. For small screens set it to something below 32.",
                 "default":32
             }
         ],
