@@ -33,6 +33,13 @@ exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
     title="Public Add Option"
     value={true}
   />
+  <div
+    className="help-text"
+  >
+    <span>
+      Settings will be pre-selected in 'Create Poll' dialog. Settings will not be applied to \`/poll\` command.
+    </span>
+  </div>
 </div>
 `;
 
@@ -69,6 +76,13 @@ exports[`components/admin_settings/DefaultSettings should match snapshot with al
     title="Public Add Option"
     value={false}
   />
+  <div
+    className="help-text"
+  >
+    <span>
+      Settings will be pre-selected in 'Create Poll' dialog. Settings will not be applied to \`/poll\` command.
+    </span>
+  </div>
 </div>
 `;
 
@@ -105,5 +119,12 @@ exports[`components/admin_settings/DefaultSettings should match snapshot with al
     title="Public Add Option"
     value={true}
   />
+  <div
+    className="help-text"
+  >
+    <span>
+      Settings will be pre-selected in 'Create Poll' dialog. Settings will not be applied to \`/poll\` command.
+    </span>
+  </div>
 </div>
 `;
