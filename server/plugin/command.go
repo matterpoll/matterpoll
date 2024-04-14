@@ -66,6 +66,18 @@ var (
 		ID:    "command.help.text.pollSetting.public-add-option",
 		Other: "Allow all users to add additional options",
 	}
+	commandHelpTextPollSettingEnd = &i18n.Message{
+		ID:    "command.help.text.pollSetting.end",
+		Other: "End poll automatically",
+	}
+	commandHelpTextPollSettingEndDate = &i18n.Message{
+		ID:    "command.help.text.pollSetting.end",
+		Other: "End poll automatically at date",
+	}
+	commandHelpTextPollSettingEndDuration = &i18n.Message{
+		ID:    "command.help.text.pollSetting.end",
+		Other: "End poll automatically in X minutes (Xm) or hours (Xh)",
+	}
 	commandHelpTextPollSettingMultiVote = &i18n.Message{
 		ID:    "command.help.text.pollSetting.multi-vote",
 		Other: "Allow users to vote for X options",
@@ -137,6 +149,8 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		msg += "- `--anonymous-creator`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymousCreator) + "\n"
 		msg += "- `--progress`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
 		msg += "- `--public-add-option`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
+		msg += "- `--end=2006-01-02T15:04`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingEndDate) + "\n"
+		msg += "- `--end=5m`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingEndDuration) + "\n"
 		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
 
 		return msg, nil
@@ -215,6 +229,10 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	if err := p.Store.Poll().Insert(newPoll); err != nil {
 		p.API.LogWarn("failed to save poll", "error", err.Error())
 		return p.bundle.LocalizeDefaultMessage(userLocalizer, commandErrorGeneric), nil
+	}
+
+	if newPoll.Settings.End != nil {
+		p.StartScheduler(newPoll.ID, newPoll.Settings.End)
 	}
 
 	rPostJSON, _ := rPost.ToJSON()
@@ -306,6 +324,14 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-public-add-option",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
+		Optional:    true,
+	})
+	elements = append(elements, model.DialogElement{
+		DisplayName: "End",
+		Name:        "setting-end",
+		Type:        "text",
+		Placeholder: poll.EndSettingLayout,
+		HelpText:    p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingEnd),
 		Optional:    true,
 	})
 	dialog := model.Dialog{

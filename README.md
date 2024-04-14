@@ -41,6 +41,8 @@ Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" 
 - `--anonymous`: Don't show who voted for what at the end
 - `--progress`: During the poll, show how many votes each answer option got and, in post card, show who voted for which answers ([#431](https://github.com/matterpoll/matterpoll/pull/431))
 - `--public-add-option`: Allow all users to add additional options
+- `--end=2006-01-02T15:04`: End poll automatically at 2006-01-02 at 15:04 or
+- `--end=1h`: End poll automatic in one hour. Allowed are `m` for minutes and `h` for hours
 - `--votes=X`: Allow users to vote for X options
 
 ## Localization

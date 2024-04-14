@@ -44,6 +44,31 @@ func TestPollStoreGet(t *testing.T) {
 	})
 }
 
+func TestPollStoreGetAllPollIDs(t *testing.T) {
+	t.Run("all fine", func(t *testing.T) {
+		api := &plugintest.API{}
+		remoteKeys := []string{"default_key", "poll_123", "poll_456"}
+		api.On("KVList", 0, perPage).Return(remoteKeys, nil)
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		expectedKeys := []string{"123", "456"}
+		keys, err := store.Poll().GetAllPollIDs()
+		require.NoError(t, err)
+		assert.Equal(t, expectedKeys, keys)
+	})
+	t.Run("KVList() fails", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("KVList", 0, perPage).Return(nil, &model.AppError{})
+		defer api.AssertExpectations(t)
+		store := setupTestStore(api)
+
+		keys, err := store.Poll().GetAllPollIDs()
+		assert.Error(t, err)
+		assert.Nil(t, keys)
+	})
+}
+
 func TestPollStoreInsert(t *testing.T) {
 	t.Run("all fine", func(t *testing.T) {
 		opt := model.PluginKVSetOptions{

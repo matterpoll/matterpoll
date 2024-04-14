@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -14,12 +15,14 @@ import (
 )
 
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
+var endSettingPattern = regexp.MustCompile(`^end=(.+)$`)
 
 const (
 	SettingKeyAnonymous        = "anonymous"
 	SettingKeyAnonymousCreator = "anonymous-creator"
 	SettingKeyProgress         = "progress"
 	SettingKeyPublicAddOption  = "public-add-option"
+	EndSettingLayout           = "2006-01-02T15:04"
 )
 
 // Poll stores all needed information for a poll
@@ -45,6 +48,7 @@ type Settings struct {
 	AnonymousCreator bool
 	Progress         bool
 	PublicAddOption  bool
+	End              *time.Time
 	MaxVotes         int `json:"max_votes"`
 }
 
@@ -83,6 +87,12 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
 			settings.PublicAddOption = true
+		case endSettingPattern.MatchString(str):
+			end, errMsg := parseEndSettings(str)
+			if errMsg != nil {
+				return settings, errMsg
+			}
+			settings.End = &end
 		case votesSettingPattern.MatchString(str):
 			i, errMsg := parseVotesSettings(str)
 			if errMsg != nil {
@@ -105,7 +115,7 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 }
 
 // NewSettingsFromSubmission creates a new settings with the given parameter.
-func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
+func NewSettingsFromSubmission(submission map[string]interface{}) (Settings, *utils.ErrorMessage) {
 	settings := Settings{MaxVotes: 1}
 	for k, v := range submission {
 		if k == "setting-multi" {
@@ -113,6 +123,12 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 			if ok {
 				settings.MaxVotes = int(f)
 			}
+		} else if k == "setting-end" {
+			end, err := parseDate(v.(string))
+			if err != nil {
+				return settings, err
+			}
+			settings.End = &end
 		} else if strings.HasPrefix(k, "setting-") {
 			b, ok := v.(bool)
 			if b && ok {
@@ -130,36 +146,85 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 			}
 		}
 	}
-	return settings
+	return settings, nil
 }
 
 // parseVotesSettings parses setting for votes ("--votes=X")
 func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 	e := votesSettingPattern.FindStringSubmatch(s)
 	if len(e) != 2 {
-		return 0, &utils.ErrorMessage{
-			Message: &i18n.Message{
-				ID:    "poll.newPoll.votesettings.unexpectedError",
-				Other: "Unexpected error happens when parsing {{.Setting}}",
-			},
-			Data: map[string]interface{}{
-				"Setting": s,
-			},
-		}
+		return 0, getUnexpectedErrorMessage("poll.newPoll.votesettings.unexpectedError", s)
 	}
 	i, err := strconv.Atoi(e[1])
 	if err != nil {
-		return 0, &utils.ErrorMessage{
+		return 0, getUnexpectedErrorMessage("poll.newPoll.votesettings.invalidSetting", s)
+	}
+	return i, nil
+}
+
+// parseEndSettings parses setting for end date ("--end=X")
+func parseEndSettings(s string) (time.Time, *utils.ErrorMessage) {
+	e := endSettingPattern.FindStringSubmatch(s)
+	if len(e) != 2 {
+		return time.Time{}, getUnexpectedErrorMessage("poll.newPoll.endsettings.unexpectedError", s)
+	}
+
+	date, err := parseDate(e[1])
+
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return date, nil
+}
+
+// parseDate parses given string date or duration to time.Time
+func parseDate(value string) (time.Time, *utils.ErrorMessage) {
+	var date time.Time
+	if value == "tomorrow" {
+		date = time.Now().Add(time.Hour * time.Duration(24)).UTC().Round(time.Second)
+		return date, nil
+	}
+
+	duration, err := time.ParseDuration(value)
+	if err == nil {
+		date = time.Now().Add(duration).UTC().Round(time.Second)
+	} else {
+		date, err = time.Parse(EndSettingLayout, value)
+		_, offset := time.Now().Zone()
+		date = date.Add(-time.Duration(offset) * time.Second).UTC()
+	}
+
+	if err != nil {
+		return time.Time{}, getUnexpectedErrorMessage("poll.newPoll.endsettings.invalidSetting", value)
+	}
+
+	if date.Before(time.Now()) {
+		return time.Time{}, &utils.ErrorMessage{
 			Message: &i18n.Message{
-				ID:    "poll.newPoll.votesettings.invalidSetting",
-				Other: "Unexpected error happens when parsing {{.Setting}}",
+				ID:    "poll.newPoll.endsettings.beforeNow",
+				Other: "The end time {{.Date}} cannot be set to a time before the current time",
 			},
 			Data: map[string]interface{}{
-				"Setting": s,
+				"Date": date.String(),
 			},
 		}
 	}
-	return i, nil
+
+	return date, nil
+}
+
+// getUnexpectedErrorMessage get formatted error message for unexpected error
+func getUnexpectedErrorMessage(idText, s string) *utils.ErrorMessage {
+	return &utils.ErrorMessage{
+		Message: &i18n.Message{
+			ID:    idText,
+			Other: "Unexpected error happens when parsing {{.Setting}}",
+		},
+		Data: map[string]interface{}{
+			"Setting": s,
+		},
+	}
 }
 
 // validate checks if poll is valid
@@ -354,6 +419,9 @@ func (s Settings) String() string {
 	}
 	if s.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
+	}
+	if s.End != nil {
+		settingsText = append(settingsText, fmt.Sprintf("ends at %s", s.End.Local().Format(time.DateTime)))
 	}
 	if s.MaxVotes > 1 {
 		settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))

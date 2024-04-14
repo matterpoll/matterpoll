@@ -312,7 +312,14 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 
 	userLocalizer := p.bundle.GetUserLocalizer(creatorID)
 
-	settings := poll.NewSettingsFromSubmission(request.Submission)
+	settings, errMsg := poll.NewSettingsFromSubmission(request.Submission)
+	if errMsg != nil {
+		response := &model.SubmitDialogResponse{
+			Error: p.bundle.LocalizeErrorMessage(userLocalizer, errMsg),
+		}
+		return nil, response, nil
+	}
+
 	poll, errMsg := poll.NewPoll(creatorID, question, answerOptions, settings)
 	if errMsg != nil {
 		response := &model.SubmitDialogResponse{
@@ -351,6 +358,10 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 
 	if err := p.Store.Poll().Insert(poll); err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to save poll")
+	}
+
+	if poll.Settings.End != nil {
+		p.StartScheduler(poll.ID, poll.Settings.End)
 	}
 
 	return nil, nil, nil
