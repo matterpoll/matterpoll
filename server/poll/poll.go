@@ -118,18 +118,19 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 func NewSettingsFromSubmission(submission map[string]interface{}) (Settings, *utils.ErrorMessage) {
 	settings := Settings{MaxVotes: 1}
 	for k, v := range submission {
-		if k == "setting-multi" {
+		switch {
+		case k == "setting-multi":
 			f, ok := v.(float64)
 			if ok {
 				settings.MaxVotes = int(f)
 			}
-		} else if k == "setting-end" {
+		case k == "setting-end":
 			end, err := parseDate(v.(string))
 			if err != nil {
 				return settings, err
 			}
 			settings.End = &end
-		} else if strings.HasPrefix(k, "setting-") {
+		case strings.HasPrefix(k, "setting-"):
 			b, ok := v.(bool)
 			if b && ok {
 				s := strings.TrimPrefix(k, "setting-")
