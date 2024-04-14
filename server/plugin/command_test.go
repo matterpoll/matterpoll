@@ -27,9 +27,16 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
 		"- `--votes=X`: Allow users to vote for X options\n" +
-		"- `--multiple-votes`: Allow users to vote multiple times for the same option"
+		"- `--votes-method=cumulative`: Select the voting method. Supported are `limited` (default) and `cumulative` (allow users to vote multiple times for the same option)"
 	triggerID := model.NewId()
 	rootID := model.NewId()
+
+	voteMethodOptionLimited := model.PostActionOptions{Text: poll.VoteMethodLimited, Value: poll.VoteMethodLimited}
+	voteMethodOptionCumulative := model.PostActionOptions{Text: poll.VoteMethodCumulative, Value: poll.VoteMethodCumulative}
+	voteMethods := []*model.PostActionOptions{
+		&voteMethodOptionLimited,
+		&voteMethodOptionCumulative,
+	}
 
 	createPollDialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
@@ -92,11 +99,12 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Placeholder: "Allow all users to add additional options",
 				Optional:    true,
 			}, {
-				DisplayName: "Multiple Votes",
-				Name:        "setting-multiple-votes",
-				Type:        "bool",
-				Placeholder: "Allow users to vote multiple times for the same option",
-				Optional:    true,
+				DisplayName: "Vote Method",
+				Name:        "setting-vote-method",
+				Type:        "select",
+				HelpText:    "Cumulative allow users to vote multiple times for the same option",
+				Options:     voteMethods,
+				Default:     poll.VoteMethodLimited,
 			}},
 			SubmitLabel: "Create",
 		},

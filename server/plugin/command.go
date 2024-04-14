@@ -66,9 +66,13 @@ var (
 		ID:    "command.help.text.pollSetting.public-add-option",
 		Other: "Allow all users to add additional options",
 	}
-	commandHelpTextPollSettingMultipleVotes = &i18n.Message{
-		ID:    "command.help.text.pollSetting.multiple-votes",
-		Other: "Allow users to vote multiple times for the same option",
+	commandHelpTextPollSettingVoteMethod = &i18n.Message{
+		ID:    "command.help.text.pollSetting.voteMethod",
+		Other: "Select the voting method. Supported are `limited` (default) and `cumulative` (allow users to vote multiple times for the same option)",
+	}
+	commandHelpTextDialogPollSettingVoteMethod = &i18n.Message{
+		ID:    "command.help.text.pollSetting.voteMethod",
+		Other: "Cumulative allow users to vote multiple times for the same option",
 	}
 	commandHelpTextPollSettingMultiVote = &i18n.Message{
 		ID:    "command.help.text.pollSetting.multi-vote",
@@ -142,7 +146,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		msg += "- `--progress`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
 		msg += "- `--public-add-option`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
 		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote) + "\n"
-		msg += "- `--multiple-votes`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultipleVotes)
+		msg += "- `--votes-method=cumulative`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingVoteMethod)
 
 		return msg, nil
 	}
@@ -313,12 +317,20 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
 		Optional:    true,
 	})
+
+	voteMethodOptionLimited := model.PostActionOptions{Text: poll.VoteMethodLimited, Value: poll.VoteMethodLimited}
+	voteMethodOptionCumulative := model.PostActionOptions{Text: poll.VoteMethodCumulative, Value: poll.VoteMethodCumulative}
+	voteMethods := []*model.PostActionOptions{
+		&voteMethodOptionLimited,
+		&voteMethodOptionCumulative,
+	}
 	elements = append(elements, model.DialogElement{
-		DisplayName: "Multiple Votes",
-		Name:        "setting-multiple-votes",
-		Type:        "bool",
-		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingMultipleVotes),
-		Optional:    true,
+		DisplayName: "Vote Method",
+		Name:        "setting-vote-method",
+		Type:        "select",
+		HelpText:    p.bundle.LocalizeDefaultMessage(l, commandHelpTextDialogPollSettingVoteMethod),
+		Options:     voteMethods,
+		Default:     poll.VoteMethodLimited,
 	})
 	dialog := model.Dialog{
 		CallbackId: rootID,

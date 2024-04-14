@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -14,13 +15,15 @@ import (
 )
 
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
+var voteMethodSettingPattern = regexp.MustCompile(`^vote-method=(.+)$`)
 
 const (
 	SettingKeyAnonymous        = "anonymous"
 	SettingKeyAnonymousCreator = "anonymous-creator"
 	SettingKeyProgress         = "progress"
 	SettingKeyPublicAddOption  = "public-add-option"
-	SettingKeyMultipleVotes    = "multiple-votes"
+	VoteMethodLimited          = "limited"
+	VoteMethodCumulative       = "cumulative"
 )
 
 // Poll stores all needed information for a poll
@@ -47,7 +50,7 @@ type Settings struct {
 	Progress         bool
 	PublicAddOption  bool
 	MaxVotes         int `json:"max_votes"`
-	MultipleVotes    bool
+	VoteMethod       string
 }
 
 // NewPoll creates a new poll with the given parameter.
@@ -74,7 +77,7 @@ func NewPoll(creator, question string, answerOptions []string, settings Settings
 
 // NewSettingsFromStrings creates a new settings with the given parameter.
 func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
-	settings := Settings{MaxVotes: 1}
+	settings := Settings{MaxVotes: 1, VoteMethod: VoteMethodLimited}
 	for _, str := range strs {
 		switch {
 		case str == SettingKeyAnonymous:
@@ -85,8 +88,12 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
 			settings.PublicAddOption = true
-		case str == SettingKeyMultipleVotes:
-			settings.MultipleVotes = true
+		case voteMethodSettingPattern.MatchString(str):
+			voteMethod, errMsg := parseVoteMethodSettings(str)
+			if errMsg != nil {
+				return settings, errMsg
+			}
+			settings.VoteMethod = voteMethod
 		case votesSettingPattern.MatchString(str):
 			i, errMsg := parseVotesSettings(str)
 			if errMsg != nil {
@@ -109,15 +116,22 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 }
 
 // NewSettingsFromSubmission creates a new settings with the given parameter.
-func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
-	settings := Settings{MaxVotes: 1}
+func NewSettingsFromSubmission(submission map[string]interface{}) (Settings, *utils.ErrorMessage) {
+	settings := Settings{MaxVotes: 1, VoteMethod: VoteMethodLimited}
 	for k, v := range submission {
-		if k == "setting-multi" {
+		switch {
+		case k == "setting-multi":
 			f, ok := v.(float64)
 			if ok {
 				settings.MaxVotes = int(f)
 			}
-		} else if strings.HasPrefix(k, "setting-") {
+		case k == "setting-vote-method":
+			voteMethod, errMsg := parseVoteMethod(v.(string))
+			if errMsg != nil {
+				return settings, errMsg
+			}
+			settings.VoteMethod = voteMethod
+		case strings.HasPrefix(k, "setting-"):
 			b, ok := v.(bool)
 			if b && ok {
 				s := strings.TrimPrefix(k, "setting-")
@@ -130,13 +144,11 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 					settings.Progress = true
 				case SettingKeyPublicAddOption:
 					settings.PublicAddOption = true
-				case SettingKeyMultipleVotes:
-					settings.MultipleVotes = true
 				}
 			}
 		}
 	}
-	return settings
+	return settings, nil
 }
 
 // parseVotesSettings parses setting for votes ("--votes=X")
@@ -166,6 +178,39 @@ func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 		}
 	}
 	return i, nil
+}
+
+func parseVoteMethodSettings(s string) (string, *utils.ErrorMessage) {
+	e := voteMethodSettingPattern.FindStringSubmatch(s)
+	if len(e) != 2 {
+		return VoteMethodLimited, &utils.ErrorMessage{
+			Message: &i18n.Message{
+				ID:    "poll.newPoll.votemethodsettings.unexpectedError",
+				Other: "Unexpected error happens when parsing {{.Setting}}",
+			},
+			Data: map[string]interface{}{
+				"Setting": s,
+			},
+		}
+	}
+	return parseVoteMethod(e[1])
+}
+
+func parseVoteMethod(s string) (string, *utils.ErrorMessage) {
+	allowedMethods := []string{VoteMethodLimited, VoteMethodCumulative}
+
+	if !slices.Contains(allowedMethods, strings.ToLower(s)) {
+		return VoteMethodLimited, &utils.ErrorMessage{
+			Message: &i18n.Message{
+				ID:    "poll.newPoll.votemethodsettings.unknown",
+				Other: "Unknown vote method {{.Setting}}",
+			},
+			Data: map[string]interface{}{
+				"Setting": s,
+			},
+		}
+	}
+	return s, nil
 }
 
 // validate checks if poll is valid
@@ -234,7 +279,7 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 	if p.IsMultiVote() {
 		// Multi Answer Mode
 		votedAnswers := p.GetVotedAnswers(userID)
-		if !p.Settings.MultipleVotes {
+		if p.Settings.VoteMethod != VoteMethodCumulative {
 			for _, answer := range votedAnswers {
 				if answer == p.AnswerOptions[index].Answer {
 					return &i18n.Message{
@@ -363,8 +408,8 @@ func (s Settings) String() string {
 	if s.PublicAddOption {
 		settingsText = append(settingsText, SettingKeyPublicAddOption)
 	}
-	if s.MultipleVotes {
-		settingsText = append(settingsText, SettingKeyMultipleVotes)
+	if !slices.Contains([]string{VoteMethodLimited, ""}, s.VoteMethod) {
+		settingsText = append(settingsText, fmt.Sprintf("vote-method=%s", s.VoteMethod))
 	}
 	if s.MaxVotes > 1 {
 		settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))

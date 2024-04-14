@@ -204,17 +204,27 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 	for _, o := range p.AnswerOptions {
 		var voter string
 		if !p.Settings.Anonymous {
+			voters := make(map[string]int)
 			for i := 0; i < len(o.Voter); i++ {
 				displayName, err := convert(o.Voter[i])
 				if err != nil {
 					return nil, err
 				}
-				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
+				voters[displayName]++
+			}
+
+			i := 0
+			for displayName, count := range voters {
+				if i+1 == len(voters) && len(voters) > 1 {
 					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
 				} else if i != 0 {
 					voter += ", "
 				}
 				voter += displayName
+				if count > 1 {
+					voter += fmt.Sprintf("(%dx)", count)
+				}
+				i++
 			}
 		}
 

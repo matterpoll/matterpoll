@@ -92,18 +92,19 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         false,
 				PublicAddOption:  false,
+				VoteMethod:       poll.VoteMethodLimited,
 				MaxVotes:         1,
 			},
 		},
 		"full settings": {
-			Strs:        []string{"anonymous", "anonymous-creator", "progress", "public-add-option", "multiple-votes", "votes=4"},
+			Strs:        []string{"anonymous", "anonymous-creator", "progress", "public-add-option", "vote-method=cumulative", "votes=4"},
 			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:        true,
 				AnonymousCreator: true,
 				Progress:         true,
 				PublicAddOption:  true,
-				MultipleVotes:    true,
+				VoteMethod:       poll.VoteMethodCumulative,
 				MaxVotes:         4,
 			},
 		},
@@ -115,7 +116,7 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         true,
 				PublicAddOption:  true,
-				MultipleVotes:    false,
+				VoteMethod:       poll.VoteMethodLimited,
 				MaxVotes:         1,
 			},
 		},
@@ -127,7 +128,7 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         false,
 				PublicAddOption:  false,
-				MultipleVotes:    false,
+				VoteMethod:       poll.VoteMethodLimited,
 				MaxVotes:         1,
 			},
 		},
@@ -139,7 +140,7 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				AnonymousCreator: false,
 				Progress:         true,
 				PublicAddOption:  true,
-				MultipleVotes:    false,
+				VoteMethod:       poll.VoteMethodLimited,
 				MaxVotes:         1,
 			},
 		},
@@ -161,16 +162,18 @@ func TestNewSettingsFromStrings(t *testing.T) {
 func TestNewSettingsFromSubmission(t *testing.T) {
 	for name, test := range map[string]struct {
 		Submission       map[string]interface{}
+		ShouldError      bool
 		ExpectedSettings poll.Settings
 	}{
 		"no settings": {
-			Submission: map[string]interface{}{},
+			Submission:  map[string]interface{}{},
+			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:        false,
 				AnonymousCreator: false,
 				Progress:         false,
 				PublicAddOption:  false,
-				MultipleVotes:    false,
+				VoteMethod:       poll.VoteMethodLimited,
 				MaxVotes:         1,
 			},
 		},
@@ -180,15 +183,16 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-anonymous-creator": true,
 				"setting-progress":          true,
 				"setting-public-add-option": true,
-				"setting-multiple-votes":    true,
+				"setting-vote-method":       poll.VoteMethodCumulative,
 				"setting-multi":             float64(4),
 			},
+			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:        true,
 				AnonymousCreator: true,
 				Progress:         true,
 				PublicAddOption:  true,
-				MultipleVotes:    true,
+				VoteMethod:       poll.VoteMethodCumulative,
 				MaxVotes:         4,
 			},
 		},
@@ -197,13 +201,15 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-anonymous":         false,
 				"setting-progress":          false,
 				"setting-public-add-option": false,
+				"setting-vote-method":       poll.VoteMethodLimited,
 			},
+			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:        false,
 				AnonymousCreator: false,
 				Progress:         false,
 				PublicAddOption:  false,
-				MultipleVotes:    false,
+				VoteMethod:       poll.VoteMethodLimited,
 				MaxVotes:         1,
 			},
 		},
@@ -211,7 +217,12 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			settings := poll.NewSettingsFromSubmission(test.Submission)
+			settings, errMsg := poll.NewSettingsFromSubmission(test.Submission)
+			if test.ShouldError {
+				assert.NotNil(errMsg)
+			} else {
+				assert.Nil(errMsg)
+			}
 			assert.Equal(test.ExpectedSettings, settings)
 		})
 	}
@@ -440,7 +451,7 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 2"},
 					{Answer: "Answer 3"},
 				},
-				Settings: poll.Settings{MaxVotes: 2, MultipleVotes: true},
+				Settings: poll.Settings{MaxVotes: 2, VoteMethod: poll.VoteMethodCumulative},
 			},
 			UserID: "a",
 			Index:  0,
@@ -451,7 +462,7 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 2"},
 					{Answer: "Answer 3"},
 				},
-				Settings: poll.Settings{MaxVotes: 2, MultipleVotes: true},
+				Settings: poll.Settings{MaxVotes: 2, VoteMethod: poll.VoteMethodCumulative},
 			},
 			Error:         false,
 			ReturnMessage: false,
@@ -868,11 +879,11 @@ func TestSettingsString(t *testing.T) {
 
 		assert.Equal(t, str, "public-add-option")
 	})
-	t.Run("multiple-votes", func(t *testing.T) {
-		s := poll.Settings{MultipleVotes: true}
+	t.Run("vote-method", func(t *testing.T) {
+		s := poll.Settings{VoteMethod: poll.VoteMethodCumulative}
 		str := s.String()
 
-		assert.Equal(t, str, "multiple-votes")
+		assert.Equal(t, str, "vote-method=cumulative")
 	})
 	t.Run("default votes", func(t *testing.T) {
 		s := poll.Settings{MaxVotes: 1}
@@ -887,9 +898,9 @@ func TestSettingsString(t *testing.T) {
 		assert.Equal(t, str, "votes=2")
 	})
 	t.Run("all", func(t *testing.T) {
-		s := poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MultipleVotes: true, MaxVotes: 2}
+		s := poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, VoteMethod: poll.VoteMethodCumulative, MaxVotes: 2}
 		str := s.String()
 
-		assert.Equal(t, str, "anonymous, anonymous-creator, progress, public-add-option, multiple-votes, votes=2")
+		assert.Equal(t, str, "anonymous, anonymous-creator, progress, public-add-option, vote-method=cumulative, votes=2")
 	})
 }
