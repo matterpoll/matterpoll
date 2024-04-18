@@ -3,17 +3,12 @@
 exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
 <div
   className="row"
-  style={
-    Object {
-      "margin": "8px 0",
-    }
-  }
 >
   <div
     className="col-xs-12 col-sm-4"
     style={
       Object {
-        "marginTop": "4px",
+        "marginTop": "6px",
       }
     }
   >
@@ -45,17 +40,12 @@ exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
 exports[`components/admin_settings/DefaultSettings should match snapshot with true option 1`] = `
 <div
   className="row"
-  style={
-    Object {
-      "margin": "8px 0",
-    }
-  }
 >
   <div
     className="col-xs-12 col-sm-4"
     style={
       Object {
-        "marginTop": "4px",
+        "marginTop": "6px",
       }
     }
   >

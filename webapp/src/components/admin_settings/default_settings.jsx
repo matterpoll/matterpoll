@@ -36,8 +36,6 @@ export default class DefaultSettings extends React.Component {
     render() {
         return (
             <div>
-                <strong>{'Default Settings'}</strong>
-
                 <DefaultSetting
                     name={'anonymous'}
                     title={'Anonymous'}
@@ -66,9 +64,6 @@ export default class DefaultSettings extends React.Component {
                     value={this.settings.publicAddOption}
                     onChange={this.handleChange}
                 />
-                <div className={'help-text'}>
-                    <span>{'Settings will be pre-selected in \'Create Poll\' dialog. Settings will not be applied to `/poll` command.'}</span>
-                </div>
             </div>
         );
     }

@@ -2,9 +2,6 @@
 
 exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
 <div>
-  <strong>
-    Default Settings
-  </strong>
   <DefaultSetting
     label="Don't show who voted for what when the poll ends"
     name="anonymous"
@@ -33,21 +30,11 @@ exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
     title="Public Add Option"
     value={true}
   />
-  <div
-    className="help-text"
-  >
-    <span>
-      Settings will be pre-selected in 'Create Poll' dialog. Settings will not be applied to \`/poll\` command.
-    </span>
-  </div>
 </div>
 `;
 
 exports[`components/admin_settings/DefaultSettings should match snapshot with all false options 1`] = `
 <div>
-  <strong>
-    Default Settings
-  </strong>
   <DefaultSetting
     label="Don't show who voted for what when the poll ends"
     name="anonymous"
@@ -76,21 +63,11 @@ exports[`components/admin_settings/DefaultSettings should match snapshot with al
     title="Public Add Option"
     value={false}
   />
-  <div
-    className="help-text"
-  >
-    <span>
-      Settings will be pre-selected in 'Create Poll' dialog. Settings will not be applied to \`/poll\` command.
-    </span>
-  </div>
 </div>
 `;
 
 exports[`components/admin_settings/DefaultSettings should match snapshot with all true options 1`] = `
 <div>
-  <strong>
-    Default Settings
-  </strong>
   <DefaultSetting
     label="Don't show who voted for what when the poll ends"
     name="anonymous"
@@ -119,12 +96,5 @@ exports[`components/admin_settings/DefaultSettings should match snapshot with al
     title="Public Add Option"
     value={true}
   />
-  <div
-    className="help-text"
-  >
-    <span>
-      Settings will be pre-selected in 'Create Poll' dialog. Settings will not be applied to \`/poll\` command.
-    </span>
-  </div>
 </div>
 `;

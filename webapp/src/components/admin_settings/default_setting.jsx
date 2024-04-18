@@ -44,10 +44,7 @@ export default class DefaultSetting extends React.Component {
 }
 
 const styles = {
-    row: {
-        margin: '8px 0',
-    },
     label: {
-        marginTop: '4px',
+        marginTop: '6px',
     },
 };
