@@ -61,9 +61,9 @@ require (
 	github.com/wiggin77/merror v1.0.3 // indirect
 	github.com/wiggin77/srslog v1.0.1 // indirect
 	github.com/yuin/goldmark v1.4.5 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	google.golang.org/grpc v1.56.3 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
