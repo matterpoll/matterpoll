@@ -18,12 +18,13 @@ var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
 var voteMethodSettingPattern = regexp.MustCompile(`^vote-method=(.+)$`)
 
 const (
-	SettingKeyAnonymous        = "anonymous"
-	SettingKeyAnonymousCreator = "anonymous-creator"
-	SettingKeyProgress         = "progress"
-	SettingKeyPublicAddOption  = "public-add-option"
-	VoteMethodLimited          = "limited"
-	VoteMethodCumulative       = "cumulative"
+	SettingKeyAnonymous             = "anonymous"
+	SettingKeyAnonymousCreator      = "anonymous-creator"
+	SettingKeyProgress              = "progress"
+	SettingKeyPublicAddOption       = "public-add-option"
+	VoteMethodLimited               = "limited"
+	VoteMethodCumulative            = "cumulative"
+	MaxVotesForCumulativeVoteMethod = 100
 )
 
 // Poll stores all needed information for a poll
@@ -215,15 +216,23 @@ func parseVoteMethod(s string) (string, *utils.ErrorMessage) {
 
 // validate checks if poll is valid
 func (p *Poll) validate() *utils.ErrorMessage {
-	if p.Settings.MaxVotes <= 0 || p.Settings.MaxVotes > len(p.AnswerOptions) {
+	var maxVotesLimit int
+	switch p.Settings.VoteMethod {
+	case VoteMethodCumulative:
+		maxVotesLimit = MaxVotesForCumulativeVoteMethod
+	default:
+		maxVotesLimit = len(p.AnswerOptions)
+	}
+
+	if p.Settings.MaxVotes <= 0 || p.Settings.MaxVotes > maxVotesLimit {
 		return &utils.ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.invalidSetting",
-				Other: `The number of votes must be a positive number and less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}".`,
+				Other: `The number of votes must be a positive number and less than or equal to {{.Options}}. You specified "{{.MaxVotes}}".`,
 			},
 			Data: map[string]interface{}{
 				"MaxVotes": p.Settings.MaxVotes,
-				"Options":  len(p.AnswerOptions),
+				"Options":  maxVotesLimit,
 			},
 		}
 	}
@@ -313,11 +322,13 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 // ResetVotes remove votes by a given user
 func (p *Poll) ResetVotes(userID string) {
 	for _, o := range p.AnswerOptions {
+		newVoter := []string{}
 		for i := 0; i < len(o.Voter); i++ {
-			if userID == o.Voter[i] {
-				o.Voter = append(o.Voter[:i], o.Voter[i+1:]...)
+			if userID != o.Voter[i] {
+				newVoter = append(newVoter, o.Voter[i])
 			}
 		}
+		o.Voter = newVoter
 	}
 }
 

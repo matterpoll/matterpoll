@@ -2,6 +2,7 @@ package poll
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v6/model"
@@ -204,27 +205,11 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 	for _, o := range p.AnswerOptions {
 		var voter string
 		if !p.Settings.Anonymous {
-			voters := make(map[string]int)
-			for i := 0; i < len(o.Voter); i++ {
-				displayName, err := convert(o.Voter[i])
-				if err != nil {
-					return nil, err
-				}
-				voters[displayName]++
-			}
-
-			i := 0
-			for displayName, count := range voters {
-				if i+1 == len(voters) && len(voters) > 1 {
-					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
-				} else if i != 0 {
-					voter += ", "
-				}
-				voter += displayName
-				if count > 1 {
-					voter += fmt.Sprintf("(%dx)", count)
-				}
-				i++
+			var err *model.AppError
+			endSeparator := bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator})
+			voter, err = o.getVoter(endSeparator, convert)
+			if err != nil {
+				return nil, err
 			}
 		}
 
@@ -268,21 +253,14 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 		s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
 	}
 
-	const comma = ", "
 	for _, o := range p.AnswerOptions {
 		var voter string
 		if !p.Settings.Anonymous {
-			for i := 0; i < len(o.Voter); i++ {
-				displayName, err := convert(o.Voter[i])
-				if err != nil {
-					return ""
-				}
-				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeperator}) + " "
-				} else if i != 0 {
-					voter += comma
-				}
-				voter += displayName
+			var err *model.AppError
+			endSeparator := bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeperator})
+			voter, err = o.getVoter(endSeparator, convert)
+			if err != nil {
+				return ""
 			}
 		}
 
@@ -296,4 +274,36 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 		}) + "\n" + voter + "\n"
 	}
 	return s
+}
+
+func (o *AnswerOption) getVoter(endSeparator string, convert IDToNameConverter) (string, *model.AppError) {
+	const comma = ", "
+	var voter string
+	var uniques []string
+	voters := make(map[string]int)
+	for i := 0; i < len(o.Voter); i++ {
+		displayName, err := convert(o.Voter[i])
+		if err != nil {
+			return "", err
+		}
+		voters[displayName]++
+		if !slices.Contains(uniques, displayName) {
+			uniques = append(uniques, displayName)
+		}
+	}
+
+	i := 0
+	for _, displayName := range uniques {
+		if i+1 == len(voters) && len(voters) > 1 {
+			voter += " " + endSeparator + " "
+		} else if i != 0 {
+			voter += comma
+		}
+		voter += displayName
+		if voters[displayName] > 1 {
+			voter += fmt.Sprintf("(%dx)", voters[displayName])
+		}
+		i++
+	}
+	return voter, nil
 }

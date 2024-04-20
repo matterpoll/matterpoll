@@ -654,6 +654,27 @@ func TestResetVotes(t *testing.T) {
 				Settings: poll.Settings{MaxVotes: 3},
 			},
 		},
+		"Reset success, with votes from multi user, cumulative vote method": {
+			Poll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a", "a", "b"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3", Voter: []string{"1", "a", "b", "z"}},
+				},
+				Settings: poll.Settings{MaxVotes: 4, VoteMethod: poll.VoteMethodCumulative},
+			},
+			UserID: "a",
+			ExpectedPoll: poll.Poll{
+				ID: testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"b"}},
+					{Answer: "Answer 2", Voter: []string{}},
+					{Answer: "Answer 3", Voter: []string{"1", "b", "z"}},
+				},
+				Settings: poll.Settings{MaxVotes: 4, VoteMethod: poll.VoteMethodCumulative},
+			},
+		},
 		"invalid user id": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),
