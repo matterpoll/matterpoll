@@ -75,6 +75,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 				HelpText:    "The number of options that an user can vote on.",
 				Optional:    false,
 			}, {
+				DisplayName: "Vote Method",
+				Name:        "setting-vote-method",
+				Type:        "select",
+				HelpText:    "Cumulative allow users to vote multiple times for the same option",
+				Options:     voteMethods,
+				Default:     poll.VoteMethodLimited,
+			}, {
 				DisplayName: "Anonymous",
 				Name:        "setting-anonymous",
 				Type:        "bool",
@@ -98,13 +105,6 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Type:        "bool",
 				Placeholder: "Allow all users to add additional options",
 				Optional:    true,
-			}, {
-				DisplayName: "Vote Method",
-				Name:        "setting-vote-method",
-				Type:        "select",
-				HelpText:    "Cumulative allow users to vote multiple times for the same option",
-				Options:     voteMethods,
-				Default:     poll.VoteMethodLimited,
 			}},
 			SubmitLabel: "Create",
 		},

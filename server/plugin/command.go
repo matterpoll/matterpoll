@@ -289,6 +289,22 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 			}}),
 		Optional: false,
 	})
+
+	voteMethodOptionLimited := model.PostActionOptions{Text: poll.VoteMethodLimited, Value: poll.VoteMethodLimited}
+	voteMethodOptionCumulative := model.PostActionOptions{Text: poll.VoteMethodCumulative, Value: poll.VoteMethodCumulative}
+	voteMethods := []*model.PostActionOptions{
+		&voteMethodOptionLimited,
+		&voteMethodOptionCumulative,
+	}
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Vote Method",
+		Name:        "setting-vote-method",
+		Type:        "select",
+		HelpText:    p.bundle.LocalizeDefaultMessage(l, commandHelpTextDialogPollSettingVoteMethod),
+		Options:     voteMethods,
+		Default:     poll.VoteMethodLimited,
+	})
+
 	elements = append(elements, model.DialogElement{
 		DisplayName: "Anonymous",
 		Name:        "setting-anonymous",
@@ -318,20 +334,6 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Optional:    true,
 	})
 
-	voteMethodOptionLimited := model.PostActionOptions{Text: poll.VoteMethodLimited, Value: poll.VoteMethodLimited}
-	voteMethodOptionCumulative := model.PostActionOptions{Text: poll.VoteMethodCumulative, Value: poll.VoteMethodCumulative}
-	voteMethods := []*model.PostActionOptions{
-		&voteMethodOptionLimited,
-		&voteMethodOptionCumulative,
-	}
-	elements = append(elements, model.DialogElement{
-		DisplayName: "Vote Method",
-		Name:        "setting-vote-method",
-		Type:        "select",
-		HelpText:    p.bundle.LocalizeDefaultMessage(l, commandHelpTextDialogPollSettingVoteMethod),
-		Options:     voteMethods,
-		Default:     poll.VoteMethodLimited,
-	})
 	dialog := model.Dialog{
 		CallbackId: rootID,
 		Title: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
