@@ -2,6 +2,7 @@ package poll_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/mattermost/mattermost-server/v6/model"
@@ -120,6 +121,55 @@ func TestPollToEndPollPost(t *testing.T) {
 	})
 }
 
+func TestPollWithProgressBar(t *testing.T) {
+	PluginID := "com.github.matterpoll.matterpoll"
+	authorName := "John Doe"
+	testLength := 100
+
+	for name, test := range map[string]struct {
+		Poll *poll.Poll
+	}{
+		"Test1": {
+			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true, ShowProgressBars: true, ProgressBarLength: testLength}),
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			_, err := test.Poll.UpdateVote(testutils.GetBotUserID(), 1)
+			require.Nil(t, err)
+
+			_, err = test.Poll.UpdateVote("bar", 1)
+			require.Nil(t, err)
+
+			_, err = test.Poll.UpdateVote("foo", 0)
+			require.Nil(t, err)
+
+			post := test.Poll.ToPostActions(testutils.GetBundle(), PluginID, authorName)
+			require.NotNil(t, post)
+
+			postText := post[0].Text
+			require.GreaterOrEqual(t, len(post), 1)
+			// check if the correct percentages are visible
+			require.Contains(t, postText, fmt.Sprintf("%3d %%", 33))
+			require.Contains(t, postText, fmt.Sprintf("%3d %%", 66))
+			require.Contains(t, postText, fmt.Sprintf("%3d %%", 0))
+
+			// check if the progressbars are correctly generated
+			lines := strings.SplitAfter(postText, "Answer 1:\n")
+			lines = strings.Split(lines[1], "\n")
+
+			require.GreaterOrEqual(t, len(lines), 4)
+
+			filled := strings.Count(lines[0], "█")
+
+			filled += strings.Count(lines[2], "█")
+
+			filled += strings.Count(lines[4], "█")
+
+			// This value should be close to the total length of a progress bar (32 chars), it might be a little less due to rounding errors
+			require.GreaterOrEqual(t, filled, testLength-1)
+		})
+	}
+}
 func TestPollToPostActions(t *testing.T) {
 	PluginID := "com.github.matterpoll.matterpoll"
 	authorName := "John Doe"
@@ -202,6 +252,7 @@ func TestPollToPostActions(t *testing.T) {
 				},
 			}},
 		},
+		//XXX: Hardcoding this  might be suboptimal in the future, if the format change in any way.
 		"Multipile questions, settings: progress": {
 			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1}),
 			ExpectedAttachments: []*model.SlackAttachment{{
