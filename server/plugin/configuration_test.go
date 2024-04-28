@@ -26,6 +26,15 @@ func TestOnConfigurationChange(t *testing.T) {
 		Description: &botDescription.Other,
 	}
 
+	getDefaultSettings := func(a, ac, p, pao bool) map[string]bool {
+		return map[string]bool{
+			"anonymous":        a,
+			"anonymousCreator": ac,
+			"progress":         p,
+			"publicAddOption":  pao,
+		}
+	}
+
 	for name, test := range map[string]struct {
 		SetupAPI              func(*plugintest.API) *plugintest.API
 		Configuration         *configuration
@@ -38,6 +47,7 @@ func TestOnConfigurationChange(t *testing.T) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
 					arg.ExperimentalUI = true
+					arg.DefaultSettings = getDefaultSettings(true, true, false, false)
 				})
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
 				api.On("RegisterCommand", command).Return(nil)
@@ -47,8 +57,8 @@ func TestOnConfigurationChange(t *testing.T) {
 				}, &model.WebsocketBroadcast{}).Return()
 				return api
 			},
-			Configuration:         &configuration{Trigger: "oldTrigger", ExperimentalUI: false},
-			ExpectedConfiguration: &configuration{Trigger: "poll", ExperimentalUI: true},
+			Configuration:         &configuration{Trigger: "oldTrigger", ExperimentalUI: false, DefaultSettings: getDefaultSettings(false, false, true, true)},
+			ExpectedConfiguration: &configuration{Trigger: "poll", ExperimentalUI: true, DefaultSettings: getDefaultSettings(true, true, false, false)},
 			ShouldError:           false,
 		},
 		"Load and save successful, without old configuration": {
@@ -58,6 +68,7 @@ func TestOnConfigurationChange(t *testing.T) {
 					arg := args.Get(0).(*configuration)
 					arg.Trigger = "poll"
 					arg.ExperimentalUI = true
+					arg.DefaultSettings = getDefaultSettings(false, false, true, true)
 				})
 				api.On("RegisterCommand", command).Return(nil)
 				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, nil)
@@ -67,7 +78,7 @@ func TestOnConfigurationChange(t *testing.T) {
 				return api
 			},
 			Configuration:         nil,
-			ExpectedConfiguration: &configuration{Trigger: "poll", ExperimentalUI: true},
+			ExpectedConfiguration: &configuration{Trigger: "poll", ExperimentalUI: true, DefaultSettings: getDefaultSettings(false, false, true, true)},
 			ShouldError:           false,
 		},
 		"LoadPluginConfiguration fails": {

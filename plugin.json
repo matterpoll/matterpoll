@@ -35,6 +35,12 @@
                 "type": "bool",
                 "help_text": "When true, Matterpoll will render poll posts with a rich UI. The rich UI is not available on the mobile app.",
                 "default": false
+            },
+            {
+                "key": "default_settings",
+                "display_name": "Default Settings",
+                "type": "custom",
+                "help_text": "Settings will be pre-selected in 'Create Poll' dialog. Settings will not be applied to `/poll` command."
             }
         ],
         "footer": "* To report an issue, make a suggestion, or submit a contribution, [check the repository](https://github.com/matterpoll/matterpoll)."
