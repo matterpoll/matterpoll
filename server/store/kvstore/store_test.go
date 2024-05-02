@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const latestVersion = "1.6.1"
+const latestVersion = "1.7.0"
 
 func setupTestStore(api plugin.API) *Store {
 	store := Store{

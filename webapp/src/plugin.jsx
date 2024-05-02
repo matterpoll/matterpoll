@@ -3,10 +3,12 @@ import {websocketHasVoted} from '@/actions/poll_metadata';
 
 import {id as pluginId} from '@/manifest';
 import reducer from '@/reducers';
+import DefaultSettings from '@/components/admin_settings/default_settings';
 
 export default class MatterPollPlugin {
     async initialize(registry, store) {
         await this.readPluginConfiguration(registry, store);
+        registry.registerAdminConsoleCustomSetting('default_settings', DefaultSettings, {showTitle: true});
 
         registry.registerWebSocketEventHandler(
             'custom_' + pluginId + '_configuration_change',

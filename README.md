@@ -24,6 +24,7 @@ You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 * **Experimental UI**: Enable new experimental UI for poll posts:
   - Change button color of voted answers
   - Hide poll management buttons (Add Option / Delete Poll / End Poll) from users who don't have permission
+* **Default Settings**: Choose settings, that will be pre-selected in 'Create Poll' dialog. Settings will not be applied to `/poll` command.
 
 Note: **Experimental UI** is not supported in Mattermost Mobile due to its limited support for plugin extension ([ref](https://github.com/mattermost/mattermost-mobile/issues/3883#issuecomment-1148519369)).
 
