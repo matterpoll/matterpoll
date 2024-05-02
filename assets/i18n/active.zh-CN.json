@@ -39,6 +39,10 @@
     "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
     "other": "在投票结束时，不显示投票者的选择。"
   },
+  "command.help.text.pollSetting.anonymous-creator": {
+    "hash": "sha1-59c4b987ae73b46ba774f8bf78bc742fdf4d9ab3",
+    "other": "不显示投票创建人"
+  },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "您可以按：`/{{.Trigger}} \"问题\" \"回答1\" \"回答2\" \"回答3\" --progress --anonymous` 的方式进行输入，对投票本身进行自定义。"
@@ -128,7 +132,7 @@
     "other": "投票中止"
   },
   "poll.button.resetVotes": {
-    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
+    "hash": "sha1-802a25521fbfd37564097fde5f358a591695d19c",
     "other": "重新投票"
   },
   "poll.endPost.answer.heading": {
@@ -150,6 +154,10 @@
   "poll.message.totalVotes": {
     "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**总投票数**: {{.TotalVotes}}"
+  },
+  "poll.message.totalVotesMulti": {
+    "hash": "sha1-708616dbb5432949c4e8264a3d63eb80c9933d26",
+    "other": "**总投票数**: {{.TotalVotes}} ({{ .TotalVoters }} 人参与投票)"
   },
   "poll.newPoll.unrecognizedSetting": {
     "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
