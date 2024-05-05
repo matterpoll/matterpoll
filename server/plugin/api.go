@@ -642,39 +642,57 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 func (p *MatterpollPlugin) handleEndPollConfirm(vars map[string]string, request *model.SubmitDialogRequest) (*i18n.Message, *model.SubmitDialogResponse, error) {
 	pollID := vars["id"]
 
+	_, _, err := p.EndPoll(pollID, request)
+	if err != nil {
+		return commandErrorGeneric, nil, err
+	}
+
+	return nil, nil, nil
+}
+
+func (p *MatterpollPlugin) EndPoll(pollID string, request *model.SubmitDialogRequest) (*poll.Poll, *model.Post, error) {
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+		return nil, nil, errors.Wrap(err, "failed to get poll")
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
+		return nil, nil, errors.Wrap(appErr, "failed to get display name for creator")
 	}
 
 	post, appErr := poll.ToEndPollPost(p.bundle, displayName, p.ConvertUserIDToDisplayName)
 	if appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get convert to end poll post")
+		return nil, nil, errors.Wrap(appErr, "failed to get convert to end poll post")
 	}
 
 	var postID string
-	if poll.PostID != "" {
+	switch {
+	case poll.PostID != "":
 		postID = poll.PostID
-	} else {
+	case request != nil:
 		// Legacy check if polls created without a postID
 		postID = request.CallbackId
+	default:
+		return poll, post, errors.New("poll is created without a postID")
 	}
 
 	post.Id = postID
 	if _, appErr = p.API.UpdatePost(post); appErr != nil {
-		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to update post")
+		return poll, post, errors.Wrap(appErr, "failed to update post")
 	}
 
 	if err := p.Store.Poll().Delete(poll); err != nil {
-		return commandErrorGeneric, nil, errors.Wrap(err, "failed to delete poll")
+		return poll, post, errors.Wrap(err, "failed to delete poll")
 	}
 
-	p.postEndPollAnnouncement(request.ChannelId, post.Id, poll.Question)
+	var channelID string
+	if request != nil {
+		channelID = request.ChannelId
+	} else {
+		channelID = post.ChannelId
+	}
+	p.postEndPollAnnouncement(channelID, post.Id, poll.Question)
 
 	return nil, nil, nil
 }

@@ -87,6 +87,10 @@ var (
 		ID:    "command.error.generic",
 		Other: "Something went wrong. Please try again later.",
 	}
+	commandErrorSchedulerEnd = &i18n.Message{
+		ID:    "command.error.schedule_end",
+		Other: "Something went wrong during automatically end of poll.",
+	}
 	commandErrorinvalidNumberOfOptions = &i18n.Message{
 		ID:    "command.error.invalidNumberOfOptions",
 		Other: "You must provide either no answer or at least two answers.",
