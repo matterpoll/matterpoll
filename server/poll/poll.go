@@ -151,7 +151,7 @@ func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 	if err != nil {
 		return 0, &utils.ErrorMessage{
 			Message: &i18n.Message{
-				ID:    "poll.newPoll.votesettings.invalidSetting",
+				ID:    "poll.newPoll.votesettings.unexpectedError",
 				Other: "Unexpected error happens when parsing {{.Setting}}",
 			},
 			Data: map[string]interface{}{
@@ -164,11 +164,11 @@ func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 
 // validate checks if poll is valid
 func (p *Poll) validate() *utils.ErrorMessage {
-	if p.Settings.MaxVotes <= 0 || p.Settings.MaxVotes > len(p.AnswerOptions) {
+	if p.Settings.MaxVotes < 0 || p.Settings.MaxVotes > len(p.AnswerOptions) {
 		return &utils.ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.invalidSetting",
-				Other: `The number of votes must be a positive number and less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}".`,
+				Other: `The number of votes must be 0 or a positive number, and must be less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}".`,
 			},
 			Data: map[string]interface{}{
 				"MaxVotes": p.Settings.MaxVotes,
@@ -181,7 +181,7 @@ func (p *Poll) validate() *utils.ErrorMessage {
 
 // IsMultiVote return true if poll is set to multi vote
 func (p *Poll) IsMultiVote() bool {
-	return p.Settings.MaxVotes > 1
+	return p.Settings.MaxVotes == 0 || p.Settings.MaxVotes > 1
 }
 
 // AddAnswerOption adds a new AnswerOption to a poll
@@ -236,7 +236,7 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 				}, nil
 			}
 		}
-		if p.Settings.MaxVotes <= len(votedAnswers) {
+		if p.Settings.MaxVotes != 0 && p.Settings.MaxVotes <= len(votedAnswers) {
 			return &i18n.Message{
 				ID:    "poll.updateVote.maxVotes",
 				Other: "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
@@ -355,8 +355,13 @@ func (s Settings) String() string {
 	if s.PublicAddOption {
 		settingsText = append(settingsText, "public-add-option")
 	}
-	if s.MaxVotes > 1 {
-		settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
+	if s.MaxVotes != 1 {
+		switch s.MaxVotes {
+		case 0:
+			settingsText = append(settingsText, "votes=all")
+		default:
+			settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
+		}
 	}
 
 	return strings.Join(settingsText, ", ")
