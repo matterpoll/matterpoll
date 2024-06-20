@@ -225,11 +225,6 @@ func TestPluginOnActivate(t *testing.T) {
 		api := &plugintest.API{}
 		defer api.AssertExpectations(t)
 
-		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
-			return nil, &model.AppError{}
-		})
-		defer func() { require.NoError(t, patch.Unpatch()) }()
-
 		p := &MatterpollPlugin{
 			ServerConfig: &model.Config{
 				ServiceSettings: model.ServiceSettings{
