@@ -148,7 +148,9 @@ func TestPluginOnActivate(t *testing.T) {
 			defer api.AssertExpectations(t)
 
 			patch1, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
-				return &mockstore.Store{}, nil
+				st := &mockstore.Store{}
+				st.PollStore.On("GetAllPollIDs").Return([]string{}, nil)
+				return st, nil
 			})
 			defer func() { require.NoError(t, patch1.Unpatch()) }()
 

@@ -3,6 +3,7 @@ package poll_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/stretchr/testify/assert"
@@ -79,6 +80,10 @@ func TestNewPoll(t *testing.T) {
 }
 
 func TestNewSettingsFromStrings(t *testing.T) {
+	testTime := time.Now().Add(time.Minute * time.Duration(5)).Round(time.Second)
+	testTimeExpected := time.Now().Add(time.Minute * time.Duration(5)).UTC().Round(time.Second)
+	testTimeTruncated := time.Now().Add(time.Minute * time.Duration(5)).UTC().Round(time.Second).Truncate(time.Minute)
+
 	for name, test := range map[string]struct {
 		Strs             []string
 		ShouldError      bool
@@ -139,6 +144,42 @@ func TestNewSettingsFromStrings(t *testing.T) {
 				MaxVotes:         1,
 			},
 		},
+		"valid end date setting": {
+			Strs:        []string{fmt.Sprintf("end=%s", testTime.Format(poll.EndSettingLayout))},
+			ShouldError: false,
+			ExpectedSettings: poll.Settings{
+				Anonymous:        false,
+				AnonymousCreator: false,
+				Progress:         false,
+				PublicAddOption:  false,
+				End:              &testTimeTruncated,
+				MaxVotes:         1,
+			},
+		},
+		"valid end duration setting": {
+			Strs:        []string{fmt.Sprintf("end=%s", "5m")},
+			ShouldError: false,
+			ExpectedSettings: poll.Settings{
+				Anonymous:        false,
+				AnonymousCreator: false,
+				Progress:         false,
+				PublicAddOption:  false,
+				End:              &testTimeExpected,
+				MaxVotes:         1,
+			},
+		},
+		"invalid end setting": {
+			Strs:        []string{fmt.Sprintf("end=%s", testTime.Add(-time.Hour*time.Duration(1)).Format(poll.EndSettingLayout))},
+			ShouldError: true,
+			ExpectedSettings: poll.Settings{
+				Anonymous:        false,
+				AnonymousCreator: false,
+				Progress:         false,
+				PublicAddOption:  false,
+				End:              nil,
+				MaxVotes:         1,
+			},
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
@@ -155,12 +196,18 @@ func TestNewSettingsFromStrings(t *testing.T) {
 }
 
 func TestNewSettingsFromSubmission(t *testing.T) {
+	testTime := time.Now().Add(time.Minute * time.Duration(5)).Round(time.Second)
+	testTimeExpected := time.Now().Add(time.Minute * time.Duration(5)).UTC().Round(time.Second)
+	testTimeTruncated := time.Now().Add(time.Minute * time.Duration(5)).UTC().Round(time.Second).Truncate(time.Minute)
+
 	for name, test := range map[string]struct {
 		Submission       map[string]interface{}
+		ShouldError      bool
 		ExpectedSettings poll.Settings
 	}{
 		"no settings": {
-			Submission: map[string]interface{}{},
+			Submission:  map[string]interface{}{},
+			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:        false,
 				AnonymousCreator: false,
@@ -177,6 +224,7 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-public-add-option": true,
 				"setting-multi":             float64(4),
 			},
+			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:        true,
 				AnonymousCreator: true,
@@ -191,6 +239,7 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				"setting-progress":          false,
 				"setting-public-add-option": false,
 			},
+			ShouldError: false,
 			ExpectedSettings: poll.Settings{
 				Anonymous:        false,
 				AnonymousCreator: false,
@@ -199,11 +248,50 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 				MaxVotes:         1,
 			},
 		},
+		"with end date settings": {
+			Submission: map[string]interface{}{
+				"setting-anonymous":         false,
+				"setting-progress":          false,
+				"setting-public-add-option": false,
+				"setting-end":               testTime.Format(poll.EndSettingLayout),
+			},
+			ShouldError: false,
+			ExpectedSettings: poll.Settings{
+				Anonymous:        false,
+				AnonymousCreator: false,
+				Progress:         false,
+				PublicAddOption:  false,
+				MaxVotes:         1,
+				End:              &testTimeTruncated,
+			},
+		},
+		"with end duration settings": {
+			Submission: map[string]interface{}{
+				"setting-anonymous":         false,
+				"setting-progress":          false,
+				"setting-public-add-option": false,
+				"setting-end":               "5m",
+			},
+			ShouldError: false,
+			ExpectedSettings: poll.Settings{
+				Anonymous:        false,
+				AnonymousCreator: false,
+				Progress:         false,
+				PublicAddOption:  false,
+				MaxVotes:         1,
+				End:              &testTimeExpected,
+			},
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			settings := poll.NewSettingsFromSubmission(test.Submission)
+			settings, errMsg := poll.NewSettingsFromSubmission(test.Submission)
+			if test.ShouldError {
+				assert.NotNil(errMsg)
+			} else {
+				assert.Nil(errMsg)
+			}
 			assert.Equal(test.ExpectedSettings, settings)
 		})
 	}

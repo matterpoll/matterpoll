@@ -17,6 +17,7 @@ type PollStore interface {
 	Save(*poll.Poll) error
 	Update(prev *poll.Poll, new *poll.Poll) error
 	Delete(*poll.Poll) error
+	GetAllPollIDs() ([]string, error)
 }
 
 // SystemStore allows to access system information in the store.

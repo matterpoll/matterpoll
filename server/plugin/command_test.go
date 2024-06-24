@@ -26,6 +26,8 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"- `--anonymous-creator`: Don't show author of the poll\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
+		"- `--end=2006-01-02T15:04`: End poll automatically at date\n" +
+		"- `--end=5m`: End poll automatically in X minutes (Xm) or hours (Xh)\n" +
 		"- `--votes=X`: Allow users to vote for X options"
 	triggerID := model.NewId()
 	rootID := model.NewId()
@@ -93,6 +95,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Type:        "bool",
 				Placeholder: "Allow all users to add additional options",
 				Default:     "true",
+				Optional:    true,
+			}, {
+				DisplayName: "End",
+				Name:        "setting-end",
+				Type:        "text",
+				Placeholder: "2006-01-02T15:04",
+				HelpText:    "End poll automatically",
 				Optional:    true,
 			}},
 			SubmitLabel: "Create",
