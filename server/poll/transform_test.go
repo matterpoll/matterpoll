@@ -95,6 +95,27 @@ func TestPollToEndPollPost(t *testing.T) {
 				}},
 			}},
 		},
+		"Cumulative poll": {
+			Poll: testutils.GetCumulativePollWithVotes(),
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "John Doe",
+				Title:      "Question",
+				Text:       "This poll has ended. The results are:",
+				Fields: []*model.SlackAttachmentField{{
+					Title: "Answer 1 (5 votes)",
+					Value: "@user1(2x), @user2 and @user3(2x)",
+					Short: true,
+				}, {
+					Title: "Answer 2 (3 votes)",
+					Value: "@user4(2x) and @user2",
+					Short: true,
+				}, {
+					Title: "Answer 3 (0 votes)",
+					Value: "",
+					Short: true,
+				}},
+			}},
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			expectedPost := &model.Post{}
