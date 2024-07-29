@@ -1,0 +1,18 @@
+name: cd
+on:
+  workflow_run:
+    workflows: ["ci"]
+    branches-ignore: ["*"]
+    types:
+      - completed
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  plugin-cd:
+    uses: mattermost/actions-workflows/.github/workflows/community-plugin-cd.yml@ce05ecbb0c51643e1cffb7834469df74ab68dae5
+    secrets: inherit

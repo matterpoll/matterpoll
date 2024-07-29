@@ -54,6 +54,10 @@ var (
 		ID:    "command.help.text.pollSetting.anonymous",
 		Other: "Don't show who voted for what when the poll ends",
 	}
+	commandHelpTextPollSettingAnonymousCreator = &i18n.Message{
+		ID:    "command.help.text.pollSetting.anonymous-creator",
+		Other: "Don't show author of the poll",
+	}
 	commandHelpTextPollSettingProgress = &i18n.Message{
 		ID:    "command.help.text.pollSetting.progress",
 		Other: "During the poll, show how many votes each answer option got",
@@ -82,7 +86,7 @@ var (
 )
 
 // ExecuteCommand parses a given input and creates a poll if the input is correct
-func (p *MatterpollPlugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+func (p *MatterpollPlugin) ExecuteCommand(_ *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	msg, appErr := p.executeCommand(args)
 	if msg != "" {
 		p.SendEphemeralPost(args.ChannelId, args.UserId, args.RootId, msg)
@@ -106,7 +110,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		dialog := model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", root.Manifest.Id),
-			Dialog:    p.getCreatePollDialog(siteURL, args.RootId, userLocalizer),
+			Dialog:    p.getCreatePollDialog(siteURL, args.RootId, userLocalizer, configuration),
 		}
 
 		if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
@@ -130,6 +134,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger},
 		}) + "\n"
 		msg += "- `--anonymous`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
+		msg += "- `--anonymous-creator`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymousCreator) + "\n"
 		msg += "- `--progress`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
 		msg += "- `--public-add-option`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
 		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
@@ -235,7 +240,7 @@ func (p *MatterpollPlugin) getCommand(trigger string) (*model.Command, error) {
 	}, nil
 }
 
-func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer) model.Dialog {
+func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer, c *configuration) model.Dialog {
 	elements := []model.DialogElement{{
 		DisplayName: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
 			ID:    "dialog.createPoll.question",
@@ -280,6 +285,15 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-anonymous",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymous),
+		Default:     fmt.Sprintf("%t", c.DefaultSettings["anonymous"]),
+		Optional:    true,
+	})
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Anonymous creator",
+		Name:        "setting-anonymous-creator",
+		Type:        "bool",
+		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymousCreator),
+		Default:     fmt.Sprintf("%t", c.DefaultSettings["anonymousCreator"]),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
@@ -287,6 +301,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-progress",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingProgress),
+		Default:     fmt.Sprintf("%t", c.DefaultSettings["progress"]),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
@@ -294,6 +309,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-public-add-option",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
+		Default:     fmt.Sprintf("%t", c.DefaultSettings["publicAddOption"]),
 		Optional:    true,
 	})
 	dialog := model.Dialog{

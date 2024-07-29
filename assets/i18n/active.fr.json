@@ -39,6 +39,10 @@
     "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
     "other": "Ne pas montrer qui a voté pour quoi lorsque le sondage est terminé"
   },
+  "command.help.text.pollSetting.anonymous-creator": {
+    "hash": "sha1-59c4b987ae73b46ba774f8bf78bc742fdf4d9ab3",
+    "other": "Ne pas afficher qui est l’auteur du sondage"
+  },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "Les paramètres du sondage permettent une personnalisation plus poussée, e.g. `/{{.Trigger}} \"Question\" \"Réponse 1\" \"Réponse 2\" \"Réponse 3\" --progress --anonymous`. Les éléments de configuration disponibles sont:"
@@ -128,14 +132,12 @@
     "other": "Terminer le sondage"
   },
   "poll.button.resetVotes": {
-    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
-    "many": "Réinitialiser vos votes",
+    "hash": "sha1-802a25521fbfd37564097fde5f358a591695d19c",
     "one": "Réinitialiser votre vote",
     "other": "Réinitialiser vos votes"
   },
   "poll.endPost.answer.heading": {
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
-    "many": "{{.Answer}} ({{.Count}} votes)",
     "one": "{{.Answer}} ({{.Count}} vote)",
     "other": "{{.Answer}} ({{.Count}} votes)"
   },
@@ -154,6 +156,11 @@
   "poll.message.totalVotes": {
     "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**Total des votes**: {{.TotalVotes}}"
+  },
+  "poll.message.totalVotesMulti": {
+    "hash": "sha1-708616dbb5432949c4e8264a3d63eb80c9933d26",
+    "one": "**Total des votes**: {{.TotalVotes}} ({{ .TotalVoters }} votant·es)",
+    "other": "**Total des votes**: {{.TotalVotes}} ({{ .TotalVoters }} votant·es)"
   },
   "poll.newPoll.unrecognizedSetting": {
     "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
@@ -213,7 +220,6 @@
   },
   "response.vote.multi.updated": {
     "hash": "sha1-213785e569b994863b96b984772e9497f8629bbc",
-    "many": "Votre vote a été pris en compte. Vous avez encore {{.Remains}} votes.",
     "one": "Votre vote a été pris en compte. Vous avez encore {{.Remains}} vote.",
     "other": "Votre vote a été pris en compte. Vous avez encore {{.Remains}} votes."
   },
@@ -223,9 +229,12 @@
   },
   "rhs.card.poll.answer.heading": {
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
-    "many": "{{.Answer}} ({{.Count}} votes)",
     "one": "{{.Answer}} ({{.Count}} votes)",
     "other": "{{.Answer}} ({{.Count}} votes)"
+  },
+  "rhs.card.poll.createdBy": {
+    "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
+    "other": "Créé par"
   },
   "rhs.card.poll.voter.seperator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",

@@ -39,6 +39,10 @@
     "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
     "other": "Nicht anzeigen, wer wofür gestimmt hat"
   },
+  "command.help.text.pollSetting.anonymous-creator": {
+    "hash": "sha1-59c4b987ae73b46ba774f8bf78bc742fdf4d9ab3",
+    "other": "Verberge den Ersteller der Umfrage"
+  },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "Umfrage-Einstellungen ermöglichen weitere Anpassungen , z.B. `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\" --progress --anonymous`. Die möglichen Umfrageeinstellungen sind:"
@@ -128,7 +132,7 @@
     "other": "Umfrage beenden"
   },
   "poll.button.resetVotes": {
-    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
+    "hash": "sha1-802a25521fbfd37564097fde5f358a591695d19c",
     "one": "Deine Stimme zurücksetzen",
     "other": "Deine Stimmen zurücksetzen"
   },
@@ -152,6 +156,11 @@
   "poll.message.totalVotes": {
     "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**Anzahl der abgegebenen Stimmen**: {{.TotalVotes}}"
+  },
+  "poll.message.totalVotesMulti": {
+    "hash": "sha1-708616dbb5432949c4e8264a3d63eb80c9933d26",
+    "one": "**Anzahl abgegebener Stimmen**: {{.TotalVotes}} ({{ .TotalVoters }} Teilnehmer)",
+    "other": "**Anzahl abgegebener Stimmen**: {{.TotalVotes}} ({{ .TotalVoters }} Teilnehmer)"
   },
   "poll.newPoll.unrecognizedSetting": {
     "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",

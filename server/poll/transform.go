@@ -27,6 +27,13 @@ var (
 		ID:    "poll.message.totalVotes",
 		Other: "**Total votes**: {{.TotalVotes}}",
 	}
+	pollMessageTotalVotesMultiSetting = &i18n.Message{
+		ID:    "poll.message.totalVotesMulti",
+		One:   "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voter)",
+		Few:   "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+		Many:  "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+		Other: "**Total votes**: {{.TotalVotes}} ({{ .TotalVoters }} voters)",
+	}
 
 	pollEndPostText = &i18n.Message{
 		ID:    "poll.endPost.text",
@@ -64,10 +71,14 @@ var (
 func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) []*model.SlackAttachment {
 	localizer := bundle.GetServerLocalizer()
 	numberOfVotes := 0
+	voters := make(map[string]struct{})
 	actions := []*model.PostAction{}
 
 	for i, o := range p.AnswerOptions {
 		numberOfVotes += len(o.Voter)
+		for _, v := range o.Voter {
+			voters[v] = struct{}{}
+		}
 		answer := o.Answer
 		if p.Settings.Progress {
 			answer = fmt.Sprintf("%s (%d)", answer, len(o.Voter))
@@ -140,44 +151,47 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 		},
 	)
 
+	if p.Settings.AnonymousCreator {
+		authorName = ""
+	}
+
 	return []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
-		Text:       p.makeAdditionalText(bundle, numberOfVotes),
+		Text:       p.makeAdditionalText(bundle, numberOfVotes, len(voters)),
 		Actions:    actions,
 	}}
 }
 
 // makeAdditionalText make descriptions about poll
 // This method returns markdown text, because it is used for SlackAttachment.Text field.
-func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes int) string {
+func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfVoters int) string {
 	localizer := bundle.GetServerLocalizer()
-	var settingsText []string
-	if p.Settings.Anonymous {
-		settingsText = append(settingsText, "anonymous")
-	}
-	if p.Settings.Progress {
-		settingsText = append(settingsText, "progress")
-	}
-	if p.Settings.PublicAddOption {
-		settingsText = append(settingsText, "public-add-option")
-	}
-	if p.Settings.MaxVotes > 1 {
-		settingsText = append(settingsText, fmt.Sprintf("votes=%d", p.Settings.MaxVotes))
-	}
+	settingsText := p.Settings.String()
 
 	lines := []string{"---"}
 	if len(settingsText) > 0 {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
-			TemplateData:   map[string]interface{}{"Settings": strings.Join(settingsText, ", ")},
+			TemplateData:   map[string]interface{}{"Settings": settingsText},
 		}))
 	}
 
-	lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
-		DefaultMessage: pollMessageTotalVotes,
-		TemplateData:   map[string]interface{}{"TotalVotes": numberOfVotes},
-	}))
+	if p.IsMultiVote() {
+		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
+			DefaultMessage: pollMessageTotalVotesMultiSetting,
+			TemplateData: map[string]interface{}{
+				"TotalVotes":  numberOfVotes,
+				"TotalVoters": numberOfVoters,
+			},
+			PluralCount: numberOfVoters,
+		}))
+	} else {
+		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
+			DefaultMessage: pollMessageTotalVotes,
+			TemplateData:   map[string]interface{}{"TotalVotes": numberOfVotes},
+		}))
+	}
 	return strings.Join(lines, "\n")
 }
 
@@ -218,12 +232,17 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 		})
 	}
 
+	if p.Settings.AnonymousCreator {
+		authorName = ""
+	}
+
 	attachments := []*model.SlackAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
 		Text:       bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostText}),
 		Fields:     fields,
 	}}
+
 	model.ParseSlackAttachment(post, attachments)
 
 	return post, nil
@@ -234,8 +253,10 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 	localizer := bundle.GetServerLocalizer()
 	s := fmt.Sprintf("# %s\n", p.Question)
 
-	creatorName, _ := convert(p.Creator)
-	s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+	if !p.Settings.AnonymousCreator {
+		creatorName, _ := convert(p.Creator)
+		s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+	}
 
 	const comma = ", "
 	for _, o := range p.AnswerOptions {
