@@ -22,7 +22,9 @@ const (
 	SettingKeyAnonymousCreator = "anonymous-creator"
 	SettingKeyProgress         = "progress"
 	SettingKeyPublicAddOption  = "public-add-option"
-	EndSettingLayout           = "2006-01-02T15:04"
+	EndSettingStandardLayout   = "2006-01-02T15:04"
+	EndSettingSecondsLayout    = "2006-01-02T15:04:04"
+	EndSettingTimezoneLayout   = "2006-01-02T15:04Z07:00"
 )
 
 // Poll stores all needed information for a poll
@@ -125,7 +127,7 @@ func NewSettingsFromSubmission(submission map[string]interface{}) (Settings, *ut
 				settings.MaxVotes = int(f)
 			}
 		case k == "setting-end":
-			end, err := parseDate(v.(string))
+			end, err := parseDateOrDuration(v.(string))
 			if err != nil {
 				return settings, err
 			}
@@ -170,7 +172,7 @@ func parseEndSettings(s string) (time.Time, *utils.ErrorMessage) {
 		return time.Time{}, getUnexpectedErrorMessage("poll.newPoll.endsettings.unexpectedError", s)
 	}
 
-	date, err := parseDate(e[1])
+	date, err := parseDateOrDuration(e[1])
 
 	if err != nil {
 		return time.Time{}, err
@@ -179,9 +181,10 @@ func parseEndSettings(s string) (time.Time, *utils.ErrorMessage) {
 	return date, nil
 }
 
-// parseDate parses given string date or duration to time.Time
-func parseDate(value string) (time.Time, *utils.ErrorMessage) {
+// parseDateOrDuration parses given string date or duration to time.Time
+func parseDateOrDuration(value string) (time.Time, *utils.ErrorMessage) {
 	var date time.Time
+
 	if value == "tomorrow" {
 		date = time.Now().Add(time.Hour * time.Duration(24)).UTC().Round(time.Second)
 		return date, nil
@@ -191,9 +194,7 @@ func parseDate(value string) (time.Time, *utils.ErrorMessage) {
 	if err == nil {
 		date = time.Now().Add(duration).UTC().Round(time.Second)
 	} else {
-		date, err = time.Parse(EndSettingLayout, value)
-		_, offset := time.Now().Zone()
-		date = date.Add(-time.Duration(offset) * time.Second).UTC()
+		date, err = parseDate(value)
 	}
 
 	if err != nil {
@@ -213,6 +214,37 @@ func parseDate(value string) (time.Time, *utils.ErrorMessage) {
 	}
 
 	return date, nil
+}
+
+// parseDate try to parse given string date to time.Time using several layouts
+func parseDate(value string) (time.Time, error) {
+	date, err := time.Parse(EndSettingStandardLayout, value)
+	if err == nil {
+		_, offset := time.Now().Zone()
+		date = date.Add(-time.Duration(offset) * time.Second).UTC()
+
+		return date, nil
+	}
+
+	date, err = time.Parse(EndSettingSecondsLayout, value)
+	if err == nil {
+		_, offset := time.Now().Zone()
+		date = date.Add(-time.Duration(offset) * time.Second).UTC()
+
+		return date, nil
+	}
+
+	date, err = time.Parse(EndSettingTimezoneLayout, value)
+	if err == nil {
+		return date, nil
+	}
+
+	date, err = time.Parse(time.RFC3339, value)
+	if err == nil {
+		return date, nil
+	}
+
+	return time.Time{}, err
 }
 
 // getUnexpectedErrorMessage get formatted error message for unexpected error
