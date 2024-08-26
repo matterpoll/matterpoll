@@ -73,24 +73,28 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Name:        "setting-anonymous",
 				Type:        "bool",
 				Placeholder: "Don't show who voted for what when the poll ends",
+				Default:     "true",
 				Optional:    true,
 			}, {
 				DisplayName: "Anonymous creator",
 				Name:        "setting-anonymous-creator",
 				Type:        "bool",
 				Placeholder: "Don't show author of the poll",
+				Default:     "false",
 				Optional:    true,
 			}, {
 				DisplayName: "Progress",
 				Name:        "setting-progress",
 				Type:        "bool",
 				Placeholder: "During the poll, show how many votes each answer option got",
+				Default:     "false",
 				Optional:    true,
 			}, {
 				DisplayName: "Public Add Option",
 				Name:        "setting-public-add-option",
 				Type:        "bool",
 				Placeholder: "Allow all users to add additional options",
+				Default:     "true",
 				Optional:    true,
 			}, {
 				DisplayName: "End",
@@ -451,6 +455,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			defer store.AssertExpectations(t)
 			p := setupTestPlugin(t, api, store)
 			p.configuration.Trigger = trigger
+			p.configuration.DefaultSettings = map[string]bool{"anonymous": true, "publicAddOption": true}
 
 			patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
 			patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)

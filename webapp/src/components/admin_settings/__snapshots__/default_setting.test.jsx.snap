@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/admin_settings/DefaultSettings should match snapshot 1`] = `
+<div
+  className="row"
+>
+  <div
+    className="col-xs-12 col-sm-4"
+    style={
+      Object {
+        "marginTop": "6px",
+      }
+    }
+  >
+    <strong>
+      test title
+    </strong>
+  </div>
+  <div
+    className="col-xs-12 col-sm-8"
+  >
+    <div
+      className="checkbox"
+    >
+      <label>
+        <input
+          defaultChecked={false}
+          onClick={[Function]}
+          type="checkbox"
+        />
+        <span>
+          test label
+        </span>
+      </label>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`components/admin_settings/DefaultSettings should match snapshot with true option 1`] = `
+<div
+  className="row"
+>
+  <div
+    className="col-xs-12 col-sm-4"
+    style={
+      Object {
+        "marginTop": "6px",
+      }
+    }
+  >
+    <strong>
+      test title
+    </strong>
+  </div>
+  <div
+    className="col-xs-12 col-sm-8"
+  >
+    <div
+      className="checkbox"
+    >
+      <label>
+        <input
+          defaultChecked={true}
+          onClick={[Function]}
+          type="checkbox"
+        />
+        <span>
+          test label
+        </span>
+      </label>
+    </div>
+  </div>
+</div>
+`;

@@ -126,7 +126,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		dialog := model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/api/v1/polls/create", root.Manifest.Id),
-			Dialog:    p.getCreatePollDialog(siteURL, args.RootId, userLocalizer),
+			Dialog:    p.getCreatePollDialog(siteURL, args.RootId, userLocalizer, configuration),
 		}
 
 		if appErr := p.API.OpenInteractiveDialog(dialog); appErr != nil {
@@ -262,7 +262,7 @@ func (p *MatterpollPlugin) getCommand(trigger string) (*model.Command, error) {
 	}, nil
 }
 
-func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer) model.Dialog {
+func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.Localizer, c *configuration) model.Dialog {
 	elements := []model.DialogElement{{
 		DisplayName: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
 			ID:    "dialog.createPoll.question",
@@ -307,6 +307,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-anonymous",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymous),
+		Default:     fmt.Sprintf("%t", c.DefaultSettings["anonymous"]),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
@@ -314,6 +315,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-anonymous-creator",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingAnonymousCreator),
+		Default:     fmt.Sprintf("%t", c.DefaultSettings["anonymousCreator"]),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
@@ -321,6 +323,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-progress",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingProgress),
+		Default:     fmt.Sprintf("%t", c.DefaultSettings["progress"]),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
@@ -328,6 +331,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Name:        "setting-public-add-option",
 		Type:        "bool",
 		Placeholder: p.bundle.LocalizeDefaultMessage(l, commandHelpTextPollSettingPublicAddOption),
+		Default:     fmt.Sprintf("%t", c.DefaultSettings["publicAddOption"]),
 		Optional:    true,
 	})
 	elements = append(elements, model.DialogElement{
