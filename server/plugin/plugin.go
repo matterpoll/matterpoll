@@ -111,6 +111,8 @@ func (p *MatterpollPlugin) OnActivate() error {
 
 	p.setActivated(true)
 
+	p.Scheduler()
+
 	return nil
 }
 

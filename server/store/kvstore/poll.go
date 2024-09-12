@@ -2,6 +2,7 @@ package kvstore
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/plugin"
@@ -83,4 +84,32 @@ func (s *PollStore) Delete(poll *poll.Poll) error {
 	}
 
 	return nil
+}
+
+// GetAllKeys get all saved poll IDs from the KV Store.
+func (s *PollStore) GetAllPollIDs() ([]string, error) {
+	var allKeys []string
+	i := 0
+	for {
+		keys, appErr := s.api.KVList(i, perPage)
+		if appErr != nil {
+			return nil, errors.New("failed to list poll keys")
+		}
+		allKeys = append(allKeys, keys...)
+
+		if len(keys) < perPage {
+			break
+		}
+
+		i++
+	}
+
+	var pollKeys []string
+	for _, k := range allKeys {
+		if strings.HasPrefix(k, pollPrefix) {
+			pollKeys = append(pollKeys, strings.TrimPrefix(k, pollPrefix))
+		}
+	}
+
+	return pollKeys, nil
 }

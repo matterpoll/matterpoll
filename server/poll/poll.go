@@ -3,8 +3,6 @@ package poll
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v6/model"
@@ -13,13 +11,14 @@ import (
 	"github.com/matterpoll/matterpoll/server/utils"
 )
 
-var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
-
 const (
 	SettingKeyAnonymous        = "anonymous"
 	SettingKeyAnonymousCreator = "anonymous-creator"
 	SettingKeyProgress         = "progress"
 	SettingKeyPublicAddOption  = "public-add-option"
+	EndSettingStandardLayout   = "2006-01-02T15:04"
+	EndSettingSecondsLayout    = "2006-01-02T15:04:04"
+	EndSettingTimezoneLayout   = "2006-01-02T15:04Z07:00"
 )
 
 // Poll stores all needed information for a poll
@@ -37,15 +36,6 @@ type Poll struct {
 type AnswerOption struct {
 	Answer string
 	Voter  []string
-}
-
-// Settings stores possible settings for a poll
-type Settings struct {
-	Anonymous        bool
-	AnonymousCreator bool
-	Progress         bool
-	PublicAddOption  bool
-	MaxVotes         int `json:"max_votes"`
 }
 
 // NewPoll creates a new poll with the given parameter.
@@ -70,96 +60,17 @@ func NewPoll(creator, question string, answerOptions []string, settings Settings
 	return &p, nil
 }
 
-// NewSettingsFromStrings creates a new settings with the given parameter.
-func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
-	settings := Settings{MaxVotes: 1}
-	for _, str := range strs {
-		switch {
-		case str == SettingKeyAnonymous:
-			settings.Anonymous = true
-		case str == SettingKeyAnonymousCreator:
-			settings.AnonymousCreator = true
-		case str == SettingKeyProgress:
-			settings.Progress = true
-		case str == SettingKeyPublicAddOption:
-			settings.PublicAddOption = true
-		case votesSettingPattern.MatchString(str):
-			i, errMsg := parseVotesSettings(str)
-			if errMsg != nil {
-				return settings, errMsg
-			}
-			settings.MaxVotes = i
-		default:
-			return settings, &utils.ErrorMessage{
-				Message: &i18n.Message{
-					ID:    "poll.newPoll.unrecognizedSetting",
-					Other: "Unrecognized poll setting: {{.Setting}}",
-				},
-				Data: map[string]interface{}{
-					"Setting": str,
-				},
-			}
-		}
+// getUnexpectedErrorMessage get formatted error message for unexpected error
+func getUnexpectedErrorMessage(idText, s string) *utils.ErrorMessage {
+	return &utils.ErrorMessage{
+		Message: &i18n.Message{
+			ID:    idText,
+			Other: "Unexpected error happens when parsing {{.Setting}}",
+		},
+		Data: map[string]interface{}{
+			"Setting": s,
+		},
 	}
-	return settings, nil
-}
-
-// NewSettingsFromSubmission creates a new settings with the given parameter.
-func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
-	settings := Settings{MaxVotes: 1}
-	for k, v := range submission {
-		if k == "setting-multi" {
-			f, ok := v.(float64)
-			if ok {
-				settings.MaxVotes = int(f)
-			}
-		} else if strings.HasPrefix(k, "setting-") {
-			b, ok := v.(bool)
-			if b && ok {
-				s := strings.TrimPrefix(k, "setting-")
-				switch s {
-				case SettingKeyAnonymous:
-					settings.Anonymous = true
-				case SettingKeyAnonymousCreator:
-					settings.AnonymousCreator = true
-				case SettingKeyProgress:
-					settings.Progress = true
-				case SettingKeyPublicAddOption:
-					settings.PublicAddOption = true
-				}
-			}
-		}
-	}
-	return settings
-}
-
-// parseVotesSettings parses setting for votes ("--votes=X")
-func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
-	e := votesSettingPattern.FindStringSubmatch(s)
-	if len(e) != 2 {
-		return 0, &utils.ErrorMessage{
-			Message: &i18n.Message{
-				ID:    "poll.newPoll.votesettings.unexpectedError",
-				Other: "Unexpected error happens when parsing {{.Setting}}",
-			},
-			Data: map[string]interface{}{
-				"Setting": s,
-			},
-		}
-	}
-	i, err := strconv.Atoi(e[1])
-	if err != nil {
-		return 0, &utils.ErrorMessage{
-			Message: &i18n.Message{
-				ID:    "poll.newPoll.votesettings.invalidSetting",
-				Other: "Unexpected error happens when parsing {{.Setting}}",
-			},
-			Data: map[string]interface{}{
-				"Setting": s,
-			},
-		}
-	}
-	return i, nil
 }
 
 // validate checks if poll is valid
@@ -339,25 +250,4 @@ func (p *Poll) Copy() *Poll {
 		}
 	}
 	return p2
-}
-
-func (s Settings) String() string {
-	var settingsText []string
-	if s.Anonymous {
-		settingsText = append(settingsText, "anonymous")
-	}
-	if s.AnonymousCreator {
-		settingsText = append(settingsText, "anonymous-creator")
-	}
-	if s.Progress {
-		settingsText = append(settingsText, "progress")
-	}
-	if s.PublicAddOption {
-		settingsText = append(settingsText, "public-add-option")
-	}
-	if s.MaxVotes > 1 {
-		settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
-	}
-
-	return strings.Join(settingsText, ", ")
 }
