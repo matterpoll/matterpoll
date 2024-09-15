@@ -23,6 +23,8 @@ const (
 )
 
 // Poll stores all needed information for a poll
+// When adding new fields, to avoid failures during atomic transactions for KV Store,
+// either specify omitempty or set initial values during the upgrade.
 type Poll struct {
 	ID            string
 	PostID        string `json:"post_id,omitempty"`
@@ -39,10 +41,12 @@ type AnswerOption struct {
 	Voter  []string
 }
 
-// Settings stores possible settings for a poll
+// Settings stores possible settings for a poll.
+// When adding new settings, to avoid failures during atomic transactions for KV Store,
+// either specify omitempty or set initial values during the upgrade.
 type Settings struct {
 	Anonymous        bool
-	AnonymousCreator bool `json:",omitempty"`
+	AnonymousCreator bool `json:",omitempty"` // Since v1.7
 	Progress         bool
 	PublicAddOption  bool
 	MaxVotes         int `json:"max_votes"`
