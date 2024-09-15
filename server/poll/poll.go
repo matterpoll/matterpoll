@@ -46,7 +46,7 @@ type AnswerOption struct {
 // either specify omitempty or set initial values during the upgrade.
 type Settings struct {
 	Anonymous        bool
-	AnonymousCreator bool `json:",omitempty"` // Since v1.7
+	AnonymousCreator bool `json:",omitempty"`
 	Progress         bool
 	PublicAddOption  bool
 	MaxVotes         int `json:"max_votes"`
