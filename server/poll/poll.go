@@ -42,7 +42,7 @@ type AnswerOption struct {
 // Settings stores possible settings for a poll
 type Settings struct {
 	Anonymous        bool
-	AnonymousCreator bool
+	AnonymousCreator bool `json:",omitempty"`
 	Progress         bool
 	PublicAddOption  bool
 	MaxVotes         int `json:"max_votes"`
