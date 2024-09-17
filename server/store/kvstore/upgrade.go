@@ -126,9 +126,10 @@ func upgradeTo14(s *Store) error {
 
 // upgradeTo17_2 convert existing polls to the new format that includes `Settings.AnonymousCreator` setting.
 //
-// Adding new settings (AnonymousCreator) without `omitempty` causes the atomic transaction to fail when saving a poll.
-// Additinally, just adding `omitempty` to Settings.AnonymousCreator will also result in atomic transactions failure
-// for poll with AnonymousCreator=false, which is created with Matterpoll v1.7.0.
+// New setting `AnonymousCreator“ without `omitempty` introduced in v1.7.0 causes the atomic transaction
+// to fail when saving a poll. Additionally, just adding `omitempty` to Settings.AnonymousCreator introduced
+// in v1.7.1 will also result in atomic transactions failure for poll with AnonymousCreator=false, which is
+// created with Matterpoll v1.7.0.
 // => see https://github.com/matterpoll/matterpoll/issues/562
 func upgradeTo17_2(s *Store) error {
 	var allKeys []string
@@ -153,6 +154,7 @@ func upgradeTo17_2(s *Store) error {
 		if strings.HasPrefix(k, pollPrefix) {
 			k = strings.TrimPrefix(k, pollPrefix)
 
+			// poll is migrated when reading data
 			poll, err := s.Poll().Get(k)
 			if err != nil {
 				s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
