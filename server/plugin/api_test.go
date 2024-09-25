@@ -681,6 +681,14 @@ func TestHandleVote(t *testing.T) {
 	expectedPost7.AddProp("card", poll7Out.ToCard(testutils.GetBundle(), converter))
 	model.ParseSlackAttachment(expectedPost7, poll7Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
+	poll8In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0})
+	poll8Out := poll8In.Copy()
+	msg, err = poll8Out.UpdateVote("userID2", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	expectedPost8 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost8, poll8Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+
 	post := &model.Post{
 		ChannelId: "channelID1",
 	}
@@ -818,6 +826,33 @@ func TestHandleVote(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
+		},
+		"Valid request, with multi setting (--votes=0), first vote": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"can_manage_poll":           false,
+					"poll_id":                   testutils.GetPollID(),
+					"user_id":                   "userID2",
+					"voted_answers":             []string{"Answer 1"},
+					"setting_progress":          false,
+					"setting_public_add_option": false,
+				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll8In.Copy(), nil)
+				store.PollStore.On("Update", poll8In, poll8Out).Return(nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
+			VoteIndex:          0,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost8},
+			ExpectedMsg:        "Your vote has been counted. You have 2 votes left.",
 		},
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
