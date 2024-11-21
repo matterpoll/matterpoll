@@ -16,6 +16,7 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 2. Upload `com.github.matterpoll.matterpoll-x.y.z.tar.gz` file through **System Console > Plugins > Plugin Management > Upload Plugin** in Mattermost and enable the plugin.
    * Upgrades can be performed by uploading the lastest release and confirm overwriting of the duplicate plugin ID.
 
+
 ## Settings
 You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 
@@ -59,6 +60,7 @@ The currently supported languages are:
 - Spanish
 - Swedish
 - Traditional Chinese
+
 
 ## Troubleshooting
 

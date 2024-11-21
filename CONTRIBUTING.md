@@ -2,9 +2,11 @@
 
 Thank you for your interest in contributing! Join the [**Matterpoll channel**](https://community.mattermost.com/core/channels/matterpoll) on the Mattermost community server for discussion about this plugin.
 
+
 ## Reporting Issues
 
 If you think you found a bug, [please use the GitHub issue tracker](https://github.com/matterpoll/matterpoll/issues/new?template=bug_report.md) to open an issue. When opening an issue, please provide the required information in the issue template.
+
 
 ## Translating strings
 
@@ -65,7 +67,8 @@ Let's say you want to translate the local `de`. Replace `de` in the following co
 
 4. Add your language to the list of [Supported Languages](https://github.com/matterpoll/matterpoll#localization) in `README.md` and add you to the list of [Translation Maintainer](#translation-maintainers) in `CONTRIBUTING.md`
 
-5. [Submit a PR](https://github.com/matterpoll/matterpoll/compare) with these files, 
+5. [Submit a PR](https://github.com/matterpoll/matterpoll/compare) with these files.
+
 
 ## Submitting Patches
 
