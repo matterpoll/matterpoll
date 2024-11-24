@@ -58,6 +58,7 @@ The currently supported languages are:
 - Russian
 - Simplified Chinese
 - Spanish
+- Swedish
 - Traditional Chinese
 
 
