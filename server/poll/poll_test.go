@@ -14,68 +14,79 @@ import (
 )
 
 func TestNewPoll(t *testing.T) {
-	t.Run("all fine", func(t *testing.T) {
-		assert := assert.New(t)
-		patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
-		patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-		defer func() { require.NoError(t, patch1.Unpatch()) }()
-		defer func() { require.NoError(t, patch2.Unpatch()) }()
+	assert := assert.New(t)
+	var createdAt int64 = 1234567890
+	patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return createdAt })
+	patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
+	defer func() { require.NoError(t, patch1.Unpatch()) }()
+	defer func() { require.NoError(t, patch2.Unpatch()) }()
 
-		creator := model.NewRandomString(10)
-		question := model.NewRandomString(10)
-		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{
-			Anonymous:       true,
-			Progress:        true,
-			PublicAddOption: true,
-			MaxVotes:        3,
+	creator := model.NewRandomString(10)
+	question := model.NewRandomString(10)
+	option1 := "Yes"
+	option2 := "No"
+	option3 := "Other"
+	option4 := "" // invalid: empty option
+
+	for name, test := range map[string]struct {
+		Options     []string
+		Settings    poll.Settings
+		ShouldError bool
+	}{
+		"fine, default settings": {
+			Options:     []string{option1, option2},
+			Settings:    poll.Settings{Anonymous: false, Progress: false, PublicAddOption: false, MaxVotes: 1},
+			ShouldError: false,
+		},
+		"fine, all settings": {
+			Options:     []string{option1, option2, option3},
+			Settings:    poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 3},
+			ShouldError: false,
+		},
+		"fine, votes=0": {
+			Options:     []string{option1, option2},
+			Settings:    poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 0},
+			ShouldError: false,
+		},
+		"invalid, duplicated options": {
+			Options:     []string{option1, option2, option1}, // options1 is duplicated
+			Settings:    poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 1},
+			ShouldError: true,
+		},
+		"invalid, empty option": {
+			Options:     []string{option1, option2, option4}, // options1 is duplicated
+			Settings:    poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 1},
+			ShouldError: true,
+		},
+		"invalid, votes setting exceeds": {
+			Options:     []string{option1, option2, option3}, // options1 is duplicated
+			Settings:    poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 4},
+			ShouldError: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			p, err := poll.NewPoll(creator, question, test.Options, test.Settings)
+
+			if test.ShouldError {
+				assert.Nil(p)
+				assert.NotNil(err)
+			} else {
+				assert.Nil(err)
+				assert.NotNil(p)
+				assert.Equal(testutils.GetPollID(), p.ID)
+				assert.Equal(createdAt, p.CreatedAt)
+				assert.Equal(creator, p.Creator)
+				assert.Equal(question, p.Question)
+
+				assert.Equal(len(test.Options), len(p.AnswerOptions))
+				for i, o := range p.AnswerOptions {
+					assert.Equal(&poll.AnswerOption{Answer: test.Options[i], Voter: []string{}}, o)
+				}
+
+				assert.Equal(test.Settings, p.Settings)
+			}
 		})
-
-		require.Nil(t, err)
-		require.NotNil(t, p)
-		assert.Equal(testutils.GetPollID(), p.ID)
-		assert.Equal(int64(1234567890), p.CreatedAt)
-		assert.Equal(creator, p.Creator)
-		assert.Equal(question, p.Question)
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[0], Voter: []string{}}, p.AnswerOptions[0])
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[1], Voter: []string{}}, p.AnswerOptions[1])
-		assert.Equal(&poll.AnswerOption{Answer: answerOptions[2], Voter: []string{}}, p.AnswerOptions[2])
-		assert.Equal(poll.Settings{Anonymous: true, Progress: true, PublicAddOption: true, MaxVotes: 3}, p.Settings)
-	})
-
-	t.Run("error, invalid votes setting", func(t *testing.T) {
-		assert := assert.New(t)
-		patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
-		patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-		defer func() { require.NoError(t, patch1.Unpatch()) }()
-		defer func() { require.NoError(t, patch2.Unpatch()) }()
-
-		creator := model.NewRandomString(10)
-		question := model.NewRandomString(10)
-		answerOptions := []string{model.NewRandomString(10), model.NewRandomString(10), model.NewRandomString(10)}
-		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{
-			Anonymous:       true,
-			Progress:        true,
-			PublicAddOption: true,
-			MaxVotes:        4,
-		})
-
-		assert.Nil(p)
-		assert.NotNil(err)
-	})
-
-	t.Run("error, duplicate option", func(t *testing.T) {
-		assert := assert.New(t)
-
-		creator := model.NewRandomString(10)
-		question := model.NewRandomString(10)
-		option := model.NewRandomString(10)
-		answerOptions := []string{option, model.NewRandomString(10), option}
-		p, err := poll.NewPoll(creator, question, answerOptions, poll.Settings{MaxVotes: 1})
-
-		assert.Nil(p)
-		assert.NotNil(err)
-	})
+	}
 }
 
 func TestNewSettingsFromStrings(t *testing.T) {
@@ -209,6 +220,43 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 	}
 }
 
+func TestIsMultiVote(t *testing.T) {
+	assert := assert.New(t)
+	for name, test := range map[string]struct {
+		Poll     poll.Poll
+		Expected bool
+	}{
+		"single vote": {
+			Poll: poll.Poll{
+				ID:            testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{{Answer: "Answer 1"}, {Answer: "Answer 2"}},
+				Settings:      poll.Settings{MaxVotes: 1},
+			},
+			Expected: false,
+		},
+		"multi vote": {
+			Poll: poll.Poll{
+				ID:            testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{{Answer: "Answer 1"}, {Answer: "Answer 2"}},
+				Settings:      poll.Settings{MaxVotes: 2},
+			},
+			Expected: true,
+		},
+		"multi vote 0": {
+			Poll: poll.Poll{
+				ID:            testutils.GetPollID(),
+				AnswerOptions: []*poll.AnswerOption{{Answer: "Answer 1"}, {Answer: "Answer 2"}},
+				Settings:      poll.Settings{MaxVotes: 0},
+			},
+			Expected: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(test.Expected, test.Poll.IsMultiVote())
+		})
+	}
+}
+
 func TestAddAnswerOption(t *testing.T) {
 	assert := assert.New(t)
 
@@ -273,6 +321,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "a",
 			Index:  -1,
@@ -283,6 +332,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         true,
 			ReturnMessage: false,
@@ -295,6 +345,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "a",
 			Index:  2,
@@ -305,6 +356,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         true,
 			ReturnMessage: false,
@@ -317,6 +369,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "",
 			Index:  1,
@@ -327,6 +380,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         true,
 			ReturnMessage: false,
@@ -339,6 +393,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "a",
 			Index:  0,
@@ -349,6 +404,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         false,
 			ReturnMessage: false,
@@ -361,6 +417,7 @@ func TestUpdateVote(t *testing.T) {
 						Voter: []string{"a"}},
 					{Answer: "Answer 2"},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			UserID: "a",
 			Index:  1,
@@ -372,6 +429,7 @@ func TestUpdateVote(t *testing.T) {
 					{Answer: "Answer 2",
 						Voter: []string{"a"}},
 				},
+				Settings: poll.Settings{MaxVotes: 1},
 			},
 			Error:         false,
 			ReturnMessage: false,
@@ -518,6 +576,30 @@ func TestUpdateVote(t *testing.T) {
 				Settings: poll.Settings{MaxVotes: 2},
 			},
 			Error:         true,
+			ReturnMessage: false,
+		},
+		"Multi votes setting (--votes=0), third vote": {
+			Poll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3"},
+				},
+				Settings: poll.Settings{MaxVotes: 0},
+			},
+			UserID: "a",
+			Index:  2,
+			ExpectedPoll: poll.Poll{
+				Question: "Question",
+				AnswerOptions: []*poll.AnswerOption{
+					{Answer: "Answer 1", Voter: []string{"a"}},
+					{Answer: "Answer 2", Voter: []string{"a"}},
+					{Answer: "Answer 3", Voter: []string{"a"}},
+				},
+				Settings: poll.Settings{MaxVotes: 0},
+			},
+			Error:         false,
 			ReturnMessage: false,
 		},
 	} {
@@ -812,46 +894,46 @@ func TestPollCopy(t *testing.T) {
 }
 
 func TestSettingsString(t *testing.T) {
-	t.Run("anonymous", func(t *testing.T) {
-		s := poll.Settings{Anonymous: true}
-		str := s.String()
-
-		assert.Equal(t, str, "anonymous")
-	})
-	t.Run("anonymous-creator", func(t *testing.T) {
-		s := poll.Settings{AnonymousCreator: true}
-		str := s.String()
-
-		assert.Equal(t, str, "anonymous-creator")
-	})
-	t.Run("progress", func(t *testing.T) {
-		s := poll.Settings{Progress: true}
-		str := s.String()
-
-		assert.Equal(t, str, "progress")
-	})
-	t.Run("public-add-option", func(t *testing.T) {
-		s := poll.Settings{PublicAddOption: true}
-		str := s.String()
-
-		assert.Equal(t, str, "public-add-option")
-	})
-	t.Run("default votes", func(t *testing.T) {
-		s := poll.Settings{MaxVotes: 1}
-		str := s.String()
-
-		assert.Equal(t, str, "")
-	})
-	t.Run("votes", func(t *testing.T) {
-		s := poll.Settings{MaxVotes: 2}
-		str := s.String()
-
-		assert.Equal(t, str, "votes=2")
-	})
-	t.Run("all", func(t *testing.T) {
-		s := poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MaxVotes: 2}
-		str := s.String()
-
-		assert.Equal(t, str, "anonymous, anonymous-creator, progress, public-add-option, votes=2")
-	})
+	assert := assert.New(t)
+	for name, test := range map[string]struct {
+		Settings poll.Settings
+		Expected string
+	}{
+		"anonymous": {
+			Settings: poll.Settings{Anonymous: true, MaxVotes: 1},
+			Expected: "anonymous",
+		},
+		"anonymous-creator": {
+			Settings: poll.Settings{AnonymousCreator: true, MaxVotes: 1},
+			Expected: "anonymous-creator",
+		},
+		"progress": {
+			Settings: poll.Settings{Progress: true, MaxVotes: 1},
+			Expected: "progress",
+		},
+		"public-add-option": {
+			Settings: poll.Settings{PublicAddOption: true, MaxVotes: 1},
+			Expected: "public-add-option",
+		},
+		"default votes": {
+			Settings: poll.Settings{MaxVotes: 1},
+			Expected: "",
+		},
+		"votes": {
+			Settings: poll.Settings{MaxVotes: 2},
+			Expected: "votes=2",
+		},
+		"all votes": {
+			Settings: poll.Settings{MaxVotes: 0},
+			Expected: "votes=all",
+		},
+		"all": {
+			Settings: poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MaxVotes: 2},
+			Expected: "anonymous, anonymous-creator, progress, public-add-option, votes=2",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(test.Expected, test.Settings.String())
+		})
+	}
 }

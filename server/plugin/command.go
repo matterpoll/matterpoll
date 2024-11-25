@@ -68,7 +68,7 @@ var (
 	}
 	commandHelpTextPollSettingMultiVote = &i18n.Message{
 		ID:    "command.help.text.pollSetting.multi-vote",
-		Other: "Allow users to vote for X options",
+		Other: "Allow users to vote for X options. Default is 1. If X is 0, users have an unlimited amount of votes.",
 	}
 
 	commandErrorGeneric = &i18n.Message{
@@ -276,7 +276,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		HelpText: p.bundle.LocalizeWithConfig(l, &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "dialog.createPoll.setting.multi",
-				Other: "The number of options that an user can vote on.",
+				Other: "The number of options that a user can vote on. 0 means that users can vote for all options even after adding options.",
 			}}),
 		Optional: false,
 	})
