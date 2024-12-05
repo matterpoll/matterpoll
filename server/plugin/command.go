@@ -66,6 +66,14 @@ var (
 		ID:    "command.help.text.pollSetting.public-add-option",
 		Other: "Allow all users to add additional options",
 	}
+	commandHelpTextPollSettingVoteMethod = &i18n.Message{
+		ID:    "command.help.text.pollSetting.voteMethod",
+		Other: "Select the voting method. Supported are `limited` (default) and `cumulative` (allow users to vote multiple times for the same option)",
+	}
+	commandHelpTextDialogPollSettingVoteMethod = &i18n.Message{
+		ID:    "command.help.text.pollSetting.voteMethod",
+		Other: "Cumulative allow users to vote multiple times for the same option",
+	}
 	commandHelpTextPollSettingMultiVote = &i18n.Message{
 		ID:    "command.help.text.pollSetting.multi-vote",
 		Other: "Allow users to vote for X options",
@@ -137,7 +145,8 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		msg += "- `--anonymous-creator`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymousCreator) + "\n"
 		msg += "- `--progress`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingProgress) + "\n"
 		msg += "- `--public-add-option`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingPublicAddOption) + "\n"
-		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
+		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote) + "\n"
+		msg += "- `--votes-method=cumulative`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingVoteMethod)
 
 		return msg, nil
 	}
@@ -280,6 +289,22 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 			}}),
 		Optional: false,
 	})
+
+	voteMethodOptionLimited := model.PostActionOptions{Text: poll.VoteMethodLimited, Value: poll.VoteMethodLimited}
+	voteMethodOptionCumulative := model.PostActionOptions{Text: poll.VoteMethodCumulative, Value: poll.VoteMethodCumulative}
+	voteMethods := []*model.PostActionOptions{
+		&voteMethodOptionLimited,
+		&voteMethodOptionCumulative,
+	}
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Vote Method",
+		Name:        "setting-vote-method",
+		Type:        "select",
+		HelpText:    p.bundle.LocalizeDefaultMessage(l, commandHelpTextDialogPollSettingVoteMethod),
+		Options:     voteMethods,
+		Default:     poll.VoteMethodLimited,
+	})
+
 	elements = append(elements, model.DialogElement{
 		DisplayName: "Anonymous",
 		Name:        "setting-anonymous",
@@ -312,6 +337,7 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 		Default:     fmt.Sprintf("%t", c.DefaultSettings["publicAddOption"]),
 		Optional:    true,
 	})
+
 	dialog := model.Dialog{
 		CallbackId: rootID,
 		Title: p.bundle.LocalizeDefaultMessage(l, &i18n.Message{
