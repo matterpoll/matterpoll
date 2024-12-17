@@ -60,7 +60,7 @@ func GetPoll() *poll.Poll {
 			Answer: "Answer 3",
 			Voter:  []string{},
 		}},
-		Settings: poll.Settings{MaxVotes: 1},
+		Settings: poll.Settings{MaxVotes: 1, VoteMethod: poll.VoteMethodLimited},
 	}
 }
 
@@ -73,16 +73,22 @@ func GetPollWithoutPostID() *poll.Poll {
 
 // GetPollWithSettings returns a Poll with three Options, no votes and given Poll Settings.
 func GetPollWithSettings(settings poll.Settings) *poll.Poll {
-	poll := GetPoll()
-	poll.Settings = settings
-	return poll
+	p := GetPoll()
+	p.Settings = settings
+	if p.Settings.VoteMethod == "" {
+		p.Settings.VoteMethod = poll.VoteMethodLimited
+	}
+	return p
 }
 
 // GetPollTwoOptionsWithSettings returns a Poll with two Options, "Yes" and "No", no votes and given Poll Settings.
 func GetPollTwoOptionsWithSettings(settings poll.Settings) *poll.Poll {
-	poll := GetPollTwoOptions()
-	poll.Settings = settings
-	return poll
+	p := GetPollTwoOptions()
+	p.Settings = settings
+	if p.Settings.VoteMethod == "" {
+		p.Settings.VoteMethod = poll.VoteMethodLimited
+	}
+	return p
 }
 
 // GetPollWithVotes returns a Poll with three Options, some votes and no Poll Settings.
@@ -103,7 +109,29 @@ func GetPollWithVotes() *poll.Poll {
 			Answer: "Answer 3",
 			Voter:  []string{},
 		}},
-		Settings: poll.Settings{MaxVotes: 1},
+		Settings: poll.Settings{MaxVotes: 1, VoteMethod: poll.VoteMethodLimited},
+	}
+}
+
+// GetCumulativePollWithVotes returns a Poll with three Options, some cumulative votes and vote-method=cumulative.
+func GetCumulativePollWithVotes() *poll.Poll {
+	return &poll.Poll{
+		ID:        GetPollID(),
+		PostID:    "postID1",
+		CreatedAt: 1234567890,
+		Creator:   "userID1",
+		Question:  "Question",
+		AnswerOptions: []*poll.AnswerOption{{
+			Answer: "Answer 1",
+			Voter:  []string{"userID1", "userID1", "userID2", "userID3", "userID3"},
+		}, {
+			Answer: "Answer 2",
+			Voter:  []string{"userID4", "userID2", "userID4"},
+		}, {
+			Answer: "Answer 3",
+			Voter:  []string{},
+		}},
+		Settings: poll.Settings{MaxVotes: 1, VoteMethod: poll.VoteMethodCumulative},
 	}
 }
 
@@ -125,7 +153,7 @@ func GetPollWithVoteUnknownUser() *poll.Poll {
 			Answer: "Answer 3",
 			Voter:  []string{},
 		}},
-		Settings: poll.Settings{MaxVotes: 1},
+		Settings: poll.Settings{MaxVotes: 1, VoteMethod: poll.VoteMethodLimited},
 	}
 }
 
@@ -151,6 +179,6 @@ func GetPollTwoOptions() *poll.Poll {
 			Answer: "No",
 			Voter:  []string{},
 		}},
-		Settings: poll.Settings{MaxVotes: 1},
+		Settings: poll.Settings{MaxVotes: 1, VoteMethod: poll.VoteMethodLimited},
 	}
 }

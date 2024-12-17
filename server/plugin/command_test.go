@@ -26,9 +26,17 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"- `--anonymous-creator`: Don't show author of the poll\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
-		"- `--votes=X`: Allow users to vote for X options"
+		"- `--votes=X`: Allow users to vote for X options\n" +
+		"- `--votes-method=cumulative`: Select the voting method. Supported are `limited` (default) and `cumulative` (allow users to vote multiple times for the same option)"
 	triggerID := model.NewId()
 	rootID := model.NewId()
+
+	voteMethodOptionLimited := model.PostActionOptions{Text: poll.VoteMethodLimited, Value: poll.VoteMethodLimited}
+	voteMethodOptionCumulative := model.PostActionOptions{Text: poll.VoteMethodCumulative, Value: poll.VoteMethodCumulative}
+	voteMethods := []*model.PostActionOptions{
+		&voteMethodOptionLimited,
+		&voteMethodOptionCumulative,
+	}
 
 	createPollDialog := model.OpenDialogRequest{
 		TriggerId: triggerID,
@@ -66,6 +74,13 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Default:     "1",
 				HelpText:    "The number of options that an user can vote on.",
 				Optional:    false,
+			}, {
+				DisplayName: "Vote Method",
+				Name:        "setting-vote-method",
+				Type:        "select",
+				HelpText:    "Cumulative allow users to vote multiple times for the same option",
+				Options:     voteMethods,
+				Default:     poll.VoteMethodLimited,
 			}, {
 				DisplayName: "Anonymous",
 				Name:        "setting-anonymous",
