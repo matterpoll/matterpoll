@@ -202,7 +202,7 @@ func TestPollToPostActions(t *testing.T) {
 				},
 			}},
 		},
-		"Multipile questions, settings: progress": {
+		"Multiple questions, settings: progress": {
 			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1}),
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
@@ -268,7 +268,7 @@ func TestPollToPostActions(t *testing.T) {
 				},
 			}},
 		},
-		"Multipile questions, settings: anonymous, public-add-option": {
+		"Multiple questions, settings: anonymous, public-add-option": {
 			Poll: testutils.GetPollWithSettings(poll.Settings{Anonymous: true, PublicAddOption: true, MaxVotes: 1}),
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
@@ -466,12 +466,78 @@ func TestPollToPostActions(t *testing.T) {
 				},
 			}},
 		},
-		"Multipile questions, settings: votes=3, multiple voters": {
+		"Multiple questions, settings: votes=3, multiple voters": {
 			Poll: pollWithMulti2,
 			ExpectedAttachments: []*model.SlackAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: votes=3\n**Total votes**: 6 (3 voters)",
+				Actions: []*model.PostAction{{
+					Id:    "vote0",
+					Name:  "Answer 1",
+					Type:  model.PostActionTypeButton,
+					Style: "default",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "vote1",
+					Name:  "Answer 2",
+					Type:  model.PostActionTypeButton,
+					Style: "default",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "vote2",
+					Name:  "Answer 3",
+					Type:  model.PostActionTypeButton,
+					Style: "default",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "resetVote",
+					Name:  "Reset Your Votes",
+					Type:  model.PostActionTypeButton,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "addOption",
+					Name:  "Add Option",
+					Type:  model.PostActionTypeButton,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "endPoll",
+					Name:  "End Poll",
+					Type:  poll.MatterpollAdminButtonType,
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				}, {
+					Id:    "deletePoll",
+					Name:  "Delete Poll",
+					Type:  poll.MatterpollAdminButtonType,
+					Style: "danger",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+					},
+				},
+				},
+			}},
+		},
+		"Multiple questions, settings: votes=0": {
+			Poll: testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0}),
+			ExpectedAttachments: []*model.SlackAttachment{{
+				AuthorName: "John Doe",
+				Title:      "Question",
+				Text:       "---\n**Poll Settings**: votes=all\n**Total votes**: 0 (0 voters)",
 				Actions: []*model.PostAction{{
 					Id:    "vote0",
 					Name:  "Answer 1",
