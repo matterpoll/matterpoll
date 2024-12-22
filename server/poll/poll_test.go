@@ -925,7 +925,7 @@ func TestSettingsString(t *testing.T) {
 		},
 		"all votes": {
 			Settings: poll.Settings{MaxVotes: 0},
-			Expected: "votes=all",
+			Expected: "votes=unlimited",
 		},
 		"all": {
 			Settings: poll.Settings{Anonymous: true, AnonymousCreator: true, Progress: true, PublicAddOption: true, MaxVotes: 2},

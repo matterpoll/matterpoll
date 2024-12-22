@@ -362,7 +362,7 @@ func (s Settings) String() string {
 	if s.MaxVotes != 1 {
 		switch s.MaxVotes {
 		case 0:
-			settingsText = append(settingsText, "votes=all")
+			settingsText = append(settingsText, "votes=unlimited")
 		default:
 			settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
 		}
