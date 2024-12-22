@@ -9,6 +9,7 @@
   "command.error.invalidNumberOfOptions": "You must provide either no answer or at least two answers.",
   "command.help.text.options": "You can customize the options by typing `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`",
   "command.help.text.pollSetting.anonymous": "Don't show who voted for what when the poll ends",
+  "command.help.text.pollSetting.anonymous-creator": "Don't show author of the poll",
   "command.help.text.pollSetting.introduction": "Poll Settings provider further customization, e.g. `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:",
   "command.help.text.pollSetting.multi-vote": "Allow users to vote for X options. Default is 1. If X is 0, users have an unlimited amount of votes.",
   "command.help.text.pollSetting.progress": "During the poll, show how many votes each answer option got",

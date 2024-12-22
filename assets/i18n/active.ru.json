@@ -39,6 +39,10 @@
     "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
     "other": "Не показывать кто как ответил по окончании опроса"
   },
+  "command.help.text.pollSetting.anonymous-creator": {
+    "hash": "sha1-59c4b987ae73b46ba774f8bf78bc742fdf4d9ab3",
+    "other": "Скрыть автора опроса"
+  },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "Опрос в дальнейшем можно настроить, например `/{{.Trigger}} \"Текст вопроса\" \"Ответ 1\" \"Ответ 2\" \"Ответ 3\" --progress --anonymous`. Доступны следующие настройки опроса:"
@@ -129,7 +133,7 @@
   },
   "poll.button.resetVotes": {
     "few": "Удалить ответы",
-    "hash": "sha1-4a61c63020a340f21d6986159f8c2dcce0f25a79",
+    "hash": "sha1-802a25521fbfd37564097fde5f358a591695d19c",
     "many": "Удалить ответы",
     "one": "Удалить ответ",
     "other": "Удалить ответы"
@@ -156,6 +160,13 @@
   "poll.message.totalVotes": {
     "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**Всего ответов**: {{.TotalVotes}}"
+  },
+  "poll.message.totalVotesMulti": {
+    "few": "**Всего ответов**: {{.TotalVotes}} ({{ .TotalVoters }} человека)",
+    "hash": "sha1-708616dbb5432949c4e8264a3d63eb80c9933d26",
+    "many": "**Всего ответов**: {{.TotalVotes}} ({{ .TotalVoters }} человек)",
+    "one": "**Всего ответов**: {{.TotalVotes}} ({{ .TotalVoters }} человек)",
+    "other": "**Всего ответов**: {{.TotalVotes}} ({{ .TotalVoters }} человек)"
   },
   "poll.newPoll.unrecognizedSetting": {
     "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
@@ -223,5 +234,20 @@
   "response.vote.updated": {
     "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
     "other": "Ваш ответ был обновлен."
+  },
+  "rhs.card.poll.answer.heading": {
+    "few": "{{.Answer}} ({{.Count}} ответа)",
+    "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
+    "many": "{{.Answer}} ({{.Count}} ответов)",
+    "one": "{{.Answer}} ({{.Count}} ответ)",
+    "other": "{{.Answer}} ({{.Count}} ответов)"
+  },
+  "rhs.card.poll.createdBy": {
+    "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
+    "other": "Автор"
+  },
+  "rhs.card.poll.voter.seperator": {
+    "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
+    "other": "и"
   }
 }

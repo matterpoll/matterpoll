@@ -14,27 +14,5 @@ permissions:
 
 jobs:
   plugin-ci:
-    uses: mattermost/actions-workflows/.github/workflows/plugin-ci.yml@main
+    uses: mattermost/actions-workflows/.github/workflows/community-plugin-ci.yml@ce05ecbb0c51643e1cffb7834469df74ab68dae5
     secrets: inherit
-  release-github:
-    # Forked from https://github.com/mattermost/actions-workflows/blob/ad122fe2bb8496d80eff5341d6b26a41a447a006/.github/workflows/plugin-cd.yml#L88
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-22.04
-    needs: [plugin-ci]
-    steps:
-      - name: cd/checkout-repository
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
-        with:
-          fetch-depth: "0"
-      - name: ci/download-artifact
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7 # v3.0.1
-        with:
-          name: dist
-          path: dist
-      - name: ci/publish-release
-        run: |
-          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file release-notes.md  *.tar.gz
-        working-directory: dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  

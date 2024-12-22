@@ -30,6 +30,7 @@ The localization process is defined below:
 - Russian: [@ChiefAbbot](https://github.com/ChiefAbbot)
 - Simplified Chinese: [@sharuru](https://github.com/sharuru)
 - Spanish: [@ernestoittig](https://github.com/ernestoittig)
+- Swedish: [@sebdanielsson](https://github.com/sebdanielsson)
 - Traditional Chinese: [@mouson](https://github.com/mouson)
 
 ### Translation Process for Existing Languages
@@ -66,7 +67,7 @@ Let's say you want to translate the local `de`. Replace `de` in the following co
 
 4. Add your language to the list of [Supported Languages](https://github.com/matterpoll/matterpoll#localization) in `README.md` and add you to the list of [Translation Maintainer](#translation-maintainers) in `CONTRIBUTING.md`
 
-5. [Submit a PR](https://github.com/matterpoll/matterpoll/compare) with these files, 
+5. [Submit a PR](https://github.com/matterpoll/matterpoll/compare) with these files.
 
 
 ## Submitting Patches
