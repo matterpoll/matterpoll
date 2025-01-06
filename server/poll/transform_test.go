@@ -109,7 +109,7 @@ func TestPollToEndPollPost(t *testing.T) {
 	}
 
 	t.Run("converter fails", func(t *testing.T) {
-		converter := func(userID string) (string, *model.AppError) {
+		converter := func(_ string) (string, *model.AppError) {
 			return "", &model.AppError{}
 		}
 		poll := testutils.GetPollWithVotes()
