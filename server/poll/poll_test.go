@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	mpatch "github.com/undefinedlabs/go-mpatch"
+
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"

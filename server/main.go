@@ -1,7 +1,7 @@
 package main
 
 import (
-	mmplugin "github.com/mattermost/mattermost-server/v6/plugin"
+	mmplugin "github.com/mattermost/mattermost/server/public/plugin"
 
 	"github.com/matterpoll/matterpoll/server/plugin"
 )
