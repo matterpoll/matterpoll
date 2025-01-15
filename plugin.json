@@ -6,7 +6,7 @@
     "support_url": "https://github.com/matterpoll/matterpoll/issues",
     "release_notes_url": "https://github.com/matterpoll/matterpoll/releases/tag/v1.7.2",
     "icon_path": "assets/logo_dark.svg",
-    "version": "1.7.2",
+    "version": "1.7.3",
     "min_server_version": "8.1.0",
     "server": {
         "executables": {
