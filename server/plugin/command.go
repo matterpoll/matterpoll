@@ -104,6 +104,9 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	defaultYes := p.bundle.LocalizeDefaultMessage(publicLocalizer, commandDefaultYes)
 	defaultNo := p.bundle.LocalizeDefaultMessage(publicLocalizer, commandDefaultNo)
 
+	// Define default options
+    	defaultOptions := []string{"Pour", "Contre"}
+
 	q, o, s := utils.ParseInput(args.Command, configuration.Trigger)
 	if q == "" {
 		siteURL := *p.ServerConfig.ServiceSettings.SiteURL
@@ -140,6 +143,11 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		msg += "- `--votes=X`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingMultiVote)
 
 		return msg, nil
+	}
+
+	// If no options are provided by the user, use default options
+	if len(o) == 0 {
+    	o = defaultOptions
 	}
 
 	if len(o) == 1 {
