@@ -42,7 +42,7 @@ Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" 
 - `--anonymous`: Don't show who voted for what at the end
 - `--progress`: During the poll, show how many votes each answer option got and, in post card, show who voted for which answers ([#431](https://github.com/matterpoll/matterpoll/pull/431))
 - `--public-add-option`: Allow all users to add additional options
-- `--votes=X`: Allow users to vote for X options
+- `--votes=X`: Allow users to vote for X options. Default is 1. If X is 0, users have an unlimited amount of votes.
 
 ## Localization
 
