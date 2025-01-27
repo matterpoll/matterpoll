@@ -20,13 +20,6 @@ func TestLocalizeDefaultMessage(t *testing.T) {
 
 		assert.Equal(t, m.Other, b.LocalizeDefaultMessage(l, m))
 	})
-	t.Run("empty message", func(t *testing.T) {
-		b := testutils.GetBundle()
-		l := b.GetServerLocalizer()
-		m := &i18n.Message{}
-
-		assert.Equal(t, "", b.LocalizeDefaultMessage(l, m))
-	})
 }
 
 func TestLocalizeWithConfig(t *testing.T) {

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	mpatch "github.com/undefinedlabs/go-mpatch"
+
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
@@ -258,38 +259,36 @@ func TestIsMultiVote(t *testing.T) {
 }
 
 func TestAddAnswerOption(t *testing.T) {
-	assert := assert.New(t)
-
 	t.Run("all fine", func(t *testing.T) {
 		p := testutils.GetPollWithVotes()
 
 		err := p.AddAnswerOption("new option")
-		assert.Nil(err)
-		assert.Equal("new option", p.AnswerOptions[len(p.AnswerOptions)-1].Answer)
+		assert.Nil(t, err)
+		assert.Equal(t, "new option", p.AnswerOptions[len(p.AnswerOptions)-1].Answer)
 	})
 	t.Run("dublicant options", func(t *testing.T) {
 		p := testutils.GetPollWithVotes()
 
 		err := p.AddAnswerOption(p.AnswerOptions[0].Answer)
-		assert.NotNil(err)
+		assert.NotNil(t, err)
 	})
 	t.Run("dublicant options with spaces", func(t *testing.T) {
 		p := testutils.GetPollWithVotes()
 
 		err := p.AddAnswerOption(fmt.Sprintf(" %s ", p.AnswerOptions[0].Answer))
-		assert.NotNil(err)
+		assert.NotNil(t, err)
 	})
 	t.Run("empty options", func(t *testing.T) {
 		p := testutils.GetPollWithVotes()
 
 		err := p.AddAnswerOption("")
-		assert.NotNil(err)
+		assert.NotNil(t, err)
 	})
 	t.Run("empty optinos with spaces", func(t *testing.T) {
 		p := testutils.GetPollWithVotes()
 
 		err := p.AddAnswerOption("  ")
-		assert.NotNil(err)
+		assert.NotNil(t, err)
 	})
 }
 
@@ -846,31 +845,29 @@ func TestHasVoted(t *testing.T) {
 }
 
 func TestPollCopy(t *testing.T) {
-	assert := assert.New(t)
-
 	t.Run("no change", func(t *testing.T) {
 		p := testutils.GetPoll()
 		p2 := p.Copy()
 
-		assert.Equal(p, p2)
+		assert.Equal(t, p, p2)
 	})
 	t.Run("change Question", func(t *testing.T) {
 		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.Question = "Different question"
-		assert.NotEqual(p.Question, p2.Question)
-		assert.NotEqual(p, p2)
-		assert.Equal(testutils.GetPoll(), p2)
+		assert.NotEqual(t, p.Question, p2.Question)
+		assert.NotEqual(t, p, p2)
+		assert.Equal(t, testutils.GetPoll(), p2)
 	})
 	t.Run("change AnswerOptions", func(t *testing.T) {
 		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.AnswerOptions[0].Answer = "abc"
-		assert.NotEqual(p.AnswerOptions[0].Answer, p2.AnswerOptions[0].Answer)
-		assert.NotEqual(p, p2)
-		assert.Equal(testutils.GetPoll(), p2)
+		assert.NotEqual(t, p.AnswerOptions[0].Answer, p2.AnswerOptions[0].Answer)
+		assert.NotEqual(t, p, p2)
+		assert.Equal(t, testutils.GetPoll(), p2)
 	})
 	t.Run("change Voter", func(t *testing.T) {
 		p := testutils.GetPollWithVotes()
@@ -879,17 +876,17 @@ func TestPollCopy(t *testing.T) {
 		msg, err := p.UpdateVote("userID1", 0)
 		require.Nil(t, msg)
 		require.NoError(t, err)
-		assert.NotEqual(p, p2)
-		assert.Equal(testutils.GetPollWithVotes(), p2)
+		assert.NotEqual(t, p, p2)
+		assert.Equal(t, testutils.GetPollWithVotes(), p2)
 	})
 	t.Run("change Settings", func(t *testing.T) {
 		p := testutils.GetPoll()
 		p2 := p.Copy()
 
 		p.Settings.Progress = true
-		assert.NotEqual(p.Settings.Progress, p2.Settings.Progress)
-		assert.NotEqual(p, p2)
-		assert.Equal(testutils.GetPoll(), p2)
+		assert.NotEqual(t, p.Settings.Progress, p2.Settings.Progress)
+		assert.NotEqual(t, p, p2)
+		assert.Equal(t, testutils.GetPoll(), p2)
 	})
 }
 

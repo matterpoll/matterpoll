@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
@@ -108,7 +109,7 @@ func TestPollToEndPollPost(t *testing.T) {
 	}
 
 	t.Run("converter fails", func(t *testing.T) {
-		converter := func(userID string) (string, *model.AppError) {
+		converter := func(_ string) (string, *model.AppError) {
 			return "", &model.AppError{}
 		}
 		poll := testutils.GetPollWithVotes()

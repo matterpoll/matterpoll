@@ -11,12 +11,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/undefinedlabs/go-mpatch"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 
 	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"

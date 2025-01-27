@@ -10,10 +10,11 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
 
 	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
