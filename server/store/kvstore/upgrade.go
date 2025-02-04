@@ -27,6 +27,8 @@ func getUpgrades() []*upgrade {
 		{toVersion: "1.6.0", upgradeFunc: nil},
 		{toVersion: "1.6.1", upgradeFunc: nil},
 		{toVersion: "1.7.0", upgradeFunc: nil},
+		{toVersion: "1.7.1", upgradeFunc: nil},
+		{toVersion: "1.7.2", upgradeFunc: upgradeTo17_2},
 	}
 }
 
@@ -111,6 +113,54 @@ func upgradeTo14(s *Store) error {
 			}
 
 			poll.Settings.MaxVotes = 1
+			err = s.Poll().Save(poll)
+			if err != nil {
+				s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
+				continue
+			}
+		}
+	}
+
+	return nil
+}
+
+// upgradeTo17_2 convert existing polls to the new format that includes `Settings.AnonymousCreator` setting.
+//
+// New setting `AnonymousCreator“ without `omitempty` introduced in v1.7.0 causes the atomic transaction
+// to fail when saving a poll. Additionally, just adding `omitempty` to Settings.AnonymousCreator introduced
+// in v1.7.1 will also result in atomic transactions failure for poll with AnonymousCreator=false, which is
+// created with Matterpoll v1.7.0.
+// => see https://github.com/matterpoll/matterpoll/issues/562
+func upgradeTo17_2(s *Store) error {
+	var allKeys []string
+	i := 0
+	for {
+		keys, appErr := s.api.KVList(i, perPage)
+		if appErr != nil {
+			return errors.Wrap(appErr, "failed to list poll keys")
+		}
+
+		allKeys = append(allKeys, keys...)
+
+		if len(keys) < perPage {
+			break
+		}
+
+		i++
+	}
+
+	for _, k := range allKeys {
+		// Only migrate plugin keys
+		if strings.HasPrefix(k, pollPrefix) {
+			k = strings.TrimPrefix(k, pollPrefix)
+
+			// poll is migrated when reading data
+			poll, err := s.Poll().Get(k)
+			if err != nil {
+				s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
+				continue
+			}
+
 			err = s.Poll().Save(poll)
 			if err != nil {
 				s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)

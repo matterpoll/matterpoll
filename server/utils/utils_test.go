@@ -142,7 +142,7 @@ func TestParseInput(t *testing.T) {
 			ExpectedOptions:  []string{"B", "C"},
 			ExpectedSettings: []string{"anonymous", "votes=2"},
 		},
-		"With two settings, multipile whitespaces": {
+		"With two settings, multiple whitespaces": {
 			Input:            `/poll "A" "B" "C"    --anonymous   --abc   `,
 			Trigger:          "poll",
 			ExpectedQuestion: "A",

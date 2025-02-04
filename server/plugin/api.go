@@ -10,10 +10,11 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
 
 	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -394,10 +395,15 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
 	}
 
+	// Multi Answer Mode
 	if poll.IsMultiVote() {
-		// Multi Answer Mode
+		var remains int
 		votedAnswers := poll.GetVotedAnswers(userID)
-		remains := poll.Settings.MaxVotes - len(votedAnswers)
+		if poll.Settings.MaxVotes == 0 {
+			remains = len(poll.AnswerOptions) - len(votedAnswers)
+		} else {
+			remains = poll.Settings.MaxVotes - len(votedAnswers)
+		}
 		return &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "response.vote.multi.updated",
