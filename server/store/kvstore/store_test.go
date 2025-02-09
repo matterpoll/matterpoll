@@ -10,7 +10,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 )
 
-const latestVersion = "1.7.2"
+const latestVersion = "1.8.0"
 
 func setupTestStore(api plugin.API) *Store {
 	store := Store{
