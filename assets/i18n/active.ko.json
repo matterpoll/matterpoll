@@ -39,13 +39,17 @@
     "hash": "sha1-413dccc620dcf0d910c2cba09522443793fbcb33",
     "other": "누가 어떤 응답을 했는지 보여주지 않습니다"
   },
-  "command.help.text.pollSetting.multi-vote": {
-    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
-    "other": "사용자가 X 응답에 투표하도록 허용합니다"
+  "command.help.text.pollSetting.anonymous-creator": {
+    "hash": "sha1-59c4b987ae73b46ba774f8bf78bc742fdf4d9ab3",
+    "other": "투표 개시자를 표시하지 않음"
   },
   "command.help.text.pollSetting.introduction": {
     "hash": "sha1-5cf3ba00c35f9b75d8b2118081c7c45b2a36ecb3",
     "other": "다음과 같이 사용자 정의 투표 설정을 할 수 있습니다. 예: `/{{.Trigger}} \"질의\" \"응답 1\" \"응답 2\" \"응답 3\" --progress --anonymous`. 가능한 투표 설정은 다음과 같습니다:"
+  },
+  "command.help.text.pollSetting.multi-vote": {
+    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
+    "other": "투표자가 X개의 응답에 투표할 수 있도록 합니다. 기본값은 1이며, X가 0일 경우 투표자는 무제한으로 투표할 수 있습니다."
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -53,7 +57,7 @@
   },
   "command.help.text.pollSetting.public-add-option": {
     "hash": "sha1-97f6e52cd7135ca4c73b79790a946ead7513cd33",
-    "other": "모든 사용자들이 응답을 추가할 수 있도록 합니다."
+    "other": "모든 투표자들이 응답을 추가할 수 있도록 합니다."
   },
   "command.help.text.simple": {
     "hash": "sha1-783c9e50cbbd9a11685f41524265201b2e97d369",
@@ -89,7 +93,7 @@
   },
   "dialog.createPoll.setting.multi": {
     "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
-    "other": "사용자가 투표할 수 있는 응답의 갯수입니다."
+    "other": "투표자가 투표할 수 있는 응답 개수입니다. 0은 옵션을 추가한 후에도 투표자가 모든 옵션에 투표할 수 있음을 뜻합니다."
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -151,13 +155,18 @@
     "hash": "sha1-9a86d661838edccd7408678f9c1bb65de3d889c0",
     "other": "**전체 투표**: {{.TotalVotes}}"
   },
+  "poll.message.totalVotesMulti": {
+    "hash": "sha1-708616dbb5432949c4e8264a3d63eb80c9933d26",
+    "other": "**전체 투표**: {{.TotalVotes}} ({{ .TotalVoters }} 명 참여)"
+  },
   "poll.newPoll.unrecognizedSetting": {
     "hash": "sha1-c915ad443fd65d4df5c1461ad85bc0ccc61b5654",
     "other": "알 수 없는 투표 설정: {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
     "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
-    "other": "투표 수는 응답의 갯수보다 작거나 같아야 합니다. \"{{.MaxVotes}}\"개의 최대 투표를 지정했지만 응답의 개수는 \"{{.Options}}\"개입니다."
+    "other": "투표 수는 0 이상의 양수여야만 하며, 응답 수보다 작거나 같아야 합니다. \"{{.MaxVotes}}\"개의 최대 투표수를 지정했지만 응답수가 \"{{.Options}}\"개입니다."
+
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
@@ -214,5 +223,17 @@
   "response.vote.updated": {
     "hash": "sha1-e23eeb209a3a322e1c1174d7816d2ccbca52080b",
     "other": "투표 참여가 갱신되었습니다."
+  },
+  "rhs.card.poll.answer.heading": {
+    "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
+    "other": "{{.Answer}} ({{.Count}}명 참여)"
+  },
+  "rhs.card.poll.createdBy": {
+    "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
+    "other": "개시자 "
+  },
+  "rhs.card.poll.voter.seperator": {
+    "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
+    "other": "그리고"
   }
 }
