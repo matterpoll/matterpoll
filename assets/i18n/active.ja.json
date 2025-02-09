@@ -48,8 +48,8 @@
     "other": "投票に関する設定を行うこともできます。例: `/{{.Trigger}} \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. 利用可能な設定:"
   },
   "command.help.text.pollSetting.multi-vote": {
-    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
-    "other": "X個の回答に投票できるようにする"
+    "hash": "sha1-8848f6b6a03f323a14609708897824ad178d2dd8",
+    "other": "X個の回答に投票できるようにする。デフォルトは1です。X=0の場合、ユーザーは無制限に投票できます。"
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -92,8 +92,8 @@
     "other": "質問"
   },
   "dialog.createPoll.setting.multi": {
-    "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
-    "other": "ユーザーが投票できる回答の数です。"
+    "hash": "sha1-6c12940d577520c0ec5547ff9199ec775099a72d",
+    "other": "ユーザーが投票できる回答の数です。0は、回答が追加された後でもすべての回答に投票できることを意味します。"
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -164,8 +164,8 @@
     "other": "無効な投票設定です: {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
-    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
-    "other": "投票数は正の数であり、かつオプションの数以下でなくてはなりません。 あなたは \"{{.MaxVotes}}\" を指定しましたが、回答の数は \"{{.Options}}\" です。"
+    "hash": "sha1-c425923300c965704b61c6f467635d3ee2026339",
+    "other": "投票数は0か正の数であり、かつ回答数以下でなくてはなりません。\"{{.MaxVotes}}\"が指定されていますが、回答数は\"{{.Options}}\"です。"
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
