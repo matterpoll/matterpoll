@@ -48,8 +48,8 @@
     "other": "Les paramètres du sondage permettent une personnalisation plus poussée, e.g. `/{{.Trigger}} \"Question\" \"Réponse 1\" \"Réponse 2\" \"Réponse 3\" --progress --anonymous`. Les éléments de configuration disponibles sont:"
   },
   "command.help.text.pollSetting.multi-vote": {
-    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
-    "other": "Autoriser les utilisateurs à voter pour X options"
+    "hash": "sha1-8848f6b6a03f323a14609708897824ad178d2dd8",
+    "other": "Autoriser les utilisateurs à voter pour X options. Le défaut est 1. Si X est égal à 0, les utilisateurs ont un nombre illimité de votes."
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -92,8 +92,8 @@
     "other": "Question"
   },
   "dialog.createPoll.setting.multi": {
-    "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
-    "other": "Le nombre d’options pour lesquels un utilisateur peut voter."
+    "hash": "sha1-6c12940d577520c0ec5547ff9199ec775099a72d",
+    "other": "Le nombre d’options pour lesquels un utilisateur peut voter. 0 indique que les utilisateurs peuvent voter pour toutes les options, même après avoir ajouté des options."
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -167,8 +167,8 @@
     "other": "Paramètre du sondage non reconnu : {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
-    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
-    "other": "Le nombre de votes doit être un nombre positif et inférieur ou égal au nombre d’options. Vous avez spécifié \"{{.MaxVotes}}\" mais le nombre d’options est \"{{.Options}}\"."
+    "hash": "sha1-c425923300c965704b61c6f467635d3ee2026339",
+    "other": "Le nombre de votes doit être 0 ou un nombre positif et inférieur ou égal au nombre d’options. Vous avez spécifié \"{{.MaxVotes}}\" mais le nombre d’options est \"{{.Options}}\"."
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
