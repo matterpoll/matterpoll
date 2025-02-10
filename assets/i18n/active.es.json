@@ -48,8 +48,8 @@
     "other": "Configuraciones de encuesta para proveer más personalización, por ejemplo. `/{{.Trigger}} \"Pregunta\" \" Respuesta 1\" \"Respuesta 2\" \"Respuesta 3\" --progress --anonymous`. Las configuraciones de encuesta disponibles son:"
   },
   "command.help.text.pollSetting.multi-vote": {
-    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
-    "other": "Permitir a los usuarios votar por X opciones"
+    "hash": "sha1-8848f6b6a03f323a14609708897824ad178d2dd8",
+    "other": "Permitir a los usuarios votar por X opciones. Por defecto 1. Si X es 0, los usuarios tendrán un valor ilimitado de votos."
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -92,8 +92,8 @@
     "other": "Pregunta"
   },
   "dialog.createPoll.setting.multi": {
-    "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
-    "other": "El número de opciones que un usuario puede votar."
+    "hash": "sha1-6c12940d577520c0ec5547ff9199ec775099a72d",
+    "other": "El número de opciones por las cuales un usuario puede votar. 0 indica que los usuarios pueden votar por todas las opciones, incluso luego de agregar opciones."
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -167,8 +167,8 @@
     "other": "Configuración de encuesta no reconocida: {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
-    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
-    "other": "El número de votos debe ser un número positivo y menor o igual al número de opciones. Ha especificado \"{{.MaxVotes}}\", pero el número de opciones es \"{{.Options}}\"."
+    "hash": "sha1-c425923300c965704b61c6f467635d3ee2026339",
+    "other": "El número de votos debe ser 0 o un número positivo, y debe ser menor o igual al número de opciones. Ha especificado \"{{.MaxVotes}}\", pero el número de opciones es \"{{.Options}}\"."
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
