@@ -79,13 +79,13 @@ func (s *Store) shouldPerformUpgrade(currentSchemaVersion, expectedSchemaVersion
 	return false
 }
 
-func upgradeTo14(s *Store) error {
+func collectPollKeys(s *Store) ([]string, error) {
 	var allKeys []string
 	i := 0
 	for {
 		keys, appErr := s.api.KVList(i, perPage)
 		if appErr != nil {
-			return errors.Wrap(appErr, "failed to list poll keys")
+			return nil, errors.Wrap(appErr, "failed to list poll keys")
 		}
 
 		allKeys = append(allKeys, keys...)
@@ -95,6 +95,15 @@ func upgradeTo14(s *Store) error {
 		}
 
 		i++
+	}
+
+	return allKeys, nil
+}
+
+func upgradeTo14(s *Store) error {
+	allKeys, err := collectPollKeys(s)
+	if err != nil {
+		return err
 	}
 
 	for _, k := range allKeys {
@@ -133,21 +142,9 @@ func upgradeTo14(s *Store) error {
 // created with Matterpoll v1.7.0.
 // => see https://github.com/matterpoll/matterpoll/issues/562
 func upgradeTo17_2(s *Store) error {
-	var allKeys []string
-	i := 0
-	for {
-		keys, appErr := s.api.KVList(i, perPage)
-		if appErr != nil {
-			return errors.Wrap(appErr, "failed to list poll keys")
-		}
-
-		allKeys = append(allKeys, keys...)
-
-		if len(keys) < perPage {
-			break
-		}
-
-		i++
+	allKeys, err := collectPollKeys(s)
+	if err != nil {
+		return err
 	}
 
 	for _, k := range allKeys {
