@@ -47,7 +47,7 @@ export default class ActionView extends React.PureComponent {
      * @return {boolean} voted or not
      */
     hasVoted(action, metadata) {
-        if (this.isAddOptionAction(action) || !metadata.voted_answers) {
+        if (this.isAddOptionAction(action) || this.isPollManagementAction(action) || !metadata.voted_answers) {
             return false;
         }
         const name = metadata.setting_progress ? action.name?.replace(/ \([0-9]+\)$/, '') : action.name;
@@ -57,6 +57,10 @@ export default class ActionView extends React.PureComponent {
     isAddOptionAction(action) {
         return action && (action.id === 'addOption');
     }
+
+	isPollManagementAction(action) {
+		return action && (action.id === 'endPoll' || action.id === 'deletePoll');
+	}
 
     render() {
         const actions = this.props.attachment.actions;
@@ -72,36 +76,28 @@ export default class ActionView extends React.PureComponent {
         actions.
             filter((action) => action.id && action.name).
             forEach((action) => {
-                switch (action.type) {
-                case ActionButtonType.BUTTON:
-                    if (this.isAddOptionAction(action) && !this.hasPermissionForAddOption(metadata)) {
-                        // skip to add the button for addOption if the user doesn't have permission for adding options
-                        break;
-                    }
-                    content.push(
-                        <ActionButton
-                            key={action.id}
-                            action={action}
-                            postId={this.props.post.id}
-                            hasVoted={this.hasVoted(action, metadata)}
-                        />,
-                    );
-                    break;
-                case ActionButtonType.MATTERPOLL_ADMIN_BUTTON:
-                    if (metadata.can_manage_poll) {
-                        adminContent.push(
-                            <ActionButton
-                                key={action.id}
-                                action={action}
-                                postId={this.props.post.id}
-                                hasVoted={false}
-                            />,
-                        );
-                    }
-                    break;
-                default:
-                    break;
+				console.log('check',action, metadata);
+				if (action.type !== ActionButtonType.BUTTON) {
+					console.log('--> is not action button')
+					return;
+				}
+                if (this.isAddOptionAction(action) && !this.hasPermissionForAddOption(metadata)) {
+                    // skip to add the button for addOption if the user doesn't have permission for adding options
+					console.log('--> invalid add option button')
+                    return;
                 }
+				if (this.isPollManagementAction(action) && !metadata.can_manage_poll) {
+					console.log('--> skip poll management action')
+					return;
+				}
+                content.push(
+                    <ActionButton
+                        key={action.id}
+                        action={action}
+                        postId={this.props.post.id}
+                        hasVoted={this.hasVoted(action, metadata)}
+                    />
+                );
             });
 
         return (
