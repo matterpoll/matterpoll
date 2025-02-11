@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/blang/semver/v4"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
 )
 
@@ -29,7 +30,7 @@ func getUpgrades() []*upgrade {
 		{toVersion: "1.7.0", upgradeFunc: nil},
 		{toVersion: "1.7.1", upgradeFunc: nil},
 		{toVersion: "1.7.2", upgradeFunc: upgradeTo17_2},
-		{toVersion: "1.8.0", upgradeFunc: nil},
+		{toVersion: "1.8.0", upgradeFunc: upgradeTo18},
 	}
 }
 
@@ -162,6 +163,53 @@ func upgradeTo17_2(s *Store) error {
 			err = s.Poll().Save(poll)
 			if err != nil {
 				s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
+				continue
+			}
+		}
+	}
+
+	return nil
+}
+
+func upgradeTo18(s *Store) error {
+	allKeys, err := collectPollKeys(s)
+	if err != nil {
+		return err
+	}
+
+	for _, k := range allKeys {
+		// Only migrate plugin keys
+		if strings.HasPrefix(k, pollPrefix) {
+			k = strings.TrimPrefix(k, pollPrefix)
+			poll, err := s.Poll().Get(k)
+			if err != nil {
+				s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
+				continue
+			}
+
+			post, appErr := s.api.GetPost(poll.PostID)
+			if appErr != nil {
+				s.api.LogError("Failed to get post for migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
+				continue
+			}
+
+			newAttachments := []*model.SlackAttachment{}
+			for _, attachment := range post.Attachments() {
+				newActions := []*model.PostAction{}
+				for _, action := range attachment.Actions {
+					if action.Type == "custom_matterpoll_admin_button" {
+						action.Type = model.PostActionTypeButton
+					}
+					newActions = append(newActions, action)
+				}
+				attachment.Actions = newActions
+				newAttachments = append(newAttachments, attachment)
+			}
+			model.ParseSlackAttachment(post, newAttachments)
+
+			_, appErr = s.api.UpdatePost(post)
+			if appErr != nil {
+				s.api.LogError("Failed to update post after migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
 				continue
 			}
 		}
