@@ -198,7 +198,7 @@
   },
   "response.deletePoll.invalidPermission": {
     "hash": "sha1-97d4d7bd45a958bc6eea2bd33401a3bc5056cc1d",
-    "other": "Только создатель опроса и Администратор могут удалть этот опрос."
+    "other": "Только создатель опроса и Администратор могут удалить этот опрос."
   },
   "response.deletePoll.success": {
     "hash": "sha1-cb754e0331888691ff5e4179b22155fc6df1ac1d",
