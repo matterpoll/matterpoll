@@ -58,9 +58,9 @@ export default class ActionView extends React.PureComponent {
         return action && (action.id === 'addOption');
     }
 
-	isPollManagementAction(action) {
-		return action && (action.id === 'endPoll' || action.id === 'deletePoll');
-	}
+    isPollManagementAction(action) {
+        return action && (action.id === 'endPoll' || action.id === 'deletePoll');
+    }
 
     render() {
         const actions = this.props.attachment.actions;
@@ -76,27 +76,23 @@ export default class ActionView extends React.PureComponent {
         actions.
             filter((action) => action.id && action.name).
             forEach((action) => {
-				console.log('check',action, metadata);
-				if (action.type !== ActionButtonType.BUTTON) {
-					console.log('--> is not action button')
-					return;
-				}
-                if (this.isAddOptionAction(action) && !this.hasPermissionForAddOption(metadata)) {
-                    // skip to add the button for addOption if the user doesn't have permission for adding options
-					console.log('--> invalid add option button')
+                if (action.type !== ActionButtonType.BUTTON) {
                     return;
                 }
-				if (this.isPollManagementAction(action) && !metadata.can_manage_poll) {
-					console.log('--> skip poll management action')
-					return;
-				}
+                if (this.isAddOptionAction(action) && !this.hasPermissionForAddOption(metadata)) {
+                    // skip to add the button for addOption if the user doesn't have permission for adding options
+                    return;
+                }
+                if (this.isPollManagementAction(action) && !metadata.can_manage_poll) {
+                    return;
+                }
                 content.push(
                     <ActionButton
                         key={action.id}
                         action={action}
                         postId={this.props.post.id}
                         hasVoted={this.hasVoted(action, metadata)}
-                    />
+                    />,
                 );
             });
 
