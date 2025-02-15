@@ -306,7 +306,7 @@ func TestUpgradeTo18(t *testing.T) {
 		api.On("KVList", 0, perPage).Return([]string{pollPrefix + poll.ID}, nil)
 		api.On("KVGet", pollPrefix+poll.ID).Return(nil, &model.AppError{})
 
-		api.On("LogError", testutils.GetMockArgumentsWithType("string", 5)...).Return(nil)
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 5)...).Return(nil)
 
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
@@ -325,7 +325,7 @@ func TestUpgradeTo18(t *testing.T) {
 		api.On("KVGet", pollPrefix+poll.ID).Return(poll.EncodeToByte(), nil)
 		api.On("GetPost", poll.PostID).Return(nil, &model.AppError{})
 
-		api.On("LogError", testutils.GetMockArgumentsWithType("string", 7)...).Return(nil)
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 7)...).Return(nil)
 
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
@@ -368,7 +368,7 @@ func TestUpgradeTo18(t *testing.T) {
 		// e.g.: update a post in archived channel
 		api.On("UpdatePost", updatedPost).Return(nil, &model.AppError{})
 
-		api.On("LogError", testutils.GetMockArgumentsWithType("string", 7)...).Return(nil)
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 7)...).Return(nil)
 
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)

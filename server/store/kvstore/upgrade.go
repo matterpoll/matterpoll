@@ -185,13 +185,13 @@ func upgradeTo18(s *Store) error {
 			k = strings.TrimPrefix(k, pollPrefix)
 			poll, err := s.Poll().Get(k)
 			if err != nil {
-				s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
+				s.api.LogWarn("Failed to get poll for migration", "error", err.Error(), "pollID", k)
 				continue
 			}
 
 			post, appErr := s.api.GetPost(poll.PostID)
 			if appErr != nil {
-				s.api.LogError("Failed to get post for migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
+				s.api.LogWarn("Failed to get post for migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
 				continue
 			}
 
@@ -213,7 +213,7 @@ func upgradeTo18(s *Store) error {
 
 			_, appErr = s.api.UpdatePost(post)
 			if appErr != nil {
-				s.api.LogError("Failed to update post after migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
+				s.api.LogWarn("Failed to update post after migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
 				continue
 			}
 		}
