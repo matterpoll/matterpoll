@@ -193,19 +193,15 @@ func upgradeTo18(s *Store) error {
 				continue
 			}
 
-			newAttachments := []*model.SlackAttachment{}
-			for _, attachment := range post.Attachments() {
-				newActions := []*model.PostAction{}
+			attachments := post.Attachments()
+			for _, attachment := range attachments {
 				for _, action := range attachment.Actions {
 					if action.Type == "custom_matterpoll_admin_button" {
 						action.Type = model.PostActionTypeButton
 					}
-					newActions = append(newActions, action)
 				}
-				attachment.Actions = newActions
-				newAttachments = append(newAttachments, attachment)
 			}
-			model.ParseSlackAttachment(post, newAttachments)
+			model.ParseSlackAttachment(post, attachments)
 
 			_, appErr = s.api.UpdatePost(post)
 			if appErr != nil {
