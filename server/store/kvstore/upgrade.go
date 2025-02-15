@@ -171,6 +171,8 @@ func upgradeTo17_2(s *Store) error {
 	return nil
 }
 
+// upgradeTo18 migrates the poll post attachments to avoid using custom actions types
+// for upcoming Mattermost's new validation schema.
 func upgradeTo18(s *Store) error {
 	allKeys, err := collectPollKeys(s)
 	if err != nil {
@@ -193,14 +195,20 @@ func upgradeTo18(s *Store) error {
 				continue
 			}
 
+			migrated := false
 			attachments := post.Attachments()
 			for _, attachment := range attachments {
 				for _, action := range attachment.Actions {
 					if action.Type == "custom_matterpoll_admin_button" {
+						migrated = true
 						action.Type = model.PostActionTypeButton
 					}
 				}
 			}
+			if !migrated {
+				continue
+			}
+
 			model.ParseSlackAttachment(post, attachments)
 
 			_, appErr = s.api.UpdatePost(post)
