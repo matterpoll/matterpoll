@@ -217,39 +217,37 @@ func TestUpgradeTo14(t *testing.T) {
 }
 
 func TestUpgradeTo18(t *testing.T) {
-	postWithCustomType := &model.Post{
-		Props: model.StringInterface{
-			"attachments": []*model.SlackAttachment{{
-				Actions: []*model.PostAction{
-					{Type: "custom_matterpoll_admin_button", Id: "endPoll"},
-					{Type: model.PostActionTypeButton, Id: "resetVote"},
-				},
-			}},
-		},
-	}
-	updatedPost := &model.Post{
-		Type: model.PostTypeSlackAttachment,
-		Props: model.StringInterface{
-			"attachments": []*model.SlackAttachment{{
-				Actions: []*model.PostAction{
-					{Type: model.PostActionTypeButton, Id: "endPoll"},
-					{Type: model.PostActionTypeButton, Id: "resetVote"},
-				},
-			}},
-		},
-	}
-
 	t.Run("Success to migrate", func(t *testing.T) {
 		poll1 := poll.Poll{
 			ID:     testutils.GetPollID(),
 			PostID: model.NewId(),
 		}
+		postWithCustomType := &model.Post{
+			Props: model.StringInterface{
+				"attachments": []*model.SlackAttachment{{
+					Actions: []*model.PostAction{
+						{Type: "custom_matterpoll_admin_button", Id: "endPoll"},
+						{Type: model.PostActionTypeButton, Id: "resetVote"},
+					},
+				}},
+			},
+		}
+		updatedPost := &model.Post{
+			Type: model.PostTypeSlackAttachment,
+			Props: model.StringInterface{
+				"attachments": []*model.SlackAttachment{{
+					Actions: []*model.PostAction{
+						{Type: model.PostActionTypeButton, Id: "endPoll"},
+						{Type: model.PostActionTypeButton, Id: "resetVote"},
+					},
+				}},
+			},
+		}
 
 		api := &plugintest.API{}
 		api.On("KVList", 0, perPage).Return([]string{pollPrefix + poll1.ID}, nil)
 		api.On("KVGet", pollPrefix+poll1.ID).Return(poll1.EncodeToByte(), nil)
-		// Return a post without custom action type
-		api.On("GetPost", poll1.PostID).Return(updatedPost, nil)
+		api.On("GetPost", poll1.PostID).Return(postWithCustomType, nil)
 		api.On("UpdatePost", updatedPost).Return(updatedPost, nil)
 
 		defer api.AssertExpectations(t)
@@ -259,17 +257,29 @@ func TestUpgradeTo18(t *testing.T) {
 
 		require.NoError(t, err)
 	})
-	t.Run("Success to migrate", func(t *testing.T) {
+	t.Run("Success, no migration occurs", func(t *testing.T) {
 		poll1 := poll.Poll{
 			ID:     testutils.GetPollID(),
 			PostID: model.NewId(),
+		}
+		postWithoutCustomType := &model.Post{
+			Type: model.PostTypeSlackAttachment,
+			Props: model.StringInterface{
+				"attachments": []*model.SlackAttachment{{
+					Actions: []*model.PostAction{
+						{Type: model.PostActionTypeButton, Id: "endPoll"},
+						{Type: model.PostActionTypeButton, Id: "resetVote"},
+					},
+				}},
+			},
 		}
 
 		api := &plugintest.API{}
 		api.On("KVList", 0, perPage).Return([]string{pollPrefix + poll1.ID}, nil)
 		api.On("KVGet", pollPrefix+poll1.ID).Return(poll1.EncodeToByte(), nil)
-		api.On("GetPost", poll1.PostID).Return(postWithCustomType, nil)
-		api.On("UpdatePost", updatedPost).Return(updatedPost, nil)
+		// Return a post without custom action type
+		api.On("GetPost", poll1.PostID).Return(postWithoutCustomType, nil)
+		// No updatePost call
 
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
@@ -290,8 +300,7 @@ func TestUpgradeTo18(t *testing.T) {
 	})
 	t.Run("failed to get a poll", func(t *testing.T) {
 		poll := poll.Poll{
-			ID:     testutils.GetPollID(),
-			PostID: model.NewId(),
+			ID: testutils.GetPollID(),
 		}
 		api := &plugintest.API{}
 		api.On("KVList", 0, perPage).Return([]string{pollPrefix + poll.ID}, nil)
@@ -329,6 +338,27 @@ func TestUpgradeTo18(t *testing.T) {
 		poll1 := poll.Poll{
 			ID:     testutils.GetPollID(),
 			PostID: model.NewId(),
+		}
+		postWithCustomType := &model.Post{
+			Props: model.StringInterface{
+				"attachments": []*model.SlackAttachment{{
+					Actions: []*model.PostAction{
+						{Type: "custom_matterpoll_admin_button", Id: "endPoll"},
+						{Type: model.PostActionTypeButton, Id: "resetVote"},
+					},
+				}},
+			},
+		}
+		updatedPost := &model.Post{
+			Type: model.PostTypeSlackAttachment,
+			Props: model.StringInterface{
+				"attachments": []*model.SlackAttachment{{
+					Actions: []*model.PostAction{
+						{Type: model.PostActionTypeButton, Id: "endPoll"},
+						{Type: model.PostActionTypeButton, Id: "resetVote"},
+					},
+				}},
+			},
 		}
 
 		api := &plugintest.API{}
