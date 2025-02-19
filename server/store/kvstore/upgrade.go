@@ -80,7 +80,7 @@ func (s *Store) shouldPerformUpgrade(currentSchemaVersion, expectedSchemaVersion
 	return false
 }
 
-func collectPollKeys(s *Store) ([]string, error) {
+func (s *Store) collectPollKeys() ([]string, error) {
 	var allKeys []string
 	i := 0
 	for {
@@ -102,7 +102,7 @@ func collectPollKeys(s *Store) ([]string, error) {
 }
 
 func upgradeTo14(s *Store) error {
-	allKeys, err := collectPollKeys(s)
+	allKeys, err := s.collectPollKeys()
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func upgradeTo14(s *Store) error {
 // created with Matterpoll v1.7.0.
 // => see https://github.com/matterpoll/matterpoll/issues/562
 func upgradeTo17_2(s *Store) error {
-	allKeys, err := collectPollKeys(s)
+	allKeys, err := s.collectPollKeys()
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func upgradeTo17_2(s *Store) error {
 // upgradeTo18 migrates the poll post attachments to avoid using custom actions types
 // for upcoming Mattermost's new validation schema.
 func upgradeTo18(s *Store) error {
-	allKeys, err := collectPollKeys(s)
+	allKeys, err := s.collectPollKeys()
 	if err != nil {
 		return err
 	}
