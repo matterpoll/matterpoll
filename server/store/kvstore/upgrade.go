@@ -89,7 +89,11 @@ func (s *Store) collectPollKeys() ([]string, error) {
 			return nil, errors.Wrap(appErr, "failed to list poll keys")
 		}
 
-		allKeys = append(allKeys, keys...)
+		for _, k := range keys {
+			if strings.HasPrefix(k, pollPrefix) {
+				allKeys = append(allKeys, strings.TrimPrefix(k, pollPrefix))
+			}
+		}
 
 		if len(keys) < perPage {
 			break
@@ -108,27 +112,22 @@ func upgradeTo14(s *Store) error {
 	}
 
 	for _, k := range allKeys {
-		// Only migrate plugin keys
-		if strings.HasPrefix(k, pollPrefix) {
-			k = strings.TrimPrefix(k, pollPrefix)
+		poll, err := s.Poll().Get(k)
+		if err != nil {
+			s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
+			continue
+		}
 
-			poll, err := s.Poll().Get(k)
-			if err != nil {
-				s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
-				continue
-			}
+		if poll.Settings.MaxVotes > 0 {
+			// Already migrated
+			continue
+		}
 
-			if poll.Settings.MaxVotes > 0 {
-				// Already migrated
-				continue
-			}
-
-			poll.Settings.MaxVotes = 1
-			err = s.Poll().Save(poll)
-			if err != nil {
-				s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
-				continue
-			}
+		poll.Settings.MaxVotes = 1
+		err = s.Poll().Save(poll)
+		if err != nil {
+			s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
+			continue
 		}
 	}
 
@@ -149,22 +148,17 @@ func upgradeTo17_2(s *Store) error {
 	}
 
 	for _, k := range allKeys {
-		// Only migrate plugin keys
-		if strings.HasPrefix(k, pollPrefix) {
-			k = strings.TrimPrefix(k, pollPrefix)
+		// poll is migrated when reading data
+		poll, err := s.Poll().Get(k)
+		if err != nil {
+			s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
+			continue
+		}
 
-			// poll is migrated when reading data
-			poll, err := s.Poll().Get(k)
-			if err != nil {
-				s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
-				continue
-			}
-
-			err = s.Poll().Save(poll)
-			if err != nil {
-				s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
-				continue
-			}
+		err = s.Poll().Save(poll)
+		if err != nil {
+			s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
+			continue
 		}
 	}
 
@@ -180,42 +174,38 @@ func upgradeTo18(s *Store) error {
 	}
 
 	for _, k := range allKeys {
-		// Only migrate plugin keys
-		if strings.HasPrefix(k, pollPrefix) {
-			k = strings.TrimPrefix(k, pollPrefix)
-			poll, err := s.Poll().Get(k)
-			if err != nil {
-				s.api.LogWarn("Failed to get poll for migration", "error", err.Error(), "pollID", k)
-				continue
-			}
+		poll, err := s.Poll().Get(k)
+		if err != nil {
+			s.api.LogWarn("Failed to get poll for migration", "error", err.Error(), "pollID", k)
+			continue
+		}
 
-			post, appErr := s.api.GetPost(poll.PostID)
-			if appErr != nil {
-				s.api.LogWarn("Failed to get post for migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
-				continue
-			}
+		post, appErr := s.api.GetPost(poll.PostID)
+		if appErr != nil {
+			s.api.LogWarn("Failed to get post for migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
+			continue
+		}
 
-			migrated := false
-			attachments := post.Attachments()
-			for _, attachment := range attachments {
-				for _, action := range attachment.Actions {
-					if action.Type == "custom_matterpoll_admin_button" {
-						migrated = true
-						action.Type = model.PostActionTypeButton
-					}
+		migrated := false
+		attachments := post.Attachments()
+		for _, attachment := range attachments {
+			for _, action := range attachment.Actions {
+				if action.Type == "custom_matterpoll_admin_button" {
+					migrated = true
+					action.Type = model.PostActionTypeButton
 				}
 			}
-			if !migrated {
-				continue
-			}
+		}
+		if !migrated {
+			continue
+		}
 
-			model.ParseSlackAttachment(post, attachments)
+		model.ParseSlackAttachment(post, attachments)
 
-			_, appErr = s.api.UpdatePost(post)
-			if appErr != nil {
-				s.api.LogWarn("Failed to update post after migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
-				continue
-			}
+		_, appErr = s.api.UpdatePost(post)
+		if appErr != nil {
+			s.api.LogWarn("Failed to update post after migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
+			continue
 		}
 	}
 
