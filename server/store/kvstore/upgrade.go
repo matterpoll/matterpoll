@@ -186,17 +186,17 @@ func upgradeTo18(s *Store) error {
 			continue
 		}
 
-		migrated := false
+		toMigrate := false
 		attachments := post.Attachments()
 		for _, attachment := range attachments {
 			for _, action := range attachment.Actions {
 				if action.Type == "custom_matterpoll_admin_button" {
-					migrated = true
+					toMigrate = true
 					action.Type = model.PostActionTypeButton
 				}
 			}
 		}
-		if !migrated {
+		if !toMigrate {
 			continue
 		}
 
