@@ -18,6 +18,16 @@ type upgrade struct {
 	upgradeFunc func(*Store) error
 }
 
+type migrationResults struct {
+	processed int
+	skipped   int
+	failed    int
+}
+
+func (ms *migrationResults) String() string {
+	return fmt.Sprintf("processed: %d, skipped: %d, failed: %d", ms.processed, ms.skipped, ms.failed)
+}
+
 func getUpgrades() []*upgrade {
 	return []*upgrade{
 		{toVersion: "1.1.0", upgradeFunc: nil},
@@ -80,18 +90,22 @@ func (s *Store) shouldPerformUpgrade(currentSchemaVersion, expectedSchemaVersion
 	return false
 }
 
-func (s *Store) collectPollKeys() ([]string, error) {
-	var allKeys []string
+func (s *Store) applyUpgradeFunc(migrateFunc func(key string) error) error {
 	i := 0
 	for {
 		keys, appErr := s.api.KVList(i, perPage)
 		if appErr != nil {
-			return nil, errors.Wrap(appErr, "failed to list poll keys")
+			return errors.Wrap(appErr, "failed to list poll keys")
 		}
 
 		for _, k := range keys {
-			if strings.HasPrefix(k, pollPrefix) {
-				allKeys = append(allKeys, strings.TrimPrefix(k, pollPrefix))
+			// Migrate only plugin keys
+			if !strings.HasPrefix(k, pollPrefix) {
+				continue
+			}
+			pollID := strings.TrimPrefix(k, pollPrefix)
+			if err := migrateFunc(pollID); err != nil {
+				s.api.LogWarn("Failed to apply upgrade function", "poll_id", k, "error", err.Error())
 			}
 		}
 
@@ -101,37 +115,36 @@ func (s *Store) collectPollKeys() ([]string, error) {
 
 		i++
 	}
-
-	return allKeys, nil
+	return nil
 }
 
 func upgradeTo14(s *Store) error {
-	allKeys, err := s.collectPollKeys()
-	if err != nil {
-		return err
-	}
-
-	for _, k := range allKeys {
-		poll, err := s.Poll().Get(k)
+	status := new(migrationResults)
+	err := s.applyUpgradeFunc(func(pollId string) error {
+		poll, err := s.Poll().Get(pollId)
 		if err != nil {
-			s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
-			continue
+			status.failed++
+			return errors.Wrap(err, "Failed to get poll for migration")
 		}
 
 		if poll.Settings.MaxVotes > 0 {
 			// Already migrated
-			continue
+			status.skipped++
+			return nil
 		}
 
 		poll.Settings.MaxVotes = 1
 		err = s.Poll().Save(poll)
 		if err != nil {
-			s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
-			continue
+			status.failed++
+			return errors.Wrap(err, "Failed to save poll after migration")
 		}
-	}
 
-	return nil
+		status.processed++
+		return nil
+	})
+	s.api.LogInfo("Migration to v1.4.0 completed", "results", status.String())
+	return err
 }
 
 // upgradeTo17_2 convert existing polls to the new format that includes `Settings.AnonymousCreator` setting.
@@ -142,48 +155,42 @@ func upgradeTo14(s *Store) error {
 // created with Matterpoll v1.7.0.
 // => see https://github.com/matterpoll/matterpoll/issues/562
 func upgradeTo17_2(s *Store) error {
-	allKeys, err := s.collectPollKeys()
-	if err != nil {
-		return err
-	}
-
-	for _, k := range allKeys {
+	status := new(migrationResults)
+	err := s.applyUpgradeFunc(func(pollId string) error {
 		// poll is migrated when reading data
-		poll, err := s.Poll().Get(k)
+		poll, err := s.Poll().Get(pollId)
 		if err != nil {
-			s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
-			continue
+			status.failed++
+			return errors.Wrap(err, "Failed to get poll for migration")
 		}
 
 		err = s.Poll().Save(poll)
 		if err != nil {
-			s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
-			continue
+			status.failed++
+			return errors.Wrap(err, "Failed to save poll after migration")
 		}
-	}
 
-	return nil
+		status.processed++
+		return nil
+	})
+	s.api.LogInfo("Migration to v1.7.2 completed", "results", status.String())
+	return err
 }
 
 // upgradeTo18 migrates the poll post attachments to avoid using custom actions types
 // for upcoming Mattermost's new validation schema.
 func upgradeTo18(s *Store) error {
-	allKeys, err := s.collectPollKeys()
-	if err != nil {
-		return err
-	}
-
-	for _, k := range allKeys {
-		poll, err := s.Poll().Get(k)
+	status := new(migrationResults)
+	err := s.applyUpgradeFunc(func(pollId string) error {
+		poll, err := s.Poll().Get(pollId)
 		if err != nil {
-			s.api.LogWarn("Failed to get poll for migration", "error", err.Error(), "pollID", k)
-			continue
+			status.failed++
+			return errors.Wrap(err, "Failed to get poll for migration")
 		}
-
 		post, appErr := s.api.GetPost(poll.PostID)
 		if appErr != nil {
-			s.api.LogWarn("Failed to get post for migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
-			continue
+			status.failed++
+			return errors.Wrap(appErr, "Failed to get post for migration")
 		}
 
 		toMigrate := false
@@ -197,17 +204,19 @@ func upgradeTo18(s *Store) error {
 			}
 		}
 		if !toMigrate {
-			continue
+			status.skipped++
+			return nil
 		}
 
 		model.ParseSlackAttachment(post, attachments)
-
 		_, appErr = s.api.UpdatePost(post)
 		if appErr != nil {
-			s.api.LogWarn("Failed to update post after migration", "error", appErr.Error(), "pollID", k, "postID", poll.PostID)
-			continue
+			status.failed++
+			return errors.Wrap(appErr, "Failed to update post after migration")
 		}
-	}
-
-	return nil
+		status.processed++
+		return nil
+	})
+	s.api.LogInfo("Migration to v1.8.0 completed", "results", status.String())
+	return err
 }

@@ -194,7 +194,8 @@ func TestUpgradeTo14(t *testing.T) {
 		api.On("KVSet", pollPrefix+migratedPoll.ID, migratedPoll.EncodeToByte()).Return(nil)
 		api.On("KVSet", pollPrefix+failSavePoll.ID, migratedFailSavePoll.EncodeToByte()).Return(&model.AppError{})
 
-		api.On("LogError", testutils.GetMockArgumentsWithType("string", 5)...).Return(nil)
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 5)...).Return(nil)
+		api.On("LogInfo", testutils.GetMockArgumentsWithType("string", 3)...).Return(nil)
 
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
@@ -207,6 +208,7 @@ func TestUpgradeTo14(t *testing.T) {
 	t.Run("KVList fails", func(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVList", 0, perPage).Return(nil, &model.AppError{})
+		api.On("LogInfo", testutils.GetMockArgumentsWithType("string", 3)...).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
