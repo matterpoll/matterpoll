@@ -11,11 +11,6 @@ import (
 	"github.com/matterpoll/matterpoll/server/utils"
 )
 
-const (
-	// MatterpollAdminButtonType is action_type of buttons that are used for managing a poll.
-	MatterpollAdminButtonType = "custom_matterpoll_admin_button"
-)
-
 // IDToNameConverter converts a given userID to a human readable name.
 type IDToNameConverter func(userID string) (string, *model.AppError)
 
@@ -133,7 +128,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 				ID:    "poll.button.endPoll",
 				Other: "End Poll",
 			}}),
-			Type:  MatterpollAdminButtonType,
+			Type:  model.PostActionTypeButton,
 			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
@@ -144,7 +139,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 				ID:    "poll.button.deletePoll",
 				Other: "Delete Poll",
 			}}),
-			Type:  MatterpollAdminButtonType,
+			Type:  model.PostActionTypeButton,
 			Style: "danger",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
