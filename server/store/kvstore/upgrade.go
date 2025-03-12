@@ -17,6 +17,10 @@ type upgrade struct {
 	upgradeFunc func(*Store) error
 }
 
+// getUpgrades returns a slice of pointers to upgrade structs representing the available
+// database schema upgrades for the key-value store. Each upgrade struct contains the target
+// version and an optional upgrade function to perform the schema migration. A nil upgrade
+// function signifies that no migration operation is necessary for that version.
 func getUpgrades() []*upgrade {
 	return []*upgrade{
 		{toVersion: "1.1.0", upgradeFunc: nil},
