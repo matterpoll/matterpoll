@@ -40,8 +40,8 @@ var (
 		ID:    "poll.endPost.text",
 		Other: "This poll has ended. The results are:",
 	}
-	pollEndPostSeperator = &i18n.Message{
-		ID:    "poll.endPost.seperator",
+	pollEndPostSeparator = &i18n.Message{
+		ID:    "poll.endPost.seperator", //nolint:misspell // Don't fix the typo for now as that would break existing translations.
 		Other: "and",
 	}
 	pollEndPostAnswerHeading = &i18n.Message{
@@ -51,8 +51,8 @@ var (
 		Many:  "{{.Answer}} ({{.Count}} votes)",
 		Other: "{{.Answer}} ({{.Count}} votes)",
 	}
-	rhsCardPollVoterSeperator = &i18n.Message{
-		ID:    "rhs.card.poll.voter.seperator",
+	rhsCardPollVoterSeparator = &i18n.Message{
+		ID:    "rhs.card.poll.voter.seperator", //nolint:misspell // Don't fix the typo for now as that would break existing translations.
 		Other: "and",
 	}
 	rhsCardPollCreatedBy = &i18n.Message{
@@ -211,7 +211,7 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 					return nil, err
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
+					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeparator}) + " "
 				} else if i != 0 {
 					voter += ", "
 				}
@@ -269,7 +269,7 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 					return ""
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeperator}) + " "
+					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeparator}) + " "
 				} else if i != 0 {
 					voter += comma
 				}
