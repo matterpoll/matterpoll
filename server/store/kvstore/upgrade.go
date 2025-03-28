@@ -15,7 +15,7 @@ const (
 
 type upgrade struct {
 	toVersion   string
-	upgradeFunc func(*Store) error
+	upgradeFunc func(*Store) (migrationResults, error)
 }
 
 type migrationResults struct {
@@ -63,8 +63,9 @@ func (s *Store) UpdateDatabase(pluginVersion string) error {
 
 	for _, upgrade := range s.upgrades {
 		if s.shouldPerformUpgrade(semver.MustParse(currentVersion), semver.MustParse(upgrade.toVersion)) {
+			var ret migrationResults
 			if upgrade.upgradeFunc != nil {
-				err = upgrade.upgradeFunc(s)
+				ret, err = upgrade.upgradeFunc(s)
 				if err != nil {
 					return err
 				}
@@ -74,7 +75,7 @@ func (s *Store) UpdateDatabase(pluginVersion string) error {
 				return err
 			}
 
-			s.api.LogWarn(fmt.Sprintf("Update to version %v complete", upgrade.toVersion))
+			s.api.LogWarn(fmt.Sprintf("Update to version %v complete", upgrade.toVersion), "results", ret.String())
 			currentVersion = upgrade.toVersion
 		}
 	}
@@ -118,8 +119,8 @@ func (s *Store) applyUpgradeFunc(migrateFunc func(key string) error) error {
 	return nil
 }
 
-func upgradeTo14(s *Store) error {
-	status := new(migrationResults)
+func upgradeTo14(s *Store) (migrationResults, error) {
+	status := migrationResults{}
 	err := s.applyUpgradeFunc(func(pollId string) error {
 		poll, err := s.Poll().Get(pollId)
 		if err != nil {
@@ -143,8 +144,7 @@ func upgradeTo14(s *Store) error {
 		status.processed++
 		return nil
 	})
-	s.api.LogInfo("Migration to v1.4.0 completed", "results", status.String())
-	return err
+	return status, err
 }
 
 // upgradeTo17_2 convert existing polls to the new format that includes `Settings.AnonymousCreator` setting.
@@ -154,8 +154,8 @@ func upgradeTo14(s *Store) error {
 // in v1.7.1 will also result in atomic transactions failure for poll with AnonymousCreator=false, which is
 // created with Matterpoll v1.7.0.
 // => see https://github.com/matterpoll/matterpoll/issues/562
-func upgradeTo17_2(s *Store) error {
-	status := new(migrationResults)
+func upgradeTo17_2(s *Store) (migrationResults, error) {
+	status := migrationResults{}
 	err := s.applyUpgradeFunc(func(pollId string) error {
 		// poll is migrated when reading data
 		poll, err := s.Poll().Get(pollId)
@@ -173,14 +173,13 @@ func upgradeTo17_2(s *Store) error {
 		status.processed++
 		return nil
 	})
-	s.api.LogInfo("Migration to v1.7.2 completed", "results", status.String())
-	return err
+	return status, err
 }
 
 // upgradeTo18 migrates the poll post attachments to avoid using custom actions types
 // for upcoming Mattermost's new validation schema.
-func upgradeTo18(s *Store) error {
-	status := new(migrationResults)
+func upgradeTo18(s *Store) (migrationResults, error) {
+	status := migrationResults{}
 	err := s.applyUpgradeFunc(func(pollId string) error {
 		poll, err := s.Poll().Get(pollId)
 		if err != nil {
@@ -217,6 +216,5 @@ func upgradeTo18(s *Store) error {
 		status.processed++
 		return nil
 	})
-	s.api.LogInfo("Migration to v1.8.0 completed", "results", status.String())
-	return err
+	return status, err
 }
