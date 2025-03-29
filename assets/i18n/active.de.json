@@ -212,7 +212,7 @@
   },
   "response.resetVotes.success": {
     "hash": "sha1-fd557010c26787d3aeece2745511dab764cb09c7",
-    "other": "Deine Stimmen wurden zurückgestezt. Sie waren [{{.ClearedVotes}}]."
+    "other": "Deine Stimmen wurden zurückgesetzt. Sie waren [{{.ClearedVotes}}]."
   },
   "response.vote.counted": {
     "hash": "sha1-3420b74a2fee31243e4e4e7a72a527832685f97d",
