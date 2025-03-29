@@ -1,0 +1,15 @@
+with-expecter: true
+resolve-type-alias: false
+disable-version-string: true
+issue-845-fix: true
+packages:
+  github.com/matterpoll/matterpoll/server/store:
+    config:
+      dir: "{{.PackageName}}/mockstore"
+      filename: "{{lower .InterfaceName}}.go"
+      mockname: "{{.InterfaceName}}"
+      outpkg: "mockstore"
+    # place your package-specific config here
+    interfaces:
+      PollStore:
+      SystemStore:

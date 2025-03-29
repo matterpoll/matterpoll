@@ -4,13 +4,12 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/matterpoll/matterpoll/server/store"
-	"github.com/matterpoll/matterpoll/server/store/mockstore/mocks"
 )
 
 // Store is a mock store
 type Store struct {
-	PollStore   mocks.PollStore
-	SystemStore mocks.SystemStore
+	PollStore   PollStore
+	SystemStore SystemStore
 }
 
 // Poll returns the Poll Store

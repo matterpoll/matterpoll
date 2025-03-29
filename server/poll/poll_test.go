@@ -15,7 +15,6 @@ import (
 )
 
 func TestNewPoll(t *testing.T) {
-	assert := assert.New(t)
 	var createdAt int64 = 1234567890
 	patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return createdAt })
 	patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
@@ -66,6 +65,7 @@ func TestNewPoll(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
+			assert := assert.New(t)
 			p, err := poll.NewPoll(creator, question, test.Options, test.Settings)
 
 			if test.ShouldError {
@@ -222,7 +222,6 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 }
 
 func TestIsMultiVote(t *testing.T) {
-	assert := assert.New(t)
 	for name, test := range map[string]struct {
 		Poll     poll.Poll
 		Expected bool
@@ -253,7 +252,7 @@ func TestIsMultiVote(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(test.Expected, test.Poll.IsMultiVote())
+			assert.Equal(t, test.Expected, test.Poll.IsMultiVote())
 		})
 	}
 }
@@ -891,7 +890,6 @@ func TestPollCopy(t *testing.T) {
 }
 
 func TestSettingsString(t *testing.T) {
-	assert := assert.New(t)
 	for name, test := range map[string]struct {
 		Settings poll.Settings
 		Expected string
@@ -930,7 +928,7 @@ func TestSettingsString(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(test.Expected, test.Settings.String())
+			assert.Equal(t, test.Expected, test.Settings.String())
 		})
 	}
 }

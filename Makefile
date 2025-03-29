@@ -58,6 +58,7 @@ ifneq ($(HAS_SERVER),)
 	fi; \
 
 	@echo Running golangci-lint
+	$(GO) install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
 	golangci-lint run ./...
 endif
 
