@@ -14,7 +14,6 @@ linters-settings:
   goimports:
     local-prefixes: github.com/matterpoll/matterpoll
   govet:
-    check-shadowing: true
     enable-all: true
     disable:
       - fieldalignment

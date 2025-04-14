@@ -52,12 +52,8 @@ ifneq ($(HAS_WEBAPP),)
 endif
 
 ifneq ($(HAS_SERVER),)
-	@if ! [ -x "$$(command -v golangci-lint)" ]; then \
-		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
-		exit 1; \
-	fi; \
-
 	@echo Running golangci-lint
+	$(GO) install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
 	golangci-lint run ./...
 endif
 
