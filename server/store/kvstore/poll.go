@@ -59,12 +59,12 @@ func (s *PollStore) Save(poll *poll.Poll) error {
 }
 
 // Update updates an existing a poll in the KV Store.
-func (s *PollStore) Update(prev *poll.Poll, new *poll.Poll) error {
+func (s *PollStore) Update(oldPoll *poll.Poll, newPoll *poll.Poll) error {
 	opt := model.PluginKVSetOptions{
 		Atomic:   true,
-		OldValue: prev.EncodeToByte(),
+		OldValue: oldPoll.EncodeToByte(),
 	}
-	ok, err := s.api.KVSetWithOptions(pollPrefix+prev.ID, new.EncodeToByte(), opt)
+	ok, err := s.api.KVSetWithOptions(pollPrefix+oldPoll.ID, newPoll.EncodeToByte(), opt)
 	if err != nil {
 		return err
 	}
