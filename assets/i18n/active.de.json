@@ -168,7 +168,7 @@
   },
   "poll.newPoll.votesettings.invalidSetting": {
     "hash": "sha1-c425923300c965704b61c6f467635d3ee2026339",
-    "other": "Die Anzahl Stimmen muss 0 oder größer sein und muss weniger oder gleich, wie die Anzahl der Optionen sein. Du hast \"{{.MaxVotes}}\" angegeben, aber die Anzahl der Optionen ist \"{{.Options}}\"."
+    "other": "Die Anzahl der Stimmen muss 0 oder größer sein und muss weniger oder gleich, wie die Anzahl der Optionen sein. Du hast \"{{.MaxVotes}}\" angegeben, aber die Anzahl der Optionen ist \"{{.Options}}\"."
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
