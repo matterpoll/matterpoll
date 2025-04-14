@@ -24,7 +24,7 @@
     "@babel/preset-env": "7.16.11",
     "@babel/preset-react": "7.16.7",
     "@babel/preset-typescript": "7.16.7",
-    "@babel/runtime": "7.16.7",
+    "@babel/runtime": "7.27.0",
     "@emotion/babel-preset-css-prop": "10.0.27",
     "@emotion/core": "10.0.35",
     "@jest/globals": "27.4.6",
