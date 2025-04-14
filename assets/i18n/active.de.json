@@ -48,8 +48,8 @@
     "other": "Umfrage-Einstellungen ermöglichen weitere Anpassungen , z.B. `/{{.Trigger}} \"Frage\" \"Antwort 1\" \"Antwort 2\" \"Antwort 3\" --progress --anonymous`. Die möglichen Umfrageeinstellungen sind:"
   },
   "command.help.text.pollSetting.multi-vote": {
-    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
-    "other": "Erlaube den Nutzern, für X Antworten abzustimmen"
+    "hash": "sha1-8848f6b6a03f323a14609708897824ad178d2dd8",
+    "other": "Erlaube Nutzern, für X Optionen zu stimmen. Die Vorgabe ist 1. Wenn X=0 ist, haben die Nutzer unbegrenzt Stimmen."
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -92,8 +92,8 @@
     "other": "Frage"
   },
   "dialog.createPoll.setting.multi": {
-    "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
-    "other": "Die Anzahl der Stimmen, die ein Nutzer hat."
+    "hash": "sha1-6c12940d577520c0ec5547ff9199ec775099a72d",
+    "other": "Die Anzahl der Optionen, für die ein Nutzer stimmen kann. 0 meint, Nutzer können für alle Optionen stimmen, auch für später hinzugefügte."
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -167,8 +167,8 @@
     "other": "Unbekannte Umfrageeinstellung: {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
-    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
-    "other": "Die Anzahl der Stimmen muss eine positive Zahl und kleiner oder gleich der Anzahl der Antworten sein. Du hast \"{{.MaxVotes}}\" angegeben, aber die Anzahl der Optionen ist \"{{.Options}}\"."
+    "hash": "sha1-c425923300c965704b61c6f467635d3ee2026339",
+    "other": "Die Anzahl Stimmen muss 0 oder größer sein und muss weniger oder gleich, wie die Anzahl der Optionen sein. Du hast \"{{.MaxVotes}}\" angegeben, aber die Anzahl der Optionen ist \"{{.Options}}\"."
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
