@@ -216,9 +216,9 @@ func (_c *PollStore_Save_Call) RunAndReturn(run func(*poll.Poll) error) *PollSto
 	return _c
 }
 
-// Update provides a mock function with given fields: prev, new
-func (_m *PollStore) Update(prev *poll.Poll, new *poll.Poll) error {
-	ret := _m.Called(prev, new)
+// Update provides a mock function with given fields: oldPoll, newPoll
+func (_m *PollStore) Update(oldPoll *poll.Poll, newPoll *poll.Poll) error {
+	ret := _m.Called(oldPoll, newPoll)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
@@ -226,7 +226,7 @@ func (_m *PollStore) Update(prev *poll.Poll, new *poll.Poll) error {
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*poll.Poll, *poll.Poll) error); ok {
-		r0 = rf(prev, new)
+		r0 = rf(oldPoll, newPoll)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -240,13 +240,13 @@ type PollStore_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - prev *poll.Poll
-//   - new *poll.Poll
-func (_e *PollStore_Expecter) Update(prev interface{}, new interface{}) *PollStore_Update_Call {
-	return &PollStore_Update_Call{Call: _e.mock.On("Update", prev, new)}
+//   - oldPoll *poll.Poll
+//   - newPoll *poll.Poll
+func (_e *PollStore_Expecter) Update(oldPoll interface{}, newPoll interface{}) *PollStore_Update_Call {
+	return &PollStore_Update_Call{Call: _e.mock.On("Update", oldPoll, newPoll)}
 }
 
-func (_c *PollStore_Update_Call) Run(run func(prev *poll.Poll, new *poll.Poll)) *PollStore_Update_Call {
+func (_c *PollStore_Update_Call) Run(run func(oldPoll *poll.Poll, newPoll *poll.Poll)) *PollStore_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(*poll.Poll), args[1].(*poll.Poll))
 	})
