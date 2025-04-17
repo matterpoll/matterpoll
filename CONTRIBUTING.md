@@ -91,4 +91,4 @@ export MM_ADMIN_USERNAME=admin
 export MM_ADMIN_PASSWORD=password
 ```
 
-* Use `make help` to know all useful targets for devleopment
+* Use `make help` to know all useful targets for development

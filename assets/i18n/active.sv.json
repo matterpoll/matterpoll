@@ -141,7 +141,7 @@
     "one": "{{.Answer}} ({{.Count}} röst)",
     "other": "{{.Answer}} ({{.Count}} röster)"
   },
-  "poll.endPost.seperator": {
+  "poll.endPost.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "och"
   },
@@ -236,7 +236,7 @@
     "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
     "other": "Skapad av"
   },
-  "rhs.card.poll.voter.seperator": {
+  "rhs.card.poll.voter.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "och"
   }

@@ -14,7 +14,7 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 
 1. Download `com.github.matterpoll.matterpoll-x.y.z.tar.gz` from https://github.com/matterpoll/matterpoll/releases.
 2. Upload `com.github.matterpoll.matterpoll-x.y.z.tar.gz` file through **System Console > Plugins > Plugin Management > Upload Plugin** in Mattermost and enable the plugin.
-   * Upgrades can be performed by uploading the lastest release and confirm overwriting of the duplicate plugin ID.
+   * Upgrades can be performed by uploading the latest release and confirming overwriting of the duplicate plugin ID.
 
 
 ## Settings
@@ -34,7 +34,7 @@ Note: **Experimental UI** is not supported in Mattermost Mobile due to its limit
 
 If you want to define all answer options by yourself, type `/poll "Is Matterpoll great?" "Of course" "In any case" "Definitely"`- Note that the double quotes are required in this case.
 
-`/poll` show up a modal for creating a poll.
+`/poll` shows a modal for creating a poll.
 
 ### Poll Settings
 
@@ -46,7 +46,7 @@ Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" 
 
 ## Localization
 
-Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > Site Configuration > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Settings > Display > Language**.
+Matterpoll supports localization of user-specified messages. You can change the language of poll messages by setting it in **System Console > Site Configuration > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Settings > Display > Language**.
 
 The currently supported languages are:
 - English

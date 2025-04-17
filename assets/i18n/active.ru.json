@@ -145,7 +145,7 @@
     "one": "{{.Answer}} ({{.Count}} ответ)",
     "other": "{{.Answer}} ({{.Count}} ответов)"
   },
-  "poll.endPost.seperator": {
+  "poll.endPost.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "И"
   },
@@ -246,7 +246,7 @@
     "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
     "other": "Автор"
   },
-  "rhs.card.poll.voter.seperator": {
+  "rhs.card.poll.voter.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "и"
   }

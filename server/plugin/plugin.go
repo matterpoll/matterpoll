@@ -105,7 +105,7 @@ func (p *MatterpollPlugin) OnActivate() error {
 	}
 
 	if err := p.API.RegisterCommand(command); err != nil {
-		return errors.Wrap(err, "failed to register  command")
+		return errors.Wrap(err, "failed to register command")
 	}
 
 	p.router = p.InitAPI()

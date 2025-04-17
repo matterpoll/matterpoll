@@ -138,7 +138,7 @@
     "one": "{{.Answer}} ({{.Count}} głos)",
     "other": "{{.Answer}} ({{.Count}} głosu)"
   },
-  "poll.endPost.seperator": {
+  "poll.endPost.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "i"
   },

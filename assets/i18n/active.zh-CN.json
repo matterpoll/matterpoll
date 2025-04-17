@@ -139,7 +139,7 @@
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
     "other": "{{.Answer}} (投票数 {{.Count}})"
   },
-  "poll.endPost.seperator": {
+  "poll.endPost.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "与"
   },
@@ -231,7 +231,7 @@
     "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
     "other": "创建者"
   },
-  "rhs.card.poll.voter.seperator": {
+  "rhs.card.poll.voter.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "和"
   }
