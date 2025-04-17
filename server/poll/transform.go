@@ -47,7 +47,7 @@ var (
 		Other: "{{.Answer}} ({{.Count}} votes)",
 	}
 	rhsCardPollVoterSeparator = &i18n.Message{
-		ID:    "rhs.card.poll.voter.seprator",
+		ID:    "rhs.card.poll.voter.separator",
 		Other: "and",
 	}
 	rhsCardPollCreatedBy = &i18n.Message{

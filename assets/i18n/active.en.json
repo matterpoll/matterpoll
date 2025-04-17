@@ -82,5 +82,5 @@
     "other": "{{.Answer}} ({{.Count}} votes)"
   },
   "rhs.card.poll.createdBy": "Created by",
-  "rhs.card.poll.voter.seprator": "and"
+  "rhs.card.poll.voter.separator": "and"
 }
