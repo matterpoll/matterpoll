@@ -44,7 +44,7 @@
     "one": "{{.Answer}} ({{.Count}} vote)",
     "other": "{{.Answer}} ({{.Count}} votes)"
   },
-  "poll.endPost.seperator": "and",
+  "poll.endPost.separator": "and",
   "poll.endPost.text": "This poll has ended. The results are:",
   "poll.message.pollSettings": "**Poll Settings**: {{.Settings}}",
   "poll.message.totalVotes": "**Total votes**: {{.TotalVotes}}",
@@ -82,5 +82,5 @@
     "other": "{{.Answer}} ({{.Count}} votes)"
   },
   "rhs.card.poll.createdBy": "Created by",
-  "rhs.card.poll.voter.seperator": "and"
+  "rhs.card.poll.voter.seprator": "and"
 }
