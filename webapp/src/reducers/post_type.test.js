@@ -12,28 +12,28 @@ describe('post_type reducers', () => {
         expect(
             postTypeComponent(
                 {id: 'component_id'},
-                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: undefined}), // eslint-disable-line no-undefined
+                {type: ActionTypes.REGISTER_POST_TYPE_COMPONENT_ID, data: undefined}), // eslint-disable-line no-undefined
         ).toEqual({id: 'component_id'});
     });
     test('action type without postTypeComponentId', () => {
         expect(
             postTypeComponent(
                 {id: 'component_id'},
-                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: {dummy: 'id'}}),
+                {type: ActionTypes.REGISTER_POST_TYPE_COMPONENT_ID, data: {dummy: 'id'}}),
         ).toEqual({id: 'component_id'});
     });
     test('action with component_id', () => {
         expect(
             postTypeComponent(
                 {id: 'component_id'},
-                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: {postTypeComponentId: 'new_component_id'}}),
+                {type: ActionTypes.REGISTER_POST_TYPE_COMPONENT_ID, data: {postTypeComponentId: 'new_component_id'}}),
         ).toEqual({id: 'new_component_id'});
     });
     test('action with empty id', () => {
         expect(
             postTypeComponent(
                 {id: 'component_id'},
-                {type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID, data: {postTypeComponentId: ''}}),
+                {type: ActionTypes.REGISTER_POST_TYPE_COMPONENT_ID, data: {postTypeComponentId: ''}}),
         ).toEqual({id: ''});
     });
 });
