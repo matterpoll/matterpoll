@@ -36,7 +36,7 @@ var (
 		Other: "This poll has ended. The results are:",
 	}
 	pollEndPostSeparator = &i18n.Message{
-		ID:    "poll.endPost.seperator", //nolint:misspell // Don't fix the typo for now as that would break existing translations.
+		ID:    "poll.endPost.separator",
 		Other: "and",
 	}
 	pollEndPostAnswerHeading = &i18n.Message{
@@ -47,7 +47,7 @@ var (
 		Other: "{{.Answer}} ({{.Count}} votes)",
 	}
 	rhsCardPollVoterSeparator = &i18n.Message{
-		ID:    "rhs.card.poll.voter.seperator", //nolint:misspell // Don't fix the typo for now as that would break existing translations.
+		ID:    "rhs.card.poll.voter.separator",
 		Other: "and",
 	}
 	rhsCardPollCreatedBy = &i18n.Message{

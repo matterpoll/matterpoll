@@ -15,7 +15,7 @@ export const configurationChange = (registry, store, data) => async (dispatch) =
     }
 
     return dispatch({
-        type: ActionTypes.REGIST_POST_TYPE_COMPONENT_ID,
+        type: ActionTypes.REGISTER_POST_TYPE_COMPONENT_ID,
         data: {postTypeComponentId: registeredComponentId},
     });
 };
