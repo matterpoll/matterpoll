@@ -1,27 +1,9 @@
+version: "2"
 run:
-  timeout: 5m
   modules-download-mode: readonly
 
-linters-settings:
-  forbidigo:
-    forbid:
-      - '^.*\.MustLocalize.*(# MustLocalize may cause panic such as #252, use one of localize functions in utils package instead)?'
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: github.com/matterpoll/matterpoll
-  govet:
-    enable-all: true
-    disable:
-      - fieldalignment
-  misspell:
-    locale: US
-
 linters:
-  disable-all: true
+  default: none
   enable:
     - bodyclose
     - dogsled
@@ -29,28 +11,50 @@ linters:
     - forbidigo
     - goconst
     - gocritic
-    - gofmt
-    - goimports
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - misspell
     - nakedret
     - revive
     - staticcheck
-    - stylecheck
-    - typecheck
     - unconvert
     - unparam
     - unused
     - whitespace
 
-issues:
-  exclude-rules:
-    # Exclude some linters from running on tests files.
-    - path: _test\.go
-      linters:
-        - dupl
-        - goconst
-        - scopelint # https://github.com/kyoh86/scopelint/issues/4
+  settings:
+    forbidigo:
+      forbid:
+        - pattern: '^.*\.MustLocalize.*(# MustLocalize may cause panic such as #252, use one of localize functions in utils package instead)?'
+    goconst:
+      min-len: 2
+      min-occurrences: 2
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+    misspell:
+      locale: US
+
+  exclusions:
+    presets:
+      - comments
+      - common-false-positives
+      - std-error-handling
+    rules:
+      - linters:
+          - dupl
+          - goconst
+        path: _test\.go
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - github.com/matterpoll/matterpoll

@@ -23,7 +23,7 @@ import (
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
-func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin { //nolint:interfacer
+func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin {
 	p := &MatterpollPlugin{
 		ServerConfig: testutils.GetServerConfig(),
 		getIconData:  getIconDataMock,
@@ -131,7 +131,10 @@ func TestPluginOnActivate(t *testing.T) {
 			dir, err := os.MkdirTemp("", "")
 			require.NoError(t, err)
 
-			defer os.RemoveAll(dir)
+			t.Cleanup(func() {
+				err = os.RemoveAll(dir)
+				require.NoError(t, err)
+			})
 
 			// Create assets/i18n dir
 			i18nDir := filepath.Join(dir, "assets", "i18n")
