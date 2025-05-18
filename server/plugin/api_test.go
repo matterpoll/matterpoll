@@ -59,7 +59,7 @@ func TestServeHTTP(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -111,7 +111,7 @@ func TestServeFile(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -154,7 +154,7 @@ func TestHandlePluginConfiguration(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -196,7 +196,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -563,7 +563,7 @@ func TestHandleCreatePoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -611,7 +611,7 @@ func TestHandleVote(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -1092,7 +1092,7 @@ func TestHandleVote(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1146,7 +1146,7 @@ func TestHandleResetVotes(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -1397,7 +1397,7 @@ func TestHandleResetVotes(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1442,7 +1442,7 @@ func TestHandleAddOption(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -1712,7 +1712,7 @@ func TestHandleAddOption(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1763,7 +1763,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2144,7 +2144,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2180,7 +2180,7 @@ func TestHandleEndPoll(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2446,7 +2446,7 @@ func TestHandleEndPoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2484,7 +2484,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2731,7 +2731,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2800,7 +2800,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -3065,7 +3065,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -3101,7 +3101,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -3319,7 +3319,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -3430,7 +3430,7 @@ func TestHandlePollMetadata(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -3448,4 +3448,11 @@ func TestHandlePollMetadata(t *testing.T) {
 			}
 		})
 	}
+}
+
+func closeBody(t testing.TB, c io.Closer) {
+	t.Helper()
+
+	err := c.Close()
+	require.Nil(t, err)
 }
