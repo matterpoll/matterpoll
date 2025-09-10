@@ -11,7 +11,6 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.10.0
-	github.com/undefinedlabs/go-mpatch v1.0.7
 	golang.org/x/text v0.24.0
 )
 
