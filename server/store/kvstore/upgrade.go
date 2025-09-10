@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/blang/semver/v4"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
 )
 
@@ -14,7 +15,17 @@ const (
 
 type upgrade struct {
 	toVersion   string
-	upgradeFunc func(*Store) error
+	upgradeFunc func(*Store) (migrationResults, error)
+}
+
+type migrationResults struct {
+	processed int
+	skipped   int
+	failed    int
+}
+
+func (ms *migrationResults) String() string {
+	return fmt.Sprintf("processed: %d, skipped: %d, failed: %d", ms.processed, ms.skipped, ms.failed)
 }
 
 func getUpgrades() []*upgrade {
@@ -26,6 +37,10 @@ func getUpgrades() []*upgrade {
 		{toVersion: "1.5.0", upgradeFunc: nil},
 		{toVersion: "1.6.0", upgradeFunc: nil},
 		{toVersion: "1.6.1", upgradeFunc: nil},
+		{toVersion: "1.7.0", upgradeFunc: nil},
+		{toVersion: "1.7.1", upgradeFunc: nil},
+		{toVersion: "1.7.2", upgradeFunc: upgradeTo17_2},
+		{toVersion: "1.8.0", upgradeFunc: upgradeTo18},
 	}
 }
 
@@ -48,8 +63,9 @@ func (s *Store) UpdateDatabase(pluginVersion string) error {
 
 	for _, upgrade := range s.upgrades {
 		if s.shouldPerformUpgrade(semver.MustParse(currentVersion), semver.MustParse(upgrade.toVersion)) {
+			var ret migrationResults
 			if upgrade.upgradeFunc != nil {
-				err = upgrade.upgradeFunc(s)
+				ret, err = upgrade.upgradeFunc(s)
 				if err != nil {
 					return err
 				}
@@ -59,7 +75,7 @@ func (s *Store) UpdateDatabase(pluginVersion string) error {
 				return err
 			}
 
-			s.api.LogWarn(fmt.Sprintf("Update to version %v complete", upgrade.toVersion))
+			s.api.LogWarn(fmt.Sprintf("Update to version %v complete", upgrade.toVersion), "results", ret.String())
 			currentVersion = upgrade.toVersion
 		}
 	}
@@ -75,8 +91,7 @@ func (s *Store) shouldPerformUpgrade(currentSchemaVersion, expectedSchemaVersion
 	return false
 }
 
-func upgradeTo14(s *Store) error {
-	var allKeys []string
+func (s *Store) applyUpgradeFunc(migrateFunc func(key string) error) error {
 	i := 0
 	for {
 		keys, appErr := s.api.KVList(i, perPage)
@@ -84,7 +99,16 @@ func upgradeTo14(s *Store) error {
 			return errors.Wrap(appErr, "failed to list poll keys")
 		}
 
-		allKeys = append(allKeys, keys...)
+		for _, k := range keys {
+			// Migrate only plugin keys
+			if !strings.HasPrefix(k, pollPrefix) {
+				continue
+			}
+			pollID := strings.TrimPrefix(k, pollPrefix)
+			if err := migrateFunc(pollID); err != nil {
+				s.api.LogWarn("Failed to apply upgrade function", "poll_id", k, "error", err.Error())
+			}
+		}
 
 		if len(keys) < perPage {
 			break
@@ -92,31 +116,105 @@ func upgradeTo14(s *Store) error {
 
 		i++
 	}
+	return nil
+}
 
-	for _, k := range allKeys {
-		// Only migrate plugin keys
-		if strings.HasPrefix(k, pollPrefix) {
-			k = strings.TrimPrefix(k, pollPrefix)
+func upgradeTo14(s *Store) (migrationResults, error) {
+	status := migrationResults{}
+	err := s.applyUpgradeFunc(func(pollId string) error {
+		poll, err := s.Poll().Get(pollId)
+		if err != nil {
+			status.failed++
+			return errors.Wrap(err, "Failed to get poll for migration")
+		}
 
-			poll, err := s.Poll().Get(k)
-			if err != nil {
-				s.api.LogError("Failed to get poll for migration", "error", err.Error(), "pollID", k)
-				continue
-			}
+		if poll.Settings.MaxVotes > 0 {
+			// Already migrated
+			status.skipped++
+			return nil
+		}
 
-			if poll.Settings.MaxVotes > 0 {
-				// Already migrated
-				continue
-			}
+		poll.Settings.MaxVotes = 1
+		err = s.Poll().Save(poll)
+		if err != nil {
+			status.failed++
+			return errors.Wrap(err, "Failed to save poll after migration")
+		}
 
-			poll.Settings.MaxVotes = 1
-			err = s.Poll().Save(poll)
-			if err != nil {
-				s.api.LogError("Failed to save poll after migration", "error", err.Error(), "pollID", k)
-				continue
+		status.processed++
+		return nil
+	})
+	return status, err
+}
+
+// upgradeTo17_2 convert existing polls to the new format that includes `Settings.AnonymousCreator` setting.
+//
+// New setting `AnonymousCreator“ without `omitempty` introduced in v1.7.0 causes the atomic transaction
+// to fail when saving a poll. Additionally, just adding `omitempty` to Settings.AnonymousCreator introduced
+// in v1.7.1 will also result in atomic transactions failure for poll with AnonymousCreator=false, which is
+// created with Matterpoll v1.7.0.
+// => see https://github.com/matterpoll/matterpoll/issues/562
+func upgradeTo17_2(s *Store) (migrationResults, error) {
+	status := migrationResults{}
+	err := s.applyUpgradeFunc(func(pollId string) error {
+		// poll is migrated when reading data
+		poll, err := s.Poll().Get(pollId)
+		if err != nil {
+			status.failed++
+			return errors.Wrap(err, "Failed to get poll for migration")
+		}
+
+		err = s.Poll().Save(poll)
+		if err != nil {
+			status.failed++
+			return errors.Wrap(err, "Failed to save poll after migration")
+		}
+
+		status.processed++
+		return nil
+	})
+	return status, err
+}
+
+// upgradeTo18 migrates the poll post attachments to avoid using custom actions types
+// for upcoming Mattermost's new validation schema.
+func upgradeTo18(s *Store) (migrationResults, error) {
+	status := migrationResults{}
+	err := s.applyUpgradeFunc(func(pollId string) error {
+		poll, err := s.Poll().Get(pollId)
+		if err != nil {
+			status.failed++
+			return errors.Wrap(err, "Failed to get poll for migration")
+		}
+		post, appErr := s.api.GetPost(poll.PostID)
+		if appErr != nil {
+			status.failed++
+			return errors.Wrap(appErr, "Failed to get post for migration")
+		}
+
+		toMigrate := false
+		attachments := post.Attachments()
+		for _, attachment := range attachments {
+			for _, action := range attachment.Actions {
+				if action.Type == "custom_matterpoll_admin_button" {
+					toMigrate = true
+					action.Type = model.PostActionTypeButton
+				}
 			}
 		}
-	}
+		if !toMigrate {
+			status.skipped++
+			return nil
+		}
 
-	return nil
+		model.ParseSlackAttachment(post, attachments)
+		_, appErr = s.api.UpdatePost(post)
+		if appErr != nil {
+			status.failed++
+			return errors.Wrap(appErr, "Failed to update post after migration")
+		}
+		status.processed++
+		return nil
+	})
+	return status, err
 }

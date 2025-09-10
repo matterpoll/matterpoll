@@ -7,8 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/matterpoll/matterpoll/server/utils"
 )
@@ -16,12 +17,15 @@ import (
 var votesSettingPattern = regexp.MustCompile(`^votes=(\d+)$`)
 
 const (
-	SettingKeyAnonymous       = "anonymous"
-	SettingKeyProgress        = "progress"
-	SettingKeyPublicAddOption = "public-add-option"
+	SettingKeyAnonymous        = "anonymous"
+	SettingKeyAnonymousCreator = "anonymous-creator"
+	SettingKeyProgress         = "progress"
+	SettingKeyPublicAddOption  = "public-add-option"
 )
 
 // Poll stores all needed information for a poll
+// When adding new fields, to avoid failures during atomic transactions for KV Store,
+// either specify omitempty or set initial values during the upgrade.
 type Poll struct {
 	ID            string
 	PostID        string `json:"post_id,omitempty"`
@@ -38,12 +42,15 @@ type AnswerOption struct {
 	Voter  []string
 }
 
-// Settings stores possible settings for a poll
+// Settings stores possible settings for a poll.
+// When adding new settings, to avoid failures during atomic transactions for KV Store,
+// either specify omitempty or set initial values during the upgrade.
 type Settings struct {
-	Anonymous       bool
-	Progress        bool
-	PublicAddOption bool
-	MaxVotes        int `json:"max_votes"`
+	Anonymous        bool
+	AnonymousCreator bool `json:",omitempty"`
+	Progress         bool
+	PublicAddOption  bool
+	MaxVotes         int `json:"max_votes"`
 }
 
 // Factory is used to create a new [Poll].
@@ -109,6 +116,8 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 		switch {
 		case str == SettingKeyAnonymous:
 			settings.Anonymous = true
+		case str == SettingKeyAnonymousCreator:
+			settings.AnonymousCreator = true
 		case str == SettingKeyProgress:
 			settings.Progress = true
 		case str == SettingKeyPublicAddOption:
@@ -150,6 +159,8 @@ func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
 				switch s {
 				case SettingKeyAnonymous:
 					settings.Anonymous = true
+				case SettingKeyAnonymousCreator:
+					settings.AnonymousCreator = true
 				case SettingKeyProgress:
 					settings.Progress = true
 				case SettingKeyPublicAddOption:
@@ -179,7 +190,7 @@ func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 	if err != nil {
 		return 0, &utils.ErrorMessage{
 			Message: &i18n.Message{
-				ID:    "poll.newPoll.votesettings.invalidSetting",
+				ID:    "poll.newPoll.votesettings.unexpectedError",
 				Other: "Unexpected error happens when parsing {{.Setting}}",
 			},
 			Data: map[string]interface{}{
@@ -192,11 +203,11 @@ func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 
 // validate checks if poll is valid
 func (p *Poll) validate() *utils.ErrorMessage {
-	if p.Settings.MaxVotes <= 0 || p.Settings.MaxVotes > len(p.AnswerOptions) {
+	if p.Settings.MaxVotes < 0 || p.Settings.MaxVotes > len(p.AnswerOptions) {
 		return &utils.ErrorMessage{
 			Message: &i18n.Message{
 				ID:    "poll.newPoll.votesettings.invalidSetting",
-				Other: `The number of votes must be a positive number and less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}".`,
+				Other: `The number of votes must be 0 or a positive number, and must be less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}".`,
 			},
 			Data: map[string]interface{}{
 				"MaxVotes": p.Settings.MaxVotes,
@@ -209,7 +220,7 @@ func (p *Poll) validate() *utils.ErrorMessage {
 
 // IsMultiVote return true if poll is set to multi vote
 func (p *Poll) IsMultiVote() bool {
-	return p.Settings.MaxVotes > 1
+	return p.Settings.MaxVotes == 0 || p.Settings.MaxVotes > 1
 }
 
 // AddAnswerOption adds a new AnswerOption to a poll
@@ -264,7 +275,7 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 				}, nil
 			}
 		}
-		if p.Settings.MaxVotes <= len(votedAnswers) {
+		if p.Settings.MaxVotes != 0 && p.Settings.MaxVotes <= len(votedAnswers) {
 			return &i18n.Message{
 				ID:    "poll.updateVote.maxVotes",
 				Other: "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
@@ -367,4 +378,30 @@ func (p *Poll) Copy() *Poll {
 		}
 	}
 	return p2
+}
+
+func (s Settings) String() string {
+	var settingsText []string
+	if s.Anonymous {
+		settingsText = append(settingsText, "anonymous")
+	}
+	if s.AnonymousCreator {
+		settingsText = append(settingsText, "anonymous-creator")
+	}
+	if s.Progress {
+		settingsText = append(settingsText, "progress")
+	}
+	if s.PublicAddOption {
+		settingsText = append(settingsText, "public-add-option")
+	}
+	if s.MaxVotes != 1 {
+		switch s.MaxVotes {
+		case 0:
+			settingsText = append(settingsText, "votes=unlimited")
+		default:
+			settingsText = append(settingsText, fmt.Sprintf("votes=%d", s.MaxVotes))
+		}
+	}
+
+	return strings.Join(settingsText, ", ")
 }

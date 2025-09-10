@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	"github.com/blang/semver/v4"
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
@@ -92,7 +93,7 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
 		api.On("KVSet", versionKey, []byte("1.1.0")).Return(nil)
-		api.On("LogWarn", mock.AnythingOfType("string")).Return(nil)
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 		store.upgrades = []*upgrade{
@@ -106,11 +107,11 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
 		api.On("KVSet", versionKey, []byte("1.1.0")).Return(nil)
-		api.On("LogWarn", mock.AnythingOfType("string")).Return(nil)
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 		store.upgrades = []*upgrade{
-			{toVersion: "1.1.0", upgradeFunc: func(*Store) error { return nil }},
+			{toVersion: "1.1.0", upgradeFunc: func(*Store) (migrationResults, error) { return migrationResults{}, nil }},
 		}
 
 		err := store.UpdateDatabase("1.0.0")
@@ -123,7 +124,7 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 		store.upgrades = []*upgrade{
-			{toVersion: "1.1.0", upgradeFunc: func(*Store) error { return errors.New("") }},
+			{toVersion: "1.1.0", upgradeFunc: func(*Store) (migrationResults, error) { return migrationResults{}, errors.New("") }},
 		}
 
 		err := store.UpdateDatabase("1.0.0")
@@ -133,7 +134,7 @@ func TestStoreUpdateDatabase(t *testing.T) {
 		api := &plugintest.API{}
 		api.On("KVGet", versionKey).Return([]byte("1.0.0"), nil)
 		api.On("KVSet", versionKey, []byte("1.1.0")).Return(&model.AppError{})
-		api.On("LogWarn", mock.AnythingOfType("string")).Return(nil)
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return(nil)
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 		store.upgrades = []*upgrade{
@@ -193,12 +194,12 @@ func TestUpgradeTo14(t *testing.T) {
 		api.On("KVSet", pollPrefix+migratedPoll.ID, migratedPoll.EncodeToByte()).Return(nil)
 		api.On("KVSet", pollPrefix+failSavePoll.ID, migratedFailSavePoll.EncodeToByte()).Return(&model.AppError{})
 
-		api.On("LogError", testutils.GetMockArgumentsWithType("string", 5)...).Return(nil)
+		api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 5)...).Return(nil)
 
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
-		err := upgradeTo14(store)
+		_, err := upgradeTo14(store)
 
 		require.NoError(t, err)
 	})
@@ -209,7 +210,7 @@ func TestUpgradeTo14(t *testing.T) {
 		defer api.AssertExpectations(t)
 		store := setupTestStore(api)
 
-		err := upgradeTo14(store)
+		_, err := upgradeTo14(store)
 
 		require.Error(t, err)
 	})

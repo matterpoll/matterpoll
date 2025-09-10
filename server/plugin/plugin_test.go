@@ -7,13 +7,14 @@ import (
 	"reflect"
 	"testing"
 
-	pluginapi "github.com/mattermost/mattermost-plugin-api"
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin"
-	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/undefinedlabs/go-mpatch"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
+	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
+	"github.com/mattermost/mattermost/server/public/pluginapi"
 
 	"github.com/matterpoll/matterpoll/server/store"
 	"github.com/matterpoll/matterpoll/server/store/kvstore"
@@ -22,7 +23,7 @@ import (
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
 )
 
-func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin { //nolint:interfacer
+func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) *MatterpollPlugin {
 	p := &MatterpollPlugin{
 		ServerConfig: testutils.GetServerConfig(),
 		getIconData:  getIconDataMock,
@@ -130,7 +131,10 @@ func TestPluginOnActivate(t *testing.T) {
 			dir, err := os.MkdirTemp("", "")
 			require.NoError(t, err)
 
-			defer os.RemoveAll(dir)
+			t.Cleanup(func() {
+				err = os.RemoveAll(dir)
+				require.NoError(t, err)
+			})
 
 			// Create assets/i18n dir
 			i18nDir := filepath.Join(dir, "assets", "i18n")
@@ -298,7 +302,8 @@ func TestConvertCreatorIDToDisplayName(t *testing.T) {
 			defer api.AssertExpectations(t)
 
 			p := setupTestPlugin(t, api, &mockstore.Store{})
-			p.ServerConfig.PrivacySettings.ShowFullName = &test.SettingShowFullName
+			fn := test.SettingShowFullName
+			p.ServerConfig.PrivacySettings.ShowFullName = &fn
 
 			name, err := p.ConvertCreatorIDToDisplayName(test.UserID)
 

@@ -1,16 +1,18 @@
 package plugin
 
 import (
-	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
 // configuration, as well as values computed from the configuration. Any public fields will be
 // deserialized from the Mattermost server configuration in OnConfigurationChange.
 type configuration struct {
-	Trigger        string `json:"trigger"`
-	ExperimentalUI bool   `json:"experimentalui"`
+	Trigger         string          `json:"trigger"`
+	ExperimentalUI  bool            `json:"experimentalui"`
+	DefaultSettings map[string]bool `json:"default_settings"`
 }
 
 // OnConfigurationChange loads the plugin configuration, validates it and saves it.

@@ -11,11 +11,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 
 	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -34,7 +35,7 @@ func TestServeHTTP(t *testing.T) {
 			RequestURL:         "/",
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedHeader:     http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}},
-			ExpectedbodyString: "Thanks for using Matterpoll v" + root.Manifest.Version + "\n",
+			ExpectedbodyString: infoMessage + root.Manifest.Version + "\n",
 		},
 		"InvalidRequestURL": {
 			RequestURL:         "/not_found",
@@ -57,7 +58,7 @@ func TestServeHTTP(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -109,7 +110,7 @@ func TestServeFile(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -152,7 +153,7 @@ func TestHandlePluginConfiguration(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -194,7 +195,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -558,7 +559,7 @@ func TestHandleCreatePoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -606,7 +607,7 @@ func TestHandleVote(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -676,6 +677,14 @@ func TestHandleVote(t *testing.T) {
 	expectedPost7 := &model.Post{}
 	expectedPost7.AddProp("card", poll7Out.ToCard(testutils.GetBundle(), converter))
 	model.ParseSlackAttachment(expectedPost7, poll7Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+
+	poll8In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0})
+	poll8Out := poll8In.Copy()
+	msg, err = poll8Out.UpdateVote("userID2", 0)
+	require.Nil(t, msg)
+	require.Nil(t, err)
+	expectedPost8 := &model.Post{}
+	model.ParseSlackAttachment(expectedPost8, poll8Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	post := &model.Post{
 		ChannelId: "channelID1",
@@ -814,6 +823,33 @@ func TestHandleVote(t *testing.T) {
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   &model.PostActionIntegrationResponse{},
 			ExpectedMsg:        "You could't vote for this option, because you don't have any votes left. Use the reset button to reset your votes.",
+		},
+		"Valid request, with multi setting (--votes=0), first vote": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+					"can_manage_poll":           false,
+					"poll_id":                   testutils.GetPollID(),
+					"user_id":                   "userID2",
+					"voted_answers":             []string{"Answer 1"},
+					"setting_progress":          false,
+					"setting_public_add_option": false,
+				}, &model.WebsocketBroadcast{UserId: "userID2"}).Return()
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll8In.Copy(), nil)
+				store.PollStore.On("Update", poll8In, poll8Out).Return(nil)
+				return store
+			},
+			Request:            &model.PostActionIntegrationRequest{UserId: "userID2", ChannelId: "channelID1", PostId: "postID1"},
+			VoteIndex:          0,
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   &model.PostActionIntegrationResponse{Update: expectedPost8},
+			ExpectedMsg:        "Your vote has been counted. You have 2 votes left.",
 		},
 		"Valid request with vote": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -1052,7 +1088,7 @@ func TestHandleVote(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1106,7 +1142,7 @@ func TestHandleResetVotes(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -1357,7 +1393,7 @@ func TestHandleResetVotes(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1402,7 +1438,7 @@ func TestHandleAddOption(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -1672,7 +1708,7 @@ func TestHandleAddOption(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1723,7 +1759,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2104,7 +2140,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2140,7 +2176,7 @@ func TestHandleEndPoll(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2406,7 +2442,7 @@ func TestHandleEndPoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2444,7 +2480,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2691,7 +2727,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2760,7 +2796,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -3025,7 +3061,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -3061,7 +3097,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -3279,7 +3315,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -3390,7 +3426,7 @@ func TestHandlePollMetadata(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -3408,4 +3444,11 @@ func TestHandlePollMetadata(t *testing.T) {
 			}
 		})
 	}
+}
+
+func closeBody(t testing.TB, c io.Closer) {
+	t.Helper()
+
+	err := c.Close()
+	require.Nil(t, err)
 }

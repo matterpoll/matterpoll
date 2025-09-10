@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 
 	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -21,9 +22,10 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"You can customize the options by typing `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\"`\n" +
 		"Poll Settings provider further customization, e.g. `/poll \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --progress --anonymous`. The available Poll Settings are:\n" +
 		"- `--anonymous`: Don't show who voted for what when the poll ends\n" +
+		"- `--anonymous-creator`: Don't show author of the poll\n" +
 		"- `--progress`: During the poll, show how many votes each answer option got\n" +
 		"- `--public-add-option`: Allow all users to add additional options\n" +
-		"- `--votes=X`: Allow users to vote for X options"
+		"- `--votes=X`: Allow users to vote for X options. Default is 1. If X is 0, users have an unlimited amount of votes."
 	triggerID := model.NewId()
 	rootID := model.NewId()
 
@@ -61,25 +63,35 @@ func TestPluginExecuteCommand(t *testing.T) {
 				Type:        "text",
 				SubType:     "number",
 				Default:     "1",
-				HelpText:    "The number of options that an user can vote on.",
+				HelpText:    "The number of options that a user can vote on. 0 means that users can vote for all options even after adding options.",
 				Optional:    false,
 			}, {
 				DisplayName: "Anonymous",
 				Name:        "setting-anonymous",
 				Type:        "bool",
 				Placeholder: "Don't show who voted for what when the poll ends",
+				Default:     "true",
+				Optional:    true,
+			}, {
+				DisplayName: "Anonymous creator",
+				Name:        "setting-anonymous-creator",
+				Type:        "bool",
+				Placeholder: "Don't show author of the poll",
+				Default:     "false",
 				Optional:    true,
 			}, {
 				DisplayName: "Progress",
 				Name:        "setting-progress",
 				Type:        "bool",
 				Placeholder: "During the poll, show how many votes each answer option got",
+				Default:     "false",
 				Optional:    true,
 			}, {
 				DisplayName: "Public Add Option",
 				Name:        "setting-public-add-option",
 				Type:        "bool",
 				Placeholder: "Allow all users to add additional options",
+				Default:     "true",
 				Optional:    true,
 			}},
 			SubmitLabel: "Create",
@@ -161,6 +173,37 @@ func TestPluginExecuteCommand(t *testing.T) {
 				return store
 			},
 			Command: fmt.Sprintf("/%s \"Question\"", trigger),
+		},
+		"Just question and setting anonymous creator": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
+
+				post := &model.Post{
+					UserId:    testutils.GetBotUserID(),
+					ChannelId: "channelID1",
+					RootId:    rootID,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
+				}
+				poll := testutils.GetPollTwoOptionsWithSettings(poll.Settings{AnonymousCreator: true, MaxVotes: 1})
+				actions := poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "")
+				model.ParseSlackAttachment(post, actions)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				poll := testutils.GetPollTwoOptionsWithSettings(poll.Settings{AnonymousCreator: true, MaxVotes: 1})
+				store.PollStore.On("Insert", poll).Return(nil)
+				return store
+			},
+			Command: fmt.Sprintf("/%s \"Question\" --anonymous-creator", trigger),
 		},
 		"Just question, CreatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -277,6 +320,37 @@ func TestPluginExecuteCommand(t *testing.T) {
 			},
 			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=3", trigger),
 		},
+		"With 4 arguments and multi setting (--votes=0)": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...).Return()
+
+				post := &model.Post{
+					UserId:    testutils.GetBotUserID(),
+					ChannelId: "channelID1",
+					RootId:    rootID,
+					Type:      MatterpollPostType,
+					Props: model.StringInterface{
+						"poll_id": testutils.GetPollID(),
+					},
+				}
+				poll := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0})
+				actions := poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe")
+				model.ParseSlackAttachment(post, actions)
+
+				rPost := post.Clone()
+				rPost.Id = "postID1"
+
+				api.On("CreatePost", post).Return(rPost, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				poll := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0})
+				store.PollStore.On("Insert", poll).Return(nil)
+				return store
+			},
+			Command: fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=0", trigger),
+		},
 		"With 4 arguments and setting anonymous and progress": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
@@ -367,7 +441,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 		"Invalid multi setting, invalid number": {
 			SetupAPI:    func(api *plugintest.API) *plugintest.API { return api },
 			SetupStore:  func(store *mockstore.Store) *mockstore.Store { return store },
-			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=0", trigger),
+			Command:     fmt.Sprintf("/%s \"Question\" \"Answer 1\" \"Answer 2\" \"Answer 3\" --votes=-1", trigger),
 			ShouldError: true,
 		},
 		"Invalid multi setting, exceed number": {
@@ -402,6 +476,7 @@ func TestPluginExecuteCommand(t *testing.T) {
 			defer store.AssertExpectations(t)
 			p := setupTestPlugin(t, api, store)
 			p.configuration.Trigger = trigger
+			p.configuration.DefaultSettings = map[string]bool{"anonymous": true, "publicAddOption": true}
 
 			p.pf.SetNewID(testutils.GetPollID)
 			p.pf.SetMillis(testutils.GetMillis)

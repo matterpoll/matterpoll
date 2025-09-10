@@ -1,7 +1,7 @@
 package testutils
 
 import (
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/matterpoll/matterpoll/server/poll"
 )
@@ -79,6 +79,13 @@ func GetPollWithoutPostID() *poll.Poll {
 // GetPollWithSettings returns a Poll with three Options, no votes and given Poll Settings.
 func GetPollWithSettings(settings poll.Settings) *poll.Poll {
 	poll := GetPoll()
+	poll.Settings = settings
+	return poll
+}
+
+// GetPollTwoOptionsWithSettings returns a Poll with two Options, "Yes" and "No", no votes and given Poll Settings.
+func GetPollTwoOptionsWithSettings(settings poll.Settings) *poll.Poll {
+	poll := GetPollTwoOptions()
 	poll.Settings = settings
 	return poll
 }

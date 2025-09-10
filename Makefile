@@ -52,13 +52,8 @@ ifneq ($(HAS_WEBAPP),)
 endif
 
 ifneq ($(HAS_SERVER),)
-	@if ! [ -x "$$(command -v golangci-lint)" ]; then \
-		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
-		exit 1; \
-	fi; \
-
 	@echo Running golangci-lint
-	golangci-lint run ./...
+	go tool golangci-lint run ./...
 endif
 
 ## Builds the server, if it exists, for all supported architectures, unless MM_SERVICESETTINGS_ENABLEDEVELOPER is set.
@@ -254,6 +249,14 @@ ifneq ($(HAS_WEBAPP),)
 	rm -fr webapp/node_modules
 endif
 	rm -fr build/bin/
+
+.PHONY: logs
+logs:
+	./build/bin/pluginctl logs $(PLUGIN_ID)
+
+.PHONY: logs-watch
+logs-watch:
+	./build/bin/pluginctl logs-watch $(PLUGIN_ID)
 
 # Help documentation à la https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help:

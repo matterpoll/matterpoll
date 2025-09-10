@@ -14,7 +14,7 @@ Matterpoll is a plugin for [Mattermost](https://mattermost.com/). It allows user
 
 1. Download `com.github.matterpoll.matterpoll-x.y.z.tar.gz` from https://github.com/matterpoll/matterpoll/releases.
 2. Upload `com.github.matterpoll.matterpoll-x.y.z.tar.gz` file through **System Console > Plugins > Plugin Management > Upload Plugin** in Mattermost and enable the plugin.
-   * Upgrades can be performed by uploading the lastest release and confirm overwriting of the duplicate plugin ID.
+   * Upgrades can be performed by uploading the latest release and confirming overwriting of the duplicate plugin ID.
 
 
 ## Settings
@@ -24,6 +24,7 @@ You can configure Matterpoll from **System Console > Plugins > Matterpoll**.
 * **Experimental UI**: Enable new experimental UI for poll posts:
   - Change button color of voted answers
   - Hide poll management buttons (Add Option / Delete Poll / End Poll) from users who don't have permission
+* **Default Settings**: Choose settings, that will be pre-selected in 'Create Poll' dialog. Settings will not be applied to `/poll` command.
 
 Note: **Experimental UI** is not supported in Mattermost Mobile due to its limited support for plugin extension ([ref](https://github.com/mattermost/mattermost-mobile/issues/3883#issuecomment-1148519369)).
 
@@ -33,7 +34,7 @@ Note: **Experimental UI** is not supported in Mattermost Mobile due to its limit
 
 If you want to define all answer options by yourself, type `/poll "Is Matterpoll great?" "Of course" "In any case" "Definitely"`- Note that the double quotes are required in this case.
 
-`/poll` show up a modal for creating a poll.
+`/poll` shows a modal for creating a poll.
 
 ### Poll Settings
 
@@ -41,11 +42,11 @@ Poll Settings provide further customisation, e.g. `/poll "Is Matterpoll great?" 
 - `--anonymous`: Don't show who voted for what at the end
 - `--progress`: During the poll, show how many votes each answer option got and, in post card, show who voted for which answers ([#431](https://github.com/matterpoll/matterpoll/pull/431))
 - `--public-add-option`: Allow all users to add additional options
-- `--votes=X`: Allow users to vote for X options
+- `--votes=X`: Allow users to vote for X options. Default is 1. If X is 0, users have an unlimited amount of votes.
 
 ## Localization
 
-Matterpoll supports localization of user specify messages. You can change language of poll message by setting it in **System Console > Site Configuration > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Settings > Display > Language**.
+Matterpoll supports localization of user-specified messages. You can change the language of poll messages by setting it in **System Console > Site Configuration > Localization > Default Server Language**. Language of messages that only a user can see (e.g.: help messages, error messages) use the language set in **Settings > Display > Language**.
 
 The currently supported languages are:
 - English
@@ -57,6 +58,7 @@ The currently supported languages are:
 - Russian
 - Simplified Chinese
 - Spanish
+- Swedish
 - Traditional Chinese
 
 

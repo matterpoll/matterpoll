@@ -10,10 +10,11 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
 
 	root "github.com/matterpoll/matterpoll"
 	"github.com/matterpoll/matterpoll/server/poll"
@@ -24,6 +25,8 @@ const (
 
 	addOptionKey = "answerOption"
 	questionKey  = "question"
+
+	infoMessage = "Thanks for using Matterpoll v"
 )
 
 type (
@@ -92,13 +95,13 @@ func (p *MatterpollPlugin) InitAPI() *mux.Router {
 	return r
 }
 
-func (p *MatterpollPlugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.API.LogDebug("New request:", "Host", r.Host, "RequestURI", r.RequestURI, "Method", r.Method)
 	p.router.ServeHTTP(w, r)
 }
 
 func (p *MatterpollPlugin) handleInfo(w http.ResponseWriter, _ *http.Request) {
-	_, _ = io.WriteString(w, "Thanks for using Matterpoll v"+root.Manifest.Version+"\n")
+	_, _ = io.WriteString(w, infoMessage+root.Manifest.Version+"\n")
 }
 
 func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +116,7 @@ func (p *MatterpollPlugin) handleLogo(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join(bundlePath, "assets", iconFilename))
 }
 
-func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, r *http.Request) {
+func (p *MatterpollPlugin) handlePluginConfiguration(w http.ResponseWriter, _ *http.Request) {
 	configuration := p.getConfiguration()
 
 	w.Header().Set("Content-Type", "application/json")
@@ -392,10 +395,15 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
 	}
 
+	// Multi Answer Mode
 	if poll.IsMultiVote() {
-		// Multi Answer Mode
+		var remains int
 		votedAnswers := poll.GetVotedAnswers(userID)
-		remains := poll.Settings.MaxVotes - len(votedAnswers)
+		if poll.Settings.MaxVotes == 0 {
+			remains = len(poll.AnswerOptions) - len(votedAnswers)
+		} else {
+			remains = poll.Settings.MaxVotes - len(votedAnswers)
+		}
 		return &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "response.vote.multi.updated",
