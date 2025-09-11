@@ -1,8 +1,6 @@
 module github.com/matterpoll/matterpoll
 
-go 1.24
-
-toolchain go1.24.1
+go 1.24.1
 
 require (
 	github.com/blang/semver/v4 v4.0.0
