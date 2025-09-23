@@ -72,7 +72,7 @@ func TestParseInput(t *testing.T) {
 			ExpectedOptions:  []string{`Choice A`, `Choice B`},
 			ExpectedSettings: []string{},
 		},
-		"With backlash": {
+		"With backslash": {
 			Input:            `/poll "A" "B\\C" "D\\E"`,
 			Trigger:          "poll",
 			ExpectedQuestion: `A`,
