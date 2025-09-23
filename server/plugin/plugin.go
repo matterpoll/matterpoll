@@ -41,6 +41,8 @@ type MatterpollPlugin struct {
 
 	// getIconData provides access to command.GetIconData in a way that is mockable for unit testing.
 	getIconData func() (string, error)
+
+	pf poll.Factory
 }
 
 var botDescription = &i18n.Message{

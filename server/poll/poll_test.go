@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	mpatch "github.com/undefinedlabs/go-mpatch"
 
 	"github.com/mattermost/mattermost/server/public/model"
 
@@ -15,11 +14,9 @@ import (
 )
 
 func TestNewPoll(t *testing.T) {
-	var createdAt int64 = 1234567890
-	patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return createdAt })
-	patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-	defer func() { require.NoError(t, patch1.Unpatch()) }()
-	defer func() { require.NoError(t, patch2.Unpatch()) }()
+	var pf poll.Factory
+	pf.SetMillis(testutils.GetMillis)
+	pf.SetNewID(testutils.GetPollID)
 
 	creator := model.NewRandomString(10)
 	question := model.NewRandomString(10)
@@ -66,7 +63,7 @@ func TestNewPoll(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
-			p, err := poll.NewPoll(creator, question, test.Options, test.Settings)
+			p, err := pf.NewPoll(creator, question, test.Options, test.Settings)
 
 			if test.ShouldError {
 				assert.Nil(p)
@@ -75,7 +72,7 @@ func TestNewPoll(t *testing.T) {
 				assert.Nil(err)
 				assert.NotNil(p)
 				assert.Equal(testutils.GetPollID(), p.ID)
-				assert.Equal(createdAt, p.CreatedAt)
+				assert.Equal(testutils.GetMillis(), p.CreatedAt)
 				assert.Equal(creator, p.Creator)
 				assert.Equal(question, p.Question)
 

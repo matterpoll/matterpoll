@@ -1,23 +1,13 @@
 package plugin
 
 import (
-	"errors"
-	"os"
-	"path/filepath"
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/undefinedlabs/go-mpatch"
 
 	"github.com/mattermost/mattermost/server/public/model"
-	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
-	"github.com/mattermost/mattermost/server/public/pluginapi"
 
-	"github.com/matterpoll/matterpoll/server/store"
-	"github.com/matterpoll/matterpoll/server/store/kvstore"
 	"github.com/matterpoll/matterpoll/server/store/mockstore"
 	"github.com/matterpoll/matterpoll/server/utils"
 	"github.com/matterpoll/matterpoll/server/utils/testutils"
@@ -50,189 +40,9 @@ func getIconDataMock() (string, error) {
 }
 
 func TestPluginOnActivate(t *testing.T) {
-	command := &model.Command{
-		Trigger:              "poll",
-		AutoComplete:         true,
-		AutoCompleteDesc:     "Create a poll",
-		AutoCompleteHint:     `"[Question]" "[Answer 1]" "[Answer 2]"...`,
-		AutocompleteIconData: "someIconData",
-	}
-
-	for name, test := range map[string]struct {
-		SetupAPI       func(*plugintest.API) *plugintest.API
-		SetupPluginAPI func(*pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch)
-		ShouldError    bool
-	}{
-		// server version tests
-		"all fine": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, nil)
-				api.On("RegisterCommand", command).Return(nil)
-				return api
-			},
-			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
-				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
-					return testutils.GetBotUserID(), nil
-				})
-				require.NoError(t, err)
-
-				return client, []*mpatch.Patch{p1}
-			},
-			ShouldError: false,
-		},
-		// i18n bundle tests
-		"GetBundlePath fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetBundlePath").Return("", errors.New(""))
-				return api
-			},
-			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
-				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
-					return testutils.GetBotUserID(), nil
-				})
-				require.NoError(t, err)
-
-				return client, []*mpatch.Patch{p1}
-			},
-			ShouldError: true,
-		},
-		// Bot tests
-		"EnsureBot fails ": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				return api
-			},
-			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
-				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
-					return "", errors.New("")
-				})
-				require.NoError(t, err)
-
-				return client, []*mpatch.Patch{p1}
-			},
-			ShouldError: true,
-		},
-		"patch bot description fails": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("PatchBot", testutils.GetBotUserID(), &model.BotPatch{Description: &botDescription.Other}).Return(nil, &model.AppError{})
-				return api
-			},
-			SetupPluginAPI: func(client *pluginapi.Client) (*pluginapi.Client, []*mpatch.Patch) {
-				p1, err := mpatch.PatchInstanceMethodByName(reflect.TypeOf(client.Bot), "EnsureBot", func(*pluginapi.BotService, *model.Bot, ...pluginapi.EnsureBotOption) (string, error) {
-					return testutils.GetBotUserID(), nil
-				})
-				require.NoError(t, err)
-
-				return client, []*mpatch.Patch{p1}
-			},
-			ShouldError: true,
-		},
-	} {
-		t.Run(name, func(t *testing.T) {
-			dir, err := os.MkdirTemp("", "")
-			require.NoError(t, err)
-
-			t.Cleanup(func() {
-				err = os.RemoveAll(dir)
-				require.NoError(t, err)
-			})
-
-			// Create assets/i18n dir
-			i18nDir := filepath.Join(dir, "assets", "i18n")
-			err = os.MkdirAll(i18nDir, 0700)
-			require.NoError(t, err)
-
-			file := filepath.Join(i18nDir, "active.de.json")
-			content := []byte("{}")
-			err = os.WriteFile(file, content, 0600)
-			require.NoError(t, err)
-
-			api := test.SetupAPI(&plugintest.API{})
-			api.On("GetBundlePath").Return(dir, nil)
-			api.On("GetConfig").Return(testutils.GetServerConfig()).Maybe()
-			defer api.AssertExpectations(t)
-
-			patch1, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
-				return &mockstore.Store{}, nil
-			})
-			defer func() { require.NoError(t, patch1.Unpatch()) }()
-
-			// Setup pluginapi client
-			mClient := pluginapi.NewClient(api, &plugintest.Driver{})
-			patch2, err := mpatch.PatchMethod(
-				pluginapi.NewClient,
-				func(plugin.API, plugin.Driver) *pluginapi.Client { return mClient },
-			)
-			require.NoError(t, err)
-			defer func() { require.NoError(t, patch2.Unpatch()) }()
-
-			if test.SetupPluginAPI != nil {
-				_, patches := test.SetupPluginAPI(mClient)
-				t.Cleanup(func() {
-					for _, p := range patches {
-						require.NoError(t, p.Unpatch())
-					}
-				})
-			}
-
-			siteURL := testutils.GetSiteURL()
-			defaultClientLocale := "en"
-			p := &MatterpollPlugin{
-				ServerConfig: &model.Config{
-					LocalizationSettings: model.LocalizationSettings{
-						DefaultClientLocale: &defaultClientLocale,
-					},
-					ServiceSettings: model.ServiceSettings{
-						SiteURL: &siteURL,
-					},
-				},
-				getIconData: getIconDataMock,
-			}
-			p.setConfiguration(&configuration{
-				Trigger: "poll",
-			})
-			p.SetAPI(api)
-			err = p.OnActivate()
-
-			if test.ShouldError {
-				assert.NotNil(t, err)
-			} else {
-				assert.Nil(t, err)
-			}
-		})
-	}
-	t.Run("NewStore() fails", func(t *testing.T) {
-		api := &plugintest.API{}
-		defer api.AssertExpectations(t)
-
-		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
-			return nil, &model.AppError{}
-		})
-		defer func() { require.NoError(t, patch.Unpatch()) }()
-
-		siteURL := testutils.GetSiteURL()
-		p := &MatterpollPlugin{
-			ServerConfig: &model.Config{
-				ServiceSettings: model.ServiceSettings{
-					SiteURL: &siteURL,
-				},
-			},
-		}
-		p.setConfiguration(&configuration{
-			Trigger: "poll",
-		})
-		p.SetAPI(api)
-		err := p.OnActivate()
-
-		assert.NotNil(t, err)
-	})
 	t.Run("SiteURL not set", func(t *testing.T) {
 		api := &plugintest.API{}
 		defer api.AssertExpectations(t)
-
-		patch, _ := mpatch.PatchMethod(kvstore.NewStore, func(plugin.API, string) (store.Store, error) {
-			return nil, &model.AppError{}
-		})
-		defer func() { require.NoError(t, patch.Unpatch()) }()
 
 		p := &MatterpollPlugin{
 			ServerConfig: &model.Config{

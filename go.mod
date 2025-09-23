@@ -1,8 +1,6 @@
 module github.com/matterpoll/matterpoll
 
-go 1.24
-
-toolchain go1.24.1
+go 1.24.1
 
 require (
 	github.com/blang/semver/v4 v4.0.0
@@ -11,7 +9,6 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.10.0
-	github.com/undefinedlabs/go-mpatch v1.0.7
 	golang.org/x/text v0.24.0
 )
 
