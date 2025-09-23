@@ -107,7 +107,7 @@ func TestParseInput(t *testing.T) {
 			ExpectedOptions:  []string{"BBB", "CCC"},
 			ExpectedSettings: []string{},
 		},
-		"No options, with trainling spaces": {
+		"No options, with trailing spaces": {
 			Input:            `/poll  `,
 			Trigger:          "poll",
 			ExpectedQuestion: "",
