@@ -186,7 +186,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "endPoll",
 					Name:  "End Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -194,7 +194,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "deletePoll",
 					Name:  "Delete Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "danger",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -252,7 +252,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "endPoll",
 					Name:  "End Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -260,7 +260,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "deletePoll",
 					Name:  "Delete Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "danger",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -318,7 +318,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "endPoll",
 					Name:  "End Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -326,7 +326,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "deletePoll",
 					Name:  "Delete Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "danger",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -384,7 +384,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "endPoll",
 					Name:  "End Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -392,7 +392,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "deletePoll",
 					Name:  "Delete Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "danger",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -450,7 +450,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "endPoll",
 					Name:  "End Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -458,7 +458,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "deletePoll",
 					Name:  "Delete Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "danger",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -516,7 +516,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "endPoll",
 					Name:  "End Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -524,7 +524,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "deletePoll",
 					Name:  "Delete Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "danger",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -582,7 +582,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "endPoll",
 					Name:  "End Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
@@ -590,7 +590,7 @@ func TestPollToPostActions(t *testing.T) {
 				}, {
 					Id:    "deletePoll",
 					Name:  "Delete Poll",
-					Type:  poll.MatterpollAdminButtonType,
+					Type:  model.PostActionTypeButton,
 					Style: "danger",
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),

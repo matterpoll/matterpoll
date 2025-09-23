@@ -49,7 +49,7 @@
   },
   "command.help.text.pollSetting.multi-vote": {
     "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
-    "other": "Tillåt användare att rösta på X alternativ"
+    "other": "Tillåt användare att rösta på X alternativ. Standard är 1. Om X är 0 kan användare rösta på alla alternativ."
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -93,7 +93,7 @@
   },
   "dialog.createPoll.setting.multi": {
     "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
-    "other": "Antalet alternativ som en användare kan rösta på."
+    "other": "Antalet alternativ som en användare kan rösta på. 0 betyder att användare kan rösta på alla alternativ."
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -141,7 +141,7 @@
     "one": "{{.Answer}} ({{.Count}} röst)",
     "other": "{{.Answer}} ({{.Count}} röster)"
   },
-  "poll.endPost.seperator": {
+  "poll.endPost.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "och"
   },
@@ -168,7 +168,7 @@
   },
   "poll.newPoll.votesettings.invalidSetting": {
     "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
-    "other": "Antalet röster måste vara ett positivt tal och mindre än eller lika med antalet alternativ. Du angav \"{{.MaxVotes}}\", men antalet alternativ är \"{{.Options}}\"."
+    "other": "Antalet röster måste vara 0 eller ett positivt tal, och måste vara mindre än eller lika med antalet alternativ. Du angav \"{{.MaxVotes}}\", men antalet alternativ är \"{{.Options}}\"."
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
@@ -236,7 +236,7 @@
     "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
     "other": "Skapad av"
   },
-  "rhs.card.poll.voter.seperator": {
+  "rhs.card.poll.voter.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "och"
   }

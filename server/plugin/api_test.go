@@ -14,7 +14,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"github.com/undefinedlabs/go-mpatch"
 
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
@@ -59,7 +58,7 @@ func TestServeHTTP(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -111,7 +110,7 @@ func TestServeFile(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -154,7 +153,7 @@ func TestHandlePluginConfiguration(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -196,7 +195,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -542,11 +541,8 @@ func TestHandleCreatePoll(t *testing.T) {
 			store := test.SetupStore(&mockstore.Store{})
 			defer store.AssertExpectations(t)
 			p := setupTestPlugin(t, api, store)
-
-			patch1, _ := mpatch.PatchMethod(model.GetMillis, func() int64 { return 1234567890 })
-			patch2, _ := mpatch.PatchMethod(model.NewId, testutils.GetPollID)
-			defer func() { require.NoError(t, patch1.Unpatch()) }()
-			defer func() { require.NoError(t, patch2.Unpatch()) }()
+			p.pf.SetNewID(testutils.GetPollID)
+			p.pf.SetMillis(testutils.GetMillis)
 
 			w := httptest.NewRecorder()
 			url := "/api/v1/polls/create"
@@ -563,7 +559,7 @@ func TestHandleCreatePoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -611,7 +607,7 @@ func TestHandleVote(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -1092,7 +1088,7 @@ func TestHandleVote(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1146,7 +1142,7 @@ func TestHandleResetVotes(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -1397,7 +1393,7 @@ func TestHandleResetVotes(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1442,7 +1438,7 @@ func TestHandleAddOption(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -1712,7 +1708,7 @@ func TestHandleAddOption(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -1763,7 +1759,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2144,7 +2140,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2180,7 +2176,7 @@ func TestHandleEndPoll(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2446,7 +2442,7 @@ func TestHandleEndPoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2484,7 +2480,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -2731,7 +2727,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -2800,7 +2796,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 		result := w.Result()
 		require.NotNil(t, result)
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -3065,7 +3061,7 @@ func TestHandleDeletePoll(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -3101,7 +3097,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, url, body)
 		p.ServeHTTP(nil, w, r)
 		result := w.Result()
-		defer result.Body.Close()
+		defer closeBody(t, result.Body)
 
 		assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
 	})
@@ -3319,7 +3315,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 
@@ -3430,7 +3426,7 @@ func TestHandlePollMetadata(t *testing.T) {
 
 			result := w.Result()
 			require.NotNil(t, result)
-			defer result.Body.Close()
+			defer closeBody(t, result.Body)
 
 			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
@@ -3448,4 +3444,11 @@ func TestHandlePollMetadata(t *testing.T) {
 			}
 		})
 	}
+}
+
+func closeBody(t testing.TB, c io.Closer) {
+	t.Helper()
+
+	err := c.Close()
+	require.Nil(t, err)
 }

@@ -11,11 +11,6 @@ import (
 	"github.com/matterpoll/matterpoll/server/utils"
 )
 
-const (
-	// MatterpollAdminButtonType is action_type of buttons that are used for managing a poll.
-	MatterpollAdminButtonType = "custom_matterpoll_admin_button"
-)
-
 // IDToNameConverter converts a given userID to a human readable name.
 type IDToNameConverter func(userID string) (string, *model.AppError)
 
@@ -40,8 +35,8 @@ var (
 		ID:    "poll.endPost.text",
 		Other: "This poll has ended. The results are:",
 	}
-	pollEndPostSeperator = &i18n.Message{
-		ID:    "poll.endPost.seperator",
+	pollEndPostSeparator = &i18n.Message{
+		ID:    "poll.endPost.separator",
 		Other: "and",
 	}
 	pollEndPostAnswerHeading = &i18n.Message{
@@ -51,8 +46,8 @@ var (
 		Many:  "{{.Answer}} ({{.Count}} votes)",
 		Other: "{{.Answer}} ({{.Count}} votes)",
 	}
-	rhsCardPollVoterSeperator = &i18n.Message{
-		ID:    "rhs.card.poll.voter.seperator",
+	rhsCardPollVoterSeparator = &i18n.Message{
+		ID:    "rhs.card.poll.voter.separator",
 		Other: "and",
 	}
 	rhsCardPollCreatedBy = &i18n.Message{
@@ -133,7 +128,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 				ID:    "poll.button.endPoll",
 				Other: "End Poll",
 			}}),
-			Type:  MatterpollAdminButtonType,
+			Type:  model.PostActionTypeButton,
 			Style: "primary",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/end", pluginID, p.ID),
@@ -144,7 +139,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 				ID:    "poll.button.deletePoll",
 				Other: "Delete Poll",
 			}}),
-			Type:  MatterpollAdminButtonType,
+			Type:  model.PostActionTypeButton,
 			Style: "danger",
 			Integration: &model.PostActionIntegration{
 				URL: fmt.Sprintf("/plugins/%s/api/v1/polls/%s/delete", pluginID, p.ID),
@@ -211,7 +206,7 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 					return nil, err
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeperator}) + " "
+					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeparator}) + " "
 				} else if i != 0 {
 					voter += ", "
 				}
@@ -269,7 +264,7 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 					return ""
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeperator}) + " "
+					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeparator}) + " "
 				} else if i != 0 {
 					voter += comma
 				}

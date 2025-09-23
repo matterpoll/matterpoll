@@ -53,11 +53,45 @@ type Settings struct {
 	MaxVotes         int `json:"max_votes"`
 }
 
+// Factory is used to create a new [Poll].
+type Factory struct {
+	newID     func() string
+	getMillis func() int64
+}
+
+func (fac *Factory) NewID() string {
+	if fac.newID != nil {
+		return fac.newID()
+	}
+
+	return model.NewId()
+}
+
+// SetNewID allows overwritting the function used to generate new poll IDs.
+// It only use is for testing.
+func (fac *Factory) SetNewID(f func() string) {
+	fac.newID = f
+}
+
+func (fac *Factory) Millis() int64 {
+	if fac.getMillis != nil {
+		return fac.getMillis()
+	}
+
+	return model.GetMillis()
+}
+
+// SetMillis allows overwritting the function used to fetch the current time.
+// It only use is for testing.
+func (fac *Factory) SetMillis(f func() int64) {
+	fac.getMillis = f
+}
+
 // NewPoll creates a new poll with the given parameter.
-func NewPoll(creator, question string, answerOptions []string, settings Settings) (*Poll, *utils.ErrorMessage) {
+func (fac *Factory) NewPoll(creator, question string, answerOptions []string, settings Settings) (*Poll, *utils.ErrorMessage) {
 	p := Poll{
-		ID:        model.NewId(),
-		CreatedAt: model.GetMillis(),
+		ID:        fac.NewID(),
+		CreatedAt: fac.Millis(),
 		Creator:   creator,
 		Question:  question,
 		Settings:  settings,

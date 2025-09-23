@@ -48,8 +48,8 @@
     "other": "你可以按：`/{{.Trigger}} \"問題\" \"選項1\" \"選項2\" \"選項3\"` --progress --anonymous` 的方式進行輸入，自行定義投票的回答選項。"
   },
   "command.help.text.pollSetting.multi-vote": {
-    "hash": "sha1-aadf6806b8899a61f1e79282e0f981f30b369634",
-    "other": "允許使用者選擇多個選項"
+    "hash": "sha1-8848f6b6a03f323a14609708897824ad178d2dd8",
+    "other": "允許使用者選擇 X 個選項，預設為 1。如果 X 為 0，則使用者可選項目不受限"
   },
   "command.help.text.pollSetting.progress": {
     "hash": "sha1-9b8deba20f6a2fc6221841de9db19c903d28f97f",
@@ -92,8 +92,8 @@
     "other": "問題"
   },
   "dialog.createPoll.setting.multi": {
-    "hash": "sha1-2620d65ec5d950990264c88b2ce52717948d269b",
-    "other": "使用者最多可以投的票數。"
+    "hash": "sha1-6c12940d577520c0ec5547ff9199ec775099a72d",
+    "other": "使用者可選的選項數量。當設定為 0 則使用者可選項目不受限(包含後續新增的選項)。"
   },
   "dialog.delete.submitLabel": {
     "hash": "sha1-f6fdbe48dc54dd86f63097a03bd24094dedd713a",
@@ -139,7 +139,7 @@
     "hash": "sha1-46743e9dbbeec0c43d16fe387735cf95c2e27abb",
     "other": "{{.Answer}} (投票數 {{.Count}})"
   },
-  "poll.endPost.seperator": {
+  "poll.endPost.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "與"
   },
@@ -164,8 +164,8 @@
     "other": "無效的投票設定： {{.Setting}}"
   },
   "poll.newPoll.votesettings.invalidSetting": {
-    "hash": "sha1-bf96d6b01204be0f86727d2253d235272e177ded",
-    "other": "可投票的次數必須是一個小於等於投票選項數的正整數。您設定的次數為\"{{.MaxVotes}}\"，投票選項數為 \"{{.Options}}\" 。"
+    "hash": "sha1-c425923300c965704b61c6f467635d3ee2026339",
+    "other": "可選數量必須為 0 或正數，且不可超過選項數量。您指定的可選數量為 \"{{.MaxVotes}}\"，而選項數量為 \"{{.Options}}\"。"
   },
   "poll.newPoll.votesettings.unexpectedError": {
     "hash": "sha1-e9d86776544f9cf7effd6db84f9e988b6fbccd29",
@@ -231,7 +231,7 @@
     "hash": "sha1-5d73cc30510c739ed68c572c5199e106d325b648",
     "other": "建立者"
   },
-  "rhs.card.poll.voter.seperator": {
+  "rhs.card.poll.voter.separator": {
     "hash": "sha1-cffa50a32cb13a240d705317bcec65dd1f31b6ad",
     "other": "和"
   }
