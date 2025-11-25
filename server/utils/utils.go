@@ -1,14 +1,12 @@
 package utils
 
 import (
-	"fmt"
 	"strings"
+	"unicode"
 )
 
 // ParseInput pares a given input and tries to extract the poll question and poll options
 func ParseInput(input, trigger string) (string, []string, []string) {
-	settings := []string{}
-
 	// Transform curly quotes to straight quotes
 	input = strings.Map(func(in rune) rune {
 		switch in {
@@ -20,32 +18,67 @@ func ParseInput(input, trigger string) (string, []string, []string) {
 	}, input)
 
 	// Remove Trigger prefix and spaces
-	in := strings.TrimSpace(strings.TrimPrefix(input, fmt.Sprintf("/%s", trigger)))
-	// Remove first "
-	in = strings.TrimLeft(in, `"`)
+	input = strings.TrimSpace(strings.TrimPrefix(input, "/"+trigger))
 
-	// Split between options
-	split := strings.Split(in, `" "`)
-	lastIndex := len(split) - 1
+	// If there are no quotes, according to the documentation
+	// the input is interpreted as a single question...
+	if !strings.Contains(input, `"`) {
+		return input, []string{}, []string{}
+	}
 
-	// Everything behind the last " are  Settings
-	l := strings.Split(split[lastIndex], string('"'))
-	split[lastIndex] = l[0]
-	if len(l) == 2 && l[1] != "" {
-		ops := strings.TrimPrefix(strings.TrimSpace(l[1]), "--")
-		// Split between Settings
-		opsList := strings.Split(ops, "--")
-		for i := 0; i < len(opsList); i++ {
-			s := strings.TrimSpace(opsList[i])
-			settings = append(settings, s)
+	settings := []string{}
+	var fields []string
+
+	escaped := false
+	quoted := false
+	tainted := false // a tainted word cannot be a setting name
+	var word string
+
+	addField := func() {
+		word = strings.TrimSpace(word)
+		if len(word) == 0 {
+			return
 		}
+		if !tainted && len(word) > 2 && strings.HasPrefix(word, "--") {
+			settings = append(settings, word[2:])
+		} else {
+			fields = append(fields, word)
+		}
+		word = ""
+		tainted = false
 	}
 
-	// Unescape " in question and options
-	question := strings.ReplaceAll(split[0], `\"`, `"`)
-	options := split[1:]
-	for i := 0; i < len(options); i++ {
-		options[i] = strings.ReplaceAll(options[i], `\"`, `"`)
+	for _, c := range input {
+		switch {
+		case c == '"':
+			if escaped {
+				word += string(c)
+			} else {
+				if quoted {
+					quoted = false
+				} else {
+					quoted = true
+				}
+			}
+			tainted = true
+		case c == '\\':
+			if escaped {
+				word += `\`
+			}
+			tainted = true
+		case unicode.IsSpace(c) && !quoted && !escaped:
+			addField() // End of word
+		default:
+			word += string(c)
+		}
+		escaped = c == '\\' && !escaped
 	}
-	return question, options, settings
+	if len(word) > 0 {
+		addField() // Add last field
+	}
+
+	if len(fields) == 0 {
+		return "", []string{}, settings // Question is missing
+	}
+	return fields[0], fields[1:], settings
 }
