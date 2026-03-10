@@ -338,7 +338,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 		},
 	}
 
-	model.ParseSlackAttachment(post, actions)
+	model.ParseMessageAttachment(post, actions)
 	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
 	}
@@ -389,7 +389,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
-	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
+	model.ParseMessageAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
 	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
@@ -467,7 +467,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	go p.publishPollMetadata(poll, userID)
 
 	post := &model.Post{}
-	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
+	model.ParseMessageAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
 	post.AddProp("poll_id", poll.ID)
 	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
@@ -577,7 +577,7 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 		return nil, response, nil
 	}
 
-	model.ParseSlackAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
+	model.ParseMessageAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
 	if poll.Settings.Progress {
 		post.AddProp("card", poll.ToCard(p.bundle, p.ConvertUserIDToDisplayName))
 	}
