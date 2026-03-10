@@ -3,8 +3,8 @@
   "scripts": {
     "build": "webpack --mode=production",
     "build:watch": "webpack --mode=production --watch",
-    "debug": "webpack --mode=none",
-    "debug:watch": "webpack --mode=development --watch",
+    "debug": "webpack",
+    "debug:watch": "webpack --watch",
     "lint": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx --ext tsx --ext ts . --quiet --cache",
     "fix": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx --ext tsx --ext ts . --quiet --fix --cache",
     "test": "jest --forceExit --detectOpenHandles --verbose",
@@ -82,6 +82,7 @@
     "invert-color": "2.0.0",
     "marked": "github:mattermost/marked#2ef7f28cc7718e3f551c4ce9ea75fdd7580c2008",
     "mattermost-webapp": "github:mattermost/mattermost-webapp#6dcac2993000139f19c1b018f7fa6b9266973918",
+    "process": "0.11.10",
     "react": "^16.14.0",
     "react-redux": "8.0.2",
     "redux": "4.2.0",
