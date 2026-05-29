@@ -64,7 +64,7 @@ var (
 )
 
 // ToPostActions returns the poll as a message
-func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) []*model.SlackAttachment {
+func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) []*model.MessageAttachment {
 	localizer := bundle.GetServerLocalizer()
 	numberOfVotes := 0
 	voters := make(map[string]struct{})
@@ -151,7 +151,7 @@ func (p *Poll) ToPostActions(bundle *utils.Bundle, pluginID, authorName string) 
 		authorName = ""
 	}
 
-	return []*model.SlackAttachment{{
+	return []*model.MessageAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
 		Text:       p.makeAdditionalText(bundle, numberOfVotes, len(voters)),
@@ -195,7 +195,7 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert IDToNameConverter) (*model.Post, *model.AppError) {
 	localizer := bundle.GetServerLocalizer()
 	post := &model.Post{}
-	fields := []*model.SlackAttachmentField{}
+	fields := []*model.MessageAttachmentField{}
 
 	for _, o := range p.AnswerOptions {
 		var voter string
@@ -214,7 +214,7 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 			}
 		}
 
-		fields = append(fields, &model.SlackAttachmentField{
+		fields = append(fields, &model.MessageAttachmentField{
 			Short: true,
 			Title: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 				DefaultMessage: pollEndPostAnswerHeading,
@@ -232,14 +232,14 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 		authorName = ""
 	}
 
-	attachments := []*model.SlackAttachment{{
+	attachments := []*model.MessageAttachment{{
 		AuthorName: authorName,
 		Title:      p.Question,
 		Text:       bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostText}),
 		Fields:     fields,
 	}}
 
-	model.ParseSlackAttachment(post, attachments)
+	model.ParseMessageAttachment(post, attachments)
 
 	return post, nil
 }

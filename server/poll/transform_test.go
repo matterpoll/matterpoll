@@ -31,15 +31,15 @@ func TestPollToEndPollPost(t *testing.T) {
 
 	for name, test := range map[string]struct {
 		Poll                *poll.Poll
-		ExpectedAttachments []*model.SlackAttachment
+		ExpectedAttachments []*model.MessageAttachment
 	}{
 		"Normal poll": {
 			Poll: testutils.GetPollWithVotes(),
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "This poll has ended. The results are:",
-				Fields: []*model.SlackAttachmentField{{
+				Fields: []*model.MessageAttachmentField{{
 					Title: "Answer 1 (3 votes)",
 					Value: "@user1, @user2 and @user3",
 					Short: true,
@@ -56,11 +56,11 @@ func TestPollToEndPollPost(t *testing.T) {
 		},
 		"Anonymous poll": {
 			Poll: testutils.GetPollWithVotesAndSettings(poll.Settings{Anonymous: true}),
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "This poll has ended. The results are:",
-				Fields: []*model.SlackAttachmentField{{
+				Fields: []*model.MessageAttachmentField{{
 					Title: "Answer 1 (3 votes)",
 					Value: "",
 					Short: true,
@@ -77,11 +77,11 @@ func TestPollToEndPollPost(t *testing.T) {
 		},
 		"Anonymous creator poll": {
 			Poll: testutils.GetPollWithVotesAndSettings(poll.Settings{AnonymousCreator: true}),
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "",
 				Title:      "Question",
 				Text:       "This poll has ended. The results are:",
-				Fields: []*model.SlackAttachmentField{{
+				Fields: []*model.MessageAttachmentField{{
 					Title: "Answer 1 (3 votes)",
 					Value: "@user1, @user2 and @user3",
 					Short: true,
@@ -99,7 +99,7 @@ func TestPollToEndPollPost(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			expectedPost := &model.Post{}
-			model.ParseSlackAttachment(expectedPost, test.ExpectedAttachments)
+			model.ParseMessageAttachment(expectedPost, test.ExpectedAttachments)
 
 			post, err := test.Poll.ToEndPollPost(testutils.GetBundle(), "John Doe", converter)
 
@@ -143,11 +143,11 @@ func TestPollToPostActions(t *testing.T) {
 
 	for name, test := range map[string]struct {
 		Poll                *poll.Poll
-		ExpectedAttachments []*model.SlackAttachment
+		ExpectedAttachments []*model.MessageAttachment
 	}{
 		"Two options": {
 			Poll: testutils.GetPollTwoOptions(),
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Total votes**: 0",
@@ -205,7 +205,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 		"Multiple questions, settings: progress": {
 			Poll: testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1}),
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: progress\n**Total votes**: 0",
@@ -271,7 +271,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 		"Multiple questions, settings: anonymous, public-add-option": {
 			Poll: testutils.GetPollWithSettings(poll.Settings{Anonymous: true, PublicAddOption: true, MaxVotes: 1}),
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: anonymous, public-add-option\n**Total votes**: 0",
@@ -337,7 +337,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 		"Multipile questions, settings: anonymous, anonymous-creator": {
 			Poll: testutils.GetPollWithSettings(poll.Settings{Anonymous: true, AnonymousCreator: true, MaxVotes: 1}),
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: anonymous, anonymous-creator\n**Total votes**: 0",
@@ -403,7 +403,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 		"Multipile questions, settings: votes=3": {
 			Poll: pollWithMulti,
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: votes=3\n**Total votes**: 3 (1 voter)",
@@ -469,7 +469,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 		"Multiple questions, settings: votes=3, multiple voters": {
 			Poll: pollWithMulti2,
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: votes=3\n**Total votes**: 6 (3 voters)",
@@ -535,7 +535,7 @@ func TestPollToPostActions(t *testing.T) {
 		},
 		"Multiple questions, settings: votes=0": {
 			Poll: testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0}),
-			ExpectedAttachments: []*model.SlackAttachment{{
+			ExpectedAttachments: []*model.MessageAttachment{{
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: votes=unlimited\n**Total votes**: 0 (0 voters)",

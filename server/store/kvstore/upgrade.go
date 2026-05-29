@@ -207,7 +207,7 @@ func upgradeTo18(s *Store) (migrationResults, error) {
 			return nil
 		}
 
-		model.ParseSlackAttachment(post, attachments)
+		model.ParseMessageAttachment(post, attachments)
 		_, appErr = s.api.UpdatePost(post)
 		if appErr != nil {
 			status.failed++

@@ -2,12 +2,18 @@ const exec = require('child_process').exec;
 
 const path = require('path');
 
+const webpack = require('webpack');
+
 const PLUGIN_ID = require('../plugin.json').id;
 
 const NPM_TARGET = process.env.npm_lifecycle_event; //eslint-disable-line no-process-env
 const isDev = NPM_TARGET === 'debug' || NPM_TARGET === 'debug:watch';
 
-const plugins = [];
+const plugins = [
+    new webpack.ProvidePlugin({
+        process: 'process/browser',
+    }),
+];
 if (NPM_TARGET === 'build:watch' || NPM_TARGET === 'debug:watch') {
     plugins.push({
         apply: (compiler) => {
@@ -95,7 +101,7 @@ const config = {
         publicPath: '/',
         filename: 'main.js',
     },
-    mode: (isDev) ? 'eval-source-map' : 'production',
+    mode: (isDev) ? 'development' : 'production',
     plugins,
 };
 

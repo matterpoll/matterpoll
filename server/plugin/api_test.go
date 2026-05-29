@@ -213,7 +213,7 @@ func TestHandleCreatePoll(t *testing.T) {
 			"poll_id": testutils.GetPollID(),
 		},
 	}
-	model.ParseSlackAttachment(expectedPost, expectedPoll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost, expectedPoll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	pollWithTwoOptions := testutils.GetPoll()
 	pollWithTwoOptions.AnswerOptions = pollWithTwoOptions.AnswerOptions[0:2]
@@ -226,7 +226,7 @@ func TestHandleCreatePoll(t *testing.T) {
 			"poll_id": testutils.GetPollID(),
 		},
 	}
-	model.ParseSlackAttachment(expectedPostTwoOptions, pollWithTwoOptions.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPostTwoOptions, pollWithTwoOptions.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	pollWithSettings := testutils.GetPollWithSettings(poll.Settings{Progress: true, Anonymous: true, PublicAddOption: true, MaxVotes: 3})
 	expectedPostWithSettings := &model.Post{
@@ -239,7 +239,7 @@ func TestHandleCreatePoll(t *testing.T) {
 		},
 	}
 	expectedPostWithSettings.AddProp("card", pollWithSettings.ToCard(testutils.GetBundle(), converter))
-	model.ParseSlackAttachment(expectedPostWithSettings, pollWithSettings.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPostWithSettings, pollWithSettings.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
@@ -618,7 +618,7 @@ func TestHandleVote(t *testing.T) {
 	require.Nil(t, msg)
 	require.Nil(t, err)
 	expectedPost1 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll2In := testutils.GetPoll()
 	msg, err = poll2In.UpdateVote("userID1", 0)
@@ -629,7 +629,7 @@ func TestHandleVote(t *testing.T) {
 	require.Nil(t, msg)
 	require.Nil(t, err)
 	expectedPost2 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll3In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 2})
 	poll3Out := poll3In.Copy()
@@ -637,7 +637,7 @@ func TestHandleVote(t *testing.T) {
 	require.Nil(t, msg)
 	require.Nil(t, err)
 	expectedPost3 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost3, poll3Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost3, poll3Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll4In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 2})
 	msg, err = poll4In.UpdateVote("userID1", 0)
@@ -648,7 +648,7 @@ func TestHandleVote(t *testing.T) {
 	require.Nil(t, msg)
 	require.Nil(t, err)
 	expectedPost4 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost4, poll4Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost4, poll4Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll5In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 2})
 	msg, err = poll5In.UpdateVote("userID1", 0)
@@ -664,7 +664,7 @@ func TestHandleVote(t *testing.T) {
 	require.Nil(t, msg)
 	require.Nil(t, err)
 	expectedPost6 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost6, poll6Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost6, poll6Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll7In := testutils.GetPollWithSettings(poll.Settings{Progress: true, MaxVotes: 1})
 	msg, err = poll7In.UpdateVote("userID1", 0)
@@ -676,7 +676,7 @@ func TestHandleVote(t *testing.T) {
 	require.Nil(t, err)
 	expectedPost7 := &model.Post{}
 	expectedPost7.AddProp("card", poll7Out.ToCard(testutils.GetBundle(), converter))
-	model.ParseSlackAttachment(expectedPost7, poll7Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost7, poll7Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll8In := testutils.GetPollWithSettings(poll.Settings{MaxVotes: 0})
 	poll8Out := poll8In.Copy()
@@ -684,7 +684,7 @@ func TestHandleVote(t *testing.T) {
 	require.Nil(t, msg)
 	require.Nil(t, err)
 	expectedPost8 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost8, poll8Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost8, poll8Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	post := &model.Post{
 		ChannelId: "channelID1",
@@ -1175,11 +1175,11 @@ func TestHandleResetVotes(t *testing.T) {
 	}
 
 	expectedPost := &model.Post{}
-	model.ParseSlackAttachment(expectedPost, poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost, poll.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	expectedPostWithProgress := &model.Post{}
 	expectedPostWithProgress.AddProp("card", pollEmptyWithProgress.ToCard(testutils.GetBundle(), converter))
-	model.ParseSlackAttachment(expectedPostWithProgress, pollEmptyWithProgress.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPostWithProgress, pollEmptyWithProgress.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll2WithVotes := poll.Copy()
 	msg, err = poll2WithVotes.UpdateVote("userID1", 0)
@@ -1776,14 +1776,14 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 	expectedPost1 := &model.Post{
 		ChannelId: channelID,
 	}
-	model.ParseSlackAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost1, poll1Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll2In := testutils.GetPollWithoutPostID()
 	poll2Out := poll2In.Copy()
 	err = poll2Out.AddAnswerOption("New Option")
 	require.Nil(t, err)
 	expectedPost2 := &model.Post{}
-	model.ParseSlackAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost2, poll2Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	poll3In := testutils.GetPollWithVotesAndSettings(poll.Settings{Progress: true, MaxVotes: 2})
 	poll3In.PostID = postID
@@ -1794,7 +1794,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 		ChannelId: channelID,
 	}
 	expectedPost3.AddProp("card", poll3Out.ToCard(testutils.GetBundle(), converter))
-	model.ParseSlackAttachment(expectedPost3, poll3Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+	model.ParseMessageAttachment(expectedPost3, poll3Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
