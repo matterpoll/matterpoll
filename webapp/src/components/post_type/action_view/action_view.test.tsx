@@ -77,6 +77,12 @@ describe('components/post_type/action_view/ActionView', () => {
         expect(renderedActionIds()).toEqual(['action_id1', 'action_id2', 'action_id3', 'resetVote']);
     });
 
+    test('should render exactly one action container', () => {
+        const {container} = render(<ActionView {...baseProps}/>);
+
+        expect(container.querySelectorAll('.attachment-actions')).toHaveLength(1);
+    });
+
     test('should show the management buttons with permission to manage the poll', () => {
         render(
             <ActionView

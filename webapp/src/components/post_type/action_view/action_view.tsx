@@ -71,7 +71,6 @@ export default class ActionView extends React.PureComponent<Props> {
         }
 
         const content: React.ReactNode[] = [];
-        const adminContent: React.ReactNode[] = [];
         const metadataMap = this.props.pollMetadata || {};
         const pollId = this.props.post.props.poll_id;
         const metadata: Partial<PollMetadata> = (pollId ? metadataMap[pollId] : null) || {};
@@ -103,9 +102,6 @@ export default class ActionView extends React.PureComponent<Props> {
             <div>
                 <div className='attachment-actions'>
                     {content}
-                </div>
-                <div className='attachment-actions'>
-                    {adminContent}
                 </div>
             </div>
         );

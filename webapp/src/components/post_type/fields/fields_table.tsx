@@ -28,7 +28,10 @@ export default class FieldsTable extends React.PureComponent<Props> {
         let nrTables = 0;
 
         fields.forEach((field, i) => {
-            if (rowPos === 2 || !(field.short === true) || lastWasLong) {
+            // Nothing accumulated yet means there is no row to flush -- without this the
+            // first field, if long, pushed an empty table ahead of itself.
+            const shouldFlush = rowPos === 2 || !(field.short === true) || lastWasLong;
+            if (shouldFlush && headerCols.length > 0) {
                 fieldTables.push(
                     <table
                         className='attachment-fields'

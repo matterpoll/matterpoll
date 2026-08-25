@@ -19,11 +19,8 @@ describe('components/post_type/fields/FieldsTable', () => {
     );
 
     // A long (non-short) field always occupies a table of its own; short fields pair up
-    // two per table, so the table count is what encodes the layout. The component flushes
-    // the accumulator before starting a long field, which leaves an empty leading table --
-    // long-standing behaviour, so only tables that actually hold a field are counted here.
-    const tableCount = (container: HTMLElement) =>
-        [...container.querySelectorAll('table.attachment-fields')].filter((t) => t.querySelector('th')).length;
+    // two per table, so the table count is what encodes the layout.
+    const tableCount = (container: HTMLElement) => container.querySelectorAll('table.attachment-fields').length;
 
     test('should render a table for a single long field', () => {
         const {container} = renderFields([{title: 'title1', value: 'value1', short: false}]);
@@ -42,14 +39,24 @@ describe('components/post_type/fields/FieldsTable', () => {
         expect(container.querySelector('td.attachment-field')).toBeInTheDocument();
     });
 
-    test('should emit an empty leading table before a long field', () => {
-        // Pinned deliberately: this is existing behaviour, not something the
-        // React 19 migration introduced.
+    test('should not emit an empty table ahead of a long field', () => {
         const {container} = renderFields([{title: 'title1', value: 'value1', short: false}]);
 
-        const tables = container.querySelectorAll('table.attachment-fields');
-        expect(tables).toHaveLength(2);
-        expect(tables[0].querySelector('th')).toBeNull();
+        container.querySelectorAll('table.attachment-fields').forEach((table) => {
+            expect(table.querySelector('th')).not.toBeNull();
+        });
+    });
+
+    test('should not emit an empty table for a long field followed by a short one', () => {
+        const {container} = renderFields([
+            {title: 'title1', value: 'value1', short: false},
+            {title: 'title2', value: 'value2', short: true},
+        ]);
+
+        expect(tableCount(container)).toBe(2);
+        container.querySelectorAll('table.attachment-fields').forEach((table) => {
+            expect(table.querySelector('th')).not.toBeNull();
+        });
     });
 
     test('should render nothing without any fields', () => {
