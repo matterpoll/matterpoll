@@ -10,8 +10,7 @@
     "test": "jest --forceExit --detectOpenHandles --verbose",
     "test:watch": "jest --watch",
     "test-ci": "jest --forceExit --detectOpenHandles --maxWorkers=2",
-    "check-types": "tsc",
-    "updatesnapshot": "jest -u"
+    "check-types": "tsc"
   },
   "devDependencies": {
     "@babel/cli": "7.25.6",
