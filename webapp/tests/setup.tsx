@@ -1,12 +1,10 @@
-import 'mattermost-webapp/tests/setup';
-import '@babel/polyfill';
+import '@testing-library/jest-dom';
 import {jest} from '@jest/globals';
 
-// @ts-ignore
-global.ReactBootstrap = require('react-bootstrap');
-
-// @ts-ignore
-global.PostUtils = {
-    formatText: jest.fn().mockImplementation((t) => 'mockFormatText(' + t + ')'),
-    messageHtmlToComponent: jest.fn().mockImplementation((t) => 'mockMessageHtmlToComponent(' + t + ')'),
+// The webapp exposes these helpers on `window.PostUtils` for plugins to reuse.
+// Stub them so component tests assert on the plugin's own markup rather than on
+// the webapp's markdown rendering.
+window.PostUtils = {
+    formatText: jest.fn((t: string) => 'mockFormatText(' + t + ')'),
+    messageHtmlToComponent: jest.fn((t: string) => 'mockMessageHtmlToComponent(' + t + ')'),
 };

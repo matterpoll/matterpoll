@@ -1,25 +1,30 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+
+import type {AdminConfig, ClientLicense} from '@mattermost/types/config';
+
+import type {DefaultSettingsValue} from '@/types/poll';
 
 import DefaultSetting from './default_setting';
 
-export default class DefaultSettings extends React.Component {
-    static propTypes = {
-        id: PropTypes.string.isRequired,
-        label: PropTypes.string.isRequired,
-        helpText: PropTypes.node,
-        value: PropTypes.any,
-        disabled: PropTypes.bool.isRequired,
-        config: PropTypes.object.isRequired,
-        license: PropTypes.object.isRequired,
-        setByEnv: PropTypes.bool.isRequired,
-        onChange: PropTypes.func.isRequired,
-        registerSaveAction: PropTypes.func.isRequired,
-        setSaveNeeded: PropTypes.func.isRequired,
-        unRegisterSaveAction: PropTypes.func.isRequired,
-    };
+type Props = {
+    id: string;
+    label: string;
+    helpText?: React.ReactNode;
+    value?: DefaultSettingsValue;
+    disabled: boolean;
+    config: Partial<AdminConfig>;
+    license: ClientLicense;
+    setByEnv: boolean;
+    onChange: (id: string, value: DefaultSettingsValue) => void;
+    registerSaveAction: (action: () => Promise<unknown>) => void;
+    setSaveNeeded: () => void;
+    unRegisterSaveAction: (action: () => Promise<unknown>) => void;
+};
 
-    constructor(props) {
+export default class DefaultSettings extends React.Component<Props> {
+    private settings: DefaultSettingsValue;
+
+    constructor(props: Props) {
         super(props);
 
         this.settings = {
@@ -27,8 +32,8 @@ export default class DefaultSettings extends React.Component {
         };
     }
 
-    handleChange = (name, value) => {
-        this.settings[name] = value;
+    handleChange = (name: string, value: boolean) => {
+        this.settings = {...this.settings, [name]: value};
         this.props.onChange(this.props.id, this.settings);
         this.props.setSaveNeeded();
     };

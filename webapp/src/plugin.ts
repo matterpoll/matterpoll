@@ -5,18 +5,21 @@ import {id as pluginId} from '@/manifest';
 import reducer from '@/reducers';
 import DefaultSettings from '@/components/admin_settings/default_settings';
 
+import type {PluginRegistry, PluginStore} from '@/types/mattermost-webapp';
+import type {PollConfiguration, PollMetadata} from '@/types/poll';
+
 export default class MatterPollPlugin {
-    async initialize(registry, store) {
+    async initialize(registry: PluginRegistry, store: PluginStore) {
         await this.readPluginConfiguration(registry, store);
         registry.registerAdminConsoleCustomSetting('default_settings', DefaultSettings, {showTitle: true});
 
-        registry.registerWebSocketEventHandler(
+        registry.registerWebSocketEventHandler<PollConfiguration>(
             'custom_' + pluginId + '_configuration_change',
             (message) => {
                 store.dispatch(configurationChange(registry, store, message.data));
             },
         );
-        registry.registerWebSocketEventHandler(
+        registry.registerWebSocketEventHandler<PollMetadata>(
             'custom_' + pluginId + '_has_voted',
             (message) => {
                 store.dispatch(websocketHasVoted(message.data));
@@ -31,8 +34,8 @@ export default class MatterPollPlugin {
         registry.registerReducer(reducer);
     }
 
-    readPluginConfiguration = async (registry, store) => {
-        const data = await fetchPluginConfiguration(store.getState())();
+    readPluginConfiguration = async (registry: PluginRegistry, store: PluginStore) => {
+        const data: PollConfiguration | null = await fetchPluginConfiguration(store.getState())();
         if (data && data.experimentalui) {
             store.dispatch(configurationChange(registry, store, data));
         }

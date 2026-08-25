@@ -1,25 +1,28 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import styled, {css} from 'styled-components';
 
 import {changeOpacity} from 'mattermost-redux/utils/theme_utils';
 import invert from 'invert-color';
 
+import type {AttachmentAction} from '@/types/poll';
+
 const PostUtils = window.PostUtils;
 
-export default class ActionButton extends React.PureComponent {
-    static propTypes = {
-        action: PropTypes.object.isRequired,
-        postId: PropTypes.string.isRequired,
-        theme: PropTypes.object.isRequired,
-        hasVoted: PropTypes.bool,
+type Theme = Record<string, string>;
 
-        actions: PropTypes.shape({
-            voteAnswer: PropTypes.func.isRequired,
-        }).isRequired,
+type Props = {
+    action: AttachmentAction;
+    postId: string;
+    theme: Theme;
+    hasVoted?: boolean;
+
+    actions: {
+        voteAnswer: (postId: string, actionId: string) => void;
     };
+};
 
-    getStatusColors = (theme) => {
+export default class ActionButton extends React.PureComponent<Props> {
+    getStatusColors = (theme: Theme): Record<string, string> => {
         return {
             good: '#339970',
             warning: '#CC8F00',
@@ -30,13 +33,13 @@ export default class ActionButton extends React.PureComponent {
         };
     };
 
-    handleAction = (e) => {
+    handleAction = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         const actionId = e.currentTarget.getAttribute('data-action-id');
 
         this.props.actions.voteAnswer(
             this.props.postId,
-            actionId,
+            actionId as string,
         );
     };
 
@@ -49,13 +52,13 @@ export default class ActionButton extends React.PureComponent {
             autoLinkedUrlSchemes: [],
         });
         const message = PostUtils.messageHtmlToComponent(htmlFormattedText, false, {emoji: true});
-        let hexColor;
+        let hexColor = '';
         if (action.style) {
             const STATUS_COLORS = this.getStatusColors(theme);
             hexColor =
                 STATUS_COLORS[action.style] ||
                 theme[action.style] ||
-                (action.style.match('^#(?:[0-9a-fA-F]{3}){1,2}$') && action.style);
+                (action.style.match('^#(?:[0-9a-fA-F]{3}){1,2}$') ? action.style : '');
         }
 
         return (
@@ -65,8 +68,8 @@ export default class ActionButton extends React.PureComponent {
                 key={action.id}
                 onClick={this.handleAction}
                 className='btn btn-sm'
-                hexColor={hexColor}
-                isVoted={this.props.hasVoted}
+                $hexColor={hexColor}
+                $isVoted={this.props.hasVoted}
             >
                 {message}
             </ActionBtn>
@@ -74,15 +77,15 @@ export default class ActionButton extends React.PureComponent {
     }
 }
 
-const ActionBtn = styled.button`
-    ${({hexColor, isVoted}) => hexColor && css`
-        background-color: ${changeOpacity(hexColor, isVoted ? 0.92 : 0.08)} !important;
-        color: ${isVoted ? invert(hexColor) : hexColor} !important;
+const ActionBtn = styled.button<{$hexColor?: string; $isVoted?: boolean}>`
+    ${({$hexColor, $isVoted}) => $hexColor && css`
+        background-color: ${changeOpacity($hexColor, $isVoted ? 0.92 : 0.08)} !important;
+        color: ${$isVoted ? invert($hexColor) : $hexColor} !important;
         &:hover {
-            background-color: ${changeOpacity(hexColor, isVoted ? 0.88 : 0.12)} !important;
+            background-color: ${changeOpacity($hexColor, $isVoted ? 0.88 : 0.12)} !important;
         }
         &:active {
-            background-color: ${changeOpacity(hexColor, isVoted ? 0.84 : 0.16)} !important;
+            background-color: ${changeOpacity($hexColor, $isVoted ? 0.84 : 0.16)} !important;
         }
     `}
 `;

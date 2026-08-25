@@ -1,17 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-export default class DefaultSetting extends React.Component {
-    static propTypes = {
-        name: PropTypes.string,
-        title: PropTypes.string,
-        label: PropTypes.string,
-        value: PropTypes.bool,
-        onChange: PropTypes.func.isRequired,
-    };
+type Props = {
+    name: string;
+    title: string;
+    label: string;
+    value?: boolean;
+    onChange: (name: string, value: boolean) => void;
+};
 
-    handleChange = (e) => {
-        this.props.onChange(this.props.name, e.target.checked);
+export default class DefaultSetting extends React.Component<Props> {
+    handleChange = (e: React.MouseEvent<HTMLInputElement>) => {
+        this.props.onChange(this.props.name, e.currentTarget.checked);
     };
 
     render() {
@@ -43,7 +42,7 @@ export default class DefaultSetting extends React.Component {
     }
 }
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
     label: {
         marginTop: '6px',
     },
