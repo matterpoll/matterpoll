@@ -2,16 +2,23 @@ import request from 'superagent';
 
 import {id as pluginId} from '@/manifest';
 
+import type {PollConfiguration} from '@/types/poll';
+
+type Headers = Record<string, string | number>;
+type RequestBody = string | Record<string, unknown>;
+
 export default class Client {
+    url: string;
+
     constructor() {
         this.url = `/plugins/${pluginId}/api/v1`;
     }
 
-    getPluginConfiguration = async () => {
-        return this.doGet(`${this.url}/configuration`);
+    getPluginConfiguration = async (): Promise<PollConfiguration> => {
+        return this.doGet<PollConfiguration>(`${this.url}/configuration`);
     };
 
-    doGet = async (url, body, headers = {}) => {
+    doGet = async <T>(url: string, body?: RequestBody, headers: Headers = {}): Promise<T> => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
         headers['X-Timezone-Offset'] = new Date().getTimezoneOffset();
 
@@ -23,7 +30,7 @@ export default class Client {
         return response.body;
     };
 
-    doPost = async (url, body, headers = {}) => {
+    doPost = async <T>(url: string, body?: RequestBody, headers: Headers = {}): Promise<T> => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
         headers['X-Timezone-Offset'] = new Date().getTimezoneOffset();
 
@@ -37,7 +44,7 @@ export default class Client {
         return response.body;
     };
 
-    doDelete = async (url, body, headers = {}) => {
+    doDelete = async <T>(url: string, body?: RequestBody, headers: Headers = {}): Promise<T> => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
         headers['X-Timezone-Offset'] = new Date().getTimezoneOffset();
 
@@ -51,7 +58,7 @@ export default class Client {
         return response.body;
     };
 
-    doPut = async (url, body, headers = {}) => {
+    doPut = async <T>(url: string, body?: RequestBody, headers: Headers = {}): Promise<T> => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
         headers['X-Timezone-Offset'] = new Date().getTimezoneOffset();
 

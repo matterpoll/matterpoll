@@ -1,5 +1,7 @@
 import React from 'react';
 
+import type {Theme} from 'mattermost-redux/selectors/entities/preferences';
+
 import LinkOnlyRenderer from '@/utils/link_only_renderer';
 
 import ActionView from '@/components/post_type/action_view';
@@ -12,7 +14,7 @@ const {formatText, messageHtmlToComponent} = window.PostUtils;
 
 type Props = {
     post: PollPost;
-    theme: Record<string, string>;
+    theme: Partial<Theme>;
     options?: FormatTextOptions;
     postTypeComponentId?: string;
 };

@@ -1,7 +1,9 @@
 import ActionTypes from '@/action_types';
 import {pollMetadata} from '@/reducers/poll_metadata';
 
-const initialState = {
+import type {PollMetadataMap} from '@/types/poll';
+
+const initialState: PollMetadataMap = {
     poll_id1: {
         voted_answers: ['answer1'],
         user_id: 'user_id1',
@@ -20,11 +22,14 @@ const additionalState = {
     setting_public_add_option: false,
 };
 
+// Every other action on the webapp's store reaches this reducer too, and must leave it alone.
+const unrelatedAction = {type: 'unrelated_action'};
+
 describe('vote reducers', () => {
-    test('no action', () => expect(pollMetadata(undefined, {})).toEqual({})); // eslint-disable-line no-undefined
+    test('no action', () => expect(pollMetadata(undefined, unrelatedAction)).toEqual({})); // eslint-disable-line no-undefined
     test('no action with initial state', () => {
         expect(
-            pollMetadata(initialState, {}),
+            pollMetadata(initialState, unrelatedAction),
         ).toEqual(initialState);
     });
     test('action to add new poll', () => {
