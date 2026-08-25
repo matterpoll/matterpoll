@@ -1,15 +1,15 @@
 import marked from 'marked';
 
 export default class RemoveMarkdown extends marked.Renderer {
-    code(text) {
+    code(text: string) {
         return text.replace(/\n/g, ' ');
     }
 
-    blockquote(text) {
+    blockquote(text: string) {
         return text.replace(/\n/g, ' ');
     }
 
-    heading(text) {
+    heading(text: string) {
         return text + ' ';
     }
 
@@ -17,15 +17,15 @@ export default class RemoveMarkdown extends marked.Renderer {
         return '';
     }
 
-    list(body) {
+    list(body: string) {
         return body;
     }
 
-    listitem(text) {
+    listitem(text: string) {
         return text + ' ';
     }
 
-    paragraph(text) {
+    paragraph(text: string) {
         return text;
     }
 
@@ -41,15 +41,15 @@ export default class RemoveMarkdown extends marked.Renderer {
         return '';
     }
 
-    strong(text) {
+    strong(text: string) {
         return text;
     }
 
-    em(text) {
+    em(text: string) {
         return text;
     }
 
-    codespan(text) {
+    codespan(text: string) {
         return text.replace(/\n/g, ' ');
     }
 
@@ -57,19 +57,19 @@ export default class RemoveMarkdown extends marked.Renderer {
         return ' ';
     }
 
-    del(text) {
+    del(text: string) {
         return text;
     }
 
-    link(href, title, text) {
+    link(href: string, title: string | null | undefined, text: string) {
         return text;
     }
 
-    image(href, title, text) {
+    image(href: string, title: string | null | undefined, text: string) {
         return text;
     }
 
-    text(text) {
+    text(text: string) {
         return text.replace('\n', ' ');
     }
 }

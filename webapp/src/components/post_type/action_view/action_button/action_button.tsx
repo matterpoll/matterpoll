@@ -2,18 +2,19 @@ import invert from 'invert-color';
 import React from 'react';
 import styled, {css} from 'styled-components';
 
+import type {Theme} from 'mattermost-redux/selectors/entities/preferences';
 import {changeOpacity} from 'mattermost-redux/utils/theme_utils';
 
 import type {AttachmentAction} from '@/types/poll';
 
 const PostUtils = window.PostUtils;
 
-type Theme = Record<string, string>;
-
 type Props = {
     action: AttachmentAction;
     postId: string;
-    theme: Theme;
+
+    // Partial because the component tolerates a theme that is missing the colour a style names.
+    theme: Partial<Theme>;
     hasVoted?: boolean;
 
     actions: {
@@ -22,7 +23,7 @@ type Props = {
 };
 
 export default class ActionButton extends React.PureComponent<Props> {
-    getStatusColors = (theme: Theme): Record<string, string> => {
+    getStatusColors = (theme: Partial<Theme>): Record<string, string | undefined> => {
         return {
             good: '#339970',
             warning: '#CC8F00',

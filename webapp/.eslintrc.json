@@ -20,8 +20,8 @@
     // community-maintained and carries no per-file header.
     "header/header": 0,
 
-    // The shared config leaves this to tsc. Keep it on: unlike tsc, it also checks
-    // the untyped `.js` files under src/.
+    // The shared config leaves this to tsc. Keep it on: tsconfig only includes
+    // `src` and `tests`, so nothing else type-checks the root-level configs.
     "import/no-unresolved": 2
   }
 }

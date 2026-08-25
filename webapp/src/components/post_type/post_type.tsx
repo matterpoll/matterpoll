@@ -1,5 +1,7 @@
 import React from 'react';
 
+import type {Theme} from 'mattermost-redux/selectors/entities/preferences';
+
 import ActionView from '@/components/post_type/action_view';
 import FieldsTable from '@/components/post_type/fields/fields_table';
 import type {FormatTextOptions} from '@/types/mattermost-webapp';
@@ -10,7 +12,7 @@ const {formatText, messageHtmlToComponent} = window.PostUtils;
 
 type Props = {
     post: PollPost;
-    theme: Record<string, string>;
+    theme: Partial<Theme>;
     options?: FormatTextOptions;
     postTypeComponentId?: string;
 };
