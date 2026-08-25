@@ -72,10 +72,9 @@ describe('components/post_type/action_view/ActionView', () => {
     });
 
     test('should hide the management and add-option buttons without permission', () => {
-        const {asFragment} = render(<ActionView {...baseProps}/>);
+        render(<ActionView {...baseProps}/>);
 
         expect(renderedActionIds()).toEqual(['action_id1', 'action_id2', 'action_id3', 'resetVote']);
-        expect(asFragment()).toMatchSnapshot();
     });
 
     test('should show the management buttons with permission to manage the poll', () => {

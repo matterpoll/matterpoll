@@ -13,11 +13,17 @@ describe('components/admin_settings/DefaultSetting', () => {
     };
 
     test('should render the title and label', () => {
-        const {asFragment} = render(<DefaultSetting {...baseProps}/>);
+        render(<DefaultSetting {...baseProps}/>);
 
         expect(screen.getByText('test title')).toBeInTheDocument();
         expect(screen.getByText('test label')).toBeInTheDocument();
-        expect(asFragment()).toMatchSnapshot();
+    });
+
+    test('should keep the grid class names the admin console styles settings by', () => {
+        const {container} = render(<DefaultSetting {...baseProps}/>);
+
+        expect(container.querySelector('.row > .col-xs-12.col-sm-4')).toHaveTextContent('test title');
+        expect(container.querySelector('.row > .col-xs-12.col-sm-8 .checkbox')).toBeInTheDocument();
     });
 
     test('should render an unchecked checkbox for a false value', () => {

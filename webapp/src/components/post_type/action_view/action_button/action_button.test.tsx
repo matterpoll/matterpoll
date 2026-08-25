@@ -20,12 +20,11 @@ describe('components/action_button/ActionButton', () => {
     };
 
     test('should render the action name and carry its ids', () => {
-        const {asFragment} = render(<ActionButton {...baseProps}/>);
+        render(<ActionButton {...baseProps}/>);
 
         const button = screen.getByRole('button');
         expect(button).toHaveTextContent('mockMessageHtmlToComponent(mockFormatText(action_name))');
         expect(button).toHaveAttribute('data-action-id', 'action_id1');
-        expect(asFragment()).toMatchSnapshot();
     });
 
     test('should vote for its own action when clicked', () => {

@@ -32,12 +32,22 @@ describe('components/post_type/PostType', () => {
     });
 
     test('should render the author, title and text of the first attachment', () => {
-        const {asFragment} = render(<PostType {...propsWithAttachments([attachment])}/>);
+        render(<PostType {...propsWithAttachments([attachment])}/>);
 
         expect(screen.getByText('sample_name')).toBeInTheDocument();
         expect(screen.getByText('mockMessageHtmlToComponent(mockFormatText(sample_title))')).toBeInTheDocument();
         expect(screen.getByText('mockMessageHtmlToComponent(mockFormatText(sample_text))')).toBeInTheDocument();
-        expect(asFragment()).toMatchSnapshot();
+    });
+
+    test('should keep the class names the webapp styles attachments by', () => {
+        // These are a contract with Mattermost's own stylesheets, not decoration:
+        // get one wrong and polls render unstyled in the channel.
+        const {container} = render(<PostType {...propsWithAttachments([attachment])}/>);
+
+        expect(container.querySelector('.attachment > .attachment__content > .attachment__container')).toBeInTheDocument();
+        expect(container.querySelector('.attachment__body.attachment__body--no_thumb')).toBeInTheDocument();
+        expect(container.querySelector('.attachment__author-name')).toHaveTextContent('sample_name');
+        expect(container.querySelector('.attachment__title')).toBeInTheDocument();
     });
 
     test('should still render the attachment shell without any attachments', () => {

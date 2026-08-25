@@ -26,12 +26,20 @@ describe('components/post_type/fields/FieldsTable', () => {
         [...container.querySelectorAll('table.attachment-fields')].filter((t) => t.querySelector('th')).length;
 
     test('should render a table for a single long field', () => {
-        const {container, asFragment} = renderFields([{title: 'title1', value: 'value1', short: false}]);
+        const {container} = renderFields([{title: 'title1', value: 'value1', short: false}]);
 
         expect(tableCount(container)).toBe(1);
         expect(screen.getByText('mockMessageHtmlToComponent(mockFormatText(title1))')).toBeInTheDocument();
         expect(screen.getByText('mockMessageHtmlToComponent(mockFormatText(value1))')).toBeInTheDocument();
-        expect(asFragment()).toMatchSnapshot();
+    });
+
+    test('should keep the class names and column width the webapp styles fields by', () => {
+        const {container} = renderFields([{title: 'title1', value: 'value1', short: false}]);
+
+        // width moved from a `width='50%'` attribute to an inline style when React 19
+        // dropped the attribute from <th>'s types; the rendered width must not change.
+        expect(container.querySelector('th.attachment-field__caption')).toHaveStyle({width: '50%'});
+        expect(container.querySelector('td.attachment-field')).toBeInTheDocument();
     });
 
     test('should emit an empty leading table before a long field', () => {

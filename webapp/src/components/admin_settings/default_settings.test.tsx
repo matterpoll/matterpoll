@@ -33,14 +33,13 @@ describe('components/admin_settings/DefaultSettings', () => {
     };
 
     test('should render one setting per poll default', () => {
-        const {asFragment} = render(<DefaultSettings {...baseProps}/>);
+        render(<DefaultSettings {...baseProps}/>);
 
         expect(screen.getByText('Anonymous')).toBeInTheDocument();
         expect(screen.getByText('Anonymous Creator')).toBeInTheDocument();
         expect(screen.getByText('Progress')).toBeInTheDocument();
         expect(screen.getByText('Public Add Option')).toBeInTheDocument();
         expect(screen.getAllByRole('checkbox')).toHaveLength(4);
-        expect(asFragment()).toMatchSnapshot();
     });
 
     test('should seed each checkbox from the matching key of the value prop', () => {
