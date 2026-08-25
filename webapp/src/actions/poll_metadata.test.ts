@@ -1,16 +1,12 @@
-import configureStore from 'redux-mock-store';
-import {thunk} from 'redux-thunk';
+import type {Dispatch} from 'redux';
 
 import ActionTypes from '@/action_types';
 
 import {fetchPollMetadata} from '@/actions/poll_metadata';
 
-const middlewares = [thunk];
-const mockStore = configureStore(middlewares);
-
 describe('test', () => {
     const mockSuccessResponse = {};
-    let store;
+    let dispatch: jest.MockedFunction<Dispatch>;
 
     beforeEach(() => {
         const mockJsonPromise = Promise.resolve(mockSuccessResponse);
@@ -19,7 +15,7 @@ describe('test', () => {
         });
         global.fetch = jest.fn().mockImplementation(() => mockFetchPromise);
 
-        store = mockStore({});
+        dispatch = jest.fn();
     });
 
     it('success', async () => {
@@ -30,26 +26,26 @@ describe('test', () => {
             data: mockSuccessResponse,
         };
 
-        await store.dispatch(fetchPollMetadata(siteUrl, pollId));
-        const actions = store.getActions();
-        expect(actions[0]).toEqual(expected);
+        await fetchPollMetadata(siteUrl, pollId)(dispatch);
+
+        expect(dispatch).toHaveBeenCalledWith(expected);
     });
 
     it('fail, pollId is undefined', async () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = undefined; // eslint-disable-line no-undefined
 
-        await store.dispatch(fetchPollMetadata(siteUrl, pollId));
-        const actions = store.getActions();
-        expect(actions.length).toEqual(0);
+        await fetchPollMetadata(siteUrl, pollId)(dispatch);
+
+        expect(dispatch).not.toHaveBeenCalled();
     });
 
     it('fail, pollId is empty', async () => {
         const siteUrl = 'https://example.com:8065';
         const pollId = '';
 
-        await store.dispatch(fetchPollMetadata(siteUrl, pollId));
-        const actions = store.getActions();
-        expect(actions.length).toEqual(0);
+        await fetchPollMetadata(siteUrl, pollId)(dispatch);
+
+        expect(dispatch).not.toHaveBeenCalled();
     });
 });

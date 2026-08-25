@@ -1,6 +1,9 @@
 import ActionTypes from '@/action_types';
 
-export const pollMetadata = (state = {}, action) => {
+import type {FetchPollMetadataAction} from '@/types/actions';
+import type {PollMetadataMap} from '@/types/poll';
+
+export const pollMetadata = (state: PollMetadataMap = {}, action: FetchPollMetadataAction): PollMetadataMap => {
     switch (action.type) {
     case ActionTypes.FETCH_POLL_METADATA:
         if (action.data) {

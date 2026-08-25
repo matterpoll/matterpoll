@@ -1,8 +1,13 @@
+import type {Dispatch} from 'redux';
+
 import {id as pluginId} from '@/manifest';
 import ActionTypes from '@/action_types';
 
-export const websocketHasVoted = (data) => async (dispatch) => {
-    return dispatch({
+import type {FetchPollMetadataAction} from '@/types/actions';
+import type {PollMetadata} from '@/types/poll';
+
+export const websocketHasVoted = (data: PollMetadata) => async (dispatch: Dispatch) => {
+    const action: FetchPollMetadataAction = {
         type: ActionTypes.FETCH_POLL_METADATA,
         data: {
             voted_answers: data.voted_answers,
@@ -12,10 +17,12 @@ export const websocketHasVoted = (data) => async (dispatch) => {
             setting_progress: data.setting_progress,
             setting_public_add_option: data.setting_public_add_option,
         },
-    });
+    };
+
+    return dispatch(action);
 };
 
-export const fetchPollMetadata = (siteUrl, pollId) => async (dispatch) => {
+export const fetchPollMetadata = (siteUrl: string, pollId?: string) => async (dispatch: Dispatch) => {
     if (!pollId) {
         return;
     }
@@ -25,10 +32,11 @@ export const fetchPollMetadata = (siteUrl, pollId) => async (dispatch) => {
 
     try {
         const resp = await fetch(url);
-        dispatch({
+        const action: FetchPollMetadataAction = {
             type: ActionTypes.FETCH_POLL_METADATA,
             data: await resp.json(),
-        });
+        };
+        dispatch(action);
     } catch (err) {
         //eslint-disable-next-line no-console
         console.log('failed to fetch metadata: ', err);
