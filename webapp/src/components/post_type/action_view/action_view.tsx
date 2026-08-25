@@ -1,22 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import {ActionButtonType} from '@/utils/constants';
 
 import ActionButton from '@/components/post_type/action_view/action_button';
 
-export default class ActionView extends React.PureComponent {
-    static propTypes = {
-        post: PropTypes.object.isRequired,
-        attachment: PropTypes.object.isRequired,
-        pollMetadata: PropTypes.object,
-        siteUrl: PropTypes.string.isRequired,
+import type {Attachment, AttachmentAction, PollMetadata, PollMetadataMap, PollPost} from '@/types/poll';
 
-        actions: PropTypes.shape({
-            fetchPollMetadata: PropTypes.func.isRequired,
-        }).isRequired,
+type Props = {
+    post: PollPost;
+    attachment: Attachment;
+    pollMetadata?: PollMetadataMap;
+    siteUrl: string;
+
+    actions: {
+        fetchPollMetadata: (siteUrl: string, pollId?: string) => void;
     };
+};
 
+export default class ActionView extends React.PureComponent<Props> {
     componentDidMount() {
         this.props.actions.fetchPollMetadata(this.props.siteUrl, this.props.post.props.poll_id);
     }
@@ -27,39 +28,40 @@ export default class ActionView extends React.PureComponent {
      * - '--public-add-option' is set
      * or
      * - '--public-add-option' is NOT set AND can manage the poll
-     * @param {object} metadata metadata for poll
-     * @return {boolean} which or not the button for add option display
+     * @param metadata metadata for poll
+     * @return which or not the button for add option display
      */
-    hasPermissionForAddOption(metadata) {
+    hasPermissionForAddOption(metadata: Partial<PollMetadata>): boolean {
         if (!metadata) {
             return false;
         }
         if (metadata.setting_public_add_option === true) {
             return true;
         }
-        return metadata.can_manage_poll;
+        return Boolean(metadata.can_manage_poll);
     }
 
     /**
      * return true if the user has already voted the option named by `name`.
-     * @param {string} name
-     * @param {object} metadata metadata for poll
-     * @return {boolean} voted or not
+     * @param action the attachment action backing the button
+     * @param metadata metadata for poll
+     * @return voted or not
      */
-    hasVoted(action, metadata) {
-        if (this.isAddOptionAction(action) || this.isPollManagementAction(action) || !metadata.voted_answers) {
+    hasVoted(action: AttachmentAction, metadata: Partial<PollMetadata>): boolean {
+        const votedAnswers = metadata.voted_answers;
+        if (this.isAddOptionAction(action) || this.isPollManagementAction(action) || !votedAnswers) {
             return false;
         }
-        const name = metadata.setting_progress ? action.name?.replace(/ \([0-9]+\)$/, '') : action.name;
-        return metadata.voted_answers?.indexOf(name) >= 0;
+        const name = metadata.setting_progress ? action.name.replace(/ \([0-9]+\)$/, '') : action.name;
+        return votedAnswers.indexOf(name) >= 0;
     }
 
-    isAddOptionAction(action) {
-        return action && (action.id === 'addOption');
+    isAddOptionAction(action: AttachmentAction): boolean {
+        return Boolean(action) && (action.id === 'addOption');
     }
 
-    isPollManagementAction(action) {
-        return action && (action.id === 'endPoll' || action.id === 'deletePoll');
+    isPollManagementAction(action: AttachmentAction): boolean {
+        return Boolean(action) && (action.id === 'endPoll' || action.id === 'deletePoll');
     }
 
     render() {
@@ -68,10 +70,11 @@ export default class ActionView extends React.PureComponent {
             return '';
         }
 
-        const content = [];
-        const adminContent = [];
+        const content: React.ReactNode[] = [];
+        const adminContent: React.ReactNode[] = [];
         const metadataMap = this.props.pollMetadata || {};
-        const metadata = metadataMap[this.props.post.props.poll_id] || {};
+        const pollId = this.props.post.props.poll_id;
+        const metadata: Partial<PollMetadata> = (pollId ? metadataMap[pollId] : null) || {};
 
         actions.
             filter((action) => action.id && action.name).

@@ -4,9 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@mattermost/types/*": ["node_modules/@mattermost/types/lib/*"],
-      "mattermost-redux/*": ["node_modules/mattermost-webapp/packages/mattermost-redux/src/*"],
-      "reselect": ["node_modules/mattermost-webapp/packages/reselect/src"],
+      // Redundant for tsc and webpack, which both follow the package's own exports map,
+      // but eslint-import-resolver-typescript does not understand exports/typesVersions.
+      "mattermost-redux/*": ["node_modules/mattermost-redux/lib/*"],
     },
     "lib": [
       "dom",

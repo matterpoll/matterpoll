@@ -6,7 +6,7 @@
         }
       },
      "react": {
-        "version": "16.14.0"
+        "version": "detect"
      }
   },
   "extends": [
@@ -21,7 +21,6 @@
      "jest",
      "react",
      "import",
-     "babel",
      "cypress",
      "no-only-tests",
      "@typescript-eslint"
@@ -541,7 +540,7 @@
      ],
      "react/no-render-return-value": 2,
      "react/no-set-state": 0,
-     "react/no-string-refs": 0,
+     "react/no-string-refs": 2,
      "react/no-unescaped-entities": 2,
      "react/no-unknown-property": 2,
      "react/no-unused-prop-types": [

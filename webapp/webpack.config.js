@@ -42,9 +42,6 @@ const config = {
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),
-            '@mattermost/types': path.resolve(__dirname, 'node_modules/@mattermost/types/lib'),
-            'mattermost-redux': path.resolve(__dirname, 'node_modules/mattermost-webapp/packages/mattermost-redux/src'),
-            reselect: path.resolve(__dirname, 'node_modules/mattermost-webapp/packages/reselect/src'),
         },
         modules: [
             'src',
@@ -57,7 +54,7 @@ const config = {
         rules: [
             {
                 test: /\.(js|jsx|ts|tsx)$/,
-                exclude: /node_modules\/(?!(mattermost-webapp)\/).*/,
+                exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -91,7 +88,6 @@ const config = {
         'react-dom': 'ReactDOM',
         redux: 'Redux',
         'react-redux': 'ReactRedux',
-        'prop-types': 'PropTypes',
         'react-bootstrap': 'ReactBootstrap',
         'react-router-dom': 'ReactRouterDom',
     },

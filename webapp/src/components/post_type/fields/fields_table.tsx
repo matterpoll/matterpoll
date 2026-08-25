@@ -1,14 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+
+import type {Attachment} from '@/types/poll';
+import type {FormatTextOptions} from '@/types/mattermost-webapp';
 
 const {formatText, messageHtmlToComponent} = window.PostUtils;
 
-export default class FieldsTable extends React.PureComponent {
-    static propTypes = {
-        attachment: PropTypes.object.isRequired,
-        options: PropTypes.object,
-    };
+const halfWidth: React.CSSProperties = {width: '50%'};
 
+type Props = {
+    attachment: Attachment;
+    options?: FormatTextOptions;
+};
+
+export default class FieldsTable extends React.PureComponent<Props> {
     render() {
         const fields = this.props.attachment.fields;
         if (!fields || !fields.length) {
@@ -17,8 +21,8 @@ export default class FieldsTable extends React.PureComponent {
 
         const fieldTables = [];
 
-        let headerCols = [];
-        let bodyCols = [];
+        let headerCols: React.ReactNode[] = [];
+        let bodyCols: React.ReactNode[] = [];
         let rowPos = 0;
         let lastWasLong = false;
         let nrTables = 0;
@@ -54,7 +58,7 @@ export default class FieldsTable extends React.PureComponent {
                 <th
                     className='attachment-field__caption'
                     key={'attachment__field-caption-' + i + '__' + nrTables}
-                    width='50%'
+                    style={halfWidth}
                 >
                     {fieldTitle}
                 </th>,

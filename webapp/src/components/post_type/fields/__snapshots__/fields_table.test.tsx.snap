@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/post_type/fields/FieldsTable should render a table for a single long field 1`] = `
+<DocumentFragment>
+  <div>
+    <table
+      class="attachment-fields"
+    >
+      <thead>
+        <tr />
+      </thead>
+      <tbody>
+        <tr />
+      </tbody>
+    </table>
+    <table
+      class="attachment-fields"
+    >
+      <thead>
+        <tr>
+          <th
+            class="attachment-field__caption"
+            style="width: 50%;"
+          >
+            mockMessageHtmlToComponent(mockFormatText(title1))
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td
+            class="attachment-field"
+          >
+            mockMessageHtmlToComponent(mockFormatText(value1))
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</DocumentFragment>
+`;
