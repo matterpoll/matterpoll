@@ -1,8 +1,7 @@
-import React from 'react';
 import {fireEvent, render, screen} from '@testing-library/react';
+import React from 'react';
 
 import DefaultSettings from '@/components/admin_settings/default_settings';
-
 import type {DefaultSettingsValue} from '@/types/poll';
 
 describe('components/admin_settings/DefaultSettings', () => {

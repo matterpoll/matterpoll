@@ -1,5 +1,5 @@
-import React from 'react';
 import {fireEvent, render, screen} from '@testing-library/react';
+import React from 'react';
 
 import Preferences from 'mattermost-redux/constants/preferences';
 
@@ -66,7 +66,7 @@ describe('components/action_button/ActionButton', () => {
         ['good', false, 'rgba(51, 153, 112, 0.08)', 'rgb(51, 153, 112)'],
         ['warning', false, 'rgba(204, 143, 0, 0.08)', 'rgb(204, 143, 0)'],
         ['#0000ff', false, 'rgba(0, 0, 255, 0.08)', 'rgb(0, 0, 255)'],
-    ] as [string, boolean, string, string][])(
+    ] as Array<[string, boolean, string, string]>)(
         'should colour the button for style %s (hasVoted: %s)',
         (style, hasVoted, backgroundColor, color) => {
             render(

@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type {Attachment} from '@/types/poll';
 import type {FormatTextOptions} from '@/types/mattermost-webapp';
+import type {Attachment} from '@/types/poll';
 
 const {formatText, messageHtmlToComponent} = window.PostUtils;
 

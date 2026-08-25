@@ -1,14 +1,13 @@
 import type {Dispatch} from 'redux';
 
-import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
-
 import type {GlobalState} from '@mattermost/types/store';
 
-import ActionTypes from '@/action_types';
-import PostType from '@/components/post_type';
-import Client from '@/client';
-import {postTypeComponent} from '@/selector';
+import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
 
+import ActionTypes from '@/action_types';
+import Client from '@/client';
+import PostType from '@/components/post_type';
+import {postTypeComponent} from '@/selector';
 import type {RegisterPostTypeComponentIdAction} from '@/types/actions';
 import type {PluginRegistry, PluginStore} from '@/types/mattermost-webapp';
 import type {PollConfiguration} from '@/types/poll';

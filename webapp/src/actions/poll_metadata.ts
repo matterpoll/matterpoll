@@ -1,8 +1,7 @@
 import type {Dispatch} from 'redux';
 
-import {id as pluginId} from '@/manifest';
 import ActionTypes from '@/action_types';
-
+import {id as pluginId} from '@/manifest';
 import type {FetchPollMetadataAction} from '@/types/actions';
 import type {PollMetadata} from '@/types/poll';
 

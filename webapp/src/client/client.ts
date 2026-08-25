@@ -1,7 +1,6 @@
 import request from 'superagent';
 
 import {id as pluginId} from '@/manifest';
-
 import type {PollConfiguration} from '@/types/poll';
 
 type Headers = Record<string, string | number>;

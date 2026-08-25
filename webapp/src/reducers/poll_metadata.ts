@@ -1,5 +1,4 @@
 import ActionTypes from '@/action_types';
-
 import type {FetchPollMetadataAction} from '@/types/actions';
 import type {PollMetadataMap} from '@/types/poll';
 

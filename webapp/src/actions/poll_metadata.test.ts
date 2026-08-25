@@ -1,7 +1,6 @@
 import type {Dispatch} from 'redux';
 
 import ActionTypes from '@/action_types';
-
 import {fetchPollMetadata} from '@/actions/poll_metadata';
 
 describe('test', () => {

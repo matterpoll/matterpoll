@@ -1,7 +1,6 @@
 import type {GlobalState} from '@mattermost/types/store';
 
 import {id as pluginId} from '@/manifest';
-
 import type {PluginState} from '@/types/store';
 
 // The webapp mounts a plugin's reducer under a key derived from its id, which is not part

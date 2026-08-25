@@ -1,8 +1,7 @@
-import React from 'react';
 import {render, screen} from '@testing-library/react';
+import React from 'react';
 
 import FieldsTable from '@/components/post_type/fields/fields_table';
-
 import type {AttachmentField} from '@/types/poll';
 
 describe('components/post_type/fields/FieldsTable', () => {

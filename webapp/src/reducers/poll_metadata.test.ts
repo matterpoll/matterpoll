@@ -1,6 +1,5 @@
 import ActionTypes from '@/action_types';
 import {pollMetadata} from '@/reducers/poll_metadata';
-
 import type {PollMetadataMap} from '@/types/poll';
 
 const initialState: PollMetadataMap = {

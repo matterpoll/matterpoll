@@ -1,5 +1,4 @@
 import ActionTypes from '@/action_types';
-
 import type {RegisterPostTypeComponentIdAction} from '@/types/actions';
 import type {PostTypeComponentState} from '@/types/store';
 
