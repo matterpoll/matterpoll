@@ -42,7 +42,10 @@ describe('components/action_button/ActionButton', () => {
         expect(voteAnswer).toHaveBeenCalledWith('post_id1', 'action_id1');
     });
 
-    const backgroundColorOf = (button: HTMLElement) => window.getComputedStyle(button).backgroundColor;
+    const stylesOf = (button: HTMLElement) => {
+        const {backgroundColor, color} = window.getComputedStyle(button);
+        return {backgroundColor, color};
+    };
 
     // jsdom reports the user-agent default ('ButtonFace') for an unstyled button, so
     // "not coloured" means "still the default", not "no background at all".
@@ -51,31 +54,33 @@ describe('components/action_button/ActionButton', () => {
     test('should not colour the button without a style', () => {
         render(<ActionButton {...baseProps}/>);
 
-        expect(backgroundColorOf(screen.getByRole('button'))).toBe(UNSTYLED_BACKGROUND);
+        expect(stylesOf(screen.getByRole('button')).backgroundColor).toBe(UNSTYLED_BACKGROUND);
     });
 
-    // Named styles resolve against the status colours or the theme; a bare hex is used as-is.
-    // The exact colours are pinned by the snapshots.
+    // Named styles resolve against the status colours or the theme; a bare hex is used
+    // as-is. A voted button takes the colour at near-full opacity with inverted text.
     test.each([
-        ['default', false],
-        ['default', true],
-        ['primary', false],
-        ['danger', false],
-        ['good', false],
-        ['warning', false],
-        ['#0000ff', false],
-    ])('should colour the button for style %s (hasVoted: %s)', (style, hasVoted) => {
-        const {asFragment} = render(
-            <ActionButton
-                {...baseProps}
-                action={{...baseProps.action, style}}
-                hasVoted={hasVoted}
-            />,
-        );
+        ['default', false, 'rgba(63, 67, 80, 0.08)', 'rgb(63, 67, 80)'],
+        ['default', true, 'rgba(63, 67, 80, 0.92)', 'rgb(192, 188, 175)'],
+        ['primary', false, 'rgba(28, 88, 217, 0.08)', 'rgb(28, 88, 217)'],
+        ['danger', false, 'rgba(210, 75, 78, 0.08)', 'rgb(210, 75, 78)'],
+        ['good', false, 'rgba(51, 153, 112, 0.08)', 'rgb(51, 153, 112)'],
+        ['warning', false, 'rgba(204, 143, 0, 0.08)', 'rgb(204, 143, 0)'],
+        ['#0000ff', false, 'rgba(0, 0, 255, 0.08)', 'rgb(0, 0, 255)'],
+    ] as [string, boolean, string, string][])(
+        'should colour the button for style %s (hasVoted: %s)',
+        (style, hasVoted, backgroundColor, color) => {
+            render(
+                <ActionButton
+                    {...baseProps}
+                    action={{...baseProps.action, style}}
+                    hasVoted={hasVoted}
+                />,
+            );
 
-        expect(backgroundColorOf(screen.getByRole('button'))).not.toBe(UNSTYLED_BACKGROUND);
-        expect(asFragment()).toMatchSnapshot();
-    });
+            expect(stylesOf(screen.getByRole('button'))).toEqual({backgroundColor, color});
+        },
+    );
 
     test('should not colour the button for an unrecognised style', () => {
         render(
@@ -85,7 +90,7 @@ describe('components/action_button/ActionButton', () => {
             />,
         );
 
-        expect(backgroundColorOf(screen.getByRole('button'))).toBe(UNSTYLED_BACKGROUND);
+        expect(stylesOf(screen.getByRole('button')).backgroundColor).toBe(UNSTYLED_BACKGROUND);
     });
 
     test('should not throw when the theme is missing the colour a style names', () => {
