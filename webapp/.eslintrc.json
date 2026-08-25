@@ -1,7 +1,12 @@
 {
   "root": true,
   "extends": [
-    "plugin:@mattermost/react"
+    "plugin:@mattermost/react",
+
+    // Not part of the shared config, which supplies the jest env and globals but no
+    // jest rules. Kept for `jest/no-focused-tests`: a stray `it.only` silently skips
+    // the rest of a suite while CI stays green.
+    "plugin:jest/recommended"
   ],
   "settings": {
     // `@/*` maps to `src/*` and `mattermost-redux/*` is served by the package's
