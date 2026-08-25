@@ -3,11 +3,7 @@
     "target": "esnext",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      // Redundant for tsc and webpack, which both follow the package's own exports map,
-      // but eslint-import-resolver-typescript 2.x does not understand exports/typesVersions.
-      // Remove once the lint stack is modernized: matterpoll/matterpoll#659
-      "mattermost-redux/*": ["node_modules/mattermost-redux/lib/*"],
+      "@/*": ["src/*"]
     },
     "lib": [
       "dom",

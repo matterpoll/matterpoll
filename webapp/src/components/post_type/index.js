@@ -1,8 +1,7 @@
 import {connect} from 'react-redux';
 
-import {postTypeComponent} from '@/selector';
-
 import PostType from '@/components/post_type/post_type';
+import {postTypeComponent} from '@/selector';
 
 function mapStateToProps(state) {
     return {

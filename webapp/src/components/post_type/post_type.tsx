@@ -1,12 +1,10 @@
 import React from 'react';
 
-import LinkOnlyRenderer from '@/utils/link_only_renderer';
-
 import ActionView from '@/components/post_type/action_view';
 import FieldsTable from '@/components/post_type/fields/fields_table';
-
-import type {Attachment, PollPost} from '@/types/poll';
 import type {FormatTextOptions} from '@/types/mattermost-webapp';
+import type {Attachment, PollPost} from '@/types/poll';
+import LinkOnlyRenderer from '@/utils/link_only_renderer';
 
 const {formatText, messageHtmlToComponent} = window.PostUtils;
 

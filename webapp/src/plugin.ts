@@ -1,10 +1,8 @@
 import {configurationChange, fetchPluginConfiguration} from '@/actions/config';
 import {websocketHasVoted} from '@/actions/poll_metadata';
-
+import DefaultSettings from '@/components/admin_settings/default_settings';
 import {id as pluginId} from '@/manifest';
 import reducer from '@/reducers';
-import DefaultSettings from '@/components/admin_settings/default_settings';
-
 import type {PluginRegistry, PluginStore} from '@/types/mattermost-webapp';
 import type {PollConfiguration, PollMetadata} from '@/types/poll';
 

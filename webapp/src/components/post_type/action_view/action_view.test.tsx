@@ -1,11 +1,9 @@
-import React from 'react';
 import {render, screen} from '@testing-library/react';
-
-import {ActionButtonType} from '@/utils/constants';
+import React from 'react';
 
 import ActionView from '@/components/post_type/action_view/action_view';
-
 import type {AttachmentAction, PollMetadata} from '@/types/poll';
+import {ActionButtonType} from '@/utils/constants';
 
 // ActionButton is connected to the store; stand in for it so these tests cover
 // ActionView's own filtering rather than the button's rendering.

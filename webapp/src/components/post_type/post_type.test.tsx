@@ -1,8 +1,7 @@
-import React from 'react';
 import {render, screen} from '@testing-library/react';
+import React from 'react';
 
 import PostType from '@/components/post_type/post_type';
-
 import type {Attachment} from '@/types/poll';
 
 // ActionView is connected to the store; stand in for it so these tests cover

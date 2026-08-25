@@ -1,5 +1,4 @@
 const exec = require('child_process').exec;
-
 const path = require('path');
 
 const webpack = require('webpack');

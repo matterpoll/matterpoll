@@ -1,10 +1,8 @@
 import React from 'react';
 
-import {ActionButtonType} from '@/utils/constants';
-
 import ActionButton from '@/components/post_type/action_view/action_button';
-
 import type {Attachment, AttachmentAction, PollMetadata, PollMetadataMap, PollPost} from '@/types/poll';
+import {ActionButtonType} from '@/utils/constants';
 
 type Props = {
     post: PollPost;

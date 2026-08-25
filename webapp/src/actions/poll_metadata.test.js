@@ -2,7 +2,6 @@ import configureStore from 'redux-mock-store';
 import {thunk} from 'redux-thunk';
 
 import ActionTypes from '@/action_types';
-
 import {fetchPollMetadata} from '@/actions/poll_metadata';
 
 const middlewares = [thunk];

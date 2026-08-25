@@ -1,8 +1,8 @@
+import invert from 'invert-color';
 import React from 'react';
 import styled, {css} from 'styled-components';
 
 import {changeOpacity} from 'mattermost-redux/utils/theme_utils';
-import invert from 'invert-color';
 
 import type {AttachmentAction} from '@/types/poll';
 

@@ -4,9 +4,8 @@ import {bindActionCreators} from 'redux';
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
 import {fetchPollMetadata} from '@/actions/poll_metadata';
-import {pollMetadata} from '@/selector';
-
 import ActionView from '@/components/post_type/action_view/action_view';
+import {pollMetadata} from '@/selector';
 
 function mapStateToProps(state) {
     const config = getConfig(state);

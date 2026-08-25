@@ -1,7 +1,7 @@
 import {combineReducers} from 'redux';
 
-import {postTypeComponent} from '@/reducers/post_type';
 import {pollMetadata} from '@/reducers/poll_metadata';
+import {postTypeComponent} from '@/reducers/post_type';
 
 export default combineReducers({
     postTypeComponent,
