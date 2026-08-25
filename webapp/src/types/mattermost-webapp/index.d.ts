@@ -1,4 +1,15 @@
-import type {Reducer} from 'redux';
+import type {Reducer, Store, UnknownAction} from 'redux';
+import type {ThunkDispatch} from 'redux-thunk';
+
+import type {GlobalState} from '@mattermost/types/store';
+
+/**
+ * The store the webapp hands a plugin at initialize(). Its dispatch takes thunks
+ * as well as plain actions, because the webapp configures the store with redux-thunk.
+ */
+export type PluginStore = Omit<Store<GlobalState>, 'dispatch'> & {
+    dispatch: ThunkDispatch<GlobalState, unknown, UnknownAction>;
+};
 
 export type UniqueIdentifier = string;
 export type ReactResolvable = React.ReactNode | React.ElementType;

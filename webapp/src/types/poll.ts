@@ -35,6 +35,7 @@ export type PollPost = {
 
 export type PollMetadata = {
     poll_id: string;
+    user_id?: string;
     voted_answers?: string[];
     can_manage_poll?: boolean;
     setting_progress?: boolean;
@@ -42,6 +43,11 @@ export type PollMetadata = {
 };
 
 export type PollMetadataMap = Record<string, PollMetadata>;
+
+/** The plugin configuration the server pushes over the websocket and serves over its API. */
+export type PollConfiguration = {
+    experimentalui: boolean;
+};
 
 export type DefaultSettingsValue = {
     anonymous?: boolean;
