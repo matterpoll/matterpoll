@@ -11,14 +11,14 @@ trim_trailing_whitespace = true
 [*.go]
 indent_style = tab
 
-[*.{js, jsx, ts, tsx, json, html}]
+[*.{js,jsx,ts,tsx,json,html}]
 indent_style = space
 indent_size = 4
 
 [webapp/package.json]
 indent_size = 2
 
-[{Makefile, *.mk}]
+[{Makefile,*.mk}]
 indent_style = tab
 
 [*.md]
