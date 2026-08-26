@@ -30,6 +30,13 @@ linters:
     goconst:
       min-len: 2
       min-occurrences: 2
+      # "call" is the golangci-lint default. "compositelit" was added by
+      # goconst v1.11: it flags every repeated string inside a composite
+      # literal, which for this code base is almost entirely i18n message
+      # definitions and struct/map literals of test data.
+      exclude-types:
+        - Call
+        - CompositeLit
     govet:
       enable-all: true
       disable:
@@ -47,6 +54,14 @@ linters:
           - dupl
           - goconst
         path: _test\.go
+      # pluginctl is a local developer tool; its "tainted" inputs are the
+      # developer's own environment variables and file paths. Only the taint
+      # rules that actually fire on it are excluded, so a new taint finding
+      # elsewhere in the tool still surfaces.
+      - linters:
+          - gosec
+        path: build/pluginctl/
+        text: 'G70[346]: (Path traversal|SSRF|Log injection) via taint analysis'
 
 formatters:
   enable:
