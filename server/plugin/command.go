@@ -123,15 +123,15 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 	if q == "help" {
 		msg := p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextSimple,
-			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger, "Yes": defaultYes, "No": defaultNo},
+			TemplateData:   map[string]any{"Trigger": configuration.Trigger, "Yes": defaultYes, "No": defaultNo},
 		}) + "\n"
 		msg += p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextOptions,
-			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger},
+			TemplateData:   map[string]any{"Trigger": configuration.Trigger},
 		}) + "\n"
 		msg += p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 			DefaultMessage: commandHelpTextPollSettingIntroduction,
-			TemplateData:   map[string]interface{}{"Trigger": configuration.Trigger},
+			TemplateData:   map[string]any{"Trigger": configuration.Trigger},
 		}) + "\n"
 		msg += "- `--anonymous`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymous) + "\n"
 		msg += "- `--anonymous-creator`: " + p.bundle.LocalizeDefaultMessage(userLocalizer, commandHelpTextPollSettingAnonymousCreator) + "\n"
@@ -155,9 +155,10 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		appErr := &model.AppError{
 			Id: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
-				TemplateData: map[string]interface{}{
+				TemplateData: map[string]any{
 					"Error": p.bundle.LocalizeErrorMessage(userLocalizer, errMsg),
-				}}),
+				},
+			}),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
 		}
@@ -174,9 +175,10 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		appErr := &model.AppError{
 			Id: p.bundle.LocalizeWithConfig(userLocalizer, &i18n.LocalizeConfig{
 				DefaultMessage: commandErrorInvalidInput,
-				TemplateData: map[string]interface{}{
+				TemplateData: map[string]any{
 					"Error": p.bundle.LocalizeErrorMessage(userLocalizer, errMsg),
-				}}),
+				},
+			}),
 			StatusCode: http.StatusBadRequest,
 			Where:      "ExecuteCommand",
 		}
@@ -195,7 +197,7 @@ func (p *MatterpollPlugin) executeCommand(args *model.CommandArgs) (string, *mod
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
 		Type:      MatterpollPostType,
-		Props: map[string]interface{}{
+		Props: map[string]any{
 			"poll_id": newPoll.ID,
 		},
 	}
@@ -257,9 +259,10 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 					ID:    "dialog.createPoll.option",
 					Other: "Option {{ .Number }}",
 				},
-				TemplateData: map[string]interface{}{
+				TemplateData: map[string]any{
 					"Number": i,
-				}}),
+				},
+			}),
 			Name:     fmt.Sprintf("option%v", i),
 			Type:     "text",
 			SubType:  "text",
@@ -277,7 +280,8 @@ func (p *MatterpollPlugin) getCreatePollDialog(siteURL, rootID string, l *i18n.L
 			DefaultMessage: &i18n.Message{
 				ID:    "dialog.createPoll.setting.multi",
 				Other: "The number of options that a user can vote on. 0 means that users can vote for all options even after adding options.",
-			}}),
+			},
+		}),
 		Optional: false,
 	})
 	elements = append(elements, model.DialogElement{

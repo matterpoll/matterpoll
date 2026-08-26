@@ -56,7 +56,7 @@ func (p *MatterpollPlugin) OnConfigurationChange() error {
 
 	// Emit experimental settings to client if changed
 	if oldConfiguration.ExperimentalUI != configuration.ExperimentalUI {
-		p.API.PublishWebSocketEvent("configuration_change", map[string]interface{}{
+		p.API.PublishWebSocketEvent("configuration_change", map[string]any{
 			"experimentalui": configuration.ExperimentalUI,
 		}, &model.WebsocketBroadcast{})
 	}

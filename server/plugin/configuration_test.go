@@ -53,7 +53,7 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("UnregisterCommand", "", "oldTrigger").Return(nil)
 				api.On("RegisterCommand", command).Return(nil)
 				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, nil)
-				api.On("PublishWebSocketEvent", "configuration_change", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "configuration_change", map[string]any{
 					"experimentalui": true,
 				}, &model.WebsocketBroadcast{}).Return()
 				return api
@@ -73,7 +73,7 @@ func TestOnConfigurationChange(t *testing.T) {
 				})
 				api.On("RegisterCommand", command).Return(nil)
 				api.On("PatchBot", testutils.GetBotUserID(), botPatch).Return(nil, nil)
-				api.On("PublishWebSocketEvent", "configuration_change", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "configuration_change", map[string]any{
 					"experimentalui": true,
 				}, &model.WebsocketBroadcast{}).Return()
 				return api

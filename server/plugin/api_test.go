@@ -268,7 +268,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question": pollWithTwoOptions.Question,
 					"option1":  pollWithTwoOptions.AnswerOptions[0].Answer,
 					"option2":  pollWithTwoOptions.AnswerOptions[1].Answer,
@@ -297,7 +297,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question": expectedPoll.Question,
 					"option1":  expectedPoll.AnswerOptions[0].Answer,
 					"option2":  expectedPoll.AnswerOptions[1].Answer,
@@ -327,7 +327,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question":                  pollWithSettings.Question,
 					"option1":                   pollWithSettings.AnswerOptions[0].Answer,
 					"option2":                   pollWithSettings.AnswerOptions[1].Answer,
@@ -353,7 +353,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"option1": expectedPoll.AnswerOptions[0].Answer,
 					"option2": expectedPoll.AnswerOptions[1].Answer,
 				},
@@ -373,7 +373,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question": expectedPoll.Question,
 					"option2":  expectedPoll.AnswerOptions[1].Answer,
 				},
@@ -393,7 +393,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question": expectedPoll.Question,
 					"option1":  expectedPoll.AnswerOptions[0].Answer,
 				},
@@ -413,7 +413,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question": expectedPoll.Question,
 					"option1":  "abc",
 					"option2":  "abc",
@@ -436,7 +436,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question": pollWithTwoOptions.Question,
 					"option1":  pollWithTwoOptions.AnswerOptions[0].Answer,
 					"option2":  pollWithTwoOptions.AnswerOptions[1].Answer,
@@ -465,7 +465,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question": pollWithTwoOptions.Question,
 					"option1":  pollWithTwoOptions.AnswerOptions[0].Answer,
 					"option2":  pollWithTwoOptions.AnswerOptions[1].Answer,
@@ -487,7 +487,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"question": pollWithTwoOptions.Question,
 					"option1":  pollWithTwoOptions.AnswerOptions[0].Answer,
 					"option2":  pollWithTwoOptions.AnswerOptions[1].Answer,
@@ -507,7 +507,7 @@ func TestHandleCreatePoll(t *testing.T) {
 				UserId:     userID,
 				CallbackId: rootID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"option1": expectedPoll.AnswerOptions[0].Answer,
 					"option2": expectedPoll.AnswerOptions[1].Answer,
 				},
@@ -704,7 +704,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("GetPost", "postID1").Return(post, nil)
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"voted_answers":             []string{"Answer 1"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
@@ -729,7 +729,7 @@ func TestHandleVote(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"voted_answers":             []string{"Answer 1"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
@@ -760,7 +760,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"can_manage_poll":           false,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
@@ -786,7 +786,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("GetPost", "postID1").Return(post, nil)
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"can_manage_poll":           true,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
@@ -830,7 +830,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"can_manage_poll":           false,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
@@ -856,7 +856,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("GetPost", "postID1").Return(post, nil)
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"voted_answers":             []string{"Answer 2"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
@@ -882,7 +882,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("GetPost", "postID1").Return(post, nil)
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"voted_answers":             []string{"Answer 2"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
@@ -934,7 +934,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 7)...).Return().Maybe()
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"voted_answers":             []string{"Answer 2"},
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID2",
@@ -1232,7 +1232,7 @@ func TestHandleResetVotes(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"can_manage_poll":           true,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
@@ -1256,7 +1256,7 @@ func TestHandleResetVotes(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe", Username: "jhDoe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"can_manage_poll":           true,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
@@ -1280,7 +1280,7 @@ func TestHandleResetVotes(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
-				api.On("PublishWebSocketEvent", "has_voted", map[string]interface{}{
+				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"can_manage_poll":           true,
 					"poll_id":                   testutils.GetPollID(),
 					"user_id":                   "userID1",
@@ -1423,6 +1423,7 @@ func TestHandleResetVotes(t *testing.T) {
 		})
 	}
 }
+
 func TestHandleAddOption(t *testing.T) {
 	userID := testutils.GetPollWithVotes().Creator
 	triggerID := model.NewId()
@@ -1457,12 +1458,13 @@ func TestHandleAddOption(t *testing.T) {
 			IconURL:     fmt.Sprintf(responseIconURL, testutils.GetSiteURL(), root.Manifest.Id),
 			CallbackId:  "postID1",
 			SubmitLabel: "Add",
-			Elements: []model.DialogElement{{
-				DisplayName: "Option",
-				Name:        "answerOption",
-				Type:        "text",
-				SubType:     "text",
-			},
+			Elements: []model.DialogElement{
+				{
+					DisplayName: "Option",
+					Name:        "answerOption",
+					Type:        "text",
+					SubType:     "text",
+				},
 			},
 		},
 	}
@@ -1827,7 +1829,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -1855,7 +1857,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption":      "New Option",
 					"settings-progress": true,
 				},
@@ -1881,7 +1883,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -1906,7 +1908,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -1932,7 +1934,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": 1,
 				},
 			},
@@ -1958,7 +1960,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": poll1In.AnswerOptions[0].Answer,
 				},
 			},
@@ -1989,7 +1991,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -2015,7 +2017,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -2033,7 +2035,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -2054,7 +2056,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -2077,7 +2079,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -2097,7 +2099,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 				UserId:     userID,
 				CallbackId: postID,
 				ChannelId:  channelID,
-				Submission: map[string]interface{}{
+				Submission: map[string]any{
 					"answerOption": "New Option",
 				},
 			},
@@ -2784,6 +2786,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 		})
 	}
 }
+
 func TestHandleDeletePoll(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
@@ -3137,7 +3140,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				UserId:     "userID1",
 				CallbackId: "postID1",
 				ChannelId:  "channelID1",
-				Submission: map[string]interface{}{},
+				Submission: map[string]any{},
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   nil,
@@ -3159,7 +3162,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				UserId:     "userID1",
 				CallbackId: "postID2",
 				ChannelId:  "channelID1",
-				Submission: map[string]interface{}{},
+				Submission: map[string]any{},
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   nil,
@@ -3181,7 +3184,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				UserId:     "userID1",
 				CallbackId: "postID1",
 				ChannelId:  "channelID1",
-				Submission: map[string]interface{}{},
+				Submission: map[string]any{},
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   nil,
@@ -3204,7 +3207,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				UserId:     "userID1",
 				CallbackId: "postID1",
 				ChannelId:  "channelID1",
-				Submission: map[string]interface{}{},
+				Submission: map[string]any{},
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   nil,
@@ -3220,7 +3223,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				UserId:     "userID1",
 				CallbackId: "postID1",
 				ChannelId:  "channelID1",
-				Submission: map[string]interface{}{},
+				Submission: map[string]any{},
 			},
 			ExpectedStatusCode: http.StatusInternalServerError,
 		},
@@ -3237,7 +3240,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				UserId:     "userID1",
 				CallbackId: "postID1",
 				ChannelId:  "channelID1",
-				Submission: map[string]interface{}{},
+				Submission: map[string]any{},
 			},
 			ExpectedStatusCode: http.StatusInternalServerError,
 		},
@@ -3256,7 +3259,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				UserId:     "userID1",
 				CallbackId: "postID1",
 				ChannelId:  "channelID1",
-				Submission: map[string]interface{}{},
+				Submission: map[string]any{},
 			},
 			ExpectedStatusCode: http.StatusUnauthorized,
 		},
@@ -3274,7 +3277,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 				UserId:     "userID1",
 				CallbackId: "postID1",
 				ChannelId:  "channelID1",
-				Submission: map[string]interface{}{},
+				Submission: map[string]any{},
 			},
 			ExpectedStatusCode: http.StatusUnauthorized,
 		},
