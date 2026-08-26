@@ -70,6 +70,6 @@ export default class RemoveMarkdown extends marked.Renderer {
     }
 
     text(text: string) {
-        return text.replace('\n', ' ');
+        return text.replaceAll('\n', ' ');
     }
 }
