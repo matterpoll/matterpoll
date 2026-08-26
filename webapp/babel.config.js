@@ -18,7 +18,12 @@ const config = {
             debug: false,
             shippedProposals: true,
         }],
-        '@babel/preset-react',
+
+        // The plugin's webpack config externalizes `react` to the host webapp's
+        // global React instance; the default "automatic" runtime would instead
+        // bundle this project's own react/jsx-(dev-)runtime copy, which then
+        // holds internal state that doesn't match the host's React instance.
+        ['@babel/preset-react', {runtime: 'classic'}],
 
         // Babel 8 removed `allExtensions`/`isTSX`; the preset now decides whether to
         // parse JSX from the file extension, which is what this project wants.
