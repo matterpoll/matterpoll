@@ -18,6 +18,7 @@ const config = {
             debug: false,
             shippedProposals: true,
         }],
+
         // The plugin's webpack config externalizes `react` to the host webapp's
         // global React instance; the default "automatic" runtime would instead
         // bundle this project's own react/jsx-(dev-)runtime copy, which then
