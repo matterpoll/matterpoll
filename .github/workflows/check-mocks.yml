@@ -5,6 +5,9 @@ on:
       - master
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   check-mocks:
     name: Check Mocks
@@ -12,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Setup Go
         uses: actions/setup-go@v7

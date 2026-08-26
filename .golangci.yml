@@ -55,11 +55,13 @@ linters:
           - goconst
         path: _test\.go
       # pluginctl is a local developer tool; its "tainted" inputs are the
-      # developer's own environment variables and file paths.
+      # developer's own environment variables and file paths. Only the taint
+      # rules that actually fire on it are excluded, so a new taint finding
+      # elsewhere in the tool still surfaces.
       - linters:
           - gosec
         path: build/pluginctl/
-        text: via taint analysis
+        text: 'G70[346]: (Path traversal|SSRF|Log injection) via taint analysis'
 
 formatters:
   enable:

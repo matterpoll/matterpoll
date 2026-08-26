@@ -178,7 +178,7 @@ func checkJSONLogsSetting(ctx context.Context, client *model.Client4) error {
 		return fmt.Errorf("failed to fetch config: %w", err)
 	}
 	if cfg.LogSettings.FileJson == nil || !*cfg.LogSettings.FileJson {
-		return errors.New("JSON output for file logs are disabled. Please enable LogSettings.FileJson via the configuration in Mattermost.") //nolint:revive,staticcheck
+		return errors.New("JSON output for file logs is disabled. Please enable LogSettings.FileJson via the configuration in Mattermost.") //nolint:revive,staticcheck
 	}
 
 	return nil
