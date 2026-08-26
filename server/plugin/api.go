@@ -428,12 +428,9 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 // caller does not have to wait on the permission check and the websocket event. The
 // goroutine is tracked in p.backgroundJobs so it can be waited on.
 func (p *MatterpollPlugin) publishPollMetadataAsync(poll *poll.Poll, userID string) {
-	p.backgroundJobs.Add(1)
-
-	go func() {
-		defer p.backgroundJobs.Done()
+	p.backgroundJobs.Go(func() {
 		p.publishPollMetadata(poll, userID)
-	}()
+	})
 }
 
 func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
