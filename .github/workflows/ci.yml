@@ -14,7 +14,6 @@ permissions:
 
 jobs:
   plugin-ci:
-    uses: mattermost/actions-workflows/.github/workflows/community-plugin-ci.yml@ce05ecbb0c51643e1cffb7834469df74ab68dae5
+    # The Go version is read from go.mod via the workflow's go-version-file input.
+    uses: mattermost/actions-workflows/.github/workflows/community-plugin-ci.yml@86a78bd5bf6e009254bd0e23e316601d9d0db472
     secrets: inherit
-    with:
-      golang-version: "1.27"
