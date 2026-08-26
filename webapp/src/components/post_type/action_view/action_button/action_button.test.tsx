@@ -46,9 +46,10 @@ describe('components/action_button/ActionButton', () => {
         return {backgroundColor, color};
     };
 
-    // jsdom reports the user-agent default ('ButtonFace') for an unstyled button, so
-    // "not coloured" means "still the default", not "no background at all".
-    const UNSTYLED_BACKGROUND = 'ButtonFace';
+    // jsdom reports the user-agent default for an unstyled button, so "not coloured"
+    // means "still the default", not "no background at all". It serialises the system
+    // colour keyword in lower case, as the CSS spec requires.
+    const UNSTYLED_BACKGROUND = 'buttonface';
 
     test('should not colour the button without a style', () => {
         render(<ActionButton {...baseProps}/>);
