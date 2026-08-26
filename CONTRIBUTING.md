@@ -80,6 +80,10 @@ You can find all issue that we seek help with [here](https://github.com/matterpo
 
 This plugin contains both a server and webapp portion.
 
+`manifest.go` and `webapp/src/manifest.ts` are generated from `plugin.json` and are not
+checked in. Every `make` target that builds or tests the plugin regenerates them, but a
+bare `go build ./...` or `npm test` on a fresh clone needs `make apply` first.
+
 * Use `make dist` to build distributions of the plugin that you can upload to a Mattermost server.
 * Use `make test` to run tests of the plugin.
 * Use `make check-style` to check the style.

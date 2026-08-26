@@ -35,7 +35,7 @@ func ParseInput(input, trigger string) (string, []string, []string) {
 		ops := strings.TrimPrefix(strings.TrimSpace(l[1]), "--")
 		// Split between Settings
 		opsList := strings.Split(ops, "--")
-		for i := 0; i < len(opsList); i++ {
+		for i := range opsList {
 			s := strings.TrimSpace(opsList[i])
 			settings = append(settings, s)
 		}
@@ -44,7 +44,7 @@ func ParseInput(input, trigger string) (string, []string, []string) {
 	// Unescape " in question and options
 	question := strings.ReplaceAll(split[0], `\"`, `"`)
 	options := split[1:]
-	for i := 0; i < len(options); i++ {
+	for i := range options {
 		options[i] = strings.ReplaceAll(options[i], `\"`, `"`)
 	}
 	return question, options, settings

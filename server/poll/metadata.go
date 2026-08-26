@@ -11,8 +11,8 @@ type Metadata struct {
 }
 
 // ToMap returns a Metadata as a map
-func (m *Metadata) ToMap() map[string]interface{} {
-	return map[string]interface{}{
+func (m *Metadata) ToMap() map[string]any {
+	return map[string]any{
 		"voted_answers":             m.VotedAnswers,
 		"poll_id":                   m.PollID,
 		"user_id":                   m.UserID,

@@ -31,14 +31,14 @@ func TestCheckOldestEntry(t *testing.T) {
 		"no new entries, one old entry": {
 			logs:           []string{"old"},
 			oldest:         "old",
-			expectedLogs:   []string{},
+			expectedLogs:   nil,
 			expectedOldest: "old",
 			expectedAllNew: false,
 		},
-		"no new entries, multipile old entries": {
+		"no new entries, multiple old entries": {
 			logs:           []string{"old1", "old2", "old3"},
 			oldest:         "old3",
-			expectedLogs:   []string{},
+			expectedLogs:   nil,
 			expectedOldest: "old3",
 			expectedAllNew: false,
 		},
@@ -49,7 +49,7 @@ func TestCheckOldestEntry(t *testing.T) {
 			expectedOldest: "new",
 			expectedAllNew: true,
 		},
-		"multipile new entries, no old entry": {
+		"multiple new entries, no old entry": {
 			logs:           []string{"new1", "new2", "new3"},
 			oldest:         "old",
 			expectedLogs:   []string{"new1", "new2", "new3"},
@@ -63,14 +63,14 @@ func TestCheckOldestEntry(t *testing.T) {
 			expectedOldest: "new",
 			expectedAllNew: false,
 		},
-		"one new entry, multipile old entries": {
+		"one new entry, multiple old entries": {
 			logs:           []string{"old1", "old2", "old3", "new"},
 			oldest:         "old3",
 			expectedLogs:   []string{"new"},
 			expectedOldest: "new",
 			expectedAllNew: false,
 		},
-		"multipile new entries, ultipile old entries": {
+		"multiple new entries, multiple old entries": {
 			logs:           []string{"old1", "old2", "old3", "new1", "new2", "new3"},
 			oldest:         "old3",
 			expectedLogs:   []string{"new1", "new2", "new3"},

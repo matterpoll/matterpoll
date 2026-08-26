@@ -17,7 +17,7 @@ func TestToMap(t *testing.T) {
 		SettingPublicAddOption: true,
 	}
 
-	expectedMap := map[string]interface{}{
+	expectedMap := map[string]any{
 		"voted_answers":             []string(nil),
 		"poll_id":                   "pollID",
 		"user_id":                   "userID",
