@@ -31,6 +31,10 @@ type MatterpollPlugin struct {
 	// activated is used to track whether or not OnActivate has initialized the plugin state.
 	activated bool
 
+	// backgroundJobs tracks goroutines started to do work outside the lifetime of the
+	// request that spawned them, so that OnDeactivate (and tests) can wait for them.
+	backgroundJobs sync.WaitGroup
+
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
 
@@ -117,9 +121,10 @@ func (p *MatterpollPlugin) OnActivate() error {
 	return nil
 }
 
-// OnDeactivate marks the plugin as deactivated
+// OnDeactivate marks the plugin as deactivated and waits for any background jobs to finish
 func (p *MatterpollPlugin) OnDeactivate() error {
 	p.setActivated(false)
+	p.backgroundJobs.Wait()
 
 	return nil
 }

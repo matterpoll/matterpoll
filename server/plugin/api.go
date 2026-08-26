@@ -386,7 +386,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	go p.publishPollMetadata(poll, userID)
+	p.publishPollMetadataAsync(poll, userID)
 
 	post := &model.Post{}
 	model.ParseMessageAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))
@@ -422,6 +422,15 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 		return &i18n.LocalizeConfig{DefaultMessage: responseVoteUpdated}, post, nil
 	}
 	return &i18n.LocalizeConfig{DefaultMessage: responseVoteCounted}, post, nil
+}
+
+// publishPollMetadataAsync publishes the poll metadata in the background, so that the
+// caller does not have to wait on the permission check and the websocket event. The
+// goroutine is tracked in p.backgroundJobs so it can be waited on.
+func (p *MatterpollPlugin) publishPollMetadataAsync(poll *poll.Poll, userID string) {
+	p.backgroundJobs.Go(func() {
+		p.publishPollMetadata(poll, userID)
+	})
 }
 
 func (p *MatterpollPlugin) publishPollMetadata(poll *poll.Poll, userID string) {
@@ -464,7 +473,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to save poll")
 	}
 
-	go p.publishPollMetadata(poll, userID)
+	p.publishPollMetadataAsync(poll, userID)
 
 	post := &model.Post{}
 	model.ParseMessageAttachment(post, poll.ToPostActions(p.bundle, root.Manifest.Id, displayName))

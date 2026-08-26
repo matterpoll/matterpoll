@@ -1085,6 +1085,9 @@ func TestHandleVote(t *testing.T) {
 				r.Header.Add("Mattermost-User-ID", model.NewId())
 			}
 			p.ServeHTTP(nil, w, r)
+			// handleVote/handleResetVotes publish the poll metadata in the background;
+			// wait for that to finish before the deferred mock assertions run.
+			p.backgroundJobs.Wait()
 
 			result := w.Result()
 			require.NotNil(t, result)
@@ -1390,6 +1393,9 @@ func TestHandleResetVotes(t *testing.T) {
 				r.Header.Add("Mattermost-User-ID", model.NewId())
 			}
 			p.ServeHTTP(nil, w, r)
+			// handleVote/handleResetVotes publish the poll metadata in the background;
+			// wait for that to finish before the deferred mock assertions run.
+			p.backgroundJobs.Wait()
 
 			result := w.Result()
 			require.NotNil(t, result)
