@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -134,7 +135,7 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 					ID:    "poll.newPoll.unrecognizedSetting",
 					Other: "Unrecognized poll setting: {{.Setting}}",
 				},
-				Data: map[string]interface{}{
+				Data: map[string]any{
 					"Setting": str,
 				},
 			}
@@ -144,7 +145,7 @@ func NewSettingsFromStrings(strs []string) (Settings, *utils.ErrorMessage) {
 }
 
 // NewSettingsFromSubmission creates a new settings with the given parameter.
-func NewSettingsFromSubmission(submission map[string]interface{}) Settings {
+func NewSettingsFromSubmission(submission map[string]any) Settings {
 	settings := Settings{MaxVotes: 1}
 	for k, v := range submission {
 		if k == "setting-multi" {
@@ -181,7 +182,7 @@ func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 				ID:    "poll.newPoll.votesettings.unexpectedError",
 				Other: "Unexpected error happens when parsing {{.Setting}}",
 			},
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"Setting": s,
 			},
 		}
@@ -193,7 +194,7 @@ func parseVotesSettings(s string) (int, *utils.ErrorMessage) {
 				ID:    "poll.newPoll.votesettings.unexpectedError",
 				Other: "Unexpected error happens when parsing {{.Setting}}",
 			},
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"Setting": s,
 			},
 		}
@@ -209,7 +210,7 @@ func (p *Poll) validate() *utils.ErrorMessage {
 				ID:    "poll.newPoll.votesettings.invalidSetting",
 				Other: `The number of votes must be 0 or a positive number, and must be less than or equal to the number of options. You specified "{{.MaxVotes}}", but the number of options is "{{.Options}}".`,
 			},
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"MaxVotes": p.Settings.MaxVotes,
 				"Options":  len(p.AnswerOptions),
 			},
@@ -241,7 +242,7 @@ func (p *Poll) AddAnswerOption(newAnswerOption string) *utils.ErrorMessage {
 					ID:    "poll.addAnswerOption.duplicate",
 					Other: "Duplicate option: {{.Option}}",
 				},
-				Data: map[string]interface{}{
+				Data: map[string]any{
 					"Option": newAnswerOption,
 				},
 			}
@@ -267,13 +268,11 @@ func (p *Poll) UpdateVote(userID string, index int) (*i18n.Message, error) {
 	if p.IsMultiVote() {
 		// Multi Answer Mode
 		votedAnswers := p.GetVotedAnswers(userID)
-		for _, answer := range votedAnswers {
-			if answer == p.AnswerOptions[index].Answer {
-				return &i18n.Message{
-					ID:    "poll.updateVote.alreadyVoted",
-					Other: "You've already voted for this option.",
-				}, nil
-			}
+		if slices.Contains(votedAnswers, p.AnswerOptions[index].Answer) {
+			return &i18n.Message{
+				ID:    "poll.updateVote.alreadyVoted",
+				Other: "You've already voted for this option.",
+			}, nil
 		}
 		if p.Settings.MaxVotes != 0 && p.Settings.MaxVotes <= len(votedAnswers) {
 			return &i18n.Message{

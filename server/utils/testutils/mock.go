@@ -4,9 +4,9 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func GetMockArgumentsWithType(typeString string, num int) []interface{} {
-	ret := make([]interface{}, num)
-	for i := 0; i < len(ret); i++ {
+func GetMockArgumentsWithType(typeString string, num int) []any {
+	ret := make([]any, num)
+	for i := range ret {
 		ret[i] = mock.AnythingOfType(typeString)
 	}
 	return ret

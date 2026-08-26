@@ -169,14 +169,14 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 	if len(settingsText) > 0 {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageSettings,
-			TemplateData:   map[string]interface{}{"Settings": settingsText},
+			TemplateData:   map[string]any{"Settings": settingsText},
 		}))
 	}
 
 	if p.IsMultiVote() {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageTotalVotesMultiSetting,
-			TemplateData: map[string]interface{}{
+			TemplateData: map[string]any{
 				"TotalVotes":  numberOfVotes,
 				"TotalVoters": numberOfVoters,
 			},
@@ -185,7 +185,7 @@ func (p *Poll) makeAdditionalText(bundle *utils.Bundle, numberOfVotes, numberOfV
 	} else {
 		lines = append(lines, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: pollMessageTotalVotes,
-			TemplateData:   map[string]interface{}{"TotalVotes": numberOfVotes},
+			TemplateData:   map[string]any{"TotalVotes": numberOfVotes},
 		}))
 	}
 	return strings.Join(lines, "\n")
@@ -198,7 +198,7 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 	fields := []*model.MessageAttachmentField{}
 
 	for _, o := range p.AnswerOptions {
-		var voter string
+		var voter strings.Builder
 		if !p.Settings.Anonymous {
 			for i := 0; i < len(o.Voter); i++ {
 				displayName, err := convert(o.Voter[i])
@@ -206,11 +206,11 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 					return nil, err
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeparator}) + " "
+					voter.WriteString(" " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: pollEndPostSeparator}) + " ")
 				} else if i != 0 {
-					voter += ", "
+					voter.WriteString(", ")
 				}
-				voter += displayName
+				voter.WriteString(displayName)
 			}
 		}
 
@@ -218,13 +218,13 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 			Short: true,
 			Title: bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 				DefaultMessage: pollEndPostAnswerHeading,
-				TemplateData: map[string]interface{}{
+				TemplateData: map[string]any{
 					"Answer": o.Answer,
 					"Count":  len(o.Voter),
 				},
 				PluralCount: len(o.Voter),
 			}),
-			Value: voter,
+			Value: voter.String(),
 		})
 	}
 
@@ -247,16 +247,17 @@ func (p *Poll) ToEndPollPost(bundle *utils.Bundle, authorName string, convert ID
 // ToCard return the poll for rhs card
 func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 	localizer := bundle.GetServerLocalizer()
-	s := fmt.Sprintf("# %s\n", p.Question)
+	var s strings.Builder
+	fmt.Fprintf(&s, "# %s\n", p.Question)
 
 	if !p.Settings.AnonymousCreator {
 		creatorName, _ := convert(p.Creator)
-		s += fmt.Sprintf(bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
+		fmt.Fprintf(&s, bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollCreatedBy})+" %s\n", creatorName)
 	}
 
 	const comma = ", "
 	for _, o := range p.AnswerOptions {
-		var voter string
+		var voter strings.Builder
 		if !p.Settings.Anonymous {
 			for i := 0; i < len(o.Voter); i++ {
 				displayName, err := convert(o.Voter[i])
@@ -264,22 +265,22 @@ func (p *Poll) ToCard(bundle *utils.Bundle, convert IDToNameConverter) string {
 					return ""
 				}
 				if i+1 == len(o.Voter) && len(o.Voter) > 1 {
-					voter += " " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeparator}) + " "
+					voter.WriteString(" " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{DefaultMessage: rhsCardPollVoterSeparator}) + " ")
 				} else if i != 0 {
-					voter += comma
+					voter.WriteString(comma)
 				}
-				voter += displayName
+				voter.WriteString(displayName)
 			}
 		}
 
-		s += "### " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
+		s.WriteString("### " + bundle.LocalizeWithConfig(localizer, &i18n.LocalizeConfig{
 			DefaultMessage: rhsCardPollAnswerHeading,
-			TemplateData: map[string]interface{}{
+			TemplateData: map[string]any{
 				"Answer": o.Answer,
 				"Count":  len(o.Voter),
 			},
 			PluralCount: len(o.Voter),
-		}) + "\n" + voter + "\n"
+		}) + "\n" + voter.String() + "\n")
 	}
-	return s
+	return s.String()
 }

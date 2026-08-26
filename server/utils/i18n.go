@@ -22,7 +22,7 @@ type Bundle struct {
 // It should not be wrapped and instead always returned.
 type ErrorMessage struct {
 	Message *i18n.Message
-	Data    map[string]interface{}
+	Data    map[string]any
 }
 
 // InitBundle loads all localization files in i18n into a bundle and return this

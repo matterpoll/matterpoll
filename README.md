@@ -1,6 +1,6 @@
 # ![Matterpoll Logo](images/logo.svg)
 
-[![Build Status](https://img.shields.io/circleci/project/github/matterpoll/matterpoll/master.svg)](https://circleci.com/gh/matterpoll/matterpoll)
+[![Build Status](https://github.com/matterpoll/matterpoll/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/matterpoll/matterpoll/actions/workflows/ci.yml)
 [![Code Coverage](https://img.shields.io/codecov/c/github/matterpoll/matterpoll/master.svg)](https://codecov.io/gh/matterpoll/matterpoll/branch/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/matterpoll/matterpoll)](https://goreportcard.com/report/github.com/matterpoll/matterpoll)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2588/badge)](https://bestpractices.coreinfrastructure.org/projects/2588)

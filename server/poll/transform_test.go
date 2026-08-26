@@ -151,55 +151,56 @@ func TestPollToPostActions(t *testing.T) {
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Total votes**: 0",
-				Actions: []*model.PostAction{{
-					Id:    "vote0",
-					Name:  "Yes",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+				Actions: []*model.PostAction{
+					{
+						Id:    "vote0",
+						Name:  "Yes",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote1",
+						Name:  "No",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "resetVote",
+						Name:  "Reset Your Vote",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "addOption",
+						Name:  "Add Option",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "endPoll",
+						Name:  "End Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "deletePoll",
+						Name:  "Delete Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "danger",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
 					},
-				}, {
-					Id:    "vote1",
-					Name:  "No",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "resetVote",
-					Name:  "Reset Your Vote",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "addOption",
-					Name:  "Add Option",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "endPoll",
-					Name:  "End Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "deletePoll",
-					Name:  "Delete Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "danger",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				},
 				},
 			}},
 		},
@@ -209,63 +210,64 @@ func TestPollToPostActions(t *testing.T) {
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: progress\n**Total votes**: 0",
-				Actions: []*model.PostAction{{
-					Id:    "vote0",
-					Name:  "Answer 1 (0)",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+				Actions: []*model.PostAction{
+					{
+						Id:    "vote0",
+						Name:  "Answer 1 (0)",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote1",
+						Name:  "Answer 2 (0)",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote2",
+						Name:  "Answer 3 (0)",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "resetVote",
+						Name:  "Reset Your Vote",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "addOption",
+						Name:  "Add Option",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "endPoll",
+						Name:  "End Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "deletePoll",
+						Name:  "Delete Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "danger",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
 					},
-				}, {
-					Id:    "vote1",
-					Name:  "Answer 2 (0)",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "vote2",
-					Name:  "Answer 3 (0)",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "resetVote",
-					Name:  "Reset Your Vote",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "addOption",
-					Name:  "Add Option",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "endPoll",
-					Name:  "End Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "deletePoll",
-					Name:  "Delete Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "danger",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				},
 				},
 			}},
 		},
@@ -275,63 +277,64 @@ func TestPollToPostActions(t *testing.T) {
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: anonymous, public-add-option\n**Total votes**: 0",
-				Actions: []*model.PostAction{{
-					Id:    "vote0",
-					Name:  "Answer 1",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+				Actions: []*model.PostAction{
+					{
+						Id:    "vote0",
+						Name:  "Answer 1",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote1",
+						Name:  "Answer 2",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote2",
+						Name:  "Answer 3",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "resetVote",
+						Name:  "Reset Your Vote",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "addOption",
+						Name:  "Add Option",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "endPoll",
+						Name:  "End Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "deletePoll",
+						Name:  "Delete Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "danger",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
 					},
-				}, {
-					Id:    "vote1",
-					Name:  "Answer 2",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "vote2",
-					Name:  "Answer 3",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "resetVote",
-					Name:  "Reset Your Vote",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "addOption",
-					Name:  "Add Option",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "endPoll",
-					Name:  "End Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "deletePoll",
-					Name:  "Delete Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "danger",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				},
 				},
 			}},
 		},
@@ -341,63 +344,64 @@ func TestPollToPostActions(t *testing.T) {
 				AuthorName: "",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: anonymous, anonymous-creator\n**Total votes**: 0",
-				Actions: []*model.PostAction{{
-					Id:    "vote0",
-					Name:  "Answer 1",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+				Actions: []*model.PostAction{
+					{
+						Id:    "vote0",
+						Name:  "Answer 1",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote1",
+						Name:  "Answer 2",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote2",
+						Name:  "Answer 3",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "resetVote",
+						Name:  "Reset Your Vote",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "addOption",
+						Name:  "Add Option",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "endPoll",
+						Name:  "End Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "deletePoll",
+						Name:  "Delete Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "danger",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
 					},
-				}, {
-					Id:    "vote1",
-					Name:  "Answer 2",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "vote2",
-					Name:  "Answer 3",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "resetVote",
-					Name:  "Reset Your Vote",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "addOption",
-					Name:  "Add Option",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "endPoll",
-					Name:  "End Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "deletePoll",
-					Name:  "Delete Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "danger",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				},
 				},
 			}},
 		},
@@ -407,63 +411,64 @@ func TestPollToPostActions(t *testing.T) {
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: votes=3\n**Total votes**: 3 (1 voter)",
-				Actions: []*model.PostAction{{
-					Id:    "vote0",
-					Name:  "Answer 1",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+				Actions: []*model.PostAction{
+					{
+						Id:    "vote0",
+						Name:  "Answer 1",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote1",
+						Name:  "Answer 2",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote2",
+						Name:  "Answer 3",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "resetVote",
+						Name:  "Reset Your Votes",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "addOption",
+						Name:  "Add Option",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "endPoll",
+						Name:  "End Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "deletePoll",
+						Name:  "Delete Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "danger",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
 					},
-				}, {
-					Id:    "vote1",
-					Name:  "Answer 2",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "vote2",
-					Name:  "Answer 3",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "resetVote",
-					Name:  "Reset Your Votes",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "addOption",
-					Name:  "Add Option",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "endPoll",
-					Name:  "End Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "deletePoll",
-					Name:  "Delete Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "danger",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				},
 				},
 			}},
 		},
@@ -473,63 +478,64 @@ func TestPollToPostActions(t *testing.T) {
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: votes=3\n**Total votes**: 6 (3 voters)",
-				Actions: []*model.PostAction{{
-					Id:    "vote0",
-					Name:  "Answer 1",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+				Actions: []*model.PostAction{
+					{
+						Id:    "vote0",
+						Name:  "Answer 1",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote1",
+						Name:  "Answer 2",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote2",
+						Name:  "Answer 3",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "resetVote",
+						Name:  "Reset Your Votes",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "addOption",
+						Name:  "Add Option",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "endPoll",
+						Name:  "End Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "deletePoll",
+						Name:  "Delete Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "danger",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
 					},
-				}, {
-					Id:    "vote1",
-					Name:  "Answer 2",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "vote2",
-					Name:  "Answer 3",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "resetVote",
-					Name:  "Reset Your Votes",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "addOption",
-					Name:  "Add Option",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "endPoll",
-					Name:  "End Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "deletePoll",
-					Name:  "Delete Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "danger",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				},
 				},
 			}},
 		},
@@ -539,63 +545,64 @@ func TestPollToPostActions(t *testing.T) {
 				AuthorName: "John Doe",
 				Title:      "Question",
 				Text:       "---\n**Poll Settings**: votes=unlimited\n**Total votes**: 0 (0 voters)",
-				Actions: []*model.PostAction{{
-					Id:    "vote0",
-					Name:  "Answer 1",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+				Actions: []*model.PostAction{
+					{
+						Id:    "vote0",
+						Name:  "Answer 1",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/0", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote1",
+						Name:  "Answer 2",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "vote2",
+						Name:  "Answer 3",
+						Type:  model.PostActionTypeButton,
+						Style: "default",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "resetVote",
+						Name:  "Reset Your Votes",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "addOption",
+						Name:  "Add Option",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "endPoll",
+						Name:  "End Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "primary",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
+					}, {
+						Id:    "deletePoll",
+						Name:  "Delete Poll",
+						Type:  model.PostActionTypeButton,
+						Style: "danger",
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
+						},
 					},
-				}, {
-					Id:    "vote1",
-					Name:  "Answer 2",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/1", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "vote2",
-					Name:  "Answer 3",
-					Type:  model.PostActionTypeButton,
-					Style: "default",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/vote/2", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "resetVote",
-					Name:  "Reset Your Votes",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/votes/reset", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "addOption",
-					Name:  "Add Option",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/option/add/request", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "endPoll",
-					Name:  "End Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "primary",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/end", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				}, {
-					Id:    "deletePoll",
-					Name:  "Delete Poll",
-					Type:  model.PostActionTypeButton,
-					Style: "danger",
-					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("/plugins/%s/api/%s/polls/%s/delete", PluginID, currentAPIVersion, testutils.GetPollID()),
-					},
-				},
 				},
 			}},
 		},

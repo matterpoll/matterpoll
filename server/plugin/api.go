@@ -333,7 +333,7 @@ func (p *MatterpollPlugin) handleCreatePoll(_ map[string]string, request *model.
 		ChannelId: request.ChannelId,
 		RootId:    request.CallbackId,
 		Type:      MatterpollPostType,
-		Props: map[string]interface{}{
+		Props: map[string]any{
 			"poll_id": poll.ID,
 		},
 	}
@@ -412,7 +412,7 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 				Many:  "Your vote has been counted. You have {{.Remains}} votes left.",
 				Other: "Your vote has been counted. You have {{.Remains}} votes left.",
 			},
-			TemplateData: map[string]interface{}{"Remains": remains},
+			TemplateData: map[string]any{"Remains": remains},
 			PluralCount:  remains,
 		}, post, nil
 	}
@@ -487,7 +487,7 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 			ID:    "response.resetVotes.success",
 			Other: "All votes are cleared. Your previous votes were [{{.ClearedVotes}}].",
 		},
-		TemplateData: map[string]interface{}{"ClearedVotes": strings.Join(votedAnswers, ", ")},
+		TemplateData: map[string]any{"ClearedVotes": strings.Join(votedAnswers, ", ")},
 	}, post, nil
 }
 
@@ -690,10 +690,11 @@ func (p *MatterpollPlugin) postEndPollAnnouncement(channelID, postID, question s
 		RootId:    postID,
 		Message: p.bundle.LocalizeWithConfig(p.bundle.GetServerLocalizer(), &i18n.LocalizeConfig{
 			DefaultMessage: responseEndPollSuccessfully,
-			TemplateData: map[string]interface{}{
+			TemplateData: map[string]any{
 				"Question": question,
 				"Link":     fmt.Sprintf("%s/_redirect/pl/%s", *p.ServerConfig.ServiceSettings.SiteURL, postID),
-			}}),
+			},
+		}),
 		Type: model.PostTypeDefault,
 	}
 

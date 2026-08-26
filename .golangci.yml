@@ -1,10 +1,12 @@
 version: "2"
 run:
+  timeout: 5m
   modules-download-mode: readonly
 
 linters:
   default: none
   enable:
+    - bidichk
     - bodyclose
     - dogsled
     - errcheck
@@ -14,12 +16,15 @@ linters:
     - gosec
     - govet
     - ineffassign
+    - makezero
     - misspell
+    - modernize
     - nakedret
     - revive
     - staticcheck
     - unconvert
     - unparam
+    - unqueryvet
     - unused
     - whitespace
 
@@ -43,8 +48,13 @@ linters:
         - fieldalignment
     misspell:
       locale: US
+    unqueryvet:
+      check-sql-builders: true
 
   exclusions:
+    # Some npm packages ship Go sources under webapp/node_modules.
+    paths:
+      - webapp
     presets:
       - comments
       - common-false-positives
@@ -66,10 +76,14 @@ linters:
 formatters:
   enable:
     - gofmt
+    - gofumpt
     - goimports
   settings:
     gofmt:
       simplify: true
+      rewrite-rules:
+        - pattern: interface{}
+          replacement: any
     goimports:
       local-prefixes:
         - github.com/matterpoll/matterpoll

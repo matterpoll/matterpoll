@@ -165,11 +165,11 @@ func TestNewSettingsFromStrings(t *testing.T) {
 
 func TestNewSettingsFromSubmission(t *testing.T) {
 	for name, test := range map[string]struct {
-		Submission       map[string]interface{}
+		Submission       map[string]any
 		ExpectedSettings poll.Settings
 	}{
 		"no settings": {
-			Submission: map[string]interface{}{},
+			Submission: map[string]any{},
 			ExpectedSettings: poll.Settings{
 				Anonymous:        false,
 				AnonymousCreator: false,
@@ -179,7 +179,7 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 			},
 		},
 		"full settings": {
-			Submission: map[string]interface{}{
+			Submission: map[string]any{
 				"setting-anonymous":         true,
 				"setting-anonymous-creator": true,
 				"setting-progress":          true,
@@ -195,7 +195,7 @@ func TestNewSettingsFromSubmission(t *testing.T) {
 			},
 		},
 		"without votes settings": {
-			Submission: map[string]interface{}{
+			Submission: map[string]any{
 				"setting-anonymous":         false,
 				"setting-progress":          false,
 				"setting-public-add-option": false,
@@ -312,8 +312,10 @@ func TestUpdateVote(t *testing.T) {
 			Poll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -323,8 +325,10 @@ func TestUpdateVote(t *testing.T) {
 			ExpectedPoll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -336,8 +340,10 @@ func TestUpdateVote(t *testing.T) {
 			Poll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -347,8 +353,10 @@ func TestUpdateVote(t *testing.T) {
 			ExpectedPoll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -360,8 +368,10 @@ func TestUpdateVote(t *testing.T) {
 			Poll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -371,8 +381,10 @@ func TestUpdateVote(t *testing.T) {
 			ExpectedPoll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -384,8 +396,10 @@ func TestUpdateVote(t *testing.T) {
 			Poll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -395,8 +409,10 @@ func TestUpdateVote(t *testing.T) {
 			ExpectedPoll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -408,8 +424,10 @@ func TestUpdateVote(t *testing.T) {
 			Poll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{"a"},
+					},
 					{Answer: "Answer 2"},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
@@ -419,10 +437,14 @@ func TestUpdateVote(t *testing.T) {
 			ExpectedPoll: poll.Poll{
 				Question: "Question",
 				AnswerOptions: []*poll.AnswerOption{
-					{Answer: "Answer 1",
-						Voter: []string{}},
-					{Answer: "Answer 2",
-						Voter: []string{"a"}},
+					{
+						Answer: "Answer 1",
+						Voter:  []string{},
+					},
+					{
+						Answer: "Answer 2",
+						Voter:  []string{"a"},
+					},
 				},
 				Settings: poll.Settings{MaxVotes: 1},
 			},
@@ -776,7 +798,8 @@ func TestGetMetadata(t *testing.T) {
 				UserID:        "c",
 				CanManagePoll: true,
 				VotedAnswers:  []string{},
-			}},
+			},
+		},
 		"With all settings": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),
@@ -801,7 +824,8 @@ func TestGetMetadata(t *testing.T) {
 				VotedAnswers:           []string{},
 				SettingProgress:        true,
 				SettingPublicAddOption: true,
-			}},
+			},
+		},
 		"Invalid userID": {
 			Poll: poll.Poll{
 				ID: testutils.GetPollID(),
@@ -830,7 +854,8 @@ func TestGetMetadata(t *testing.T) {
 }
 
 func TestHasVoted(t *testing.T) {
-	p1 := &poll.Poll{Question: "Question",
+	p1 := &poll.Poll{
+		Question: "Question",
 		AnswerOptions: []*poll.AnswerOption{
 			{Answer: "Answer 1", Voter: []string{"a"}},
 			{Answer: "Answer 2"},

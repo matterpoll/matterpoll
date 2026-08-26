@@ -63,7 +63,7 @@ func TestLocalizeErrorMessage(t *testing.T) {
 			Message: &i18n.Message{
 				Other: "test message",
 			},
-			Data: map[string]interface{}{},
+			Data: map[string]any{},
 		}
 
 		assert.Equal(t, m.Message.Other, b.LocalizeErrorMessage(l, m))
@@ -75,7 +75,7 @@ func TestLocalizeErrorMessage(t *testing.T) {
 			Message: &i18n.Message{
 				Other: "test message {{.Param1}}, {{.Param2}}",
 			},
-			Data: map[string]interface{}{
+			Data: map[string]any{
 				"Param1": "p1",
 				"Param2": "p2",
 			},
