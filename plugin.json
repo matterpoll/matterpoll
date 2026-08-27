@@ -5,7 +5,6 @@
     "homepage_url": "https://github.com/matterpoll/matterpoll",
     "support_url": "https://github.com/matterpoll/matterpoll/issues",
     "icon_path": "assets/logo_dark.svg",
-    "version": "1.8.0",
     "min_server_version": "8.1.0",
     "server": {
         "executables": {
