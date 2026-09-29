@@ -29,7 +29,7 @@
   },
   "command.error.invalidNumberOfOptions": {
     "hash": "sha1-31287872531872ed11e9ae69975afc1cd2ee09ae",
-    "other": "Anda harus memberikan tanpa jawaban atau minimal dua jawaban."
+    "other": "Anda harus memberikan nol jawaban atau setidaknya dua jawaban."
   },
   "command.help.text.options": {
     "hash": "sha1-0b06ca6a7a2a1e2481ed761fe93eefec7d67079e",
