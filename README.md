@@ -52,6 +52,7 @@ The currently supported languages are:
 - English
 - French
 - German
+- Indonesian
 - Japanese
 - Korean
 - Polish

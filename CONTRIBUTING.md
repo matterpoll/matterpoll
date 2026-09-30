@@ -24,6 +24,7 @@ The localization process is defined below:
 
 - French: [@ldidry](https://github.com/ldidry)
 - German: [@hanzei](https://github.com/hanzei)
+- Indonesian: [@fazelllyyy](https://github.com/fazelllyyy)
 - Japanese: [@kaakaa](https://github.com/kaakaa)
 - Korean: [@potatogim](https://github.com/potatogim)
 - Polish: [@burasuk](https://github.com/burasuk)
