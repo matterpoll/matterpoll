@@ -123,20 +123,35 @@ func (p *MatterpollPlugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r
 }
 
 // serveWithRecovery stops a panicking handler from crashing the plugin process.
-// The server deactivates a plugin that crashes repeatedly.
-func (p *MatterpollPlugin) serveWithRecovery(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if rec := recover(); rec != nil {
-			p.API.LogError("Recovered from panic in HTTP handler",
-				"path", r.URL.Path,
-				"panic", fmt.Sprint(rec),
-				"stack", string(debug.Stack()),
-			)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+func (p *MatterpollPlugin) serveWithRecovery(w *statusRecorder, r *http.Request) {
+	defer p.recoverPanic("Recovered from panic in HTTP handler", func() {
+		// Once the response has started, writing an error would only corrupt it.
+		if w.wroteHeader {
+			return
 		}
-	}()
+		// Drop headers the handler set for a successful response, e.g. Cache-Control.
+		h := w.Header()
+		clear(h)
+		h.Set("X-Content-Type-Options", "nosniff")
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}, "path", r.URL.Path)
 
 	p.router.ServeHTTP(w, r)
+}
+
+// recoverPanic must be called directly by defer. It stops a panic from crashing the plugin process,
+// which the server deactivates if it crashes repeatedly, logs it and then calls onPanic, if set.
+func (p *MatterpollPlugin) recoverPanic(msg string, onPanic func(), keyValuePairs ...any) {
+	rec := recover()
+	if rec == nil {
+		return
+	}
+
+	keyValuePairs = append(keyValuePairs, "panic", fmt.Sprint(rec), "stack", string(debug.Stack()))
+	p.API.LogError(msg, keyValuePairs...)
+	if onPanic != nil {
+		onPanic()
+	}
 }
 
 type statusRecorder struct {
@@ -157,6 +172,14 @@ func (s *statusRecorder) WriteHeader(status int) {
 func (s *statusRecorder) Write(b []byte) (int, error) {
 	s.wroteHeader = true
 	return s.ResponseWriter.Write(b)
+}
+
+// Flush keeps the underlying writer's http.Flusher visible to handlers that type-assert for it.
+func (s *statusRecorder) Flush() {
+	if f, ok := s.ResponseWriter.(http.Flusher); ok {
+		s.wroteHeader = true
+		f.Flush()
+	}
 }
 
 // Unwrap lets http.ResponseController reach the underlying writer.
@@ -493,6 +516,8 @@ func (p *MatterpollPlugin) handleVote(vars map[string]string, request *model.Pos
 // goroutine is tracked in p.backgroundJobs so it can be waited on.
 func (p *MatterpollPlugin) publishPollMetadataAsync(poll *poll.Poll, userID string) {
 	p.backgroundJobs.Go(func() {
+		// A panic here happens after the HTTP handler returned, so serveWithRecovery can't catch it.
+		defer p.recoverPanic("Recovered from panic while publishing poll metadata", nil, "userID", userID)
 		p.publishPollMetadata(poll, userID)
 	})
 }

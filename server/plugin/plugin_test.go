@@ -26,6 +26,7 @@ func setupTestPlugin(_ *testing.T, api *plugintest.API, store *mockstore.Store) 
 	p.SetAPI(api)
 	p.botUserID = testutils.GetBotUserID()
 	api.On("GetConfig").Return(testutils.GetServerConfig()).Maybe()
+	api.On("LogDebug", append([]any{"Handled request"}, testutils.GetMockArgumentsWithType("string", 10)...)...).Return().Maybe()
 	api.On("GetBundlePath").Return(".", nil)
 	p.bundle, _ = utils.InitBundle(api, ".")
 	p.Store = store
