@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,7 +35,7 @@ func TestServeHTTP(t *testing.T) {
 		"Request info": {
 			RequestURL:         "/",
 			ExpectedStatusCode: http.StatusOK,
-			ExpectedHeader:     http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}},
+			ExpectedHeader:     http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}, "X-Content-Type-Options": []string{"nosniff"}},
 			ExpectedbodyString: infoMessage + root.Manifest.Version + "\n",
 		},
 		"InvalidRequestURL": {
@@ -48,7 +49,7 @@ func TestServeHTTP(t *testing.T) {
 			assert := assert.New(t)
 
 			api := &plugintest.API{}
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
@@ -69,6 +70,43 @@ func TestServeHTTP(t *testing.T) {
 			assert.Equal(test.ExpectedHeader, result.Header)
 		})
 	}
+}
+
+func TestServeHTTPRecoversFromPanic(t *testing.T) {
+	api := &plugintest.API{}
+	api.On("LogError", "Recovered from panic in HTTP handler", "path", "/panic", "panic", "boom", "stack", mock.AnythingOfType("string")).Return().Once()
+	api.On("LogDebug", "Handled request", "method", http.MethodGet, "path", "/panic", "status", "500", "duration", mock.AnythingOfType("string"), "user_id", "userID1").Return().Once()
+	defer api.AssertExpectations(t)
+	p := setupTestPlugin(t, api, &mockstore.Store{})
+	p.router.HandleFunc("/panic", func(http.ResponseWriter, *http.Request) {
+		panic("boom")
+	})
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/panic?token=secret", nil)
+	r.Header.Set("Mattermost-User-ID", "userID1")
+	p.ServeHTTP(nil, w, r)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, "nosniff", w.Header().Get("X-Content-Type-Options"))
+}
+
+func TestServeHTTPLimitsRequestBody(t *testing.T) {
+	api := &plugintest.API{}
+	api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
+	defer api.AssertExpectations(t)
+	p := setupTestPlugin(t, api, &mockstore.Store{})
+	var readErr error
+	p.router.HandleFunc("/echo", func(_ http.ResponseWriter, r *http.Request) {
+		_, readErr = io.ReadAll(r.Body)
+	})
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodPost, "/echo", strings.NewReader(strings.Repeat("a", maxRequestBodyBytes+1)))
+	p.ServeHTTP(nil, w, r)
+
+	var maxBytesErr *http.MaxBytesError
+	assert.ErrorAs(t, readErr, &maxBytesErr)
 }
 
 func TestServeFile(t *testing.T) {
@@ -100,7 +138,7 @@ func TestServeFile(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
@@ -118,7 +156,7 @@ func TestServeFile(t *testing.T) {
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if test.ShouldError {
 				assert.Equal([]byte{}, bodyBytes)
-				assert.Equal(http.Header{}, result.Header)
+				assert.Equal(http.Header{"X-Content-Type-Options": []string{"nosniff"}}, result.Header)
 			} else {
 				assert.NotNil(bodyBytes)
 				assert.Contains([]string{"image/png"}, result.Header.Get("Content-Type"))
@@ -142,7 +180,7 @@ func TestHandlePluginConfiguration(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			defer api.AssertExpectations(t)
 			p := setupTestPlugin(t, api, &mockstore.Store{})
 
@@ -161,7 +199,7 @@ func TestHandlePluginConfiguration(t *testing.T) {
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if test.ShouldError {
 				assert.Equal([]byte{}, bodyBytes)
-				assert.Equal(http.Header{}, result.Header)
+				assert.Equal(http.Header{"X-Content-Type-Options": []string{"nosniff"}}, result.Header)
 			} else {
 				assert.NotNil(bodyBytes)
 				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
@@ -182,7 +220,7 @@ func TestHandleCreatePoll(t *testing.T) {
 
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
@@ -527,7 +565,7 @@ func TestHandleCreatePoll(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -571,7 +609,8 @@ func TestHandleCreatePoll(t *testing.T) {
 
 			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 			}
 		})
@@ -592,7 +631,7 @@ func TestHandleVote(t *testing.T) {
 
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
@@ -933,7 +972,7 @@ func TestHandleVote(t *testing.T) {
 				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
-				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 7)...).Return().Maybe()
+				api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 11)...).Return().Maybe()
 				api.On("PublishWebSocketEvent", "has_voted", map[string]any{
 					"voted_answers":             []string{"Answer 2"},
 					"poll_id":                   testutils.GetPollID(),
@@ -1055,7 +1094,7 @@ func TestHandleVote(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -1101,7 +1140,8 @@ func TestHandleVote(t *testing.T) {
 
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 				require.NotNil(t, response)
 				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
@@ -1130,7 +1170,7 @@ func TestHandleResetVotes(t *testing.T) {
 
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
@@ -1364,7 +1404,7 @@ func TestHandleResetVotes(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -1409,7 +1449,8 @@ func TestHandleResetVotes(t *testing.T) {
 
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 				require.NotNil(t, response)
 				assert.Equal(test.ExpectedResponse.EphemeralText, response.EphemeralText)
@@ -1430,7 +1471,7 @@ func TestHandleAddOption(t *testing.T) {
 
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: userID, PostId: "postID1", TriggerId: triggerID}
@@ -1684,7 +1725,7 @@ func TestHandleAddOption(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -1726,7 +1767,8 @@ func TestHandleAddOption(t *testing.T) {
 
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 				assert.Equal(response, &model.PostActionIntegrationResponse{})
 			} else {
@@ -1754,7 +1796,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", TeamId: "teamID1"}
@@ -2118,7 +2160,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -2159,7 +2201,8 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			assert.Equal(test.ExpectedResponse, response)
 			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 			}
 		})
@@ -2169,7 +2212,7 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 func TestHandleEndPoll(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{UserId: "userID1", ChannelId: "channelID1", PostId: "postID1"}
@@ -2418,7 +2461,7 @@ func TestHandleEndPoll(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -2460,7 +2503,8 @@ func TestHandleEndPoll(t *testing.T) {
 
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 				assert.Equal(response, &model.PostActionIntegrationResponse{})
 			} else {
@@ -2473,7 +2517,7 @@ func TestHandleEndPoll(t *testing.T) {
 func TestHandleEndPollConfirm(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.SubmitDialogRequest{}
@@ -2703,7 +2747,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -2746,7 +2790,8 @@ func TestHandleEndPollConfirm(t *testing.T) {
 			assert.Equal(test.ExpectedResponse, response)
 			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 			}
 		})
@@ -2790,7 +2835,7 @@ func TestPostEndPollAnnouncement(t *testing.T) {
 func TestHandleDeletePoll(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.PostActionIntegrationRequest{}
@@ -3038,7 +3083,7 @@ func TestHandleDeletePoll(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -3080,7 +3125,8 @@ func TestHandleDeletePoll(t *testing.T) {
 
 			if result.StatusCode == http.StatusOK {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 				assert.Equal(response, &model.PostActionIntegrationResponse{})
 			} else {
@@ -3093,7 +3139,7 @@ func TestHandleDeletePoll(t *testing.T) {
 func TestHandleDeletePollConfirm(t *testing.T) {
 	t.Run("not-authorized", func(t *testing.T) {
 		api := &plugintest.API{}
-		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+		api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 		defer api.AssertExpectations(t)
 		p := setupTestPlugin(t, api, &mockstore.Store{})
 		request := &model.SubmitDialogRequest{}
@@ -3294,7 +3340,7 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			if test.ExpectedMsg != "" {
 				ephemeralPost := &model.Post{
@@ -3335,7 +3381,8 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			assert.Equal(test.ExpectedResponse, response)
 			if test.ExpectedResponse != nil {
 				assert.Equal(http.Header{
-					"Content-Type": []string{"application/json"},
+					"Content-Type":           []string{"application/json"},
+					"X-Content-Type-Options": []string{"nosniff"},
 				}, result.Header)
 			}
 		})
@@ -3421,7 +3468,7 @@ func TestHandlePollMetadata(t *testing.T) {
 			assert := assert.New(t)
 
 			api := test.SetupAPI(&plugintest.API{})
-			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 7)...).Return()
+			api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
 			api.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...).Return().Maybe()
 			defer api.AssertExpectations(t)
 			store := test.SetupStore(&mockstore.Store{})
@@ -3443,7 +3490,7 @@ func TestHandlePollMetadata(t *testing.T) {
 			assert.Equal(test.ExpectedStatusCode, result.StatusCode)
 			if test.ShouldError {
 				assert.Equal([]byte{}, bodyBytes)
-				assert.Equal(http.Header{}, result.Header)
+				assert.Equal(http.Header{"X-Content-Type-Options": []string{"nosniff"}}, result.Header)
 			} else {
 				assert.Contains([]string{"application/json"}, result.Header.Get("Content-Type"))
 				b := new(bytes.Buffer)
