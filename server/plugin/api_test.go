@@ -72,62 +72,66 @@ func TestServeHTTP(t *testing.T) {
 }
 
 func TestServeHTTPRecoversFromPanic(t *testing.T) {
-	api := &plugintest.API{}
-	api.On("LogError", "Recovered from panic in HTTP handler", "path", "/panic", "panic", "boom", "stack", mock.AnythingOfType("string")).Return().Once()
-	api.On("LogDebug", "Handled request", "method", http.MethodGet, "path", "/panic", "status", "500", "duration", mock.AnythingOfType("string"), "user_id", "userID1").Return().Once()
-	defer api.AssertExpectations(t)
-	p := setupTestPlugin(t, api, &mockstore.Store{})
-	p.router.HandleFunc("/panic", func(http.ResponseWriter, *http.Request) {
-		panic("boom")
+	setupPanicPlugin := func(t *testing.T, api *plugintest.API, handler http.HandlerFunc) *MatterpollPlugin {
+		p := setupTestPlugin(t, api, &mockstore.Store{})
+		p.router.HandleFunc("/panic", handler)
+		return p
+	}
+
+	t.Run("before the response is written", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogError", "Recovered from panic in HTTP handler", "path", "/panic", "panic", "boom", "stack", mock.AnythingOfType("string")).Return().Once()
+		api.On("LogDebug", "Handled request", "method", http.MethodGet, "path", "/panic", "status", "500", "duration", mock.AnythingOfType("string"), "user_id", "userID1").Return().Once()
+		defer api.AssertExpectations(t)
+		p := setupPanicPlugin(t, api, func(http.ResponseWriter, *http.Request) {
+			panic("boom")
+		})
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "/panic?token=secret", nil)
+		r.Header.Set("Mattermost-User-ID", "userID1")
+		p.ServeHTTP(nil, w, r)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, "nosniff", w.Header().Get("X-Content-Type-Options"))
 	})
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/panic?token=secret", nil)
-	r.Header.Set("Mattermost-User-ID", "userID1")
-	p.ServeHTTP(nil, w, r)
+	t.Run("after the response is written", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogError", "Recovered from panic in HTTP handler", "path", "/panic", "panic", "boom", "stack", mock.AnythingOfType("string")).Return().Once()
+		api.On("LogDebug", "Handled request", "method", http.MethodGet, "path", "/panic", "status", "200", "duration", mock.AnythingOfType("string"), "user_id", "").Return().Once()
+		defer api.AssertExpectations(t)
+		p := setupPanicPlugin(t, api, func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Cache-Control", "public, max-age=604800")
+			_, _ = io.WriteString(w, "ok")
+			panic("boom")
+		})
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, "nosniff", w.Header().Get("X-Content-Type-Options"))
-}
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "/panic", nil)
+		p.ServeHTTP(nil, w, r)
 
-func TestServeHTTPRecoversFromPanicAfterResponseStarted(t *testing.T) {
-	api := &plugintest.API{}
-	api.On("LogError", "Recovered from panic in HTTP handler", "path", "/panic", "panic", "boom", "stack", mock.AnythingOfType("string")).Return().Once()
-	api.On("LogDebug", "Handled request", "method", http.MethodGet, "path", "/panic", "status", "200", "duration", mock.AnythingOfType("string"), "user_id", "").Return().Once()
-	defer api.AssertExpectations(t)
-	p := setupTestPlugin(t, api, &mockstore.Store{})
-	p.router.HandleFunc("/panic", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=604800")
-		_, _ = io.WriteString(w, "ok")
-		panic("boom")
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, "ok", w.Body.String())
 	})
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/panic", nil)
-	p.ServeHTTP(nil, w, r)
+	t.Run("drops headers set by the handler", func(t *testing.T) {
+		api := &plugintest.API{}
+		api.On("LogError", testutils.GetMockArgumentsWithType("string", 7)...).Return().Once()
+		defer api.AssertExpectations(t)
+		p := setupPanicPlugin(t, api, func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Cache-Control", "public, max-age=604800")
+			panic("boom")
+		})
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "ok", w.Body.String())
-}
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "/panic", nil)
+		p.ServeHTTP(nil, w, r)
 
-func TestServeHTTPRecoversFromPanicDropsHandlerHeaders(t *testing.T) {
-	api := &plugintest.API{}
-	api.On("LogError", testutils.GetMockArgumentsWithType("string", 7)...).Return().Once()
-	api.On("LogDebug", testutils.GetMockArgumentsWithType("string", 11)...).Return()
-	defer api.AssertExpectations(t)
-	p := setupTestPlugin(t, api, &mockstore.Store{})
-	p.router.HandleFunc("/panic", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=604800")
-		panic("boom")
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Empty(t, w.Header().Get("Cache-Control"))
+		assert.Equal(t, "nosniff", w.Header().Get("X-Content-Type-Options"))
 	})
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/panic", nil)
-	p.ServeHTTP(nil, w, r)
-
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Empty(t, w.Header().Get("Cache-Control"))
-	assert.Equal(t, "nosniff", w.Header().Get("X-Content-Type-Options"))
 }
 
 func TestServeHTTPLimitsRequestBody(t *testing.T) {
