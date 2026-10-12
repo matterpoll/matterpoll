@@ -14,4 +14,4 @@ permissions:
 
 jobs:
   plugin-cd:
-    uses: mattermost/actions-workflows/.github/workflows/community-plugin-cd.yml@86a78bd5bf6e009254bd0e23e316601d9d0db472
+    uses: mattermost/actions-workflows/.github/workflows/community-plugin-cd.yml@272673760d066687d90a736efe61ed68c8644e2e
