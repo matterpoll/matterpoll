@@ -551,6 +551,16 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
 	}
 
+	if !poll.Settings.PublicAddOption {
+		canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
+		if appErr != nil {
+			return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to check permission")
+		}
+		if !canManagePoll {
+			return responseAddOptionInvalidPermission, nil, nil
+		}
+	}
+
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
 	if appErr != nil {
 		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to get display name for creator")
@@ -649,6 +659,14 @@ func (p *MatterpollPlugin) handleEndPollConfirm(vars map[string]string, request 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+	}
+
+	canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
+	if appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to check permission")
+	}
+	if !canManagePoll {
+		return responseEndPollInvalidPermission, nil, nil
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
@@ -751,6 +769,14 @@ func (p *MatterpollPlugin) handleDeletePollConfirm(vars map[string]string, reque
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+	}
+
+	canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
+	if appErr != nil {
+		return commandErrorGeneric, nil, errors.Wrap(appErr, "failed to check permission")
+	}
+	if !canManagePoll {
+		return responseDeletePollInvalidPermission, nil, nil
 	}
 
 	var postID string

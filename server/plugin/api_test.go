@@ -1804,6 +1804,16 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 	expectedPost3.AddProp("card", poll3Out.ToCard(testutils.GetBundle(), converter))
 	model.ParseMessageAttachment(expectedPost3, poll3Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
 
+	poll4In := testutils.GetPollWithVotesAndSettings(poll.Settings{PublicAddOption: true})
+	poll4In.PostID = postID
+	poll4Out := poll4In.Copy()
+	err = poll4Out.AddAnswerOption("New Option")
+	require.Nil(t, err)
+	expectedPost4 := &model.Post{
+		ChannelId: channelID,
+	}
+	model.ParseMessageAttachment(expectedPost4, poll4Out.ToPostActions(testutils.GetBundle(), root.Manifest.Id, "John Doe"))
+
 	for name, test := range map[string]struct {
 		SetupAPI           func(*plugintest.API) *plugintest.API
 		SetupStore         func(*mockstore.Store) *mockstore.Store
@@ -2015,6 +2025,78 @@ func TestHandleAddOptionConfirm(t *testing.T) {
 			},
 			Request: &model.SubmitDialogRequest{
 				UserId:     userID,
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]any{
+					"answerOption": "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Invalid request, user is neither creator nor System Admin": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost1, nil)
+				api.On("HasPermissionToChannel", "userID2", channelID, model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "jhDoe2", Roles: model.SystemUserRoleId}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll1In.Copy(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID2",
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]any{
+					"answerOption": "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Only the creator of a poll and System Admins are allowed to add options.",
+		},
+		"Valid request, user is neither creator nor System Admin but PublicAddOption is set": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost4, nil)
+				api.On("HasPermissionToChannel", "userID2", channelID, model.PermissionReadChannel).Return(true)
+				api.On("GetUser", userID).Return(&model.User{FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "jhDoe2", Roles: model.SystemUserRoleId}, nil)
+				api.On("UpdatePost", expectedPost4).Return(expectedPost4, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll4In.Copy(), nil)
+				store.PollStore.On("Update", poll4In, poll4Out).Return(nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID2",
+				CallbackId: postID,
+				ChannelId:  channelID,
+				Submission: map[string]any{
+					"answerOption": "New Option",
+				},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Successfully added the option.",
+		},
+		"Invalid request, CanManagePoll fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", postID).Return(expectedPost1, nil)
+				api.On("HasPermissionToChannel", "userID2", channelID, model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(poll1In.Copy(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID2",
 				CallbackId: postID,
 				ChannelId:  channelID,
 				Submission: map[string]any{
@@ -2587,7 +2669,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 		"Valid request, GetUser fails for voter": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetPost", "postID1").Return(post, nil)
-				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1"}, nil)
 				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
 				return api
@@ -2596,7 +2678,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
 				return store
 			},
-			Request:            &model.SubmitDialogRequest{UserId: "userID2", ChannelId: "channelID1", CallbackId: "postID1", TeamId: "teamID1"},
+			Request:            &model.SubmitDialogRequest{UserId: "userID1", ChannelId: "channelID1", CallbackId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   nil,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
@@ -2604,7 +2686,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 		"Valid request, UpdatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetPost", "postID1").Return(post, nil)
-				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
@@ -2616,7 +2698,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
 				return store
 			},
-			Request:            &model.SubmitDialogRequest{UserId: "userID2", ChannelId: "channelID1", CallbackId: "postID1", TeamId: "teamID1"},
+			Request:            &model.SubmitDialogRequest{UserId: "userID1", ChannelId: "channelID1", CallbackId: "postID1", TeamId: "teamID1"},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse:   nil,
 			ExpectedMsg:        "Something went wrong. Please try again later.",
@@ -2624,7 +2706,7 @@ func TestHandleEndPollConfirm(t *testing.T) {
 		"Valid request, PollStore.Delete fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetPost", "postID1").Return(post, nil)
-				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("HasPermissionToChannel", "userID1", "channelID1", model.PermissionReadChannel).Return(true)
 				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
 				api.On("GetUser", "userID2").Return(&model.User{Username: "user2"}, nil)
 				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
@@ -2635,6 +2717,60 @@ func TestHandleEndPollConfirm(t *testing.T) {
 			SetupStore: func(store *mockstore.Store) *mockstore.Store {
 				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
 				store.PollStore.On("Delete", testutils.GetPollWithVotes()).Return(&model.AppError{})
+				return store
+			},
+			Request:            &model.SubmitDialogRequest{UserId: "userID1", ChannelId: "channelID1", CallbackId: "postID1", TeamId: "teamID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Invalid request, user is neither creator nor System Admin": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SystemUserRoleId}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				return store
+			},
+			Request:            &model.SubmitDialogRequest{UserId: "userID2", ChannelId: "channelID1", CallbackId: "postID1", TeamId: "teamID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Only the creator of a poll and System Admins are allowed to end it.",
+		},
+		"Valid request, user is System Admin": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID1").Return(&model.User{Username: "user1", FirstName: "John", LastName: "Doe"}, nil)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SystemAdminRoleId + " " + model.SystemUserRoleId}, nil)
+				api.On("GetUser", "userID3").Return(&model.User{Username: "user3"}, nil)
+				api.On("GetUser", "userID4").Return(&model.User{Username: "user4"}, nil)
+				api.On("UpdatePost", expectedPost).Return(nil, nil)
+				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
+				store.PollStore.On("Delete", testutils.GetPollWithVotes()).Return(nil)
+				return store
+			},
+			Request:            &model.SubmitDialogRequest{UserId: "userID2", ChannelId: "channelID1", CallbackId: "postID1", TeamId: "teamID1"},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "",
+		},
+		"Invalid request, CanManagePoll fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPollWithVotes(), nil)
 				return store
 			},
 			Request:            &model.SubmitDialogRequest{UserId: "userID2", ChannelId: "channelID1", CallbackId: "postID1", TeamId: "teamID1"},
@@ -3205,6 +3341,71 @@ func TestHandleDeletePollConfirm(t *testing.T) {
 			},
 			Request: &model.SubmitDialogRequest{
 				UserId:     "userID1",
+				CallbackId: "postID1",
+				ChannelId:  "channelID1",
+				Submission: map[string]any{},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Something went wrong. Please try again later.",
+		},
+		"Invalid request, user is neither creator nor System Admin": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SystemUserRoleId}, nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID2",
+				CallbackId: "postID1",
+				ChannelId:  "channelID1",
+				Submission: map[string]any{},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Only the creator of a poll and System Admins are allowed to delete it.",
+		},
+		"Valid request, user is System Admin": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID2").Return(&model.User{Username: "user2", Roles: model.SystemAdminRoleId + " " + model.SystemUserRoleId}, nil)
+				api.On("DeletePost", "postID1").Return(nil)
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				store.PollStore.On("Delete", testutils.GetPoll()).Return(nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID2",
+				CallbackId: "postID1",
+				ChannelId:  "channelID1",
+				Submission: map[string]any{},
+			},
+			ExpectedStatusCode: http.StatusOK,
+			ExpectedResponse:   nil,
+			ExpectedMsg:        "Successfully deleted the poll.",
+		},
+		"Invalid request, CanManagePoll fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetPost", "postID1").Return(post, nil)
+				api.On("HasPermissionToChannel", "userID2", "channelID1", model.PermissionReadChannel).Return(true)
+				api.On("GetUser", "userID2").Return(nil, &model.AppError{})
+				return api
+			},
+			SetupStore: func(store *mockstore.Store) *mockstore.Store {
+				store.PollStore.On("Get", testutils.GetPollID()).Return(testutils.GetPoll(), nil)
+				return store
+			},
+			Request: &model.SubmitDialogRequest{
+				UserId:     "userID2",
 				CallbackId: "postID1",
 				ChannelId:  "channelID1",
 				Submission: map[string]any{},
