@@ -580,6 +580,29 @@ func (p *MatterpollPlugin) handleResetVotes(vars map[string]string, request *mod
 	}, post, nil
 }
 
+// checkManagePoll checks whether userID may manage poll. It returns nil if they may. Otherwise it
+// returns the message to show them: denied if they lack permission, or commandErrorGeneric along
+// with an error if the permission check failed.
+func (p *MatterpollPlugin) checkManagePoll(poll *poll.Poll, userID string, denied *i18n.Message) (*i18n.Message, error) {
+	canManagePoll, appErr := p.CanManagePoll(poll, userID)
+	if appErr != nil {
+		return commandErrorGeneric, errors.Wrap(appErr, "failed to check permission")
+	}
+	if !canManagePoll {
+		return denied, nil
+	}
+	return nil, nil
+}
+
+// checkAddOption is like checkManagePoll, but lets every user add options to a poll that has
+// PublicAddOption set.
+func (p *MatterpollPlugin) checkAddOption(poll *poll.Poll, userID string) (*i18n.Message, error) {
+	if poll.Settings.PublicAddOption {
+		return nil, nil
+	}
+	return p.checkManagePoll(poll, userID, responseAddOptionInvalidPermission)
+}
+
 func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *model.PostActionIntegrationRequest) (*i18n.LocalizeConfig, *model.Post, error) {
 	pollID := vars["id"]
 	userLocalizer := p.bundle.GetUserLocalizer(request.UserId)
@@ -589,14 +612,8 @@ func (p *MatterpollPlugin) handleAddOption(vars map[string]string, request *mode
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	if !poll.Settings.PublicAddOption {
-		canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
-		if appErr != nil {
-			return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
-		}
-		if !canManagePoll {
-			return &i18n.LocalizeConfig{DefaultMessage: responseAddOptionInvalidPermission}, nil, nil
-		}
+	if msg, permErr := p.checkAddOption(poll, request.UserId); msg != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: msg}, nil, permErr
 	}
 
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
@@ -638,6 +655,10 @@ func (p *MatterpollPlugin) handleAddOptionConfirm(vars map[string]string, reques
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+	}
+
+	if msg, permErr := p.checkAddOption(poll, request.UserId); msg != nil {
+		return msg, nil, permErr
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
@@ -700,12 +721,8 @@ func (p *MatterpollPlugin) handleEndPoll(vars map[string]string, request *model.
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
-	if appErr != nil {
-		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
-	}
-	if !canManagePoll {
-		return &i18n.LocalizeConfig{DefaultMessage: responseEndPollInvalidPermission}, nil, nil
+	if msg, permErr := p.checkManagePoll(poll, request.UserId, responseEndPollInvalidPermission); msg != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: msg}, nil, permErr
 	}
 
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
@@ -738,6 +755,10 @@ func (p *MatterpollPlugin) handleEndPollConfirm(vars map[string]string, request 
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+	}
+
+	if msg, permErr := p.checkManagePoll(poll, request.UserId, responseEndPollInvalidPermission); msg != nil {
+		return msg, nil, permErr
 	}
 
 	displayName, appErr := p.ConvertCreatorIDToDisplayName(poll.Creator)
@@ -801,12 +822,8 @@ func (p *MatterpollPlugin) handleDeletePoll(vars map[string]string, request *mod
 		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(err, "failed to get poll")
 	}
 
-	canManagePoll, appErr := p.CanManagePoll(poll, request.UserId)
-	if appErr != nil {
-		return &i18n.LocalizeConfig{DefaultMessage: commandErrorGeneric}, nil, errors.Wrap(appErr, "failed to check permission")
-	}
-	if !canManagePoll {
-		return &i18n.LocalizeConfig{DefaultMessage: responseDeletePollInvalidPermission}, nil, nil
+	if msg, permErr := p.checkManagePoll(poll, request.UserId, responseDeletePollInvalidPermission); msg != nil {
+		return &i18n.LocalizeConfig{DefaultMessage: msg}, nil, permErr
 	}
 
 	siteURL := *p.ServerConfig.ServiceSettings.SiteURL
@@ -840,6 +857,10 @@ func (p *MatterpollPlugin) handleDeletePollConfirm(vars map[string]string, reque
 	poll, err := p.Store.Poll().Get(pollID)
 	if err != nil {
 		return commandErrorGeneric, nil, errors.Wrap(err, "failed to get poll")
+	}
+
+	if msg, permErr := p.checkManagePoll(poll, request.UserId, responseDeletePollInvalidPermission); msg != nil {
+		return msg, nil, permErr
 	}
 
 	var postID string
